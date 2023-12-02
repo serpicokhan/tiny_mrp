@@ -75,28 +75,94 @@
                           <h5 class="card-title">عنوان محتوا</h5>
                           <div class="row">
                             <!-- Column 1 -->
+                            {% for i in shifts %}
+                            
+                              {% if forloop.counter == 1 %}
                             <div class="col-md-4">
-                              <h3>Column 1</h3>
+
+                              <h3>{{i.name}}</h3>
                               <div class="table-responsive">
                                 <table class="table table-bordered table-striped company-table" >
                                   <thead>
                                     <tr>
-                                      <td>#</td>
                                       <th>نام ماشین</th>
                                       <th>نمره</th>
-                                      <th>شماره کنتور</th>
+                                      <th> کنتور</th>
                                       <th>تولید</th>
+
                                     </tr>
                                   </thead>
                                   <tbody>
                                     {% for c in machines %}
                                     <tr>
-                                      <td>{{forloop.counter}}</td>
-                                      <td>{{c.machine}}</td>
+                                      <td>{{c.machine.assetName}}</td>
                                       <td contenteditable="true" class="editable-cell nomre selectable1"></td>
                                       <td contenteditable="true" class="editable-cell counter selectable1"></td>
 
                                       <td contenteditable="true" data-formula="{{c.formula}}"></td>
+                                      
+                                    </tr>
+                                    {% endfor %}
+                                    <!-- Add more rows as needed -->
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                            {% else %}
+                            <div class="col-md-3">
+
+                              <h3>{{i.name}}</h3>
+                              <div class="table-responsive">
+                                <table class="table table-bordered table-striped company-table" >
+                                  <thead>
+                                    <tr>
+                                      
+                                      <th>نمره</th>
+                                      <th>شماره کنتور</th>
+                                      <th>تولید</th>
+
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {% for c in machines %}
+                                    <tr data-machine={{c.machine.id}}>
+                                      
+                                      <td contenteditable="true" class="editable-cell nomre selectable1"></td>
+                                      <td contenteditable="true" class="editable-cell counter selectable1"></td>
+
+                                      <td contenteditable="true" data-formula="{{c.formula}}"></td>
+                                      
+                                    </tr>
+                                    {% endfor %}
+                                    <!-- Add more rows as needed -->
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                            <div class="col-md-2">
+
+                             <h3 >123</h3>
+
+                              <div class="table-responsive">
+                                <table class="table table-bordered table-striped company-table" >
+                                  <thead>
+                                    <tr>
+                                      
+                                      <th>سرعت</th>
+                                      <th>تولید 100%</th>
+                                      
+
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {% for c in machines %}
+                                      
+                                      <td contenteditable="true" class="editable-cell nomre selectable1"></td>
+                                      <td contenteditable="true" class="editable-cell counter selectable1"></td>
+
+                                      
                                     </tr>
                                     {% endfor %}
                                     <!-- Add more rows as needed -->
@@ -105,75 +171,18 @@
                               </div>
                             </div>
 
-                            <!-- Column 2 -->
-                            <!-- <div class="col-md-4">
-                              <h3>Column 2</h3>
-                              <div class="table-responsive">
-                                <table class="table table-bordered">
-                                  <thead>
-                                    <tr>
-                                      <th>Name</th>
-                                      <th>Counter</th>
-                                      <th>Value</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr contenteditable="true">
-                                      <td>Editable</td>
-                                      <td>Editable</td>
-                                      <td>Editable</td>
-                                    </tr>
-                                    <tr contenteditable="true">
-                                      <td>Editable</td>
-                                      <td>Editable</td>
-                                      <td>Editable</td>
-                                    </tr>
-                                    <!-- Add more rows as needed -->
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div> -->
-
-                            <!-- Column 3 -->
-                            <!-- <div class="col-md-4">
-                              <h3>Column 3</h3>
-                              <div class="table-responsive">
-                                <table class="table table-bordered">
-                                  <thead>
-                                    <tr>
-                                      <th>Name</th>
-                                      <th>Counter</th>
-                                      <th>Value</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr contenteditable="true">
-                                      <td>Editable</td>
-                                      <td>Editable</td>
-                                      <td>Editable</td>
-                                    </tr>
-                                    <tr contenteditable="true">
-                                      <td>Editable</td>
-                                      <td>Editable</td>
-                                      <td>Editable</td>
-                                    </tr>
-                                    <!-- Add more rows as needed -->
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div> -->
+                           
 
                           </div>
                         </div>
-
+                      </div>
                         <!-- end::app-lists -->
 
                         <!-- begin:app-detail -->
 
-                    </div>
-
-                </div>
+                    
             </div>
+          </div>
 
 
 {% endblock %}

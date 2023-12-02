@@ -2,6 +2,12 @@ from django.db import models
 from mrp.models.asset import Asset
 import jdatetime
 import ast
+
+class Shift(models.Model):
+    name = models.CharField(max_length=255)
+    class Meta:
+        db_table="shift"
+
 class Formula(models.Model):
     machine = models.OneToOneField(Asset, on_delete=models.CASCADE)
     formula = models.CharField(max_length=255)
@@ -11,10 +17,12 @@ class Formula(models.Model):
     class Meta:
         db_table="formula"
 class DailyProduction(models.Model):
-    machine = models.ForeignKey(Asset, on_delete=models.CASCADE)
+    machine = models.ForeignKey(Asset, on_delete=models.CASCADE,related_name="dailyproduction_machine")
+    shift = models.ForeignKey(Shift, on_delete=models.CASCADE,related_name="dailyproduction_shift")
     dayOfIssue = models.DateField()
     timestamp = models.DateTimeField(auto_now_add=True)
     register_user = models.CharField(max_length=100)
+    speed=models.IntegerField(default=0)
     nomre = models.FloatField()
     counter = models.IntegerField()
     production_value = models.IntegerField(blank=True, null=True)  # Result of the formula
