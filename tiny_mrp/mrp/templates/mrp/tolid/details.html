@@ -1,0 +1,176 @@
+{% extends 'mrp/blank-page.html' %}
+{% block content %}
+<div class="row app-block">
+
+                <div class="col-md-12 app-content">
+                    <div></div>
+                    <div class="app-action">
+                        <div class="action-left">
+                            <div class="custom-control custom-checkbox mr-3">
+                                <input type="checkbox" class="custom-control-input" id="customCheckAll">
+                                <label class="custom-control-label" for="customCheckAll"></label>
+                            </div>
+                            <ul class="list-inline">
+                                <li class="list-inline-item mb-0">
+                                    <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown">
+                                        انتخاب بر اساس
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">خوانده شده</a>
+                                        <a class="dropdown-item" href="#">خوانده نشده</a>
+                                        <a class="dropdown-item" href="#">اسپم</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger" href="#">حذف</a>
+                                    </div>
+                                </li>
+                                <li class="list-inline-item mb-0">
+                                    <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown">
+چینش                                     </a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" href="#">تاریخ</a>
+                                        <a class="dropdown-item" href="#">از</a>
+                                        <a class="dropdown-item" href="#">موضوغ</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#">اندازه</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="action-right">
+                            <form class="d-flex mr-3">
+                                <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu width-15 height-15"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                                </a>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="جستجو ایمیل" aria-describedby="button-addon1">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-light" type="button" id="button-addon1">
+                                            <i class="ti-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="app-pager d-flex align-items-center">
+                                <div class="mr-3">1-50 از 253</div>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination">
+                                        <li class="page-item">
+                                            <a class="page-link" href="#" aria-label="Previous">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-left width-15 height-15"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="#" aria-label="Next">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right width-15 height-15"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card card-body app-content-body">
+
+                        <div class="card-body">
+                          <h5 class="card-title">عنوان محتوا</h5>
+                          <div class="row">
+                            <!-- Column 1 -->
+                            <div class="col-md-4">
+                              <h3>Column 1</h3>
+                              <div class="table-responsive">
+                                <table class="table table-bordered">
+                                  <thead>
+                                    <tr>
+                                      <th>Name</th>
+                                      <th>Counter</th>
+                                      <th>Value</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr contenteditable="true">
+                                      <td>Editable</td>
+                                      <td>Editable</td>
+                                      <td>Editable</td>
+                                    </tr>
+                                    <tr contenteditable="true">
+                                      <td>Editable</td>
+                                      <td>Editable</td>
+                                      <td>Editable</td>
+                                    </tr>
+                                    <!-- Add more rows as needed -->
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+
+                            <!-- Column 2 -->
+                            <div class="col-md-4">
+                              <h3>Column 2</h3>
+                              <div class="table-responsive">
+                                <table class="table table-bordered">
+                                  <thead>
+                                    <tr>
+                                      <th>Name</th>
+                                      <th>Counter</th>
+                                      <th>Value</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr contenteditable="true">
+                                      <td>Editable</td>
+                                      <td>Editable</td>
+                                      <td>Editable</td>
+                                    </tr>
+                                    <tr contenteditable="true">
+                                      <td>Editable</td>
+                                      <td>Editable</td>
+                                      <td>Editable</td>
+                                    </tr>
+                                    <!-- Add more rows as needed -->
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+
+                            <!-- Column 3 -->
+                            <div class="col-md-4">
+                              <h3>Column 3</h3>
+                              <div class="table-responsive">
+                                <table class="table table-bordered">
+                                  <thead>
+                                    <tr>
+                                      <th>Name</th>
+                                      <th>Counter</th>
+                                      <th>Value</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr contenteditable="true">
+                                      <td>Editable</td>
+                                      <td>Editable</td>
+                                      <td>Editable</td>
+                                    </tr>
+                                    <tr contenteditable="true">
+                                      <td>Editable</td>
+                                      <td>Editable</td>
+                                      <td>Editable</td>
+                                    </tr>
+                                    <!-- Add more rows as needed -->
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+
+                        <!-- end::app-lists -->
+
+                        <!-- begin:app-detail -->
+
+                    </div>
+
+                </div>
+            </div>
+
+{% endblock %}
