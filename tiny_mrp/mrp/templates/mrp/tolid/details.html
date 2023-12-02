@@ -78,25 +78,27 @@
                             <div class="col-md-4">
                               <h3>Column 1</h3>
                               <div class="table-responsive">
-                                <table class="table table-bordered">
+                                <table class="table table-bordered table-striped company-table" >
                                   <thead>
                                     <tr>
-                                      <th>Name</th>
-                                      <th>Counter</th>
-                                      <th>Value</th>
+                                      <td>#</td>
+                                      <th>نام ماشین</th>
+                                      <th>نمره</th>
+                                      <th>شماره کنتور</th>
+                                      <th>تولید</th>
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    <tr contenteditable="true">
-                                      <td>Editable</td>
-                                      <td>Editable</td>
-                                      <td>Editable</td>
+                                    {% for c in machines %}
+                                    <tr>
+                                      <td>{{forloop.counter}}</td>
+                                      <td>{{c.machine}}</td>
+                                      <td contenteditable="true" class="editable-cell nomre selectable1"></td>
+                                      <td contenteditable="true" class="editable-cell counter selectable1"></td>
+
+                                      <td contenteditable="true" data-formula="{{c.formula}}"></td>
                                     </tr>
-                                    <tr contenteditable="true">
-                                      <td>Editable</td>
-                                      <td>Editable</td>
-                                      <td>Editable</td>
-                                    </tr>
+                                    {% endfor %}
                                     <!-- Add more rows as needed -->
                                   </tbody>
                                 </table>
@@ -104,7 +106,7 @@
                             </div>
 
                             <!-- Column 2 -->
-                            <div class="col-md-4">
+                            <!-- <div class="col-md-4">
                               <h3>Column 2</h3>
                               <div class="table-responsive">
                                 <table class="table table-bordered">
@@ -130,10 +132,10 @@
                                   </tbody>
                                 </table>
                               </div>
-                            </div>
+                            </div> -->
 
                             <!-- Column 3 -->
-                            <div class="col-md-4">
+                            <!-- <div class="col-md-4">
                               <h3>Column 3</h3>
                               <div class="table-responsive">
                                 <table class="table table-bordered">
@@ -159,7 +161,7 @@
                                   </tbody>
                                 </table>
                               </div>
-                            </div>
+                            </div> -->
 
                           </div>
                         </div>
@@ -172,5 +174,8 @@
 
                 </div>
             </div>
+            {% load static %}
+
+             <script src="{% static 'project/tolid.js' %}"></script>
 
 {% endblock %}
