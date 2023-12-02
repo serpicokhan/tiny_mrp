@@ -174,8 +174,13 @@
 
                 </div>
             </div>
-            {% load static %}
 
-             <script src="{% static 'project/tolid.js' %}"></script>
 
+{% endblock %}
+{% load static %}
+
+{% block javascript %}
+
+
+ <script src="{% static 'project/tolid.js' %}"></script>
 {% endblock %}
