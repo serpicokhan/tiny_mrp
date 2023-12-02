@@ -1,0 +1,13 @@
+machine = Asset.objects.get(id=3)
+
+# Create a new instance of DailyProduction
+new_daily_production = DailyProduction(
+    machine=machine,
+    dayOfIssue=date.today(),  # Assuming today's date
+    register_user="YourUserName",  # Replace 'YourUserName' with the actual user
+    nomre=25,
+    counter=50953
+)
+
+# Save the instance to the database
+new_daily_production.save()
