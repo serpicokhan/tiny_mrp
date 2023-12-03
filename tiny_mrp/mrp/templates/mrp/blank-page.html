@@ -15,6 +15,12 @@
 
   <!-- App styles -->
   <link rel="stylesheet" href="{%  static 'assets/css/app.min.css' %}" type="text/css">
+  <!-- Datepicker -->
+<link rel="stylesheet" href="{%  static 'vendors/datepicker/daterangepicker2.css' %}">
+
+<link rel="stylesheet" href="{%  static 'vendors/datepicker/daterangepicker.css' %}">
+<link rel="stylesheet" href="{%  static 'assets/Datepiker/persian-datepicker.css' %}">
+
 </head>
 <body class="navigation-toggle-one">
 
@@ -864,6 +870,29 @@
 <!-- begin::custom scripts -->
 <script src="{% static 'assets/js/custom.js' %}"></script>
 <script src="{% static 'assets/js/app.min.js' %}"></script>
+<script src="{% static 'vendor/moment/moment.min.js' %}"></script>
+<script src="{% static 'vendor/Jcal/moment-jalaali.js' %}"></script>
+<!-- Datepicker -->
+
+
+<!-- <script type="text/javascript" src="vendors/datepicker/daterangepicker2.js"></script> -->
+
+
+<script src="{% static 'vendors/datepicker/daterangepicker.js' %}"></script>
+<script src="{% static 'vendor/Jcal/moment-jalaali.js' %}"></script>
+
+<!--  -->
+<script src="{% static 'vendor/moment/moment.min.js' %}"></script>
+
+
+
+
+
+
+<!-- // -->
+<script src="{% static 'assets/Datepiker/persian-date.js' %}"></script>
+<script src="{% static 'assets/Datepiker/persian-datepicker.js' %}"></script>
+
 {% block javascript %}
 {% endblock %}
 <!-- end::custom scripts -->

@@ -42,7 +42,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu width-15 height-15"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                                 </a>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="جستجو ایمیل" aria-describedby="button-addon1">
+                                    <input type="text" class="form-control" placeholder="جستجو ایمیل" aria-describedby="button-addon1" id="search">
                                     <div class="input-group-append">
                                         <button class="btn btn-outline-light" type="button" id="button-addon1">
                                             <i class="ti-search"></i>
@@ -72,18 +72,18 @@
                     <div class="card card-body app-content-body">
 
                         <div class="card-body">
-                          <h5 class="card-title">عنوان محتوا</h5>
+                          <h5 class="card-title">آمار روزانه</h5>
                           <div class="row">
                             <!-- Column 1 -->
                             {% for i in shifts %}
-                            
+
                               {% if forloop.counter == 1 %}
                             <div class="col-md-4">
 
                               <h3>{{i.name}}</h3>
                               <div class="table-responsive">
                                 <table class="table table-bordered table-striped company-table" >
-                                  <thead>
+                                  <thead class="thead-dark">
                                     <tr>
                                       <th>نام ماشین</th>
                                       <th>نمره</th>
@@ -94,13 +94,13 @@
                                   </thead>
                                   <tbody>
                                     {% for c in machines %}
-                                    <tr>
+                                    <tr data-shift="{{i.id}}">
                                       <td>{{c.machine.assetName}}</td>
-                                      <td contenteditable="true" class="editable-cell nomre selectable1"></td>
-                                      <td contenteditable="true" class="editable-cell counter selectable1"></td>
+                                      <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.nomre}}</td>
+                                      <td contenteditable="true" class="editable-cell btc counter selectable1"></td>
 
                                       <td contenteditable="true" data-formula="{{c.formula}}"></td>
-                                      
+
                                     </tr>
                                     {% endfor %}
                                     <!-- Add more rows as needed -->
@@ -114,10 +114,9 @@
                               <h3>{{i.name}}</h3>
                               <div class="table-responsive">
                                 <table class="table table-bordered table-striped company-table" >
-                                  <thead>
+                                  <thead class="thead-dark">
                                     <tr>
-                                      
-                                      <th>نمره</th>
+
                                       <th>شماره کنتور</th>
                                       <th>تولید</th>
 
@@ -125,13 +124,12 @@
                                   </thead>
                                   <tbody>
                                     {% for c in machines %}
-                                    <tr data-machine={{c.machine.id}}>
-                                      
-                                      <td contenteditable="true" class="editable-cell nomre selectable1"></td>
-                                      <td contenteditable="true" class="editable-cell counter selectable1"></td>
+                                    <tr data-machine={{c.machine.id}} data-shift="{{i.id}}">
+
+                                      <td contenteditable="true" class="editable-cell btc counter selectable1"></td>
 
                                       <td contenteditable="true" data-formula="{{c.formula}}"></td>
-                                      
+
                                     </tr>
                                     {% endfor %}
                                     <!-- Add more rows as needed -->
@@ -143,26 +141,26 @@
                             {% endfor %}
                             <div class="col-md-2">
 
-                             <h3 >123</h3>
+                             <h3 >تولید بر اساس سرعت</h3>
 
                               <div class="table-responsive">
                                 <table class="table table-bordered table-striped company-table" >
-                                  <thead>
+                                  <thead class="thead-dark">
                                     <tr>
-                                      
+
                                       <th>سرعت</th>
                                       <th>تولید 100%</th>
-                                      
+
 
                                     </tr>
                                   </thead>
                                   <tbody>
                                     {% for c in machines %}
-                                      
-                                      <td contenteditable="true" class="editable-cell nomre selectable1"></td>
-                                      <td contenteditable="true" class="editable-cell counter selectable1"></td>
 
-                                      
+                                      <td contenteditable="true" class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
+                                      <td contenteditable="true" class="editable-cell3 production selectable1" data-formula="{{c.speedformula}}"></td>
+
+
                                     </tr>
                                     {% endfor %}
                                     <!-- Add more rows as needed -->
@@ -171,17 +169,20 @@
                               </div>
                             </div>
 
-                           
+
 
                           </div>
+
                         </div>
                       </div>
                         <!-- end::app-lists -->
 
                         <!-- begin:app-detail -->
 
-                    
+
             </div>
+
+
           </div>
 
 

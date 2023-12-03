@@ -137,4 +137,4 @@ class Asset(models.Model):
 
     class Meta:
       db_table = "assets"
-      ordering = ('assetName', )
+      ordering = ('assetTavali','assetName' )
