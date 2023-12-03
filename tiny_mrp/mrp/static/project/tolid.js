@@ -1,47 +1,4 @@
-var firstPressedButton = null;
-// var isCtrlPressed = false;
-// var selectedCells = [];
-//
-//     $(document).keydown(function(event) {
-//       if (event.which === 17) { // 17 is the key code for Control (Ctrl)
-//         isCtrlPressed = true;
-//       }
-//     });
-//
-//     $(document).keyup(function(event) {
-//       if (event.which === 17) { // 17 is the key code for Control (Ctrl)
-//         isCtrlPressed = false;
-//       }
-//     });
-//
-//         // Event delegation for cell click event
-//         $('#company-table').on('click', 'td[contenteditable="true"]', function(event) {
-//           if (isCtrlPressed) {
-//             $(this).toggleClass('selected');
-//
-//             var cellValue = $(this).html();
-//             var cellIndex = $(this).index();
-//             var rowIndex = $(this).closest('tr').index();
-//             var cellKey = rowIndex + '-' + cellIndex;
-//
-//             if ($(this).hasClass('selected')) {
-//               selectedCells[cellKey] = cellValue;
-//             } else {
-//               delete selectedCells[cellKey];
-//             }
-//           }
-//         });
-//
-//         // Event delegation for cell blur event
-//         $('#company-table').on('blur', 'td[contenteditable="true"]', function(event) {
-//           if (isCtrlPressed) {
-//             var newValue = $(this).html();
-//             for (var cellKey in selectedCells) {
-//               var cell = $('#' + cellKey);
-//               cell.html(newValue);
-//             }
-//           }
-//         });
+
 document.addEventListener('DOMContentLoaded', function() {
   const tables = document.querySelectorAll('.company-table');
 
@@ -58,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
           // cellToUpdate.innerText = changedValue;
           // cellToUpdate.attr('data-nomre',changedValue);
           cellToUpdate.setAttribute('data-nomre', changedValue);
+
         }
       });
     }
@@ -146,14 +104,35 @@ $(function () {
                 return "Error";
             }
         }
-  $(".editable-cell2").on("input", function() {
+  $(".editable-cell2").on("input", function(event) {
             var row = $(this).closest("tr");
             var z = parseFloat(row.find(".speed").text()) || 0;
             var p = parseFloat(row.find(".speed").data('nomre')) || 0;
             var formula = row.find("[data-formula]").data("formula");
+            // console.log( Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement));
+            const rowIndex = Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement);
+            const tables = document.querySelectorAll('.company-table');
+            // console.log(tables);
 
+            for (let i = 0; i < tables.length; i++) {
+              const correspondingCell = tables[i].querySelectorAll('.editable-cell.editable-cell')[rowIndex];
+              if (correspondingCell && correspondingCell !== event.target) {
+                       // correspondingCell.innerText = newValue;
+                       // console.log(correspondingCell);
+                       const correspondingRow = correspondingCell.closest('tr');
+                       // console.log(correspondingRow);
+                       correspondingRow.setAttribute('data-speed',z);
+
+
+                     }
+
+            }
+
+
+            ///
             var result = evaluateFormula2(formula, z, p);
             row.find("[data-formula]").text(result);
+
         });
 
         function evaluateFormula2(formula, Z, P) {

@@ -98,7 +98,7 @@
                                   </thead>
                                   <tbody>
                                     {% for c in machines %}
-                                    <tr data-shift="{{i.id}}">
+                                    <tr data-shift="{{i.id}}" data-speed="{{i.speed}}">
                                       <td>{{c.machine.assetName}}</td>
                                       <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.nomre}}</td>
                                       <td contenteditable="true" class="editable-cell btc counter selectable1"></td>
