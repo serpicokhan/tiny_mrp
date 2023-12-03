@@ -86,8 +86,42 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   // Add click event listener to each editable cell
+
+
+
+  // Add event listeners to detect keypress in cells
   cells.forEach((cell) => {
     cell.addEventListener('click', selectText);
+
+
+  });
+});
+document.addEventListener('DOMContentLoaded', function() {
+  const cells = document.querySelectorAll('.company-table .editable-cell');
+
+  // Function to handle key press
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // Prevent default Enter behavior (line break)
+
+      const cellIndex = Array.from(cells).indexOf(event.target);
+      const rows = Array.from(event.target.parentElement.parentElement.children);
+      const rowIndex = rows.indexOf(event.target.parentElement);
+      const nextRow = rows[rowIndex + 1];
+
+      if (nextRow) {
+        const nextCell = nextRow.querySelector('.editable-cell');
+        if (nextCell) {
+          nextCell.focus();
+          window.getSelection().selectAllChildren(nextCell);
+        }
+      }
+    }
+  };
+
+  // Add event listeners to detect keypress in cells
+  cells.forEach((cell) => {
+    cell.addEventListener('keydown', handleKeyPress);
   });
 });
 
