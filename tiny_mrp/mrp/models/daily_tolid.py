@@ -34,34 +34,34 @@ class DailyProduction(models.Model):
     nomre = models.FloatField()
     counter = models.IntegerField()
     production_value = models.IntegerField(blank=True, null=True)  # Result of the formula
-    def save(self, *args, **kwargs):
-        # Calculate production value based on the specified formula
-        if self.machine:
-            formula_obj = Formula.objects.get(machine=self.machine)
-            formula = formula_obj.formula
-
-            # Parameters for the evaluation (counter and nomre)
-            parameters = {
-                'Q': self.counter,
-                'P': self.nomre
-            }
-
-            # Replace parameters in the formula with actual values
-            for param, value in parameters.items():
-                formula = formula.replace(param, str(value))
-            formula = formula.replace("/", " / ")
-
-            # Evaluate the modified formula
-            try:
-                # Evaluating the formula string to get the calculated value
-                # Use ast.literal_eval to evaluate the expression safely
-                calculated_value = eval(formula)
-                self.production_value = calculated_value
-            except (SyntaxError, ValueError) as e:
-                # Handle exceptions if the formula is incorrect or cannot be evaluated
-                print(f"Error evaluating formula: {e}")
-                # You can set a default value or handle the error as per your requirement
-
-        super(DailyProduction, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     # Calculate production value based on the specified formula
+    #     if self.machine:
+    #         formula_obj = Formula.objects.get(machine=self.machine)
+    #         formula = formula_obj.formula
+    #
+    #         # Parameters for the evaluation (counter and nomre)
+    #         parameters = {
+    #             'Q': self.counter,
+    #             'P': self.nomre
+    #         }
+    #
+    #         # Replace parameters in the formula with actual values
+    #         for param, value in parameters.items():
+    #             formula = formula.replace(param, str(value))
+    #         formula = formula.replace("/", " / ")
+    #
+    #         # Evaluate the modified formula
+    #         try:
+    #             # Evaluating the formula string to get the calculated value
+    #             # Use ast.literal_eval to evaluate the expression safely
+    #             calculated_value = eval(formula)
+    #             self.production_value = calculated_value
+    #         except (SyntaxError, ValueError) as e:
+    #             # Handle exceptions if the formula is incorrect or cannot be evaluated
+    #             print(f"Error evaluating formula: {e}")
+    #             # You can set a default value or handle the error as per your requirement
+    #
+    #     super(DailyProduction, self).save(*args, **kwargs)
     class Meta:
         db_table="dailyproduction"

@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
 $(function () {
   $(".btc").on("input", function() {
             var row = $(this).closest("tr");
-            var nomre = parseFloat(row.find(".nomre").text()) || 0;
+            var nomre = parseFloat(row.find(".nomre").text()) || parseFloat(row.find(".counter").attr('data-nomre'));
             var counter = parseFloat(row.find(".counter").text()) || 0;
             var formula = row.find("[data-formula]").data("formula");
 
@@ -97,6 +97,7 @@ $(function () {
         function evaluateFormula(formula, P, Q) {
             formula = formula.replace("P", P).replace("Q", Q);
             try {
+              // console.log(formula);
                 var result = eval(formula);
                 return result.toFixed(2); // Adjust as needed
             } catch (error) {
@@ -113,15 +114,21 @@ $(function () {
             const rowIndex = Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement);
             const tables = document.querySelectorAll('.company-table');
             // console.log(tables);
+            console.log(rowIndex);
 
             for (let i = 0; i < tables.length; i++) {
               const correspondingCell = tables[i].querySelectorAll('.editable-cell.editable-cell')[rowIndex];
+
               if (correspondingCell && correspondingCell !== event.target) {
+                        console.log(correspondingCell);
                        // correspondingCell.innerText = newValue;
                        // console.log(correspondingCell);
-                       const correspondingRow = correspondingCell.closest('tr');
+                       // const correspondingRow = correspondingCell.closest('tr');
                        // console.log(correspondingRow);
-                       correspondingRow.setAttribute('data-speed',z);
+                       // correspondingRow.setAttribute('data-speed',z);
+                       tables[i].rows[rowIndex+1].setAttribute('data-speed',z);
+                       console.log(rowIndex);
+                       console.log(tables[i].rows[rowIndex]);
 
 
                      }
@@ -155,4 +162,58 @@ $(function () {
               });
 
 //$("#company-table").on("click", ".js-update-wo", initxLoad);
+var tableDataToJSON=function(tableId){
+  var data = [];
+      $('#' + tableId + ' tr').each(function() {
+        if($(this).attr('data-machine')){
+        var machine=$(this).attr('data-machine');
+        var shift = $(this).attr('data-shift');
+        var dayOfIssue = $("#search").val();
+        var speed = $(this).attr('data-speed')||0;
+        var nomre = $(this).find('td.nomre').text()||$(this).find('td:eq(0)').attr('data-nomre');
+        var counter = $(this).find('td.counter').text()||0;
+        var production_value =  $(this).find('td.production').text()||0;
+
+        data.push({ machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
+          , counter: counter,production_value: production_value
+           });
+         }
+      });
+      // console.log(JSON.stringify(data));
+      return data;
+
+
+}
+$("#save_production").click(function(){
+  var tbl1=tableDataToJSON('tbl1');
+  var tbl2=tableDataToJSON('tbl2');
+  var tbl3=tableDataToJSON('tbl3');
+  var sendData = {
+    table1: tbl1,
+    table2: tbl2,
+    table3: tbl3
+  };
+console.log(JSON.stringify(sendData));
+  // AJAX request to send data to the server
+  $.ajax({
+    url: '/Tolid/SaveTableInfo',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(sendData),
+    beforeSend:function(){
+      $(".preloader").show();
+    },
+    success: function(response) {
+      // Handle the success response from the server
+      console.log('Data sent successfully:', response);
+      $(".preloader").hide();
+    },
+    error: function(xhr, status, error) {
+      // Handle any errors that occur during the AJAX request
+      console.error('Error sending data:', error);
+    }
+  });
+  // var tbl2=tableDataToJSON('tbl2');
+  // var tbl3=tableDataToJSON('tbl3');
+});
 });
