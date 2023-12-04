@@ -48,10 +48,10 @@ def saveAmarTableInfo(request):
     # print(request.body)
     # print(request.POST)
     data = json.loads(request.body)
-    print("********")
+    # print("********")
     for table_name, table_data in data.items():
         for i in table_data:
-            print(i)
+            # print(i)
             # print(i)
             # print("********")
             amar=DailyProduction()
@@ -64,6 +64,6 @@ def saveAmarTableInfo(request):
             amar.counter=i["counter"]
             amar.production_value=float(i["production_value"])
             amar.save()
-            print("done",amar.id)
+            # print("done",amar.id)
     data=dict()
     return JsonResponse(data)
