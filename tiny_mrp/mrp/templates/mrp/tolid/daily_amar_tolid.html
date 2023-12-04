@@ -1,0 +1,103 @@
+{% extends 'mrp/blank-page.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">پایه</h6>
+                <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                        <tr class="bg-info">
+                            <th>نام دستگاه</th>
+                            {% for i in shift%}
+                            <th>{{i.name}}</th>
+                            {% endfor %}
+                            
+                            <th>جمع </th>
+                            <th>راندمان کل</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in machines_with_amar %}
+                        <tr>
+                            <td>{{i.machine.assetName}}</td>
+                            {%for k in i.shift_amar %}
+                            <td>{{k.value}}</td>
+                            {% endfor %}
+                            <td>1398/12/06</td>
+                            <td>145,600</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>همایون محمدی</td>
+                            <td>مدیر اجرایی</td>
+                            <td>رشت</td>
+                            <td>47</td>
+                            <td>1398/03/21</td>
+                            <td>356,250</td>
+                        </tr>
+                        <tr>
+                            <td>لاله محمدی</td>
+                            <td>مدیر سیستم</td>
+                            <td>رشت</td>
+                            <td>21</td>
+                            <td>1398/02/27</td>
+                            <td>103,500</td>
+                        </tr>
+                        <tr>
+                            <td>هدا محمدی</td>
+                            <td>توسعه دهنده</td>
+                            <td>گیلان</td>
+                            <td>30</td>
+                            <td>1396/07/14</td>
+                            <td>86,500</td>
+                        </tr>
+                        <tr>
+                            <td> شادی محمدی</td>
+                            <td>مدیر اجرایی</td>
+                            <td>تهران</td>
+                            <td>51</td>
+                            <td>1398/11/13</td>
+                            <td>183,000</td>
+                        </tr>
+                        <tr>
+                            <td>  یگانه محمدی</td>
+                            <td>برنامه نویس</td>
+                            <td>تبریز</td>
+                            <td>29</td>
+                            <td>1398/06/27</td>
+                            <td>183,000</td>
+                        </tr>
+                        <tr>
+                            <td>دنیا محمدی</td>
+                            <td>پشتیبانی مشتری</td>
+                            <td>تهران</td>
+                            <td>27</td>
+                            <td>1398/01/25</td>
+                            <td>112,000</td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th>نام</th>
+                            <th>سمت</th>
+                            <th>دفتر</th>
+                            <th>سن</th>
+                            <th>تاریخ شروع</th>
+                            <th>حقوق</th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+
+        
+
+    </div>
+</div>
+
+{% endblock %}

@@ -67,3 +67,19 @@ def saveAmarTableInfo(request):
             # print("done",amar.id)
     data=dict()
     return JsonResponse(data)
+def show_daily_amar_tolid(request):
+    q=request.GET.get('date',datetime.datetime.now().date())
+    shifts=Shift.objects.all()
+    machines=Asset.objects.filter(assetTypes=2)
+    machines_with_amar=[]
+    for m in machines:
+        shift_val=[]
+        for i in shifts:
+            try:
+                amar=DailyProduction.objects.get(machine=m,shift=i,dayOfIssue=q)
+                shift_val.append({'value':amar.production_value,'shift':i})
+            except:
+                pass
+        machines_with_amar.append({'machine':m,'shift_amar':shift_val})
+
+    return render(request,'mrp/tolid/daily_amar_tolid.html',{'shift':shifts,'machines_with_amar':machines_with_amar})
