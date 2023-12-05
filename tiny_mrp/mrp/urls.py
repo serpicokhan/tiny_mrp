@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^Tolid/Calendar$',calendar_main,name='calendar_main'),
     url(r'^Tolid/DailyAnalyse$',show_daily_analyse_tolid,name='show_daily_analyse_tolid'),
     url(r'^Tolid/SaveTableInfo$',saveAmarTableInfo,name='saveAmarTableInfo'),
+    url(r'^Tolid/GetInfo/$', get_tolid_calendar_info, name='get_tolid_calendar_info'),
 
 
 

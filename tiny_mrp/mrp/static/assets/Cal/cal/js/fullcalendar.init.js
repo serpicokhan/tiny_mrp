@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var containerEl = document.getElementById('external-events');
     var calendarEl = document.getElementById('calendar');
     var checkbox = document.getElementById('drop-remove');
-
+    var events=[];
 
     // initialize the external events
     // -----------------------------------------------------------------
@@ -27,34 +27,26 @@ document.addEventListener('DOMContentLoaded', function () {
             left: 'prev,next today addEventButton',
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay',
-            
+
         },
-        
+
         businessHours: true, // display business hours
         editable: true,
         locale: 'fa',
         events: [
-            {
-                title: 'ناهار کسب و کار',
-                start: '2021-01-03T13:00:00',
-                constraint: 'businessHours'
-            },
-            {
-                title: 'ملاقات',
-                start: '2021-01-13T11:00:00',
-                constraint: 'availableForMeeting', // defined below
-                color: '#53c797'
-            },
-            {
-                title: 'کنفرانس',
-                start: '2021-01-18',
-                end: '2021-01-20'
-            },
-            {
-                title: 'مهمانی - جشن',
-                start: '2021-01-29T20:00:00'
-            },
-        ],
+    {
+        "title": "آمار روزانه",
+        "start": "2023-12-05",
+
+        "id": "2023-12-05"
+    },
+    {
+        "title": "آمار روزانه",
+        "start": "2023-12-04",
+      
+        "id": "2023-12-04"
+    }
+],
 
         customButtons: {
             addEventButton: {
@@ -76,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         },
-        
+
         editable: true,
         droppable: true, // this allows things to be dropped onto the calendar
         drop: function (info) {
@@ -87,6 +79,50 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     });
+    var read_calendar_data=function(){
+          // $.ajax({
+          //     url
+          // });
+          // console.log($('.input-daterange-datepicker').val());
+          // const date_range=$('.input-daterange-datepicker').val();
+          $.ajax({
+              url:'/Tolid/GetInfo',
+              method:'get',
+              success:function(doc){
+                  var events=[];
+                  console.log(doc);
+                  if (doc != null) {
+                      var i=null;
+                  for(i in doc){
+                      // console.log(i);
+                      if(doc[i].start){
+                          var dt=new Date(doc[i].start);
+                    events.push({
 
-    calendar.render();
+
+
+                      title: 'ملاقات',
+                      start: dt,
+                      constraint: 'availableForMeeting', // defined below
+                      color: '#53c797'
+
+                      // end: doc.to_date
+                    });
+                  }
+                  }
+              }
+                  // var a2=[data.i];
+
+
+
+
+
+              }
+          });
+
+      }
+
+      read_calendar_data();
+      console.log(events);
+      calendar.render();
 });

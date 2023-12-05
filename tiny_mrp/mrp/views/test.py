@@ -134,3 +134,15 @@ def show_daily_analyse_tolid(request):
         return render(request,'mrp/tolid/daily_analyse_tolid.html',{'machines_with_amar':machines_with_amar})
 def calendar_main(request):
     return render(request,'mrp/tolid/calendar_main.html',{})
+def get_tolid_calendar_info(request):
+    data=[]
+    user_info=DailyProduction.objects.values_list('dayOfIssue').distinct()
+    print(user_info)
+    for i in user_info:
+        print(i)
+        data.append({'title': "آمار روزانه",\
+                'start': i[0],\
+                'className': "bg-dark",\
+                'id':i[0]})
+
+    return JsonResponse(data,safe=False)
