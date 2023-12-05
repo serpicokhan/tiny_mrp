@@ -11,35 +11,38 @@
                         <thead>
                         <tr class="bg-info">
                             <th>نام دستگاه</th>
-                            {% for i in shift%}
-                            <th>{{i.name}}</th>
-                            {% endfor %}
-
-                            <th>جمع </th>
-                            <th>راندمان کل</th>
+                          <th>تولید خوب</th>
+                          <th>تولید متوسط</th>
+                          <th>تولید ضعیف</th>
+                          <th>انجام شده</th>
+                          <th>کسر تولید</th>
                         </tr>
                         </thead>
                         <tbody>
                             {% for i in machines_with_amar %}
                         <tr>
                             <td>{{i.machine.assetName}}</td>
-                            {%for k in i.shift_amar %}
-                            <td>{{k.value}}</td>
-                            {% endfor %}
-                            <td>{{i.sum}}</td>
-                            <td>{{i.max_speed}}</td>
+                          <td>{{i.good}}</td>
+                          <td>{{i.mean}}</td>
+                          <td>{{i.bad}}</td>
+                            <td>{{i.real}}</td>
+                            {% if i.kasre_tolid < 0 %}
+                            <td class="bg-dark">{{i.kasre_tolid}}</td>
+                            {% else %}
+                              <td >{{i.kasre_tolid}}</td>
+
+                            {% endif %}
                         </tr>
                         {% endfor %}
 
                         <tfoot>
                         <tr>
                           <th>نام دستگاه</th>
-                          {% for i in shift%}
-                          <th>{{i.name}}</th>
-                          {% endfor %}
-
-                          <th>جمع </th>
-                          <th>راندمان کل</th>
+                        <th>تولید خوب</th>
+                        <th>تولید متوسط</th>
+                        <th>تولید ضعیف</th>
+                        <th>انجام شده</th>
+                        <th>کسر تولید</th>
                         </tr>
                         </tfoot>
                     </table>
