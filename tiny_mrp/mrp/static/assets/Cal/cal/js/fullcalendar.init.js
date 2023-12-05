@@ -33,20 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
         businessHours: true, // display business hours
         editable: true,
         locale: 'fa',
-        events: [
-    {
-        "title": "آمار روزانه",
-        "start": "2023-12-05",
-
-        "id": "2023-12-05"
-    },
-    {
-        "title": "آمار روزانه",
-        "start": "2023-12-04",
-      
-        "id": "2023-12-04"
-    }
-],
+        events: events,
 
         customButtons: {
             addEventButton: {
@@ -109,6 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
                       // end: doc.to_date
                     });
                   }
+                    calendar.render();
                   }
               }
                   // var a2=[data.i];
@@ -123,6 +111,5 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       read_calendar_data();
-      console.log(events);
-      calendar.render();
+
 });
