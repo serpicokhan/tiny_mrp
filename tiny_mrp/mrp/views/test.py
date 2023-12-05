@@ -132,3 +132,5 @@ def show_daily_analyse_tolid(request):
                 'bad':tolid_standard.bad_production_rate,'real':sum,'kasre_tolid':sum-tolid_standard.good_production_rate})
 
         return render(request,'mrp/tolid/daily_analyse_tolid.html',{'machines_with_amar':machines_with_amar})
+def calendar_main(request):
+    return render(request,'mrp/tolid/calendar_main.html',{})
