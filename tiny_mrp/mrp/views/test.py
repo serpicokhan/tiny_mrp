@@ -6,6 +6,39 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
 from mrp.business.DateJob import *
+from datetime import datetime, timedelta
+from django.contrib.auth.decorators import login_required
+
+def get_daily_amar(request):
+    dayOfIssue=request.GET.get('event_id',datetime.now())
+    date_object = datetime.strptime(dayOfIssue, '%Y-%m-%d')
+
+    next_day = date_object + timedelta(days=1)
+
+# Calculate previous day
+    previous_day = date_object - timedelta(days=1)
+    machines=Asset.objects.filter(assetTypes=2)
+    shift=Shift.objects.all()
+    machines_with_formulas = []
+    for s in shift:
+        for machine in machines:
+            try:
+                formula = Formula.objects.get(machine=machine)
+                speedformula = SpeedFormula.objects.get(machine=machine)
+                amar=DailyProduction.objects.get(machine=machine,dayOfIssue=dayOfIssue,shift=s)
+                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
+                # else:
+                #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+
+
+            except Formula.DoesNotExist:
+                machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0})
+            except SpeedFormula.DoesNotExist:
+                machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0})
+            except DailyProduction.DoesNotExist:
+                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+
+    return render(request,"mrp/tolid/daily_details.html",{'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':date_object})
 
 def index(request):
     machines=Asset.objects.filter(assetTypes=2)
@@ -142,7 +175,7 @@ def get_tolid_calendar_info(request):
         print(i)
         data.append({'title': "آمار روزانه",\
                 'start': i[0],\
-                'className': "bg-dark",\
+                 'color': '#53c797',\
                 'id':i[0]})
 
     return JsonResponse(data,safe=False)

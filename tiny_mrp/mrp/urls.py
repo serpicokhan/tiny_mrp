@@ -3,10 +3,17 @@ from django.urls import path, include
 from mrp.views import *
 from . import views
 from django.conf import settings
+from django.contrib.auth.views import LoginView,LogoutView
+
 from django.conf.urls.static import static
 urlpatterns = [
+    path(        'login/',        LoginView.as_view(            template_name="mrp/registration/login.html",            ),        name='login'),
+   path(        'logout/',        LoginView.as_view(            template_name="mrp/registration/logout.html",            ),        name='logout'),
+
+
     url(r'^$',index,name='index'),
     url(r'^Tolid/Daily$',show_daily_amar_tolid,name='show_daily_amar_tolid'),
+    url(r'^Tolid/DailyDetails$',get_daily_amar,name='get_daily_amar'),
     url(r'^Tolid/Calendar$',calendar_main,name='calendar_main'),
     url(r'^Tolid/DailyAnalyse$',show_daily_analyse_tolid,name='show_daily_analyse_tolid'),
     url(r'^Tolid/SaveTableInfo$',saveAmarTableInfo,name='saveAmarTableInfo'),

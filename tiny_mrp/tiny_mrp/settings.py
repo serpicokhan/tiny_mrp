@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'mrp.apps.MrpConfig',
+    'widget_tweaks'
 
 ]
 
@@ -86,7 +87,8 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-
+LOGIN_REDIRECT_URL = 'index'
+LOGIN_URL='login'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

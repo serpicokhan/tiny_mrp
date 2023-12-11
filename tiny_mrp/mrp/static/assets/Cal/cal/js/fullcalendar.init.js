@@ -1,3 +1,4 @@
+var events2=[];
 document.addEventListener('DOMContentLoaded', function () {
     var Calendar = FullCalendar.Calendar;
     var Draggable = FullCalendar.Draggable;
@@ -5,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var containerEl = document.getElementById('external-events');
     var calendarEl = document.getElementById('calendar');
     var checkbox = document.getElementById('drop-remove');
-    var events=[];
+
 
     // initialize the external events
     // -----------------------------------------------------------------
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // -----------------------------------------------------------------
 
     var calendar = new Calendar(calendarEl, {
+
         headerToolbar: {
             left: 'prev,next today addEventButton',
             center: 'title',
@@ -33,7 +35,18 @@ document.addEventListener('DOMContentLoaded', function () {
         businessHours: true, // display business hours
         editable: true,
         locale: 'fa',
-        events: events,
+        events: {
+         url: '/Tolid/GetInfo', // Replace with your server-side script to fetch events
+         method: 'GET',
+         failure: function() {
+           // Handle failure to fetch events
+           alert('There was an error while fetching events!');
+         }
+       },
+       eventClick: function(info) {
+     // Open a new window when an event is clicked
+     window.open('/Tolid/DailyDetails?event_id=' + info.event.id, '_blank');
+   },
 
         customButtons: {
             addEventButton: {
@@ -57,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
         },
 
         editable: true,
+        eventTextColor: 'white',
         droppable: true, // this allows things to be dropped onto the calendar
         drop: function (info) {
             // is the "remove after drop" checkbox checked?
@@ -66,50 +80,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     });
-    var read_calendar_data=function(){
-          // $.ajax({
-          //     url
-          // });
-          // console.log($('.input-daterange-datepicker').val());
-          // const date_range=$('.input-daterange-datepicker').val();
-          $.ajax({
-              url:'/Tolid/GetInfo',
-              method:'get',
-              success:function(doc){
-                  var events=[];
-                  console.log(doc);
-                  if (doc != null) {
-                      var i=null;
-                  for(i in doc){
-                      // console.log(i);
-                      if(doc[i].start){
-                          var dt=new Date(doc[i].start);
-                    events.push({
+  
+      // read_calendar_data();
+      calendar.render();
 
 
-
-                      title: 'ملاقات',
-                      start: dt,
-                      constraint: 'availableForMeeting', // defined below
-                      color: '#53c797'
-
-                      // end: doc.to_date
-                    });
-                  }
-                    calendar.render();
-                  }
-              }
-                  // var a2=[data.i];
-
-
-
-
-
-              }
-          });
-
-      }
-
-      read_calendar_data();
 
 });
