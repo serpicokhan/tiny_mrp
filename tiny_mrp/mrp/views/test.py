@@ -7,8 +7,13 @@ import json
 from django.http import JsonResponse
 from mrp.business.DateJob import *
 from datetime import datetime, timedelta
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.context_processors import PermWrapper
 from django.contrib.auth.decorators import login_required
 
+
+@login_required
 def get_daily_amar(request):
     dayOfIssue=request.GET.get('event_id',datetime.now())
     date_object = datetime.strptime(dayOfIssue, '%Y-%m-%d')
@@ -40,6 +45,7 @@ def get_daily_amar(request):
 
     return render(request,"mrp/tolid/daily_details.html",{'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':date_object})
 
+@login_required
 def index(request):
     machines=Asset.objects.filter(assetTypes=2)
     shift=Shift.objects.all()
