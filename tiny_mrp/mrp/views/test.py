@@ -177,7 +177,6 @@ def show_daily_amar_tolid(request):
                     x=[]
                     for i in shifts:
                         x.append({'value':0,'shift':i})
-
                     machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((sum_randeman/asset_types)*100)})
                     sum_randeman=0
             except:
