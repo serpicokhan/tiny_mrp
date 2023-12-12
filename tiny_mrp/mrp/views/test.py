@@ -11,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.context_processors import PermWrapper
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
 
 
 @login_required
@@ -120,6 +121,19 @@ def saveAmarTableInfo(request):
             # print("done",amar.id)
     data=dict()
     return JsonResponse(data)
+
+def get_asset_count(target_category_name):
+    return Asset.objects.filter(assetCategory=target_category_name).count()
+
+
+def get_sum_machin_product_by_cat(machine,target_date):
+
+    production_sum = DailyProduction.objects.filter(
+    machine__assetCategory=machine.assetCategory,
+    dayOfIssue=target_date
+    ).aggregate(Sum('production_value'))['production_value__sum'] or 0
+    # print(machine.id,target_date,production_sum)
+    return production_sum
 def show_daily_amar_tolid(request):
     q=request.GET.get('date',datetime.now().date())
     date_object = datetime.strptime(q, '%Y-%m-%d')
@@ -131,27 +145,49 @@ def show_daily_amar_tolid(request):
     shifts=Shift.objects.all()
     machines=Asset.objects.filter(assetTypes=2)
     machines_with_amar=[]
+    m_count=1
+
     if(q):
-        for m in machines:
+        for index,m in enumerate(machines):
+
+            asset_types=get_asset_count(m.assetCategory)
             shift_val=[]
             sum=0
+            sum_randeman=0
             max_speed=1
+            sum_cat=0
             for i in shifts:
                 try:
-
-
                     amar=DailyProduction.objects.filter(machine=m,shift=i,dayOfIssue=q)[0]
+                    # total_production2 = amar.aggregate(Sum('production_value'))['production_value__sum'] or 0
                     shift_val.append({'value':amar.production_value,'shift':i})
                     sum+=amar.production_value
                     max_speed=amar.eval_max_tolid()
 
+
                 except Exception as e:
                     print(e)
                     shift_val.append({'value':0,'shift':i})
+            machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format((sum/max_speed)*100)})
+            sum_randeman+=(sum/max_speed)
+            asset_types>1
+            try:
+                if(machines[index].assetCategory !=machines[index+1].assetCategory and asset_types>1):
 
-            machines_with_amar.append({'machine':m,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format((sum/max_speed)*100)})
+                    x=[]
+                    for i in shifts:
+                        x.append({'value':0,'shift':i})
+
+                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((sum_randeman/asset_types)*100)})
+                    sum_randeman=0
+            except:
+                pass
+
+
+
 
     return render(request,'mrp/tolid/daily_amar_tolid.html',{'shift':shifts,'machines_with_amar':machines_with_amar,'title':'راندمان روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':date_object})
+
 def show_daily_analyse_tolid(request):
         q=request.GET.get('date',datetime.now().date())
         shifts=Shift.objects.all()
