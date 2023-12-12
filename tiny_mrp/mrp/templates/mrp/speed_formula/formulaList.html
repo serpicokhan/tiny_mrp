@@ -1,0 +1,34 @@
+{% extends 'mrp/blank-page.html' %}
+{5 load static %}
+{% block content %}
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">{{title}}</h6>
+                <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                        <tr class="bg-info">
+                        <th>نام ماشین</th>
+                        <th>فرمول</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                          {% include 'mrp/formula/partialFormulaList.html' %}
+
+                          </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+{% endblock %}

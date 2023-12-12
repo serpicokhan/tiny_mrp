@@ -1,4 +1,5 @@
 {% extends 'mrp/blank-page.html' %}
+
 {% block content %}
 <div class="row app-block">
 
@@ -55,7 +56,7 @@
                                 </div>
                             </form>
                             <div class="app-pager d-flex align-items-center">
-                                <div class="mr-3">1-50 از 253</div>
+                                <div class="mr-3"></div>
                                 <nav aria-label="Page navigation example">
                                     <ul class="pagination">
                                         <li class="page-item">
@@ -162,7 +163,7 @@
                                     {% for c in machines %}
 
                                       <td contenteditable="true" class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
-                                      <td contenteditable="true" class="editable-cell3 production selectable1" data-formula="{{c.speedformula}}"></td>
+                                      <td contenteditable="true" class="editable-cell3 production selectable1" data-formula="{{c.speedformula}}">{{c.max}}</td>
 
 
                                     </tr>

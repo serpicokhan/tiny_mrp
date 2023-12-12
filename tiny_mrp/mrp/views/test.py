@@ -69,7 +69,7 @@ def index(request):
                 mydict["nomre"]=0
 
             if(speed):
-                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':speed.speed,'nomre':speed.nomre,'speedformula':speedformula.formula})
+                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':speed.speed,'nomre':speed.nomre,'speedformula':speedformula.formula,'max':"{:.0f}".format(speed.eval_max_tolid())})
             else:
                 machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
@@ -81,7 +81,7 @@ def index(request):
         except DailyProduction.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
-    return render(request,"mrp/tolid/details.html",{'machines':machines_with_formulas,'shifts':shift})
+    return render(request,"mrp/tolid/details.html",{'machines':machines_with_formulas,'shifts':shift,'title':'ورود داده های روزانه'})
 @csrf_exempt
 def saveAmarTableInfo(request):
     # print(request.body)
@@ -121,7 +121,13 @@ def saveAmarTableInfo(request):
     data=dict()
     return JsonResponse(data)
 def show_daily_amar_tolid(request):
-    q=request.GET.get('date',datetime.datetime.now().date())
+    q=request.GET.get('date',datetime.now().date())
+    date_object = datetime.strptime(q, '%Y-%m-%d')
+
+    next_day = date_object + timedelta(days=1)
+
+# Calculate previous day
+    previous_day = date_object - timedelta(days=1)
     shifts=Shift.objects.all()
     machines=Asset.objects.filter(assetTypes=2)
     machines_with_amar=[]
@@ -129,7 +135,7 @@ def show_daily_amar_tolid(request):
         for m in machines:
             shift_val=[]
             sum=0
-            max_speed=0
+            max_speed=1
             for i in shifts:
                 try:
 
@@ -145,9 +151,9 @@ def show_daily_amar_tolid(request):
 
             machines_with_amar.append({'machine':m,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format((sum/max_speed)*100)})
 
-    return render(request,'mrp/tolid/daily_amar_tolid.html',{'shift':shifts,'machines_with_amar':machines_with_amar})
+    return render(request,'mrp/tolid/daily_amar_tolid.html',{'shift':shifts,'machines_with_amar':machines_with_amar,'title':'راندمان روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':date_object})
 def show_daily_analyse_tolid(request):
-        q=request.GET.get('date',datetime.datetime.now().date())
+        q=request.GET.get('date',datetime.now().date())
         shifts=Shift.objects.all()
         machines=Asset.objects.filter(assetTypes=2)
         machines_with_amar=[]
@@ -170,9 +176,13 @@ def show_daily_analyse_tolid(request):
                 machines_with_amar.append({'machine':m,'good':tolid_standard.good_production_rate,'mean':tolid_standard.mean_production_rate,
                 'bad':tolid_standard.bad_production_rate,'real':sum,'kasre_tolid':sum-tolid_standard.good_production_rate})
 
-        return render(request,'mrp/tolid/daily_analyse_tolid.html',{'machines_with_amar':machines_with_amar})
+        return render(request,'mrp/tolid/daily_analyse_tolid.html',{'machines_with_amar':machines_with_amar,'title':'تحلیل روزانه تولید'})
 def calendar_main(request):
     return render(request,'mrp/tolid/calendar_main.html',{})
+def calendar_randeman(request):
+    return render(request,'mrp/tolid/calendar_randeman.html',{'title':'راندمان روزانه'})
+def calendar_tahlil(request):
+    return render(request,'mrp/tolid/calendar_tahlil.html',{'title':'تحلیل روزانه'})
 def get_tolid_calendar_info(request):
     data=[]
     user_info=DailyProduction.objects.values_list('dayOfIssue').distinct()
@@ -185,3 +195,33 @@ def get_tolid_calendar_info(request):
                 'id':i[0]})
 
     return JsonResponse(data,safe=False)
+def get_randeman_calendar_info(request):
+    data=[]
+    user_info=DailyProduction.objects.values_list('dayOfIssue').distinct()
+    print(user_info)
+    for i in user_info:
+        print(i)
+        data.append({'title': "راندمان روزانه",\
+                'start': i[0],\
+                 'color': '#fb3',\
+                'id':i[0]})
+
+    return JsonResponse(data,safe=False)
+def get_tahlil_calendar_info(request):
+    data=[]
+    user_info=DailyProduction.objects.values_list('dayOfIssue').distinct()
+    print(user_info)
+    for i in user_info:
+        print(i)
+        data.append({'title': "تحلیل روزانه",\
+                'start': i[0],\
+                 'color': '#a6c',\
+                'id':i[0]})
+
+    return JsonResponse(data,safe=False)
+def list_formula(request):
+    formulas=Formula.objects.all()
+    return render(request,"mrp/formula/formulaList.html",{'formulas':formulas,'title':'لیست فرمولهای تولید'})
+def list_speed_formula(request):
+    formulas=SpeedFormula.objects.all()
+    return render(request,"mrp/speed_formula/formulaList.html",{'formulas':formulas,'title':'لیست فرمولهای سرعت'})

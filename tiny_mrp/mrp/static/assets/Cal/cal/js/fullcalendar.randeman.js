@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
         editable: true,
         locale: 'fa',
         events: {
-         url: '/Tolid/GetInfo', // Replace with your server-side script to fetch events
+         url: '/Tolid/Randeman/GetInfo', // Replace with your server-side script to fetch events
          method: 'GET',
          failure: function() {
            // Handle failure to fetch events
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
        },
        eventClick: function(info) {
      // Open a new window when an event is clicked
-     window.open('/Tolid/DailyDetails?event_id=' + info.event.id, '_blank');
+     window.open('/Tolid/Daily?date=' + info.event.id, '_blank');
    },
 
         customButtons: {

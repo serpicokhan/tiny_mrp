@@ -1,0 +1,82 @@
+
+{% extends 'mrp/blank-page.html' %}
+{% load static %}
+
+{% block stylesheet %}
+ <link href="{% static 'assets/css/fullcalendar.min.css' %}" rel="stylesheet" type="text/css">
+ <style media="screen">
+   .fc-event {
+  direction: rtl;
+  text-align: right; /* Optional: Align text to the right */
+}
+ </style>
+{% endblock %}
+<!-- Fullcalendar -->
+
+{% block content %}
+
+<div class="row app-block">
+                   <!-- <div class="col-md-3 app-sidebar">
+                       <div class="card">
+                           <div class="card-body pb-0">
+                               <button class="btn btn-secondary btn-block" data-toggle="modal"
+                                   data-target="#createEventModal">
+                                   ساخت رویداد
+                               </button>
+                           </div>
+                           <div>
+                               <div class="card-body pb-3">
+                                   <h6 class="mb-0">رویدادها</h6>
+                                   <p class="small text-muted mb-0">رویداد را بکشید و در محل مورد نظر رها کنید</p>
+                               </div>
+                               <div>
+                                   <div class="list-group list-group-flush" id="external-events">
+                                       <div class="list-group-item fc-event">
+                                           <i class="fa fa-circle text-success" data-icon="car"></i> تعطیلات
+                                       </div>
+                                       <div class="list-group-item fc-event">
+                                           <i class="fa fa-circle text-danger" data-icon="users"></i> سفر
+                                       </div>
+                                       <div class="list-group-item fc-event">
+                                           <i class="fa fa-circle text-info" data-icon="coffee"></i> دوستان
+                                       </div>
+                                       <div class="list-group-item fc-event">
+                                           <i class="fa fa-circle text-warning" data-icon="diamond"></i> شرکت
+                                       </div>
+                                       <div class="list-group-item fc-event">
+                                           <i class="fa fa-circle text-primary" data-icon="glass"></i> تیم
+                                       </div>
+                                       <div class="list-group-item fc-event">
+                                           <i class="fa fa-circle text-secondary" data-icon="glass"></i> خانواده
+                                       </div>
+                                   </div>
+                               </div>
+                               <div class="card-body">
+                                   <div class="custom-control custom-checkbox">
+                                       <input type="checkbox" class="custom-control-input" id="drop-remove" checked="">
+                                       <label class="custom-control-label" for="drop-remove">حذف بعد از انداختن</label>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div> -->
+                   <div class="col-md-9 app-content">
+                       <div class="app-content-overlay"></div>
+                       <div class="card app-content-body">
+                           <div class="card-body">
+                               <a href="#" class="app-sidebar-menu-button btn btn-outline-light mb-3">
+                                   <i data-feather="menu"></i>
+                               </a>
+                               <div id="calendar"></div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+
+{% endblock %}
+{% load static %}
+
+{% block javascript %}
+<script src="{% static 'assets/Cal/cal/js/fullcalendar.min.js' %}"></script>
+<script src="{% static 'assets/Cal/cal/js/fullcalendar.tahlil.js' %}"></script>
+{% endblock %}

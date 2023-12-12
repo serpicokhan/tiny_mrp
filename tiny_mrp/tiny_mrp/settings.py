@@ -87,7 +87,7 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-LOGIN_REDIRECT_URL = 'index'
+LOGIN_REDIRECT_URL = 'calendar_main'
 LOGIN_URL='login'
 
 # Password validation
