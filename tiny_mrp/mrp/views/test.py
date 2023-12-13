@@ -148,12 +148,13 @@ def show_daily_amar_tolid(request):
     m_count=1
 
     if(q):
+        sum_randeman=0
         for index,m in enumerate(machines):
 
             asset_types=get_asset_count(m.assetCategory)
             shift_val=[]
             sum=0
-            sum_randeman=0
+
             max_speed=1
             sum_cat=0
             for i in shifts:
@@ -166,11 +167,10 @@ def show_daily_amar_tolid(request):
 
 
                 except Exception as e:
-                    print(e)
                     shift_val.append({'value':0,'shift':i})
             machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format((sum/max_speed)*100)})
             sum_randeman+=(sum/max_speed)
-            asset_types>1
+
             try:
                 if(machines[index].assetCategory !=machines[index+1].assetCategory and asset_types>1):
 
@@ -180,7 +180,19 @@ def show_daily_amar_tolid(request):
                     machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((sum_randeman/asset_types)*100)})
                     sum_randeman=0
             except:
+                sum_randeman-=(sum/max_speed)
+                if(index==len(machines)-1 and asset_types>1):
+                    print("sum_randeman",sum_randeman)
+                    x=[]
+                    for i in shifts:
+                        x.append({'value':0,'shift':i})
+                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((sum_randeman/asset_types)*100)})
+                    sum_randeman=0
+
                 pass
+            # if asset_types==1:
+            #     sum_randeman=0
+
 
 
 
