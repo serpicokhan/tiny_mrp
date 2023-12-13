@@ -134,11 +134,34 @@ def get_sum_machin_product_by_cat(machine,target_date):
     ).aggregate(Sum('production_value'))['production_value__sum'] or 0
     # print(machine.id,target_date,production_sum)
     return production_sum
+def get_sum_machine_by_date_shift(assetCatregory,shift,target_date):
+        t2 = DailyProduction.objects.filter(
+        machine__assetCategory=assetCatregory,
+        dayOfIssue=target_date,shift=shift
+        ).aggregate(Sum('production_value'))['production_value__sum'] or 0
+        # print(machine.id,target_date,production_sum)
+        return t2
+def get_sum__speed_machine_by_category(assetCatregory,target_date):
+        sum=0
+        shift=Shift.objects.all()
+        t2 = DailyProduction.objects.filter(
+        machine__assetCategory=assetCatregory,
+        dayOfIssue=target_date
+        )
+
+        for i in t2:
+            sum+=i.production_value/i.eval_max_tolid()
+        # print(machine.id,target_date,production_sum)
+        i=t2.count()
+        if(i>0):
+            return sum*shift.count()/t2.count()
+        return 0
 def show_daily_amar_tolid(request):
     q=request.GET.get('date',datetime.now().date())
     date_object = datetime.strptime(q, '%Y-%m-%d')
 
     next_day = date_object + timedelta(days=1)
+
 
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
@@ -169,29 +192,33 @@ def show_daily_amar_tolid(request):
                 except Exception as e:
                     shift_val.append({'value':0,'shift':i})
             machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format((sum/max_speed)*100)})
-            sum_randeman+=(sum/max_speed)
+            print("sum_randeman",sum_randeman)
+            if(index<len(machines)):
+                sum_randeman+=(sum/max_speed)
+
+            # print(get_sum_machine_by_date_shift(m.assetCategory,q,i))
 
             try:
                 if(machines[index].assetCategory !=machines[index+1].assetCategory and asset_types>1):
 
                     x=[]
                     for i in shifts:
-                        x.append({'value':0,'shift':i})
-                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((sum_randeman/asset_types)*100)})
+                        x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
+                    print(sum_randeman)
+                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
                     sum_randeman=0
             except:
-                sum_randeman-=(sum/max_speed)
+
                 if(index==len(machines)-1 and asset_types>1):
-                    print("sum_randeman",sum_randeman)
+
                     x=[]
                     for i in shifts:
-                        x.append({'value':0,'shift':i})
-                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((sum_randeman/asset_types)*100)})
+                        x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
+                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
                     sum_randeman=0
 
                 pass
-            # if asset_types==1:
-            #     sum_randeman=0
+
 
 
 
