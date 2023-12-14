@@ -20,6 +20,30 @@ def get_sum_machine_by_date_shift(assetCatregory,shift,target_date):
         ).aggregate(Sum('production_value'))['production_value__sum'] or 0
         # print(machine.id,target_date,production_sum)
         return t2
+def get_good_standard_machine_by_date_category(assetCatregory):
+        t2 = ProductionStandard.objects.filter(
+        machine_name__assetCategory=assetCatregory,
+
+        ).aggregate(Sum('good_production_rate'))['good_production_rate__sum'] or 0
+
+        # print(machine.id,target_date,production_sum)
+        return t2
+def get_mean_standard_machine_by_date_category(assetCatregory):
+        t2 = ProductionStandard.objects.filter(
+        machine_name__assetCategory=assetCatregory,
+
+        ).aggregate(Sum('mean_production_rate'))['mean_production_rate__sum'] or 0
+
+        # print(machine.id,target_date,production_sum)
+        return t2
+def get_bad_standard_machine_by_date_category(assetCatregory):
+        t2 = ProductionStandard.objects.filter(
+        machine_name__assetCategory=assetCatregory,
+
+        ).aggregate(Sum('bad_production_rate'))['bad_production_rate__sum'] or 0
+
+        # print(machine.id,target_date,production_sum)
+        return t2
 def get_sum__speed_machine_by_category(assetCatregory,target_date):
         sum=0
         shift=Shift.objects.all()

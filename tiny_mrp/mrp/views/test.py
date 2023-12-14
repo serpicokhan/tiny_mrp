@@ -200,13 +200,15 @@ def show_daily_analyse_tolid(request):
         next_day = date_object + timedelta(days=1)
 
 
+
     # Calculate previous day
         previous_day = date_object - timedelta(days=1)
         shifts=Shift.objects.all()
         machines=Asset.objects.filter(assetTypes=2)
         machines_with_amar=[]
         if(q):
-            for m in machines:
+            for index,m in enumerate(machines):
+                asset_types=get_asset_count(m.assetCategory)
                 shift_val=[]
                 sum=0
                 max_speed=0
@@ -221,8 +223,34 @@ def show_daily_analyse_tolid(request):
                     except Exception as e:
                         print(e)
 
-                machines_with_amar.append({'machine':m,'good':tolid_standard.good_production_rate,'mean':tolid_standard.mean_production_rate,
+                machines_with_amar.append({'machine':m.assetName,'good':tolid_standard.good_production_rate,'mean':tolid_standard.mean_production_rate,
                 'bad':tolid_standard.bad_production_rate,'real':sum,'kasre_tolid':sum-tolid_standard.good_production_rate})
+                try:
+                    if(machines[index].assetCategory !=machines[index+1].assetCategory and asset_types>1):
+
+
+                        # print(sum_randeman)
+                        tolid=get_sum_machin_product_by_cat(m,q)
+                        good_tolid=get_good_standard_machine_by_date_category(m.assetCategory)
+                        # machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                        machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory),'css':'font-weight-bold','good':good_tolid,'mean':get_mean_standard_machine_by_date_category(m.assetCategory)
+                        ,'bad':get_bad_standard_machine_by_date_category(m.assetCategory),'real':tolid,'kasre_tolid':tolid-good_tolid})
+
+
+                        sum_randeman=0
+                except Exception as ex:
+                    if(index==len(machines)-1 and asset_types>1):
+                            tolid=get_sum_machin_product_by_cat(m,q)
+                            good_tolid=get_good_standard_machine_by_date_category(m.assetCategory)
+
+
+
+                            machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory),'css':'font-weight-bold','good':good_tolid,'mean':get_mean_standard_machine_by_date_category(m.assetCategory)
+                            ,'bad':get_bad_standard_machine_by_date_category(m.assetCategory),'real':tolid,'kasre_tolid':tolid-good_tolid})
+
+
+                    pass
+
 
         return render(request,'mrp/tolid/daily_analyse_tolid.html',{'machines_with_amar':machines_with_amar,'title':'تحلیل روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
 def calendar_main(request):
