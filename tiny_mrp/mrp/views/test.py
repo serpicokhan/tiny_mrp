@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.context_processors import PermWrapper
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from mrp.business.tolid_util import *
 
 
 @login_required
@@ -44,7 +44,7 @@ def get_daily_amar(request):
             except DailyProduction.DoesNotExist:
                 machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
-    return render(request,"mrp/tolid/daily_details.html",{'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':date_object})
+    return render(request,"mrp/tolid/daily_details.html",{'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
 
 @login_required
 def index(request):
@@ -122,40 +122,7 @@ def saveAmarTableInfo(request):
     data=dict()
     return JsonResponse(data)
 
-def get_asset_count(target_category_name):
-    return Asset.objects.filter(assetCategory=target_category_name).count()
 
-
-def get_sum_machin_product_by_cat(machine,target_date):
-
-    production_sum = DailyProduction.objects.filter(
-    machine__assetCategory=machine.assetCategory,
-    dayOfIssue=target_date
-    ).aggregate(Sum('production_value'))['production_value__sum'] or 0
-    # print(machine.id,target_date,production_sum)
-    return production_sum
-def get_sum_machine_by_date_shift(assetCatregory,shift,target_date):
-        t2 = DailyProduction.objects.filter(
-        machine__assetCategory=assetCatregory,
-        dayOfIssue=target_date,shift=shift
-        ).aggregate(Sum('production_value'))['production_value__sum'] or 0
-        # print(machine.id,target_date,production_sum)
-        return t2
-def get_sum__speed_machine_by_category(assetCatregory,target_date):
-        sum=0
-        shift=Shift.objects.all()
-        t2 = DailyProduction.objects.filter(
-        machine__assetCategory=assetCatregory,
-        dayOfIssue=target_date
-        )
-
-        for i in t2:
-            sum+=i.production_value/i.eval_max_tolid()
-        # print(machine.id,target_date,production_sum)
-        i=t2.count()
-        if(i>0):
-            return sum*shift.count()/t2.count()
-        return 0
 def show_daily_amar_tolid(request):
     q=request.GET.get('date',datetime.now().date())
     date_object = datetime.strptime(q, '%Y-%m-%d')
@@ -228,6 +195,13 @@ def show_daily_amar_tolid(request):
 
 def show_daily_analyse_tolid(request):
         q=request.GET.get('date',datetime.now().date())
+        q=request.GET.get('date',datetime.now().date())
+        date_object = datetime.strptime(q, '%Y-%m-%d')
+        next_day = date_object + timedelta(days=1)
+
+
+    # Calculate previous day
+        previous_day = date_object - timedelta(days=1)
         shifts=Shift.objects.all()
         machines=Asset.objects.filter(assetTypes=2)
         machines_with_amar=[]
@@ -250,7 +224,7 @@ def show_daily_analyse_tolid(request):
                 machines_with_amar.append({'machine':m,'good':tolid_standard.good_production_rate,'mean':tolid_standard.mean_production_rate,
                 'bad':tolid_standard.bad_production_rate,'real':sum,'kasre_tolid':sum-tolid_standard.good_production_rate})
 
-        return render(request,'mrp/tolid/daily_analyse_tolid.html',{'machines_with_amar':machines_with_amar,'title':'تحلیل روزانه تولید'})
+        return render(request,'mrp/tolid/daily_analyse_tolid.html',{'machines_with_amar':machines_with_amar,'title':'تحلیل روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
 def calendar_main(request):
     return render(request,'mrp/tolid/calendar_main.html',{})
 def calendar_randeman(request):
