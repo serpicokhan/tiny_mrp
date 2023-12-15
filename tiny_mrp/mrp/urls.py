@@ -25,7 +25,8 @@ urlpatterns = [
     url(r'^Shift/$', list_shifts, name='list_shifts'),
     url(r'^Formula/$', list_formula, name='list_formula'),
     url(r'^SpeedFormula/$', list_speed_formula, name='list_speed_formula'),
-
+    url(r'^Monthly/$', monthly_detaild_report, name='monthly_detaild_report'),
+    
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

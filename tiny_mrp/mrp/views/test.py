@@ -301,3 +301,26 @@ def list_formula(request):
 def list_speed_formula(request):
     formulas=SpeedFormula.objects.all()
     return render(request,"mrp/speed_formula/formulaList.html",{'formulas':formulas,'title':'لیست فرمولهای سرعت'})
+def monthly_detaild_report(request):
+    asset_category=AssetCategory.objects.all()
+    j_month=request.GET.get('month',1)
+    current_date_time2 = jdatetime.datetime.now()
+    current_year=current_date_time2.year
+
+
+    current_date_time = jdatetime.date(current_year, j_month, 1)
+    current_jalali_date = current_date_time
+
+
+
+    if current_jalali_date.month == 12:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=current_jalali_date.year + 1)
+    else:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=current_jalali_date.month + 1)
+
+
+    num_days = (first_day_of_next_month - jdatetime.timedelta(days=1)).day
+
+    print(num_days)
+
+    return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category})

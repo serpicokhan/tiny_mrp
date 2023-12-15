@@ -1,0 +1,151 @@
+{% extends 'mrp/blank-page.html' %}
+
+{% block content %}
+{% load static %}
+<div class="row app-block">
+    
+    <div class="col-md-12 app-content">
+        <div class="app-content-overlay"></div>
+        <div class="app-action">
+            <div class="action-left">
+                <div class="custom-control custom-checkbox mr-3">
+                    <input type="checkbox" class="custom-control-input" id="customCheckAll">
+                    <label class="custom-control-label" for="customCheckAll"></label>
+                </div>
+                <ul class="list-inline">
+                    <li class="list-inline-item mb-0">
+                       
+                       
+                    </li>
+                   
+                </ul>
+            </div>
+            <div class="action-right">
+                <form class="d-flex mr-3">
+                    <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu width-15 height-15"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </a>
+                    <div class="input-group">
+                        <select class="form-control" id="jalaliMonths">
+                            <option selected>انتخاب ماه</option>
+                            <option value="1">فروردین</option>
+                            <option value="2">اردیبهشت</option>
+                            <option value="3">خرداد</option>
+                            <option value="4">تیر</option>
+                            <option value="5">مرداد</option>
+                            <option value="6">شهریور</option>
+                            <option value="7">مهر</option>
+                            <option value="8">آبان</option>
+                            <option value="9">آذر</option>
+                            <option value="10">دی</option>
+                            <option value="11">بهمن</option>
+                            <option value="12">اسفند</option>
+                          </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-light" type="button" id="button-addon1">
+                                <i class="ti-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+       
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+
+                <h6 class="card-title">تب پایه</h6>
+               
+                <ul class="nav nav-pills mb-3" role="tablist">
+                    {% for c in cats %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if forloop.counter == 1 %}active 
+                        {% endif %}" id="tab{{c.id}}" data-toggle="tab" href="#sub{{c.id}}" role="tab" aria-controls="sub{{c.id}}" aria-selected="{% if forloop.counter == 1 %}true 
+                        {% else %}false{% endif %}">{{c.name}}</a>
+                    </li>
+                    {% endfor %}
+                    
+                </ul>
+                <hr/>
+                <div class="tab-content">
+                    {% for i in cats %}
+                    <div class="tab-pane fade {% if forloop.counter == 1 %}active show {% endif %}" id="sub{{i.id}}" role="tabpanel" aria-labelledby="sub{{i.id}}">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Avatar</th>
+                                    <th scope="col">نام</th>
+                                    <th scope="col">نام خانوادگی</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <th>
+                                        <figure class="avatar avatar-sm">
+                                            <img src="{% static 'assets/media/image/user/women_avatar5.jpg' %}" class="rounded-circle" alt="image">
+                                        </figure>
+                                    </th>
+                                    <td>سیما</td>
+                                    <td>احمدی</td>
+                                    <td>
+                                        <span class="badge badge-success">فعال</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">2</th>
+                                    <th>
+                                        <figure class="avatar avatar-sm">
+                                            <a href="#">
+                                                <span class="avatar-title bg-primary rounded-circle">M</span>
+                                            </a>
+                                        </figure>
+                                    </th>
+                                    <td>Morn</td>
+                                    <td>محمدی</td>
+                                    <td>
+                                        <span class="badge badge-danger">غیرفعال</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">3</th>
+                                    <th>
+                                        <figure class="avatar avatar-sm">
+                                            <img src="{% static 'assets/media/image/user/man_avatar5.jpg' %}" class="rounded-circle" alt="image">
+                                        </figure>
+                                    </th>
+                                    <td>لیلا</td>
+                                    <td>پرنده</td>
+                                    <td>
+                                        <span class="badge badge-warning">در انتظار</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endfor %}
+                 
+                </div>
+
+                <div data-label="کد نمونه" class="demo-code-preview">
+                 
+                </div>
+            </div>
+        </div>
+
+       
+
+    </div>
+</div>
+
+{% endblock%}
