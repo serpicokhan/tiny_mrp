@@ -302,8 +302,10 @@ def list_speed_formula(request):
     formulas=SpeedFormula.objects.all()
     return render(request,"mrp/speed_formula/formulaList.html",{'formulas':formulas,'title':'لیست فرمولهای سرعت'})
 def monthly_detaild_report(request):
+    days=[]
+    shift=Shift.objects.all()
     asset_category=AssetCategory.objects.all()
-    j_month=request.GET.get('month',1)
+    j_month=request.GET.get('month',9)
     current_date_time2 = jdatetime.datetime.now()
     current_year=current_date_time2.year
 
@@ -320,7 +322,18 @@ def monthly_detaild_report(request):
 
 
     num_days = (first_day_of_next_month - jdatetime.timedelta(days=1)).day
+    cat_list=[]
+    for cats in asset_category:
+        sh_list=[]
+        
+        days=[]                
+        for day in range(1,num_days+1):                
+            product={}
+            j_date=jdatetime.date(current_jalali_date.year,current_jalali_date.month,day)
+            for sh in shift:
+                product[sh.id]=get_sum_machine_by_date_shift(cats,sh,j_date.togregorian())
+            days.append({'cat':cats,'date':"{0}/{1}/{2}".format(current_jalali_date.year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
+        
+        cat_list.append({'cat':cats,'shift_val':days})
 
-    print(num_days)
-
-    return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category})
+    return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift})

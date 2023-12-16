@@ -2,6 +2,7 @@
 
 {% block content %}
 {% load static %}
+{% load custom_filters %}
 <div class="row app-block">
     
     <div class="col-md-12 app-content">
@@ -18,6 +19,8 @@
                    
                 </div>
                 <ul class="list-inline">
+                    
+
                     <li class="list-inline-item mb-0">
                        
                        
@@ -65,78 +68,66 @@
         <div class="card">
             <div class="card-body">
 
-                <h6 class="card-title">تب پایه</h6>
+                <h6 class="card-title">{{title}}</h6>
+                
                
                 <ul class="nav nav-pills mb-3" role="tablist">
-                    {% for c in cats %}
+                    
+                    {% for c in cat_list %}
+                    
                     <li class="nav-item">
                         <a class="nav-link {% if forloop.counter == 1 %}active 
-                        {% endif %}" id="tab{{c.id}}" data-toggle="tab" href="#sub{{c.id}}" role="tab" aria-controls="sub{{c.id}}" aria-selected="{% if forloop.counter == 1 %}true 
-                        {% else %}false{% endif %}">{{c.name}}</a>
+                        {% endif %}" id="tab{{c.cat.id}}" data-toggle="tab" href="#sub{{c.cat.id}}" 
+                        role="tab" aria-controls="sub{{c.cat.id}}" aria-selected="{% if forloop.counter == 1 %}true 
+                        {% else %}false{% endif %}">{{c.cat.name}}</a>
                     </li>
                     {% endfor %}
                     
                 </ul>
                 <hr/>
                 <div class="tab-content">
-                    {% for i in cats %}
-                    <div class="tab-pane fade {% if forloop.counter == 1 %}active show {% endif %}" id="sub{{i.id}}" role="tabpanel" aria-labelledby="sub{{i.id}}">
+                    {% for cat_item in cat_list %}
+                    
+                    <div class="tab-pane fade {% if forloop.counter == 1 %}active show {% endif %}" 
+                    id="sub{{cat_item.cat.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.cat.id}}">
+                    <h2>{{ cat_item.cat.name }}</h2>
+                    
+                    
+                        <h3>{{ shift_val.shift.name }}</h3>
                         <div class="table-responsive">
-                            <table class="table">
+                            <table class="table table-striped" border="1">
                                 <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Avatar</th>
-                                    <th scope="col">نام</th>
-                                    <th scope="col">نام خانوادگی</th>
-                                    <th scope="col">Status</th>
-                                </tr>
+                                    <tr class="bg-dark">
+                                        <th>Day of Week</th>
+                                        <th>Date</th>
+                                        {% for sh in shift %}
+                                            <th>{{ sh.name }}</th>
+                                        {% endfor %}
+                                        <!-- Add more headers if needed -->
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <th>
-                                        <figure class="avatar avatar-sm">
-                                            <img src="{% static 'assets/media/image/user/women_avatar5.jpg' %}" class="rounded-circle" alt="image">
-                                        </figure>
-                                    </th>
-                                    <td>سیما</td>
-                                    <td>احمدی</td>
-                                    <td>
-                                        <span class="badge badge-success">فعال</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">2</th>
-                                    <th>
-                                        <figure class="avatar avatar-sm">
-                                            <a href="#">
-                                                <span class="avatar-title bg-primary rounded-circle">M</span>
-                                            </a>
-                                        </figure>
-                                    </th>
-                                    <td>Morn</td>
-                                    <td>محمدی</td>
-                                    <td>
-                                        <span class="badge badge-danger">غیرفعال</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">3</th>
-                                    <th>
-                                        <figure class="avatar avatar-sm">
-                                            <img src="{% static 'assets/media/image/user/man_avatar5.jpg' %}" class="rounded-circle" alt="image">
-                                        </figure>
-                                    </th>
-                                    <td>لیلا</td>
-                                    <td>پرنده</td>
-                                    <td>
-                                        <span class="badge badge-warning">در انتظار</span>
-                                    </td>
-                                </tr>
+                                    {% for day in cat_item.shift_val %}
+                                        <tr >
+                                            <td>{{ day.day_of_week }}</td>
+                                            <td>{{ day.date }}</td>
+                                            {% for shifts in shift %}
+                                            {% if cat_item.cat == day.cat %}
+
+                                                <td>{{ day.product|get_item:shifts.id }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <!-- Add more columns for other data -->
+                                        </tr>
+                                    
+                                    {% endfor %}
                                 </tbody>
                             </table>
                         </div>
+                    
+                      
+                    
+
                     </div>
                     {% endfor %}
                  

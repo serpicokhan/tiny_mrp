@@ -289,3 +289,22 @@ class DateJob:
         updated_request.update({'taskStartDate': new_date})
         updated_request.update({'taskDateCompleted': new_date2})
         return updated_request
+    @staticmethod
+    def get_day_of_week(current_date):
+        day_of_week = current_date.weekday()
+        
+
+        # Define a list of Persian names for days of the week
+        persian_days = [
+            "دوشنبه",
+            "سه‌شنبه",
+            "چهارشنبه",
+            "پنج‌شنبه",
+            "جمعه",
+            "شنبه",
+            "یک‌شنبه"
+        ]
+
+        # Print the Persian name of the current day
+        persian_day_name = persian_days[day_of_week]
+        return persian_day_name
