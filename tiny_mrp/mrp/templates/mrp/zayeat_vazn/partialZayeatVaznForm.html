@@ -1,0 +1,29 @@
+{% load widget_tweaks %}
+<div class="row">
+<div class="col-sm-12 b-r">
+
+
+<div class="table-responsive"> <!-- Required for Responsive -->
+  <table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        {% for i in zayeat %}
+        <th>{{i.name}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in zayeat %}
+      <td contenteditable="true" class="editable-cell" data-date={{date}} style="  width: 100px; /* Set the width of the editable cell */   min-width: 100px; /* Ensure a minimum width */    max-width: 100px; /* Ensure a maximum width */    outline: none; /* Remove the default focus outline */    border: 1px solid #ccc; /* Add a border for better visibility */    padding: 5px; /* Add padding for better appearance */    /* Other styles as needed */"></td>
+            {% endfor %}
+
+    </tbody>
+
+  </table>
+</div>
+
+
+</div>
+
+
+</div>

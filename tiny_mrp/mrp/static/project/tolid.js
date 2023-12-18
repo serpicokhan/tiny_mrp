@@ -217,3 +217,30 @@ console.log(JSON.stringify(sendData));
   // var tbl3=tableDataToJSON('tbl3');
 });
 });
+$(function () {
+  $(".add-zayeat").click(function(){
+    var btn=$(this);
+    return $.ajax({
+      url: $(btn).attr("data-url")+'?data='+$("#search").val(),
+      type: 'get',
+      dataType: 'json',
+      beforeSend: function () {
+        //alert(btn.attr("data-url"));
+        //alert("321321");
+        // /$("#modal-maintenanceType").modal("hide");
+        $("#modal-company").modal("show");
+      },
+      success: function (data) {
+        console.log(data);
+        //alert("3123@!");
+        $("#modal-company .modal-content").html(data.data);
+
+      }
+    });
+  });
+  $('.editable-cell').on('input', function() {
+        // Allow only numeric input
+        var text = $(this).text();
+        $(this).text(text.replace(/[^0-9]/g, ''));
+    });
+});

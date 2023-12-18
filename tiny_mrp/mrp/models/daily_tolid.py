@@ -75,7 +75,7 @@ class DailyProduction(models.Model):
                     return 0
                     # You can set a default value or handle the error as per your requirement
 
-    
+
 
     # def save(self, *args, **kwargs):
     #     # Calculate production value based on the specified formula
@@ -108,3 +108,24 @@ class DailyProduction(models.Model):
     #     super(DailyProduction, self).save(*args, **kwargs)
     class Meta:
         db_table="dailyproduction"
+
+class Zayeat(models.Model):
+    name = models.CharField(max_length=100)
+    assets = models.ManyToManyField(Asset)
+
+    def __str__(self):
+        return self.name
+    class Meta:
+        db_table="zayeat"
+
+class ZayeatVaz(models.Model):
+    zayeat = models.ForeignKey(Zayeat, on_delete=models.CASCADE)
+    vazn = models.FloatField()
+    dayOfIssue = models.DateField()
+    
+
+
+    def __str__(self):
+        return f"{self.zayeat.name} - {self.vazn} kg"
+    class Meta:
+        db_table="zayeatvazn"
