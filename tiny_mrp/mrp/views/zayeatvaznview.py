@@ -32,10 +32,10 @@ def zayeatVazn_create(request):
         else:
             date_of_issue=datetime.now().date()
         za=Zayeat.objects.all()
-        data['data']=render_to_string('mrp/zayeat_vazn/partialZayeatVaznCreate.html',request,
+        data['data']=render_to_string('mrp/zayeat_vazn/partialZayeatVaznCreate.html',
             {
                 'zayeat':za,
                 'date':date_of_issue.strftime('%Y-%m-%d')
-            }
+            },request
         )
         return JsonResponse(data)
