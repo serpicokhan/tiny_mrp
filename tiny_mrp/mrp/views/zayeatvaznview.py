@@ -25,14 +25,18 @@ def zayeatVazn_create(request):
             # Assuming the data is sent as JSON
             received_data = json.loads(request.body)  # If data was sent as form-encoded, use request.POST
             # Process the received_data (In this case, it's assumed to be a list of dictionaries)
-           
-            for i in received_data:
-                z=ZayeatVaz()
-                z.vazn=float(i['vazn'])
-                z.zayeat=Zayeat.objects.get(id=i['id'])
-                z.dayOfIssue=i['date']
-                z.save()
-            
+            print(received_data)
+            for table in received_data:
+
+
+                    for row in table:
+                        z=ZayeatVaz()
+                        z.vazn=float(row['vazn'])
+                        z.zayeat=Zayeat.objects.get(id=row['id'])
+                        z.dayOfIssue=row['date']
+                        z.shift=Shift.objects.get(id=row['shift'])
+                        z.save()
+
             # For demonstration purposes, just returning the received data as JSON response
             return JsonResponse({'success': True, 'data_received': received_data})
         except Exception as e:

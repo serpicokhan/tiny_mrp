@@ -276,24 +276,31 @@ def get_randeman_calendar_info(request):
     user_info=DailyProduction.objects.values_list('dayOfIssue').distinct()
     print(user_info)
     for i in user_info:
-        print(i)
+        z=get_sum_vaz_zayeat_by_date(i[0])
         data.append({'title': "راندمان روزانه",\
                 'start': i[0],\
                  'color': '#fb3',\
+                'id':i[0]})
+        data.append({'title': "جمع ضایعات روز: {}".format(float(z)),\
+                'start': i[0],\
+                 'color': 'red',\
                 'id':i[0]})
 
     return JsonResponse(data,safe=False)
 def get_tahlil_calendar_info(request):
     data=[]
     user_info=DailyProduction.objects.values_list('dayOfIssue').distinct()
-    print(user_info)
+
     for i in user_info:
-        print(i)
-        data.append({'title': "تحلیل روزانه",\
+        z=get_sum_vaz_zayeat_by_date(i[0])
+        data.append({'title': 'تحلیل روزانه',\
                 'start': i[0],\
                  'color': '#a6c',\
                 'id':i[0]})
-
+        data.append({'title': "جمع ضایعات روز: {}".format(float(z)),\
+                'start': i[0],\
+                 'color': 'red',\
+                'id':i[0]})
     return JsonResponse(data,safe=False)
 def list_formula(request):
     formulas=Formula.objects.all()
@@ -327,15 +334,15 @@ def monthly_detaild_report(request):
     cat_list=[]
     for cats in asset_category:
         sh_list=[]
-        
-        days=[]                
-        for day in range(1,num_days+1):                
+
+        days=[]
+        for day in range(1,num_days+1):
             product={}
             j_date=jdatetime.date(current_jalali_date.year,current_jalali_date.month,day)
             for sh in shift:
                 product[sh.id]=get_sum_machine_by_date_shift(cats,sh,j_date.togregorian())
             days.append({'cat':cats,'date':"{0}/{1}/{2}".format(current_jalali_date.year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
-        
+
         cat_list.append({'cat':cats,'shift_val':days})
 
     return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift})

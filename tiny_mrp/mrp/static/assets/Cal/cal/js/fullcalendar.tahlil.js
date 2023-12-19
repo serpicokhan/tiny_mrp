@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var calendar = new Calendar(calendarEl, {
 
+
         headerToolbar: {
             left: 'prev,next today addEventButton',
             center: 'title',
@@ -43,6 +44,12 @@ document.addEventListener('DOMContentLoaded', function () {
            alert('There was an error while fetching events!');
          }
        },
+       eventDidMount: function(info) {
+    // Create a <div> for the event title with a line break
+    var content=info.el.querySelector('.fc-event-title').innerHTML ;
+    console.log(content);
+    info.el.querySelector('.fc-event-title').innerHTML =   content.replace('&lt;br/&gt;','<br/>');
+  },
        eventClick: function(info) {
      // Open a new window when an event is clicked
      window.open('/Tolid/DailyAnalyse?date=' + info.event.id, '_blank');
@@ -78,7 +85,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 // if so, remove the element from the "Draggable Events" list
                 info.draggedEl.parentNode.removeChild(info.draggedEl);
             }
-        }
+        },
+
     });
 
       // read_calendar_data();

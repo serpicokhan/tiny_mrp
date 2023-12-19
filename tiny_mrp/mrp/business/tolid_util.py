@@ -59,3 +59,10 @@ def get_sum__speed_machine_by_category(assetCatregory,target_date):
         if(i>0):
             return sum*shift.count()/t2.count()
         return 0
+def get_sum_vaz_zayeat_by_date(specific_date):
+    sum_vazn = ZayeatVaz.objects.filter(dayOfIssue=specific_date).aggregate(total_vazn=Sum('vazn'))
+
+    # Access the sum value
+    total_vazn_for_specific_date = sum_vazn['total_vazn'] or 0  # Default to 0 if there's no sum
+    print(total_vazn_for_specific_date)
+    return total_vazn_for_specific_date

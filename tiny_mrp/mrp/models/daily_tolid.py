@@ -120,9 +120,10 @@ class Zayeat(models.Model):
 
 class ZayeatVaz(models.Model):
     zayeat = models.ForeignKey(Zayeat, on_delete=models.CASCADE)
+    shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
     vazn = models.FloatField()
     dayOfIssue = models.DateField()
-    
+
 
 
     def __str__(self):

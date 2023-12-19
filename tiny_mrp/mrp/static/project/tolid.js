@@ -218,50 +218,49 @@ console.log(JSON.stringify(sendData));
 });
 });
 $(function () {
+  function processDataFromTables() {
+    const tables = $('.tbl-zayeat-vazn'); // Select all tables with class 'table'
+    const allTableData = []; // Array to store data from all tables
+
+    tables.each(function() {
+        const tableData = []; // Array to store data from a single table
+        const rows = $(this).find('tbody tr'); // Find rows in the current table
+
+        rows.each(function() {
+            const rowData = {}; // Object to store data for a single row
+
+            // Find cells in the current row
+            const cells = $(this).find('td');
+
+            cells.each(function(index) {
+              const dataId = $(this).attr('data-id');
+              const cellContent = $(this).text().trim()||0;
+              const datadate = $(this).attr('data-date');
+              const shiftdata=$(this).attr('data-shift');
+
+              tableData.push({'id':dataId,'vazn':cellContent,'date':datadate,'shift':shiftdata});
+            });
+
+            // Push rowData object to the tableData array
+
+        });
+
+        // Push tableData array to the allTableData array
+        allTableData.push(tableData);
+    });
+
+    return allTableData;
+}
   var save_zayeat=function(){
     form=$(this);
-    alert(12);
+
     // Initialize an empty array to store the data
-            const tableData = [];
-
-            // Get all the table rows (tr elements) within the tbody
-            const tableRows = document.querySelectorAll('table.tbl-zayeat-vazn tbody tr');
-
-            // Iterate through each table row
-            tableRows.forEach(row => {
-                // Initialize an object to store the data for this row
-                const rowData = {};
-
-                // Get all the cells (td elements) within the current row
-                const cells = row.querySelectorAll('td');
-
-                // Iterate through each cell in the row
-                cells.forEach(cell => {
-                    // Access the content of each cell and store it in the object
-                    const dataId = cell.getAttribute('data-id');
-                    const cellContent = cell.innerText.trim()||0;
-                    const datadate = cell.getAttribute('data-date');
-                    
-                    tableData.push({'id':dataId,'vazn':cellContent,'date':datadate});
-                });
-
-                // Add the rowData object to the tableData array
-                
-            });
-            console.log(tableData);
-            // alert(1);
-            // $("#js_data").val(JSON.stringify(tableData));
-            
-
-            // Output the collected data
-            // console.log(tableData);
-
-            // Sending data via POST request (Example using fetch)
+            const collectedData = processDataFromTables();
             const url = form.attr('action'); // Replace with your actual POST endpoint URL
 
             $.ajax({
               url: form.attr("action"),
-              data: JSON.stringify(tableData),
+              data: JSON.stringify(collectedData),
               type: form.attr("method"),
               dataType: 'json',
               success: function (data) {
@@ -272,7 +271,7 @@ $(function () {
                   console.log(data);
                 }
 
-               
+
               }
             });
             return false;
