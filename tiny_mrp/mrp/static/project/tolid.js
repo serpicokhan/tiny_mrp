@@ -218,6 +218,66 @@ console.log(JSON.stringify(sendData));
 });
 });
 $(function () {
+  var save_zayeat=function(){
+    form=$(this);
+    alert(12);
+    // Initialize an empty array to store the data
+            const tableData = [];
+
+            // Get all the table rows (tr elements) within the tbody
+            const tableRows = document.querySelectorAll('table.tbl-zayeat-vazn tbody tr');
+
+            // Iterate through each table row
+            tableRows.forEach(row => {
+                // Initialize an object to store the data for this row
+                const rowData = {};
+
+                // Get all the cells (td elements) within the current row
+                const cells = row.querySelectorAll('td');
+
+                // Iterate through each cell in the row
+                cells.forEach(cell => {
+                    // Access the content of each cell and store it in the object
+                    const dataId = cell.getAttribute('data-id');
+                    const cellContent = cell.innerText.trim()||0;
+                    const datadate = cell.getAttribute('data-date');
+                    
+                    tableData.push({'id':dataId,'vazn':cellContent,'date':datadate});
+                });
+
+                // Add the rowData object to the tableData array
+                
+            });
+            console.log(tableData);
+            // alert(1);
+            // $("#js_data").val(JSON.stringify(tableData));
+            
+
+            // Output the collected data
+            // console.log(tableData);
+
+            // Sending data via POST request (Example using fetch)
+            const url = form.attr('action'); // Replace with your actual POST endpoint URL
+
+            $.ajax({
+              url: form.attr("action"),
+              data: JSON.stringify(tableData),
+              type: form.attr("method"),
+              dataType: 'json',
+              success: function (data) {
+                console.log(data);
+                if(data.success==true)
+                 $("#modal-company").modal("hide");
+                else{
+                  console.log(data);
+                }
+
+               
+              }
+            });
+            return false;
+
+  }
   $(".add-zayeat").click(function(){
     var btn=$(this);
     return $.ajax({
@@ -243,4 +303,5 @@ $(function () {
         var text = $(this).text();
         $(this).text(text.replace(/[^0-9]/g, ''));
     });
+  $("#modal-company").on("submit",'.js-zayeatVazn-create-form',save_zayeat);
 });

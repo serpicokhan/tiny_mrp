@@ -17,11 +17,26 @@ from django.views.decorators import csrf
 
 
 @login_required
+@csrf_exempt
 def zayeatVazn_create(request):
-    print("it 's comming'")
 
     if (request.method == 'POST'):
-        pass
+        try:
+            # Assuming the data is sent as JSON
+            received_data = json.loads(request.body)  # If data was sent as form-encoded, use request.POST
+            # Process the received_data (In this case, it's assumed to be a list of dictionaries)
+           
+            for i in received_data:
+                z=ZayeatVaz()
+                z.vazn=float(i['vazn'])
+                z.zayeat=Zayeat.objects.get(id=i['id'])
+                z.dayOfIssue=i['date']
+                z.save()
+            
+            # For demonstration purposes, just returning the received data as JSON response
+            return JsonResponse({'success': True, 'data_received': received_data})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
     else:
         data=dict()
         date_of_issue=None
@@ -32,8 +47,9 @@ def zayeatVazn_create(request):
         else:
             date_of_issue=datetime.now().date()
         za=Zayeat.objects.all()
+        shift=Shift.objects.all()
         data['data']=render_to_string('mrp/zayeat_vazn/partialZayeatVaznCreate.html',
-            {
+            {   'shifts':shift,
                 'zayeat':za,
                 'date':date_of_issue.strftime('%Y-%m-%d')
             },request
