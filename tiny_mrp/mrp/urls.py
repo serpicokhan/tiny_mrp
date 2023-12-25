@@ -27,6 +27,9 @@ urlpatterns = [
     url(r'^SpeedFormula/$', list_speed_formula, name='list_speed_formula'),
     url(r'^Monthly/$', monthly_detaild_report, name='monthly_detaild_report'),
     url(r'^Zayeat/Vazn/Create$', zayeatVazn_create, name='zayeatVazn_create'),
+    url(r'^Asset/Failure$', asset_failure_list, name='asset_failure_list'),
+    url(r'^Asset/Create$', assetFailure_create, name='assetFailure_create'),
+
 
 
 
