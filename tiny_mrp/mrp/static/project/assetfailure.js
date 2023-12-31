@@ -41,7 +41,7 @@ $(function () {
        type: form.attr("method"),
        dataType: 'json',
        success: function (data) {
-        
+
          if (data.form_is_valid) {
            $("#tbody_company").empty();
            $("#tbody_company").html(data.html_assetFailure_list);
@@ -73,6 +73,34 @@ $(function () {
     autoClose: true,
     initialValueType: 'gregorian'
   });
+  var delete_asset_failure=function(){
+
+
+
+
+         swal({
+             title: "مطمئن هستید؟",
+             text: "",
+             icon: "warning",
+             buttons: true,
+             dangerMode: true,
+         })
+             .then((willDelete) => {
+                 if (willDelete) {
+                     swal("اوه!  حذف شد!", {
+                         icon: "success",
+                     });
+                 } else {
+                     swal("فایل شما هنوز وجود دارد !", {
+                         icon: "error",
+                     });
+                 }
+             });
+
+
+
+}
+
   $(".js-create-assetFailure").click(myWoLoader);
   $("#modal-company").on("submit", ".js-assetFailure-create-form", saveForm);
 
@@ -81,5 +109,5 @@ $(function () {
   $("#modal-company").on("submit", ".js-assetFailure-update-form", saveForm);
   // Delete book
   $("#company-table").on("click", ".js-delete-assetFailure", loadForm);
-  $("#modal-company").on("submit", ".js-assetFailure-delete-form", saveForm);
+  $("#company-table").on("click", ".js-assetFailure-delete", delete_asset_failure);
   });
