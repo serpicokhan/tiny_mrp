@@ -14,6 +14,8 @@ from django.contrib.auth.context_processors import PermWrapper
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from mrp.business.DateJob import *
+from django.shortcuts import get_object_or_404
+
 @login_required
 def asset_failure_list(request):
     books = AssetFailure.objects.filter(dayOfIssue=datetime.datetime.now())
@@ -51,7 +53,20 @@ def assetFailure_create(request):
         form = AssetFailureForm(initial={'dayOfIssue': DateJob.getTaskDate(mydt)})
         return save_assetFailure_form(request, form, 'mrp/assetfailure/partialAssetFailureCreate.html')
 
+def assetFailure_update(request, id):
+    company= get_object_or_404(AssetFailure, id=id)
+    template=""
+    if (request.method == 'POST'):
+        form = AssetFailureForm(request.POST, instance=company)
+    else:
+        form = AssetFailureForm(instance=company)
+
+
+    return save_assetFailure_form(request, form,"mrp/assetfailure/partialAssetFailureUpdate.html",id)
 
 
 
+def list_failures(request):
+    formulas=Failure.objects.all()
+    return render(request,"mrp/failures/failureList.html",{'failures':formulas,'title':'لیست توقفات'})
 ##########################################################

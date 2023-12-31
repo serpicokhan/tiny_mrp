@@ -5,8 +5,8 @@
   <td>{{i.duration|time:"H:i"}}</td>
   <td>{{i.failure_name}}</td>.
   <td class="w-25">
-    <button type="button" class="btn btn-outline-light js-assetFailure-update">  <i class="ti-eye"></i></button>
-    <button type="button" class="btn btn-outline-light js-assetFailure-delete">  <i class="ti-close"></i></button>
+    <button type="button" class="btn btn-outline-light js-update-assetFailure" data-url="{% url 'assetFailure_update' i.id %}" >  <i class="ti-eye"></i></button>
+    <button type="button" class="btn btn-outline-light js-assetFailure-delete-form">  <i class="ti-close"></i></button>
   </td>
 
 </tr>

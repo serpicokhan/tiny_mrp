@@ -106,6 +106,7 @@
       <li><a href="{% url 'calendar_randeman' %}">راندمان روزانه تولید</a></li>
       <li><a href="{% url 'calendar_tahlil' %}">تحلیل تولید روزانه</a></li>
       <li><a href="{% url 'monthly_detaild_report' %}">آمار تولید ماهانه</a></li>
+      <li><a href="{% url 'asset_failure_list' %}">ثبت آمار توقف روزانه</a></li>
 
 
 
@@ -129,7 +130,13 @@
       <li>
         <a href="{% url 'list_speed_formula' %}">
           <span>فرمولهای سرعت</span>
-          <span class="badge badge-warning">2</span>
+
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'list_failures' %}">
+          <span>نوع توقفات</span>
+
         </a>
       </li>
 

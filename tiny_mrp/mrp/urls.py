@@ -25,10 +25,12 @@ urlpatterns = [
     url(r'^Shift/$', list_shifts, name='list_shifts'),
     url(r'^Formula/$', list_formula, name='list_formula'),
     url(r'^SpeedFormula/$', list_speed_formula, name='list_speed_formula'),
+    url(r'^Failures/$', list_failures, name='list_failures'),
     url(r'^Monthly/$', monthly_detaild_report, name='monthly_detaild_report'),
     url(r'^Zayeat/Vazn/Create$', zayeatVazn_create, name='zayeatVazn_create'),
-    url(r'^Asset/Failure$', asset_failure_list, name='asset_failure_list'),
-    url(r'^Asset/Create$', assetFailure_create, name='assetFailure_create'),
+    url(r'^AssetFailure$', asset_failure_list, name='asset_failure_list'),
+    url(r'^AssetFailure/Create$', assetFailure_create, name='assetFailure_create'),
+    url(r'^AssetFailure//(?P<id>\d+)/update/$', assetFailure_update, name='assetFailure_update'),
 
 
 
