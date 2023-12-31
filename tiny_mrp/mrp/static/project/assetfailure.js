@@ -74,30 +74,24 @@ $(function () {
     initialValueType: 'gregorian'
   });
   var delete_asset_failure=function(){
-
-
-
-
-         swal({
-             title: "مطمئن هستید؟",
-             text: "",
-             icon: "warning",
-             buttons: true,
-             dangerMode: true,
-         })
-             .then((willDelete) => {
-                 if (willDelete) {
-                     swal("اوه!  حذف شد!", {
-                         icon: "success",
-                     });
-                 } else {
-                     swal("فایل شما هنوز وجود دارد !", {
-                         icon: "error",
-                     });
-                 }
-             });
-
-
+     swal({
+         title: "مطمئن هستید؟",
+         text: "",
+         icon: "warning",
+         buttons: true,
+         dangerMode: true,
+     })
+         .then((willDelete) => {
+             if (willDelete) {
+                 swal("اوه!  حذف شد!", {
+                     icon: "success",
+                 });
+             } else {
+                 swal("فایل شما هنوز وجود دارد !", {
+                     icon: "error",
+                 });
+             }
+         });
 
 }
 
