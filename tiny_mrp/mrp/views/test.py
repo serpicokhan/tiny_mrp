@@ -314,9 +314,10 @@ def monthly_detaild_report(request):
     asset_category=asset_categories = AssetCategory.objects.annotate(
         min_priority=models.Min('asset__assetTavali')
         ).order_by('min_priority')
-    j_month=request.GET.get('month',9)
+
     current_date_time2 = jdatetime.datetime.now()
     current_year=current_date_time2.year
+    j_month=request.GET.get('month',current_date_time2.month)
 
 
     current_date_time = jdatetime.date(current_year, j_month, 1)
