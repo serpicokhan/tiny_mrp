@@ -1,0 +1,13 @@
+{% load humanize %}
+{% for c in formulas %}
+<tr>
+  <td>{{c.asset_category}}</td>
+  <td>{{c.operator_count}}</td>
+  <td>{{c.max_randeman|intcomma}}</td>
+  <td>{{c.randeman_yek_dastgah|intcomma}}</td>
+  <td>{{c.randeman_mazrab_3|intcomma}}</td>
+  <td>{{c.mablaghe_kole_randeman|intcomma}}</td>
+  <td>{{c.mablaghe_kole_randeman_round|intcomma}}</td>
+  <td>{{c.randeman_tolid|intcomma}}</td>
+</tr>
+{% endfor %}

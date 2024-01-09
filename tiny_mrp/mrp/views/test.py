@@ -347,3 +347,6 @@ def monthly_detaild_report(request):
         cat_list.append({'cat':cats,'shift_val':days})
 
     return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift})
+def list_randeman_tolid(request):
+    formulas=AssetRandemanInit.objects.all()
+    return render(request,"mrp/tolid_randeman/randemanList.html",{'formulas':formulas,'title':'لیست راندمان'})

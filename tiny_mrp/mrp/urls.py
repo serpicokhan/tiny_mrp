@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^Tolid/Tahlil/GetInfo/$', get_tahlil_calendar_info, name='get_tahlil_calendar_info'),
     url(r'^Shift/$', list_shifts, name='list_shifts'),
     url(r'^Formula/$', list_formula, name='list_formula'),
+    url(r'^Tolid/Randeman/Init$', list_randeman_tolid, name='list_randeman_tolid'),
     url(r'^SpeedFormula/$', list_speed_formula, name='list_speed_formula'),
     url(r'^Failures/$', list_failures, name='list_failures'),
     url(r'^Monthly/$', monthly_detaild_report, name='monthly_detaild_report'),

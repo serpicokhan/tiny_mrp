@@ -133,7 +133,7 @@ class ZayeatVaz(models.Model):
     class Meta:
         db_table="zayeatvazn"
 class AssetRandemanInit(models.Model):
-    asset_category = models.ForeignKey(AssetCategory, on_delete=models.CASCADE)
+    asset_category = models.ForeignKey('AssetCategory', on_delete=models.CASCADE)
     operator_count = models.IntegerField()
     max_randeman = models.DecimalField(max_digits=10, decimal_places=0)
     randeman_yek_dastgah = models.DecimalField(max_digits=10, decimal_places=0)

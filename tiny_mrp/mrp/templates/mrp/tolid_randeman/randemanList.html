@@ -1,0 +1,43 @@
+{% extends 'mrp/blank-page.html' %}
+{5 load static %}
+{% block content %}
+
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">{{title}}</h6>
+                <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                        <tr class="bg-info">
+                        <th>نام قسمت</th>
+                        <th>تعداد اپراتور</th>
+                        <th>حداکثر راندمان</th>
+                        <th>راندمان کل یک دستگاه</th>
+                        <th>مضرب 3 راندمان</th>
+                        <th>مبلغ کل راندمان (واقعی)</th>
+                        <th>مبلغ کل راندمان(واقعی)</th>
+                        <th>راندمان تولید</th>
+
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                          {% include 'mrp/tolid_randeman/partialRandemanList.html' %}
+
+                          </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+{% endblock %}
