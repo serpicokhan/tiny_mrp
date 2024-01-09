@@ -132,3 +132,17 @@ class ZayeatVaz(models.Model):
         return f"{self.zayeat.name} - {self.vazn} kg"
     class Meta:
         db_table="zayeatvazn"
+class AssetRandemanInit(models.Model):
+    asset_category = models.ForeignKey(AssetCategory, on_delete=models.CASCADE)
+    operator_count = models.IntegerField()
+    max_randeman = models.DecimalField(max_digits=10, decimal_places=0)
+    randeman_yek_dastgah = models.DecimalField(max_digits=10, decimal_places=0)
+    randeman_mazrab_3 = models.DecimalField(max_digits=10, decimal_places=0)
+    mablaghe_kole_randeman = models.DecimalField(max_digits=10, decimal_places=0)
+    mablaghe_kole_randeman_round = models.DecimalField(max_digits=10, decimal_places=0)
+    randeman_tolid = models.DecimalField(max_digits=10, decimal_places=0)
+    class Meta:
+        db_table="assetrandemaninit"
+
+    def __str__(self):
+        return f"{self.asset_name} - Operator Count: {self.operator_count}, Max Randeman: {self.max_randeman}"
