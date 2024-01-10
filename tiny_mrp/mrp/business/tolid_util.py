@@ -1,6 +1,19 @@
 from mrp.models import *
 from django.db.models import Sum
 from datetime import timedelta
+from django.core.paginator import *
+def doPaging(request,books):
+    page=request.GET.get('page',1)
+    paginator = Paginator(books, 12)
+    wos=None
+    try:
+        wos=paginator.page(page)
+    except PageNotAnInteger:
+        wos = paginator.page(1)
+    except EmptyPage:
+        wos = paginator.page(paginator.num_pages)
+    return wos
+
 def get_asset_count(target_category_name):
     return Asset.objects.filter(assetCategory=target_category_name).count()
 

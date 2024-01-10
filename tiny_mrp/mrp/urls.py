@@ -35,6 +35,8 @@ urlpatterns = [
     url(r'^AssetFailure/(?P<id>\d+)/update/$', assetFailure_update, name='assetFailure_update'),
     url(r'^AssetFailure/Monthly/$', monthly_detaild_failured_report, name='monthly_detaild_failured_report'),
     url(r'^AssetFailure/Daily/GetInfo/$', get_assetfailure_calendar_info, name='get_assetfailure_calendar_info'),
+    url(r'^Asset/Randeman/$', asset_randeman_list, name='asset_randeman_list'),
+    url(r'^Asset/Randeman/Create$', assetRandeman_create, name='assetRandeman_create'),
 
 
 

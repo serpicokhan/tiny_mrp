@@ -146,3 +146,20 @@ class AssetRandemanInit(models.Model):
 
     def __str__(self):
         return f"{self.asset_name} - Operator Count: {self.operator_count}, Max Randeman: {self.max_randeman}"
+class AssetRandemanList(models.Model):
+    mah = models.IntegerField()
+    sal = models.IntegerField()
+    class Meta:
+        db_table="assetrandemanlist"
+
+class AssetRandemanPerMonth(models.Model):
+    asset_category = models.ForeignKey('AssetCategory', on_delete=models.CASCADE)
+    shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
+    tolid_value = models.DecimalField(max_digits=10, decimal_places=2)
+    mah = models.IntegerField()
+    sal = models.IntegerField()
+    class Meta:
+        db_table="assetrandemanpermonth"
+
+    def __str__(self):
+        return f"{self.asset_category} - Shift: {self.shift}, Tolid Value: {self.tolid_value}, MAH: {self.mah}, SAL: {self.sal}"
