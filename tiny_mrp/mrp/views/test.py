@@ -320,7 +320,7 @@ def monthly_detaild_report(request):
     j_month=request.GET.get('month',current_date_time2.month)
 
 
-    current_date_time = jdatetime.date(current_year, j_month, 1)
+    current_date_time = jdatetime.date(current_year, int(j_month), 1)
     current_jalali_date = current_date_time
 
 
@@ -346,7 +346,7 @@ def monthly_detaild_report(request):
 
         cat_list.append({'cat':cats,'shift_val':days})
 
-    return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift})
+    return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month})
 def list_randeman_tolid(request):
     formulas=AssetRandemanInit.objects.all()
     return render(request,"mrp/tolid_randeman/randemanList.html",{'formulas':formulas,'title':'لیست راندمان'})

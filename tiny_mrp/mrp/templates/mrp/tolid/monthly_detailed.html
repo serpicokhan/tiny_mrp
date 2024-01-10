@@ -36,18 +36,18 @@
                     <div class="input-group">
                         <select class="form-control" id="jalaliMonths">
                             <option selected>انتخاب ماه</option>
-                            <option value="1">فروردین</option>
-                            <option value="2">اردیبهشت</option>
-                            <option value="3">خرداد</option>
-                            <option value="4">تیر</option>
-                            <option value="5">مرداد</option>
-                            <option value="6">شهریور</option>
-                            <option value="7">مهر</option>
-                            <option value="8">آبان</option>
-                            <option value="9">آذر</option>
-                            <option value="10">دی</option>
-                            <option value="11">بهمن</option>
-                            <option value="12">اسفند</option>
+                            <option value="1" {% if month == '1' %} selected {% endif %}>فروردین</option>
+                            <option value="2" {% if month == '2' %} selected {% endif %}>اردیبهشت</option>
+                            <option value="3" {% if month == '3' %} selected {% endif %}>خرداد</option>
+                            <option value="4" {% if month == '4' %} selected {% endif %}>تیر</option>
+                            <option value="5" {% if month == '5' %} selected {% endif %}>مرداد</option>
+                            <option value="6" {% if month == '6' %} selected {% endif %}>شهریور</option>
+                            <option value="7" {% if month == '7' %} selected {% endif %}>مهر</option>
+                            <option value="8" {% if month == '8' %} selected {% endif %}>آبان</option>
+                            <option value="9" {% if month == '9' %} selected {% endif %}>آذر</option>
+                            <option value="10" {% if month == '10' %} selected {% endif %}>دی</option>
+                            <option value="11" {% if month == '11' %} selected {% endif %}>بهمن</option>
+                            <option value="12" {% if month == '12' %} selected {% endif %}>اسفند</option>
                           </select>
                         <div class="input-group-append">
                             <button class="btn btn-outline-light" type="button" id="button-addon1">
@@ -145,3 +145,16 @@
 </div>
 
 {% endblock%}
+{% block javascript %}
+<script type="text/javascript">
+  $("#button-addon1").click(function(){
+    if($("#jalaliMonths").val()>0){
+    window.location.href="/Monthly?month="+$("#jalaliMonths").val();
+  }
+  else {
+    toastr.error("یک مقدار انتخاب نمایید");
+  }
+  });
+
+</script>
+{% endblock %}

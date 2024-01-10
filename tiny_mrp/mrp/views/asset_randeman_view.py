@@ -19,6 +19,8 @@ from django.shortcuts import get_object_or_404
 
 
 def get_randeman_per_tolid(mah,sal,asset_cat,shift):
+    if(asset_cat.id in (9,10)):
+        return 2000
     start_date_gregorian, end_date_gregorian = DateJob.shamsi_to_gregorian_range(sal, mah)
     filtered_production = DailyProduction.objects.filter(
     dayOfIssue__range=(start_date_gregorian, end_date_gregorian),  # Filter by date range
