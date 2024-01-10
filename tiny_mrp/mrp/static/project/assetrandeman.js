@@ -73,7 +73,7 @@ $(function () {
     autoClose: true,
     initialValueType: 'gregorian'
   });
-  var delete_asset_failure=function(){
+  var delete_asset_randeman=function(){
      swal({
          title: "مطمئن هستید؟",
          text: "",
@@ -99,9 +99,11 @@ $(function () {
   $("#modal-company").on("submit", ".js-assetRandeman-create-form", saveForm);
 
   // Update book
-  $("#company-table").on("click", ".js-update-assetFailure", myWoLoader);
-  $("#modal-company").on("submit", ".js-assetFailure-update-form", saveForm);
+  $("#company-table").on("click", ".js-update-assetRandeman", myWoLoader);
+  $("#modal-company").on("submit", ".js-assetRandeman-update-form", saveForm);
   // Delete book
-  $("#company-table").on("click", ".js-delete-assetFailure", loadForm);
-  $("#company-table").on("click", ".js-assetFailure-delete", delete_asset_failure);
+  $("#company-table").on("click", ".js-delete-assetRandeman", loadForm);
+  $("#company-table").on("click", ".js-assetRandeman-delete", myWoLoader);
+  $("#modal-company").on("submit", ".js-assetRandeman-delete-form", saveForm);
+
   });

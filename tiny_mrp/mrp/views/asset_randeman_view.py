@@ -17,6 +17,31 @@ from mrp.business.tolid_util import *
 import datetime
 from django.shortcuts import get_object_or_404
 
+
+def get_randeman_per_tolid(mah,sal,asset_cat,shift):
+    start_date_gregorian, end_date_gregorian = DateJob.shamsi_to_gregorian_range(sal, mah)
+    filtered_production = DailyProduction.objects.filter(
+    dayOfIssue__range=(start_date_gregorian, end_date_gregorian),  # Filter by date range
+    shift=shift,  # Filter by shift ID equal to 1
+    machine__assetCategory=asset_cat  # Filter by asset category n
+    )
+    # Calculate the sum of production_value
+    sum_production_value = filtered_production.aggregate(
+        total_production_value=models.Sum('production_value')
+    )['total_production_value']
+    if(not sum_production_value):
+        return 0
+
+    return sum_production_value
+
+def calc_assetrandeman(mah,sal):
+    asset_cat_list=AssetCategory.objects.all()
+    shift_list=Shift.objects.all()
+    AssetRandemanPerMonth.objects.filter(mah=mah,sal=sal).delete()
+    for i in asset_cat_list:
+        data_shift=[]
+        for shift in shift_list:
+            AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=get_randeman_per_tolid(mah,sal,i,shift),mah=mah,sal=sal)
 @login_required
 def asset_randeman_list(request):
 
@@ -24,22 +49,7 @@ def asset_randeman_list(request):
     wos=doPaging(request,books)
     return render(request,"mrp/assetrandeman/assetRandemanList.html",{'assetfailures':wos,'title':'لیست راندمانهای محاسبه شده'})
 
-# @login_required
-# def calendar_asset_failure(request):
-#     return render(request,'mrp/assetfailure/calendar_asset_falure.html',{'title':'توقفات روزانه'})
-#
-# def get_assetfailure_calendar_info(request):
-#     data=[]
-#     user_info=AssetFailure.objects.values_list('dayOfIssue').distinct()
-#
-#     for i in user_info:
-#
-#         data.append({'title': "توقفات ",\
-#                 'start': i[0],\
-#                  'color': 'bg-dark',\
-#                 'id':i[0]})
-#
-#     return JsonResponse(data,safe=False)
+
 # ##########################################################
 def save_assetRandeman_form(request, form, template_name,id=None):
 
@@ -48,10 +58,12 @@ def save_assetRandeman_form(request, form, template_name,id=None):
     if (request.method == 'POST'):
         if form.is_valid():
             bts=form.save()
+            calc_assetrandeman(bts.mah,bts.sal)
             data['form_is_valid'] = True
             books = AssetRandemanList.objects.all()
+            wos=doPaging(request,books)
             data['html_assetRandeman_list'] = render_to_string('mrp/assetrandeman/partialAssetRandemanList.html', {
-                'assetfailures': books,
+                'assetfailures': wos,
                 'perms': PermWrapper(request.user)
             })
         else:
@@ -73,19 +85,39 @@ def assetRandeman_create(request):
         form = AssetRandemanForm()
         return save_assetRandeman_form(request, form, 'mrp/assetrandeman/partialAssetRandemanCreate.html')
 
-# def assetFailure_update(request, id):
-#     company= get_object_or_404(AssetFailure, id=id)
-#     template=""
-#     if (request.method == 'POST'):
-#         form = AssetFailureForm(request.POST, instance=company)
-#     else:
-#         form = AssetFailureForm(instance=company)
-#
-#
-#     return save_assetFailure_form(request, form,"mrp/assetfailure/partialAssetFailureUpdate.html",id)
-#
-#
-#
+def assetRandeman_update(request, id):
+    company= get_object_or_404(AssetRandemanList, id=id)
+    template=""
+    if (request.method == 'POST'):
+        form = AssetRandemanForm(request.POST, instance=company)
+    else:
+        form = AssetRandemanForm(instance=company)
+
+
+    return save_assetRandeman_form(request, form,"mrp/assetrandeman/partialAssetRandemanUpdate.html",id)
+
+
+def assetRandeman_delete(request, id):
+    comp1 = get_object_or_404(AssetRandemanList, id=id)
+    data = dict()
+    if (request.method == 'POST'):
+        comp1.delete()
+        data['form_is_valid'] = True  # This is just to play along with the existing code
+        companies =  AssetRandemanList.objects.all()
+        wos=doPaging(request,companies)
+        #Tasks.objects.filter(maintenanceTypeId=id).update(maintenanceType=id)
+        data['html_assetRandeman_list'] = render_to_string('mrp/assetrandeman/partialAssetRandemanList.html', {
+            'assetfailures': wos,
+            'perms': PermWrapper(request.user)
+        })
+    else:
+        context = {'assetRandeman': comp1}
+        data['html_assetRandeman_form'] = render_to_string('mrp/assetrandeman/partialAssetRandemanDelete.html',
+            context,
+            request=request,
+        )
+    return JsonResponse(data)
+
 # def list_failures(request):
 #     formulas=Failure.objects.all()
 #     return render(request,"mrp/failures/failureList.html",{'failures':formulas,'title':'لیست توقفات'})

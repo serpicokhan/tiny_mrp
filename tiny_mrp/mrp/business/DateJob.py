@@ -292,7 +292,7 @@ class DateJob:
     @staticmethod
     def get_day_of_week(current_date):
         day_of_week = current_date.weekday()
-        
+
 
         # Define a list of Persian names for days of the week
         persian_days = [
@@ -308,3 +308,19 @@ class DateJob:
         # Print the Persian name of the current day
         persian_day_name = persian_days[day_of_week]
         return persian_day_name
+    @staticmethod
+    def shamsi_to_gregorian_range(shamsi_year, shamsi_month):
+        # Start of Shamsi month
+        start_date = jdatetime.date(shamsi_year, shamsi_month, 1)
+
+        # Calculate end of Shamsi month by moving to the next month and then subtracting a day
+        if shamsi_month == 12:
+            end_date = jdatetime.date(shamsi_year + 1, 1, 1) - timedelta(days=1)
+        else:
+            end_date = jdatetime.date(shamsi_year, shamsi_month + 1, 1) - timedelta(days=1)
+
+        # Convert Shamsi dates to Gregorian dates
+        start_date_gregorian = start_date.togregorian()
+        end_date_gregorian = end_date.togregorian()
+
+        return start_date_gregorian, end_date_gregorian
