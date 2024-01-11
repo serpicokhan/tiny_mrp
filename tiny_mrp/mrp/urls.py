@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^Asset/Randeman/Create$', assetRandeman_create, name='assetRandeman_create'),
     url(r'^Asset/Randeman/(?P<id>\d+)/update/$', assetRandeman_update, name='assetRandeman_update'),
     url(r'^Asset/Randeman/(?P<id>\d+)/delete/$', assetRandeman_delete, name='assetRandeman_delete'),
+    url(r'^Asset/Randeman/WorkBook/$', get_monthly_workbook, name='get_monthly_workbook'),
 
 
 

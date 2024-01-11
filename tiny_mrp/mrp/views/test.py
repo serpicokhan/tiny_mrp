@@ -350,3 +350,35 @@ def monthly_detaild_report(request):
 def list_randeman_tolid(request):
     formulas=AssetRandemanInit.objects.all()
     return render(request,"mrp/tolid_randeman/randemanList.html",{'formulas':formulas,'title':'لیست راندمان'})
+
+def get_sum_randeman_by_shift(mah,sal,shift):
+
+
+    filtered_production = AssetRandemanPerMonth.objects.filter(
+    mah=mah,sal=sal,  # Filter by date range
+
+    shift=shift  # Filter by asset category n
+    )
+    # Calculate the sum of production_value
+    sum_production_value = filtered_production.aggregate(
+        total_production_value=models.Sum('tolid_value')
+    )['total_production_value']
+
+    if(not sum_production_value):
+        return 0
+
+    return sum_production_value
+def get_monthly_workbook(request):
+    mah=request.GET.get("mah",False)
+    sal=request.GET.get("sal",False)
+    shift_list=Shift.objects.all()
+    randeman_list=AssetRandemanPerMonth.objects.filter(mah=mah,sal=sal)
+    d=[]
+    for i in randeman_list:
+
+        d.append({'operator_num':AssetRandemanInit.objects.get(asset_category=i.asset_category).operator_count,'randeman':i})
+    k=[]
+    for i in shift_list:
+        k.append({'randeman_kol':get_sum_randeman_by_shift(mah,sal,i),'shift':i})
+
+    return render(request,'mrp/assetrandeman/finalRandemanList.html',{'shift_list':shift_list,'randeman_list':d,'randeman_kol':k})
