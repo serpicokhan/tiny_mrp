@@ -210,9 +210,9 @@ def saveAmarHTableInfo(request):
                 amar.weight3=float(i["weight3"])
                 amar.weight4=float(i["weight4"])
                 amar.weight5=float(i["weight5"])
-                amar.net_weight=float(i["vazne_baghi"])
-                
+                amar.net_weight=float(i["vazne_baghi"])                
                 amar.save()
+                print("done!!!")
             # print("done",amar.id)
     data=dict()
     return JsonResponse(data)

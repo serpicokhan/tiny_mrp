@@ -201,9 +201,9 @@ var tableDataToJSON=function(tableId){
 
 }
 $("#save_production").click(function(){
-  var tbl1=tableDataToJSON('tbl1');
-  var tbl2=tableDataToJSON('tbl2');
-  var tbl3=tableDataToJSON('tbl3');
+  var tbl1=tableDataToJSON('tb1');
+  var tbl2=tableDataToJSON('tb2');
+  var tbl3=tableDataToJSON('tb3');
   var sendData = {
     table1: tbl1,
     table2: tbl2,
