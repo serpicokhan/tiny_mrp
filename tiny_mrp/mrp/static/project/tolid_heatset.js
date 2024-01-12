@@ -86,16 +86,22 @@ document.addEventListener('DOMContentLoaded', function() {
 $(function () {
   $(".btc").on("input", function() {
             var row = $(this).closest("tr");
-            var nomre = parseFloat(row.find(".nomre").text()) || parseFloat(row.find(".counter").attr('data-nomre'));
-            var counter = parseFloat(row.find(".counter").text()) || 0;
+            var daf_num = parseFloat(row.find(".daf_num").text()) ||0;
+            var dook_vazn = parseFloat(row.find(".dook_weight").text()) || 0;
+            var vazne1 = parseFloat(row.find(".weight1").text()) || 0;
+            var vazne2 = parseFloat(row.find(".weight2").text()) || 0;
+            var vazne3 = parseFloat(row.find(".weight3").text()) || 0;
+            var vazne4 = parseFloat(row.find(".weight4").text()) || 0;
+
             var formula = row.find("[data-formula]").data("formula");
 
-            var result = evaluateFormula(formula, nomre, counter);
+            var result = evaluateFormula(formula, daf_num, dook_vazn,vazne2-vazne1,vazne4-vazne3);
             row.find("[data-formula]").text(result);
         });
 
-        function evaluateFormula(formula, P, Q) {
-            formula = formula.replace("P", P).replace("Q", Q);
+        function evaluateFormula(formula, P, Q,R,S) {
+          console.log(P,Q,R,S);
+            formula = formula.replace("P", P).replace("Q", Q).replace("R", R).replace("R", S);
             try {
               // console.log(formula);
                 var result = eval(formula);
@@ -169,13 +175,23 @@ var tableDataToJSON=function(tableId){
         var machine=$(this).attr('data-machine');
         var shift = $(this).attr('data-shift');
         var dayOfIssue = $("#search").val();
-        var speed = $(this).attr('data-speed')||0;
-        var nomre = $(this).find('td.nomre').text()||$(this).find('td:eq(0)').attr('data-nomre');
-        var counter = $(this).find('td.counter').text()||0;
+        var daf_num = $(this).attr('daf_num')||0;
+        var dook_weight = $(this).find('td:eq(0)').attr('dook_weight')||0;
+        var weight1 = $(this).find('td.weight1').text()||0;
+        var weight2 = $(this).find('td.weight2').text()||0;
+        var weight3 = $(this).find('td.weight3').text()||0;
+        var weight4 = $(this).find('td.weight4').text()||0;
+        var weight5 = $(this).find('td.vazne_daf').text()||0;
+        var vazne_baghi = $(this).find('td.vazne_baghi').text()||0;
         var production_value =  $(this).find('td.production').text()||0;
+        var nomre=0;
+        var counter=0;
+        var speed=0;
+
 
         data.push({ machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
-          , counter: counter,production_value: production_value
+          , counter: counter,production_value: production_value,daf_num:daf_num,dook_weight:dook_weight,
+          weight1:weight1,weight2:weight2,weight3:weight3,weight4:weight4,weight5:weight5,vazne_baghi:vazne_baghi
            });
          }
       });
@@ -196,7 +212,7 @@ $("#save_production").click(function(){
 console.log(JSON.stringify(sendData));
   // AJAX request to send data to the server
   $.ajax({
-    url: '/Tolid/SaveTableInfo',
+    url: '/Tolid/SaveHTableInfo',
     type: 'POST',
     contentType: 'application/json',
     data: JSON.stringify(sendData),

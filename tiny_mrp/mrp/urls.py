@@ -12,6 +12,7 @@ urlpatterns = [
 
 
     url(r'^$',index,name='index'),
+    url(r'^Tolid/Heatset$',tolid_heatset,name='tolid_heatset'),
     url(r'^Tolid/Daily$',show_daily_amar_tolid,name='show_daily_amar_tolid'),
     url(r'^Tolid/DailyDetails$',get_daily_amar,name='get_daily_amar'),
     url(r'^Tolid/Calendar$',calendar_main,name='calendar_main'),
@@ -19,6 +20,7 @@ urlpatterns = [
     url(r'^Tolid/Tahlil/Calendar$',calendar_tahlil,name='calendar_tahlil'),
     url(r'^Tolid/DailyAnalyse$',show_daily_analyse_tolid,name='show_daily_analyse_tolid'),
     url(r'^Tolid/SaveTableInfo$',saveAmarTableInfo,name='saveAmarTableInfo'),
+    url(r'^Tolid/SaveHTableInfo$',saveAmarHTableInfo,name='saveAmarHTableInfo'),
     url(r'^Tolid/GetInfo/$', get_tolid_calendar_info, name='get_tolid_calendar_info'),
     url(r'^Tolid/Randeman/GetInfo/$', get_randeman_calendar_info, name='get_randeman_calendar_info'),
     url(r'^Tolid/Tahlil/GetInfo/$', get_tahlil_calendar_info, name='get_tahlil_calendar_info'),

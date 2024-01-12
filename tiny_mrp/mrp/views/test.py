@@ -83,6 +83,44 @@ def index(request):
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
     return render(request,"mrp/tolid/details.html",{'machines':machines_with_formulas,'shifts':shift,'title':'ورود داده های روزانه'})
+@login_required
+def tolid_heatset(request):
+    machines=Asset.objects.filter(assetCategory__id=8)
+    shift=Shift.objects.all()
+    machines_with_formulas = []
+    for machine in machines:
+        try:
+            speed=DailyProduction.objects.filter(machine=machine).last()
+            nomre=DailyProduction.objects.filter(machine=machine).last()
+            formula = Formula.objects.get(machine=machine)
+            speedformula = SpeedFormula.objects.get(machine=machine)
+            mydict={}
+            mydict["machin"]=machine
+            mydict["formula"]=formula.formula
+            if(speed):
+                mydict["speed"]=speed.speed
+            else:
+                mydict["speed"]=0
+            if(nomre):
+                mydict["nomre"]=nomre.nomre
+            else:
+                mydict["nomre"]=0
+
+            if(speed):
+                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':speed.speed,'nomre':speed.nomre,'speedformula':speedformula.formula,'max':"{:.0f}".format(speed.eval_max_tolid())})
+            else:
+                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+
+
+        except Formula.DoesNotExist:
+            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0})
+        except SpeedFormula.DoesNotExist:
+            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0})
+        except DailyProduction.DoesNotExist:
+            machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+
+    return render(request,"mrp/tolid/heatset_details.html",{'machines':machines_with_formulas,'shifts':shift,'title':'ورود داده های روزانه'})
+
 @csrf_exempt
 def saveAmarTableInfo(request):
     # print(request.body)
@@ -117,6 +155,63 @@ def saveAmarTableInfo(request):
                 amar.nomre=i["nomre"]
                 amar.counter=float(i["counter"])
                 amar.production_value=float(i["production_value"])
+                amar.save()
+            # print("done",amar.id)
+    data=dict()
+    return JsonResponse(data)
+
+@csrf_exempt
+def saveAmarHTableInfo(request):
+    # print(request.body)
+    # print(request.POST)
+    data = json.loads(request.body)
+    # print("********")
+    for table_name, table_data in data.items():
+        for i in table_data:
+            m=Asset.objects.get(id=int(i["machine"]))
+            s=Shift.objects.get(id=int(i["shift"]))
+            d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
+            if(d.count()>0):
+                d[0].machine=m
+                d[0].shift=s
+                d[0].dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
+                d[0].speed=i["speed"]
+                d[0].nomre=i["nomre"]
+                d[0].counter=float(i["counter"])
+                d[0].production_value=float(i["production_value"])
+                d[0].daf_num=float(i["daf_num"])
+                d[0].dook_weight=float(i["dook_weight"])
+                d[0].weight1=float(i["weight1"])
+                d[0].weight2=float(i["weight2"])
+                d[0].weight3=float(i["weight3"])
+                d[0].weight4=float(i["weight4"])
+                d[0].weight5=float(i["weight5"])
+                d[0].net_weight=float(i["vazne_baghi"])
+                
+                d[0].save()
+
+            # print(i)
+            # print(i)
+            # print("********")
+            else:
+                amar=DailyProduction()
+                # amar.shift=i["shift"]
+                amar.machine=m
+                amar.shift=s
+                amar.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
+                amar.speed=i["speed"]
+                amar.nomre=i["nomre"]
+                amar.counter=float(i["counter"])
+                amar.production_value=float(i["production_value"])
+                amar.daf_num=float(i["daf_num"])
+                amar.dook_weight=float(i["dook_weight"])
+                amar.weight1=float(i["weight1"])
+                amar.weight2=float(i["weight2"])
+                amar.weight3=float(i["weight3"])
+                amar.weight4=float(i["weight4"])
+                amar.weight5=float(i["weight5"])
+                amar.net_weight=float(i["vazne_baghi"])
+                
                 amar.save()
             # print("done",amar.id)
     data=dict()

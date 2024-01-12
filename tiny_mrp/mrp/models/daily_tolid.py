@@ -47,6 +47,14 @@ class DailyProduction(models.Model):
     nomre = models.FloatField()
     counter = models.FloatField()
     production_value = models.IntegerField(blank=True, null=True)  # Result of the formula
+    daf_num = models.FloatField(null=True, blank=True)
+    dook_weight = models.FloatField(null=True, blank=True)
+    weight1 = models.FloatField(null=True, blank=True)
+    weight2 = models.FloatField(null=True, blank=True)
+    weight3 = models.FloatField(null=True, blank=True)
+    weight4 = models.FloatField(null=True, blank=True)
+    weight5 = models.FloatField(null=True, blank=True)
+    net_weight = models.FloatField(null=True, blank=True)
     def eval_max_tolid(self):
         if self.machine:
                 formula_obj = SpeedFormula.objects.get(machine=self.machine)
