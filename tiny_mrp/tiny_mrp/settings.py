@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'mrp.apps.MrpConfig',
     'widget_tweaks',
-    'django.contrib.humanize'
+    'django.contrib.humanize',
+    'mathfilters'
 
 
 ]

@@ -6,7 +6,7 @@
                     <div></div>
                     <div class="app-action">
                         <div class="action-left">
-                          
+
 
                         </div>
                         <div class="action-right">
@@ -71,9 +71,18 @@
                                       <td  data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
 
                                     </tr>
+
                                     {% endif %}
                                     {% endfor %}
-                                    <!-- Add more rows as needed -->
+                                    {% for c in heatsets %}
+                                      {% if c.shift.id == i.id %}
+
+                                    {% include 'mrp/tolid/partialheatsettr.html' %}
+                                      {% endif %}
+                                    {% endfor %}
+
+
+
                                   </tbody>
                                 </table>
                               </div>
@@ -106,7 +115,16 @@
                                     </tr>
                                     {% endif %}
                                     {% endfor %}
+                                    {% for c in heatsets %}
+                                      {% if c.shift.id == i.id %}
+
+                                    {% include 'mrp/tolid/partialheatsettr2.html' %}
+                                      {% endif %}
+                                    {% endfor %}
+
                                     <!-- Add more rows as needed -->
+
+
                                   </tbody>
                                 </table>
                               </div>

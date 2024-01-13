@@ -25,8 +25,10 @@ def get_daily_amar(request):
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
     machines=Asset.objects.filter(assetTypes=2)
+    heatsets=Asset.objects.filter(assetCategory__id=8)
     shift=Shift.objects.all()
     machines_with_formulas = []
+    machines_with_formulas2 = []
     for s in shift:
         for machine in machines:
             try:
@@ -45,7 +47,18 @@ def get_daily_amar(request):
             except DailyProduction.DoesNotExist:
                 machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
-    return render(request,"mrp/tolid/daily_details.html",{'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
+    for s in shift:
+        for machine in heatsets:
+            try:
+                formula = Formula.objects.get(machine=machine)
+                speedformula = SpeedFormula.objects.first()
+                amar=DailyProduction.objects.get(machine=machine,dayOfIssue=dayOfIssue,shift=s)
+                machines_with_formulas2.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
+            except Exception as ex:
+                print(ex)
+
+
+    return render(request,"mrp/tolid/daily_details.html",{'heatsets':machines_with_formulas2,'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
 
 @login_required
 def index(request):

@@ -1,0 +1,31 @@
+{% load mathfilters %}
+
+<tr>
+  <td rowspan="6">{{c.machine.assetName}}</td>
+  <td>وزن دوک</td>
+  <td>{{c.amar.weight1}}</td>
+
+  <td>وزن داف</td>
+</tr>
+<tr>
+  <td rowspan="5">{{c.amar.dook_weight}}</td>
+  <td>{{c.amar.weight2}}</td>
+  <td>{{c.amar.weight5}}</td>
+
+</tr>
+<tr>
+  <td>{{c.amar.weight3}}</td>
+  <td>وزن باقی</td>
+</tr>
+<tr>
+  <td>{{c.amar.weight4}}</td>
+  <td>{{c.amar.net_weight}}</td>
+</tr>
+<tr>
+  <td>{{ c.amar.weight2|sub:c.amar.weight1 }}</td>
+  <td>وزن خالص</td>
+</tr>
+<tr>
+  <td>{{ c.amar.weight4|sub:c.amar.weight3 }}</td>
+  <td>{{c.amar.production_value}}</td>
+</tr>
