@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.context_processors import PermWrapper
 from django.contrib.auth.decorators import login_required
 from mrp.business.tolid_util import *
+from django.template.loader import render_to_string
 
 
 @login_required
@@ -187,7 +188,7 @@ def saveAmarHTableInfo(request):
                 d[0].weight4=float(i["weight4"])
                 d[0].weight5=float(i["weight5"])
                 d[0].net_weight=float(i["vazne_baghi"])
-                
+
                 d[0].save()
 
             # print(i)
@@ -210,7 +211,7 @@ def saveAmarHTableInfo(request):
                 amar.weight3=float(i["weight3"])
                 amar.weight4=float(i["weight4"])
                 amar.weight5=float(i["weight5"])
-                amar.net_weight=float(i["vazne_baghi"])                
+                amar.net_weight=float(i["vazne_baghi"])
                 amar.save()
                 print("done!!!")
             # print("done",amar.id)
@@ -477,3 +478,41 @@ def get_monthly_workbook(request):
         k.append({'randeman_kol':get_sum_randeman_by_shift(mah,sal,i),'shift':i})
 
     return render(request,'mrp/assetrandeman/finalRandemanList.html',{'shift_list':shift_list,'randeman_list':d,'randeman_kol':k})
+def list_heatset_info(request):
+        dayOfIssue=DateJob.getTaskDate(request.GET.get('event_id',False))
+        print(dayOfIssue)
+
+        date_object = datetime.strptime(str(dayOfIssue), '%Y-%m-%d')
+
+        next_day = date_object + timedelta(days=1)
+        data=dict()
+
+    # Calculate previous day
+        previous_day = date_object - timedelta(days=1)
+        machines=Asset.objects.filter(assetCategory__id=8)
+        shift=Shift.objects.all()
+        machines_with_formulas = []
+        for s in shift:
+            for machine in machines:
+                try:
+                    formula = Formula.objects.get(machine=machine)
+                    speedformula = SpeedFormula.objects.get(machine=machine)
+                    amar=DailyProduction.objects.get(machine=machine,dayOfIssue=dayOfIssue,shift=s)
+                    machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
+                    # else:
+                    #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+
+
+                except Formula.DoesNotExist:
+                    machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0})
+                except SpeedFormula.DoesNotExist:
+                    machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0})
+                except DailyProduction.DoesNotExist:
+                    machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+        data['html_heatset_result'] = render_to_string('mrp/tolid/partialHeatsetList.html',{
+            'machines':machines_with_formulas,
+            'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)}
+        )
+
+        # return render(request,"mrp/tolid/daily_details.html",{'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
+        return JsonResponse(data)

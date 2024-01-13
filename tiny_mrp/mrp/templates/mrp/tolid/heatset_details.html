@@ -46,7 +46,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="جستجو ایمیل" aria-describedby="button-addon1" id="search">
                                     <div class="input-group-append">
-                                        <button class="btn btn-outline-light" type="button" id="button-addon1">
+                                        <button class="btn btn-outline-light" type="button" id="button-addon1" data-url="{% url 'list_heatset_info' %}">
                                             <i class="ti-search"></i>
                                         </button>
                                     </div>
@@ -75,7 +75,7 @@
 
                         <div class="card-body">
                           <h5 class="card-title">آمار روزانه</h5>
-                          <div class="row">
+                          <div class="row" id="tblrows">
                             <!-- Column 1 -->
                             {% for i in shifts %}
 
@@ -123,10 +123,10 @@
                               </div>
                             </div>
                             {% else %}
-                            
+
                             {% endif %}
                             {% endfor %}
-                            
+
 
 
 

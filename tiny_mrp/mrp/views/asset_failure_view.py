@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from mrp.models import *
-from mrp.forms import AssetFailureForm
+from mrp.forms import AssetFailureForm,FailureForm
 import jdatetime
 from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
@@ -19,13 +19,14 @@ from django.shortcuts import get_object_or_404
 
 @login_required
 def asset_failure_list(request):
-    dt=request.GET.get("date",datetime.datetime.now())
-    date_object = datetime.datetime.strptime(dt, '%Y-%m-%d')
+    dt=request.GET.get("date",datetime.datetime.now().date())
+    date_object = datetime.datetime.strptime(str(dt),'%Y-%m-%d').date()
+    print(date_object)
     next_day = date_object + timedelta(days=1)
 
     previous_day = date_object - timedelta(days=1)
     books = AssetFailure.objects.filter(dayOfIssue=dt)
-    return render(request,"mrp/assetfailure/details.html",{'assetfailures':books,'title':'توقفات روزانه','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
+    return render(request,"mrp/assetfailure/details.html",{'assetfailures':books,'title':'توقفات روزانه','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'greg_today':date_object})
 
 @login_required
 def calendar_asset_failure(request):
@@ -66,6 +67,28 @@ def save_assetFailure_form(request, form, template_name,id=None):
 
     data['html_assetFailure_form'] = render_to_string(template_name, context, request=request)
     return JsonResponse(data)
+def save_Failure_form(request, form, template_name):
+
+
+    data = dict()
+    if (request.method == 'POST'):
+        if form.is_valid():
+            bts=form.save()
+            data['form_is_valid'] = True
+            books = Failure.objects.all()
+            data['html_failure_list'] = render_to_string('mrp/failures/partialFailureList.html', {
+                'failures': books,
+                'perms': PermWrapper(request.user)
+            })
+        else:
+            data['form_is_valid'] = False
+            print(form.errors)
+
+    context = {'form': form}
+
+
+    data['html_failure_form'] = render_to_string(template_name, context, request=request)
+    return JsonResponse(data)
 ##########################################################
 def assetFailure_create(request):
     if (request.method == 'POST'):
@@ -75,6 +98,14 @@ def assetFailure_create(request):
         mydt=request.GET.get("dt",False)
         form = AssetFailureForm(initial={'dayOfIssue': DateJob.getTaskDate(mydt)})
         return save_assetFailure_form(request, form, 'mrp/assetfailure/partialAssetFailureCreate.html')
+def failure_create(request):
+    if (request.method == 'POST'):
+        form = FailureForm(request.POST)
+        return save_Failure_form(request, form, 'mrp/failures/partialFailureCreate.html')
+    else:
+        print("!!!!!!!!!!!!!!")
+        form = FailureForm()
+        return save_Failure_form(request, form, 'mrp/failures/partialFailureCreate.html')
 
 def assetFailure_update(request, id):
     company= get_object_or_404(AssetFailure, id=id)
@@ -87,7 +118,38 @@ def assetFailure_update(request, id):
 
     return save_assetFailure_form(request, form,"mrp/assetfailure/partialAssetFailureUpdate.html",id)
 
+def failure_update(request, id):
+    company= get_object_or_404(Failure, id=id)
+    template=""
+    if (request.method == 'POST'):
+        form = FailureForm(request.POST, instance=company)
+    else:
+        form = FailureForm(instance=company)
 
+
+    return save_Failure_form(request, form,"mrp/failures/partialFailureUpdate.html")
+
+
+def failure_delete(request, id):
+    comp1 = get_object_or_404(Failure, id=id)
+    data = dict()
+    if (request.method == 'POST'):
+        comp1.delete()
+        data['form_is_valid'] = True  # This is just to play along with the existing code
+        companies =  Failure.objects.all()
+        wos=doPaging(request,companies)
+        #Tasks.objects.filter(maintenanceTypeId=id).update(maintenanceType=id)
+        data['html_failure_list'] = render_to_string('mrp/failures/partialFailureList.html', {
+            'failures': wos,
+            'perms': PermWrapper(request.user)
+        })
+    else:
+        context = {'failures': comp1}
+        data['html_failure_form'] = render_to_string('mrp/failures/partialFailuresDelete.html',
+            context,
+            request=request,
+        )
+    return JsonResponse(data)
 
 def list_failures(request):
     formulas=Failure.objects.all()

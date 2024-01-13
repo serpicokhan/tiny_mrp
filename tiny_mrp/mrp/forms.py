@@ -11,6 +11,11 @@ class AssetFailureForm(forms.ModelForm):
     class Meta:
          model = AssetFailure
          fields = '__all__'
+
+class FailureForm(forms.ModelForm):
+    class Meta:
+         model = Failure
+         fields = '__all__'
 class AssetRandemanForm(forms.ModelForm):
     SAL_CHOICES = (
         (1402, '1402'),

@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 $(function () {
-  $(".btc").on("input", function() {
+  $("#tblrows").on("input",".btc", function() {
             var row = $(this).closest("tr");
             var daf_num = parseFloat(row.find(".daf_num").text()) ||0;
             var dook_vazn = parseFloat(row.find(".dook_weight").text()) || 0;
@@ -313,6 +313,28 @@ $(function () {
       }
     });
   });
+  $("#button-addon1").click(function(){
+    var btn=$(this);
+    return $.ajax({
+      url: $(btn).attr("data-url")+'?event_id='+$("#search").val(),
+      type: 'get',
+      dataType: 'json',
+      beforeSend: function () {
+        //alert(btn.attr("data-url"));
+        //alert("321321");
+        // /$("#modal-maintenanceType").modal("hide");
+
+      },
+      success: function (data) {
+        console.log(data);
+    $("#tblrows").empty();
+    $("#tblrows").html(data.html_heatset_result);
+
+
+      }
+    });
+  }
+);
   // $('.editable-cell').on('input', function() {
   //       // Allow only numeric input
   //       var text = $(this).text();

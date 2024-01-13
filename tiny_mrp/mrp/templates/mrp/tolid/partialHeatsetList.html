@@ -1,0 +1,51 @@
+{% for i in shifts %}
+
+  {% if forloop.counter > 0 %}
+<div class="col-md-12">
+
+  <h3>{{i.name}}</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped company-table" id="tb{{forloop.counter}}">
+      <thead class="thead-dark">
+        <tr>
+          <th>نام ماشین</th>
+          <th>تعداد داف</th>
+          <th> وزن دوک</th>
+          <th>وزن اول شیفت</th>
+          <th>وزن پایان شیفت</th>
+          <th>وزن اول شیفت</th>
+          <th>وزن پایان شیفت</th>
+          <th>وزن داف</th>
+          <th>وزن باقی</th>
+          <th>وزن خالص</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in machines %}
+          {% if c.shift.id == i.id %}
+        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed="{{c.speed}}">
+          <td>{{c.machine.assetName}}</td>
+          <td contenteditable="true" class="editable-cell btc daf_num selectable1">{{c.amar.daf_num}}</td>
+          <td contenteditable="true" class="editable-cell btc dook_weight selectable1">{{c.amar.dook_weight}}</td>
+          <td contenteditable="true" class="editable-cell btc weight1 selectable1">{{c.amar.weight1}}</td>
+          <td contenteditable="true" class="editable-cell btc weight2 selectable1">{{c.amar.weight2}}</td>
+          <td contenteditable="true" class="editable-cell btc weight3 selectable1">{{c.amar.weight3}}</td>
+          <td contenteditable="true" class="editable-cell btc weight4 selectable1">{{c.amar.weight4}}</td>
+          <td contenteditable="true" data-formula="{{c.formula}}" class="editable-cell btc vazne_daf selectable1">{{c.amar.weight5}}</td>
+          <td contenteditable="true" class="editable-cell btc vazne_baghi selectable1">{{c.amar.net_weight}}</td>
+
+          <td contenteditable="true" data-formula="" class='production'>{{c.amar.production_value}}</td>
+
+        </tr>
+          {% endif %}
+        {% endfor %}
+        <!-- Add more rows as needed -->
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+
+{% endif %}
+{% endfor %}

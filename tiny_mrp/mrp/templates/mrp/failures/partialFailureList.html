@@ -2,5 +2,10 @@
 <tr>
   <td>{{c.code}}</td>
   <td>{{c.name}}</td>
+  <td>
+    <button type="button" class="btn btn-outline-light js-update-failure" data-url="{% url 'failure_update' c.id %}" >  <i class="ti-eye"></i></button>
+
+    <button type="button" class="btn btn-outline-light js-failure-delete" data-url="{% url 'failure_delete' c.id %}">  <i class="ti-close"></i></button>
+  </td>
 </tr>
 {% endfor %}

@@ -1,0 +1,9 @@
+{% load widget_tweaks %}
+<div class="mb-3">
+    <label>{{form.code.label}}</label>
+    {% render_field form.code  class='form-control' %}
+  </div>
+  <div class="mb-3">
+    <label>{{form.name.label}}</label>
+    {% render_field form.name  class='form-control' %}
+  </div>
