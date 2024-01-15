@@ -189,7 +189,11 @@ def saveAmarHTableInfo(request):
                 d[0].machine=m
                 d[0].shift=s
                 d[0].dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
+                
+                
+                
                 d[0].speed=i["speed"]
+                print(d[0].speed)
                 d[0].nomre=i["nomre"]
                 d[0].counter=float(i["counter"])
                 d[0].production_value=float(i["production_value"])

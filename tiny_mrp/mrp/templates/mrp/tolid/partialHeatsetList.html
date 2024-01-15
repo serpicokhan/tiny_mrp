@@ -18,13 +18,14 @@
           <th>وزن داف</th>
           <th>وزن باقی</th>
           <th>وزن خالص</th>
+          <th>سرعت</th>
 
         </tr>
       </thead>
       <tbody>
         {% for c in machines %}
           {% if c.shift.id == i.id %}
-        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed="{{c.speed}}">
+        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed="{{c.amar.speed}}">
           <td>{{c.machine.assetName}}</td>
           <td contenteditable="true" class="editable-cell btc daf_num selectable1">{{c.amar.daf_num}}</td>
           <td contenteditable="true" class="editable-cell btc dook_weight selectable1">{{c.amar.dook_weight}}</td>
@@ -36,6 +37,8 @@
           <td contenteditable="true" class="editable-cell btc vazne_baghi selectable1">{{c.amar.net_weight}}</td>
 
           <td contenteditable="true" data-formula="" class='production'>{{c.amar.production_value}}</td>
+          <td contenteditable="true" data-formula="" class='speed'>{{c.amar.speed}}</td>
+
 
         </tr>
           {% endif %}
