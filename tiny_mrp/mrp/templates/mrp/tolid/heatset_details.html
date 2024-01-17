@@ -90,12 +90,14 @@
                                       <th>نام ماشین</th>
                                       <th>تعداد داف</th>
                                       <th> وزن دوک</th>
-                                      <th>وزن اول شیفت</th>
-                                      <th>وزن پایان شیفت</th>
-                                      <th>وزن اول شیفت</th>
-                                      <th>وزن پایان شیفت</th>
+                                      <th> متراژ اول شیفت</th>
+                                      <th> متراژ پایان شیفت</th>
+                                      <th> متراژ اول شیفت</th>
+                                      <th> متراژ پایان شیفت</th>
                                       <th>وزن داف</th>
                                       <th>وزن باقی</th>
+                                      <th>متراز داف</th>
+
                                       <th>وزن خالص</th>
 
                                     </tr>
@@ -112,8 +114,13 @@
                                       <td contenteditable="true" class="editable-cell btc weight4 selectable1"></td>
                                       <td contenteditable="true" data-formula="{{c.formula}}" class="editable-cell btc vazne_daf selectable1"></td>
                                       <td contenteditable="true" class="editable-cell btc vazne_baghi selectable1">0</td>
-
+                                      <td>
+                                        <button type="button" class="btn btn-outline-secondary js_daf_metraj_create" data-metraj='' data-metraj-total='' data-machine={{c.machine.id}} data-shift="{{i.id}}" data-url="{% url 'tolid_heatset_metraj_create' %}">
+                                <i class="ti-check-box"></i>
+                            </button>
+                                      </td>
                                       <td contenteditable="true" data-formula="" class='production'></td>
+
 
                                     </tr>
                                     {% endfor %}

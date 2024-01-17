@@ -92,16 +92,18 @@ $(function () {
             var vazne2 = parseFloat(row.find(".weight2").text()) || 0;
             var vazne3 = parseFloat(row.find(".weight3").text()) || 0;
             var vazne4 = parseFloat(row.find(".weight4").text()) || 0;
+            var total_metraj = parseFloat(row.find(".js_daf_metraj_create").attr('data-metraj-total')) || 0;
+            // js_daf_metraj_create
 
             var formula = row.find("[data-formula]").data("formula");
 
-            var result = evaluateFormula(formula, daf_num, dook_vazn,vazne2-vazne1,vazne4-vazne3);
+            var result = evaluateFormula(formula, daf_num, dook_vazn,vazne2-vazne1,vazne4-vazne3,total_metraj);
             row.find("[data-formula]").text(result);
         });
 
-        function evaluateFormula(formula, P, Q,R,S) {
+        function evaluateFormula(formula, P, Q,R,S,T) {
           console.log(P,Q,R,S);
-            formula = formula.replace("P", P).replace("Q", Q).replace("R", R).replace("R", S);
+            formula = formula.replace("P", P).replace("Q", Q).replace("R", R).replace("S", S).replace("T", T);
             try {
               // console.log(formula);
                 var result = eval(formula);
@@ -335,10 +337,60 @@ $(function () {
     });
   }
 );
+var open_daf_metraj_modal=function(){
+  var btn=$(this);
+  var params=`?data=${$(btn).attr("data-metraj")}`
+  return $.ajax({
+    url: $(btn).attr("data-url")+params,
+    type: 'get',
+    dataType: 'json',
+    beforeSend: function () {
+    $("#modal-company").modal("show");
+
+    },
+    success: function (data) {
+        btn.addClass("highlight");
+        $("#modal-company .modal-content").html(data.html_heatsetmetraj_form);
+
+    }
+  });
+
+}
+var save_daf_metraj_heatset_Form= function () {
+
+   var form = $(this);
+
+
+
+   $.ajax({
+     url: form.attr("action"),
+     data: form.serialize(),
+     type: form.attr("method"),
+     dataType: 'json',
+     success: function (data) {
+
+       if (data.form_is_valid) {
+         // console.log(data);
+          $(".highlight").attr("data-metraj",JSON.stringify(data.data));
+          $(".highlight").attr("data-metraj-total",data.total_val);
+          $(".highlight").removeClass("highlight");
+          $("#modal-company").modal("hide");
+       }
+       else {
+
+         $("#company-table tbody").html(data.html_assetFailure_list);
+         $("#modal-company .modal-content").html(data.html_assetFailure_form);
+       }
+     }
+   });
+   return false;
+ };
   // $('.editable-cell').on('input', function() {
   //       // Allow only numeric input
   //       var text = $(this).text();
   //       $(this).text(text.replace(/[^0-9]/g, ''));
   //   });
   $("#modal-company").on("submit",'.js-zayeatVazn-create-form',save_zayeat);
+  $("#modal-company").on("submit",'.js-HeatsetMetraj-create-form',save_daf_metraj_heatset_Form);
+  $(".company-table").on('click','.js_daf_metraj_create',open_daf_metraj_modal)
 });

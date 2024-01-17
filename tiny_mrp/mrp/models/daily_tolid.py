@@ -55,6 +55,15 @@ class DailyProduction(models.Model):
     weight4 = models.FloatField(null=True, blank=True)
     weight5 = models.FloatField(null=True, blank=True)
     net_weight = models.FloatField(null=True, blank=True)
+    metrajdaf1 = models.FloatField(null=True, blank=True)
+    metrajdaf2 = models.FloatField(null=True, blank=True)
+    metrajdaf3 = models.FloatField(null=True, blank=True)
+    metrajdaf4 = models.FloatField(null=True, blank=True)
+    metrajdaf5 = models.FloatField(null=True, blank=True)
+    metrajdaf6 = models.FloatField(null=True, blank=True)
+    metrajdaf7 = models.FloatField(null=True, blank=True)
+    metrajdaf8 = models.FloatField(null=True, blank=True)
+    makhraj_metraj_daf = models.FloatField(null=True, blank=True)
     def eval_max_tolid(self):
         if self.machine:
                 formula_obj = SpeedFormula.objects.get(machine=self.machine)

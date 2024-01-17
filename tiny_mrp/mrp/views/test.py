@@ -13,6 +13,7 @@ from django.contrib.auth.context_processors import PermWrapper
 from django.contrib.auth.decorators import login_required
 from mrp.business.tolid_util import *
 from django.template.loader import render_to_string
+from mrp.forms import HeatsetMetrajForm
 
 
 @login_required
@@ -529,3 +530,78 @@ def list_heatset_info(request):
 
         # return render(request,"mrp/tolid/daily_details.html",{'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
         return JsonResponse(data)
+
+#####################        heatset    ########################
+def save_HeatsetMetraj_form(request, form, template_name):
+
+
+    data = dict()
+    if (request.method == 'POST'):
+        if form.is_valid():
+
+            # Handle form submission
+            # Access form.cleaned_data to get the values
+            # Save the data or perform any necessary actions
+            saved_data = {
+                'metrajdaf1': form.cleaned_data['metrajdaf1'],
+                'metrajdaf2': form.cleaned_data['metrajdaf2'],
+                'metrajdaf3': form.cleaned_data['metrajdaf3'],
+                'metrajdaf4': form.cleaned_data['metrajdaf4'],
+                'metrajdaf5': form.cleaned_data['metrajdaf5'],
+                'metrajdaf6': form.cleaned_data['metrajdaf6'],
+                'metrajdaf7': form.cleaned_data['metrajdaf7'],
+                'metrajdaf8': form.cleaned_data['metrajdaf8'],
+                'makhraj_metraj_daf': form.cleaned_data['makhraj_metraj_daf'],
+            }
+            metraj_values = [
+                form.cleaned_data['metrajdaf1'],
+                form.cleaned_data['metrajdaf2'],
+                form.cleaned_data['metrajdaf3'],
+                form.cleaned_data['metrajdaf4'],
+                form.cleaned_data['metrajdaf5'],
+                form.cleaned_data['metrajdaf6'],
+                form.cleaned_data['metrajdaf7'],
+                form.cleaned_data['metrajdaf8'],
+            ]
+            makhraj_value = form.cleaned_data['makhraj_metraj_daf']
+            total_metraj = sum(metraj_values)
+
+            # Calculate the sum of makhraj values
+            total_val = total_metraj / makhraj_value
+
+            # Here you can perform additional actions, such as saving the data to the database
+
+            # Return a JSON response with the saved data
+            return JsonResponse({'success': True, 'data': saved_data,'form_is_valid':True,'total_val': total_val})
+        else:
+            data['form_is_valid'] = False
+            print(form.errors)
+
+    context = {'form': form}
+
+
+    data['html_heatsetmetraj_form'] = render_to_string(template_name, context, request=request)
+    return JsonResponse(data)
+def tolid_heatset_metraj_create(request):
+    if (request.method == 'POST'):
+        form = HeatsetMetrajForm(request.POST)
+        return save_HeatsetMetraj_form(request, form, 'mrp/tolid/partialHeatsetMetrajCreate.html')
+    else:
+        data_is_ok=False
+
+        try:
+            metraj_data=data = json.loads(request.GET.get("data",False))
+            initial_data=metraj_data
+            data_is_ok=True
+
+        except:
+            pass
+
+        if(data_is_ok==False):
+            initial_data = {'metrajdaf1': 0, 'metrajdaf2': 0, 'metrajdaf3': 0, 'metrajdaf4': 0,
+                        'metrajdaf5': 0, 'metrajdaf6': 0, 'metrajdaf7': 0, 'metrajdaf8': 0,
+                        'makhraj_metraj_daf': 1}
+        form = HeatsetMetrajForm(initial=initial_data)
+
+
+        return save_HeatsetMetraj_form(request, form, 'mrp/tolid/partialHeatsetMetrajCreate.html')
