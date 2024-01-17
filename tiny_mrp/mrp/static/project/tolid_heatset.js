@@ -188,7 +188,7 @@ var tableDataToJSON=function(tableId){
         var production_value =  $(this).find('td.production').text()||0;
         var nomre=0;
         var counter=0;
-        var speed=0;
+        var speed=$(this).find('td.speed').text()||0;
 
 
         data.push({ machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre

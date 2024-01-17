@@ -1,4 +1,13 @@
+
 {% extends 'mrp/blank-page.html' %}
+{% block stylesheet %}
+<style>
+  /* Custom class to set the height to 7 times the normal height */
+  .custom-height {
+    height: 20.2em; /* Adjust this value based on your requirements */
+  }
+</style>
+{% endblock %}
 {% block content %}
 <div class="row app-block">
 
@@ -138,6 +147,7 @@
                               <div class="table-responsive">
                                 <table class="table table-bordered table-striped company-table" >
                                   <thead class="thead-dark">
+              
                                     <tr>
 
                                       <th>سرعت</th>
@@ -148,12 +158,24 @@
                                   </thead>
                                   <tbody>
                                     {% for c in machines %}
-                                    <tr>
+                                    <tr >
 
                                       {% if c.shift.id == 1 %}
 
                                       <td  class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.amar.nomre}}>{{c.amar.speed}}</td>
                                       <td  class="editable-cell3 production selectable1" data-formula="{{c.amar.speedformula}}">{{c.amar.eval_max_tolid|floatformat:"2"}}</td>
+                                      {% endif %}
+
+
+                                    </tr>
+                                    {% endfor %}
+                                    {% for c in heatsets %}
+                                    <tr class="custom-height">
+
+                                      {% if c.shift.id == 1 %}
+
+                                      <td   class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.amar.nomre}}>{{c.amar.speed}}</td>
+                                      <td   class="editable-cell3 production selectable1" data-formula="{{c.amar.speedformula}}">{{c.amar.eval_max_tolid|floatformat:"2"}}</td>
                                       {% endif %}
 
 
