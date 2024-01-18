@@ -17,7 +17,7 @@ class FailureForm(forms.ModelForm):
          model = Failure
          fields = '__all__'
 class HeatsetMetrajForm(forms.Form):
-    metrajdaf1 = forms.IntegerField(initial=0)
+    metrajdaf1 = forms.IntegerField(initial=0,label='متراز داف 1')
     metrajdaf2 = forms.IntegerField(initial=0)
     metrajdaf3 = forms.IntegerField(initial=0)
     metrajdaf4 = forms.IntegerField(initial=0)
