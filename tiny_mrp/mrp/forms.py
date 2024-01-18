@@ -18,14 +18,14 @@ class FailureForm(forms.ModelForm):
          fields = '__all__'
 class HeatsetMetrajForm(forms.Form):
     metrajdaf1 = forms.IntegerField(initial=0,label='متراز داف 1')
-    metrajdaf2 = forms.IntegerField(initial=0)
-    metrajdaf3 = forms.IntegerField(initial=0)
-    metrajdaf4 = forms.IntegerField(initial=0)
-    metrajdaf5 = forms.IntegerField(initial=0)
-    metrajdaf6 = forms.IntegerField(initial=0)
-    metrajdaf7 = forms.IntegerField(initial=0)
-    metrajdaf8 = forms.IntegerField(initial=0)
-    makhraj_metraj_daf = forms.IntegerField(initial=0)
+    metrajdaf2 = forms.IntegerField(initial=0,label='متراز داف 2')
+    metrajdaf3 = forms.IntegerField(initial=0,label='متراز داف 3')
+    metrajdaf4 = forms.IntegerField(initial=0,label='متراز داف 4')
+    metrajdaf5 = forms.IntegerField(initial=0,label='متراز داف 5')
+    metrajdaf6 = forms.IntegerField(initial=0,label='متراز داف 6')
+    metrajdaf7 = forms.IntegerField(initial=0,label='متراز داف 7')
+    metrajdaf8 = forms.IntegerField(initial=0,label='متراز داف 8')
+    makhraj_metraj_daf = forms.IntegerField(initial=0,label='مخرج متراز داف')
 
 class AssetRandemanForm(forms.ModelForm):
     SAL_CHOICES = (

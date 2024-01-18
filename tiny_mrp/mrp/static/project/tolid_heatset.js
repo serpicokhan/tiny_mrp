@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+
 $(function () {
   $("#tblrows").on("input",".btc", function() {
             var row = $(this).closest("tr");
@@ -105,7 +106,7 @@ $(function () {
           console.log(P,Q,R,S);
             formula = formula.replace("P", P).replace("Q", Q).replace("R", R).replace("S", S).replace("T", T);
             try {
-              // console.log(formula);
+              console.log(formula);
                 var result = eval(formula);
                 return result.toFixed(2); // Adjust as needed
             } catch (error) {
@@ -186,6 +187,8 @@ var tableDataToJSON=function(tableId){
         var weight5 = $(this).find('td.vazne_daf').text()||0;
         var vazne_baghi = $(this).find('td.vazne_baghi').text()||0;
         var production_value =  $(this).find('td.production').text()||0;
+        var data_metraj =  JSON.stringify($(this).find('td.js_daf_metraj_create').attr('data-metraj'))||'';
+        console.log(data_metraj);
         var nomre=0;
         var counter=0;
         var speed=$(this).find('td.speed').text()||0;
@@ -234,8 +237,6 @@ console.log(JSON.stringify(sendData));
   // var tbl2=tableDataToJSON('tbl2');
   // var tbl3=tableDataToJSON('tbl3');
 });
-});
-$(function () {
   function processDataFromTables() {
     const tables = $('.tbl-zayeat-vazn'); // Select all tables with class 'table'
     const allTableData = []; // Array to store data from all tables
@@ -373,8 +374,26 @@ var save_daf_metraj_heatset_Form= function () {
          // console.log(data);
           $(".highlight").attr("data-metraj",JSON.stringify(data.data));
           $(".highlight").attr("data-metraj-total",data.total_val);
+
+          var row = $(".highlight").closest("tr");
+          var daf_num = parseFloat(row.find(".daf_num").text()) ||0;
+          var dook_vazn = parseFloat(row.find(".dook_weight").text()) || 0;
+          var vazne1 = parseFloat(row.find(".weight1").text()) || 0;
+          var vazne2 = parseFloat(row.find(".weight2").text()) || 0;
+          var vazne3 = parseFloat(row.find(".weight3").text()) || 0;
+          var vazne4 = parseFloat(row.find(".weight4").text()) || 0;
+          var total_metraj = parseFloat(row.find(".js_daf_metraj_create").attr('data-metraj-total')) || 0;
+
+
           $(".highlight").removeClass("highlight");
           $("#modal-company").modal("hide");
+
+          // js_daf_metraj_create
+
+          var formula = row.find("[data-formula]").data("formula");
+
+          var result = evaluateFormula(formula, daf_num, dook_vazn,vazne2-vazne1,vazne4-vazne3,total_metraj);
+          row.find("[data-formula]").text(result);
        }
        else {
 
