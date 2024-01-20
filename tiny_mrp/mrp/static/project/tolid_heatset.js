@@ -179,7 +179,7 @@ var tableDataToJSON=function(tableId){
         var shift = $(this).attr('data-shift');
         var dayOfIssue = $("#search").val();
         var daf_num = $(this).attr('daf_num')||0;
-        var dook_weight = $(this).find('td:eq(0)').attr('dook_weight')||0;
+        var dook_weight = $(this).find('td.dook_weight').text()||0;
         var weight1 = $(this).find('td.weight1').text()||0;
         var weight2 = $(this).find('td.weight2').text()||0;
         var weight3 = $(this).find('td.weight3').text()||0;
@@ -187,8 +187,21 @@ var tableDataToJSON=function(tableId){
         var weight5 = $(this).find('td.vazne_daf').text()||0;
         var vazne_baghi = $(this).find('td.vazne_baghi').text()||0;
         var production_value =  $(this).find('td.production').text()||0;
-        var data_metraj =  JSON.stringify($(this).find('td.js_daf_metraj_create').attr('data-metraj'))||'';
-        console.log(data_metraj);
+        var button = $(this).find("button");
+
+     // Check if a button is found in the row
+         if (button.length > 0) {
+           // Read the data-metraj attribute
+           var data_metraj = button.data("metraj");
+
+
+
+           // Display the result (you can modify this part based on your needs)
+
+         }
+        console.log($(this).find('td.btn.js_daf_metraj_create').attr('data-metraj'));
+        // var data_metraj =  JSON.stringify($(this).find('td.js_daf_metraj_create').attr('data-metraj'))||'';
+        // console.log(data_metraj);
         var nomre=0;
         var counter=0;
         var speed=$(this).find('td.speed').text()||0;
@@ -196,7 +209,7 @@ var tableDataToJSON=function(tableId){
 
         data.push({ machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
           , counter: counter,production_value: production_value,daf_num:daf_num,dook_weight:dook_weight,
-          weight1:weight1,weight2:weight2,weight3:weight3,weight4:weight4,weight5:weight5,vazne_baghi:vazne_baghi
+          weight1:weight1,weight2:weight2,weight3:weight3,weight4:weight4,weight5:weight5,vazne_baghi:vazne_baghi,data_metraj:data_metraj
            });
          }
       });
@@ -411,5 +424,5 @@ var save_daf_metraj_heatset_Form= function () {
   //   });
   $("#modal-company").on("submit",'.js-zayeatVazn-create-form',save_zayeat);
   $("#modal-company").on("submit",'.js-HeatsetMetraj-create-form',save_daf_metraj_heatset_Form);
-  $(".company-table").on('click','.js_daf_metraj_create',open_daf_metraj_modal)
+  $("#tblrows").on('click','.js_daf_metraj_create',open_daf_metraj_modal)
 });

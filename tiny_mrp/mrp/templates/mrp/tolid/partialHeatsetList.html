@@ -17,6 +17,7 @@
           <th>وزن پایان شیفت</th>
           <th>وزن داف</th>
           <th>وزن باقی</th>
+          <th>متراز داف</th>
           <th>وزن خالص</th>
           <th>سرعت</th>
 
@@ -35,7 +36,11 @@
           <td contenteditable="true" class="editable-cell btc weight4 selectable1">{{c.amar.weight4}}</td>
           <td contenteditable="true" data-formula="{{c.formula}}" class="editable-cell btc vazne_daf selectable1">{{c.amar.weight5}}</td>
           <td contenteditable="true" class="editable-cell btc vazne_baghi selectable1">{{c.amar.net_weight}}</td>
-
+          <td>
+          <button type="button" class="btn btn-outline-secondary js_daf_metraj_create" data-metraj='{{c.metraj}}' data-metraj-total='{{c.total_val}}' data-machine={{c.machine.id}} data-shift="{{i.id}}" data-url="{% url 'tolid_heatset_metraj_create' %}">
+  <i class="ti-check-box"></i>
+</button>
+        </td>
           <td contenteditable="true" data-formula="" class='production'>{{c.amar.production_value}}</td>
           <td contenteditable="true" data-formula="" class='speed'>{{c.amar.speed}}</td>
 

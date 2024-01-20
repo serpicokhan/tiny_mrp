@@ -190,9 +190,9 @@ def saveAmarHTableInfo(request):
                 d[0].machine=m
                 d[0].shift=s
                 d[0].dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
-                
-                
-                
+
+
+
                 d[0].speed=i["speed"]
                 print(d[0].speed)
                 d[0].nomre=i["nomre"]
@@ -213,12 +213,37 @@ def saveAmarHTableInfo(request):
             # print(i)
             # print("********")
             else:
+                print("here!!!")
+
+
                 amar=DailyProduction()
+                if(i["data_metraj"]):
+
+                    amar.metrajdaf1=i["data_metraj"]["metrajdaf1"]
+                    amar.metrajdaf2=i["data_metraj"]["metrajdaf2"]
+                    amar.metrajdaf3=i["data_metraj"]["metrajdaf3"]
+                    amar.metrajdaf4=i["data_metraj"]["metrajdaf4"]
+                    amar.metrajdaf5=i["data_metraj"]["metrajdaf5"]
+                    amar.metrajdaf6=i["data_metraj"]["metrajdaf6"]
+                    amar.metrajdaf7=i["data_metraj"]["metrajdaf7"]
+                    amar.metrajdaf8=i["data_metraj"]["metrajdaf8"]
+                    amar.makhraj_metraj_daf=i["data_metraj"]["makhraj_metraj_daf"]
+                else:
+                    amar.metrajdaf1=0
+                    amar.metrajdaf2=0
+                    amar.metrajdaf3=0
+                    amar.metrajdaf4=0
+                    amar.metrajdaf5=0
+                    amar.metrajdaf6=0
+                    amar.metrajdaf7=0
+                    amar.metrajdaf8=0
+                    amar.makhraj_metraj_daf=0
+
                 # amar.shift=i["shift"]
                 amar.machine=m
                 amar.shift=s
                 amar.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
-                amar.speed=i["speed"]
+                amar.speed=0
                 amar.nomre=i["nomre"]
                 amar.counter=float(i["counter"])
                 amar.production_value=float(i["production_value"])
@@ -516,7 +541,37 @@ def list_heatset_info(request):
                     formula = Formula.objects.get(machine=machine)
                     speedformula = SpeedFormula.objects.get(machine=machine)
                     amar=DailyProduction.objects.get(machine=machine,dayOfIssue=dayOfIssue,shift=s)
-                    machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
+                    saved_data = {
+                        'metrajdaf1': amar.metrajdaf1,
+                        'metrajdaf2': amar.metrajdaf2,
+                        'metrajdaf3': amar.metrajdaf3,
+                        'metrajdaf4': amar.metrajdaf4,
+                        'metrajdaf5': amar.metrajdaf5,
+                        'metrajdaf6': amar.metrajdaf6,
+                        'metrajdaf7': amar.metrajdaf7,
+                        'metrajdaf8': amar.metrajdaf8,
+
+                        'makhraj_metraj_daf': amar.makhraj_metraj_daf,
+                    }
+                    metraj_val = {
+                        amar.metrajdaf1,
+                        amar.metrajdaf2,
+                        amar.metrajdaf3,
+                        amar.metrajdaf4,
+                        amar.metrajdaf5,
+                        amar.metrajdaf6,
+                        amar.metrajdaf7,
+                        amar.metrajdaf8,
+                    }
+                    makhraj_value = amar.makhraj_metraj_daf
+                    if(makhraj_value==0):
+                        makhraj_value=1
+                    
+                    total_metraj = sum(metraj_val)
+
+                    # Calculate the sum of makhraj values
+                    total_val = total_metraj / makhraj_value
+                    machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'metraj':saved_data,'total_val':total_val})
                     # else:
                     #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
@@ -527,6 +582,7 @@ def list_heatset_info(request):
                     machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0})
                 except DailyProduction.DoesNotExist:
                     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+
         data['html_heatset_result'] = render_to_string('mrp/tolid/partialHeatsetList.html',{
             'machines':machines_with_formulas,
             'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)}
