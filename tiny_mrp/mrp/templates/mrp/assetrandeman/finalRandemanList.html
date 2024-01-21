@@ -51,7 +51,7 @@
                               <td>جمع دستگاه</td>
                               {% for x in randeman_list %}
                               {% if i.id == x.randeman.shift.id %}
-                              <td>{{x.randeman.tolid_value}}</td>
+                              <td>{{x.randeman.tolid_value|intcomma}}</td>
                               {% endif %}
                               {% endfor %}
                             </tr>

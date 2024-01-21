@@ -96,6 +96,7 @@ def get_day_machine_failure_monthly_shift(assetCatregory,shift,start,end):
             hours = total_failure_duration // 60
             minutes = total_failure_duration % 60
             formatted_duration = f"{hours:02d}:{minutes:02d}"
+            print(hours/8)
             return hours/8
         else:
             return 0
@@ -149,24 +150,18 @@ def get_sum_vaz_zayeat_by_date(specific_date):
 def get_randeman_per_tolid_byshift(mah,sal,asset_cat,shift):
     start_date_gregorian, end_date_gregorian = DateJob.shamsi_to_gregorian_range(sal, mah)
 
-    num_days=(end_date_gregorian-start_date_gregorian).days
-    filtered_production = DailyProduction.objects.filter(
-    dayOfIssue__range=(start_date_gregorian, end_date_gregorian),  # Filter by date range
-    shift=shift,  # Filter by shift ID equal to 1
-    machine__assetCategory=asset_cat  # Filter by asset category n
-    )
-    # Calculate the sum of production_value
-    sum_production_value = filtered_production.aggregate(
-        total_production_value=models.Sum('production_value')
-    )['total_production_value']
+    num_days=(end_date_gregorian-start_date_gregorian).days+1
+    
+    sum_production_value=get_monthly_machine_by_date_shift(asset_cat,shift,start_date_gregorian,end_date_gregorian)
 
     if(not sum_production_value):
         return 0
-    day_machine_failure_monthly_shift=get_day_machine_failure_monthly_shift(asset_cat,shift,start_date_gregorian,end_date_gregorian)
-    total_day_per_shift=num_days-day_machine_failure_monthly_shift
+    print(start_date_gregorian,end_date_gregorian)
+    day_machine_failure_monthly_shift = get_day_machine_failure_monthly_shift(asset_cat,shift,start_date_gregorian,end_date_gregorian)
+    total_day_per_shift= num_days - day_machine_failure_monthly_shift
     mean_day_per_shift=sum_production_value/total_day_per_shift
-    if(day_machine_failure_monthly_shift>0):
-        print("day_machine_failure_monthly_shift",day_machine_failure_monthly_shift)
+   
+    print("day_machine_failure_monthly_shift",day_machine_failure_monthly_shift)
     # print("total_day_per_shift",total_day_per_shift)
     # print("mean_day_per_shift",mean_day_per_shift)
 
@@ -213,5 +208,6 @@ def calc_assetrandeman(mah,sal):
             if(kole_tolid==0):
                 result=0
             else:
-                result=float(kole_randeman)*tolid_shift/float(kole_tolid)
+                print(f"kole randeman {kole_randeman},tolid shift {tolid_shift} and  kole tolid={kole_tolid}")
+                result=(float(kole_randeman)*tolid_shift)/float(kole_tolid)
             AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,mah=mah,sal=sal)

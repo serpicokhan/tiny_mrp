@@ -18,8 +18,8 @@ from mrp.forms import HeatsetMetrajForm
 
 @login_required
 def get_daily_amar(request):
-    dayOfIssue=request.GET.get('event_id',datetime.now())
-    date_object = datetime.strptime(dayOfIssue, '%Y-%m-%d')
+    dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
+    date_object = datetime.datetime.strptime(dayOfIssue, '%Y-%m-%d')
 
     next_day = date_object + timedelta(days=1)
 

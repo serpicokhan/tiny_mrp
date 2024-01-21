@@ -168,6 +168,7 @@ class AssetRandemanList(models.Model):
     sal = models.IntegerField()
     class Meta:
         db_table="assetrandemanlist"
+        ordering=('-sal','-mah')
 
 class AssetRandemanPerMonth(models.Model):
     asset_category = models.ForeignKey('AssetCategory', on_delete=models.CASCADE)
