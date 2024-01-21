@@ -167,7 +167,7 @@ def monthly_detaild_failured_report(request):
     j_month=request.GET.get('month',current_date_time2.month)
 
 
-    current_date_time = jdatetime.date(current_year, j_month, 1)
+    current_date_time = jdatetime.date(current_year, int(j_month), 1)
     current_jalali_date = current_date_time
 
 
@@ -190,7 +190,23 @@ def monthly_detaild_failured_report(request):
             for sh in shift:
                 product[sh.id]=get_sum_machine_failure_by_date_shift(cats,sh,j_date.togregorian())
             days.append({'cat':cats,'date':"{0}/{1}/{2}".format(current_jalali_date.year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
+        ###sum all
+        product={}
+        start=jdatetime.date(current_jalali_date.year,current_jalali_date.month,1)
+        end=jdatetime.date(current_jalali_date.year,current_jalali_date.month,num_days)
+        for sh in shift:
+            product[sh.id]=get_sum_machine_failure_monthly_shift(cats,sh,start.togregorian(),end.togregorian())
+        days.append({'cat':cats,'date':"",'day_of_week':'جمع','product':product})
+        product={}
+        for sh in shift:
+            product[sh.id]=get_day_machine_failure_monthly_shift(cats,sh,start.togregorian(),end.togregorian())
+        days.append({'cat':cats,'date':"",'day_of_week':'مجموع روز متوقف','product':product})
+        total_day_per_shift={}
+        for sh in shift:
+            total_day_per_shift[sh.id]=num_days-product[sh.id]
+        days.append({'cat':cats,'date':"",'day_of_week':'روز کاری','product':total_day_per_shift})
+
 
         cat_list.append({'cat':cats,'shift_val':days})
 
-    return render(request,'mrp/assetfailure/monthly_failure_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift})
+    return render(request,'mrp/assetfailure/monthly_failure_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month})

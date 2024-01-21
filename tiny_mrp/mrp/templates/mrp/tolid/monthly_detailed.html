@@ -114,7 +114,7 @@
                                             {% for shifts in shift %}
                                             {% if cat_item.cat == day.cat %}
 
-                                                <td>{{ day.product|get_item:shifts.id }}</td>
+                                                <td>{{ day.product|get_item:shifts.id|floatformat:2 }}</td>
                                                 {% endif %}
                                             {% endfor %}
                                             <!-- Add more columns for other data -->
