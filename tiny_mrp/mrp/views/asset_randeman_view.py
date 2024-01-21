@@ -18,56 +18,7 @@ import datetime
 from django.shortcuts import get_object_or_404
 
 
-def get_randeman_per_tolid_byshift(mah,sal,asset_cat,shift):
-    start_date_gregorian, end_date_gregorian = DateJob.shamsi_to_gregorian_range(sal, mah)
-    filtered_production = DailyProduction.objects.filter(
-    dayOfIssue__range=(start_date_gregorian, end_date_gregorian),  # Filter by date range
-    shift=shift,  # Filter by shift ID equal to 1
-    machine__assetCategory=asset_cat  # Filter by asset category n
-    )
-    # Calculate the sum of production_value
-    sum_production_value = filtered_production.aggregate(
-        total_production_value=models.Sum('production_value')
-    )['total_production_value']
 
-    if(not sum_production_value):
-        return 0
-
-    return sum_production_value
-def get_randeman_per_tolid(mah,sal,asset_cat):
-
-    start_date_gregorian, end_date_gregorian = DateJob.shamsi_to_gregorian_range(sal, mah)
-    filtered_production = DailyProduction.objects.filter(
-    dayOfIssue__range=(start_date_gregorian, end_date_gregorian),  # Filter by date range
-
-    machine__assetCategory=asset_cat  # Filter by asset category n
-    )
-    # Calculate the sum of production_value
-    sum_production_value = filtered_production.aggregate(
-        total_production_value=models.Sum('production_value')
-    )['total_production_value']
-
-    if(not sum_production_value):
-        return 0
-
-    return sum_production_value
-
-def calc_assetrandeman(mah,sal):
-    asset_cat_list=AssetCategory.objects.all()
-    shift_list=Shift.objects.all()
-    AssetRandemanPerMonth.objects.filter(mah=mah,sal=sal).delete()
-    for i in asset_cat_list:
-        data_shift=[]
-        for shift in shift_list:
-            kole_randeman=AssetRandemanInit.objects.get(asset_category=i).randeman_tolid
-            tolid_shift=get_randeman_per_tolid_byshift(mah,sal,i,shift)
-            kole_tolid=get_randeman_per_tolid(mah,sal,i)
-            result=0
-            if(kole_tolid==0):
-                result=0
-            else:
-                result=(kole_randeman*tolid_shift)/kole_tolid
-            AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,mah=mah,sal=sal)
 @login_required
 def asset_randeman_list(request):
 
