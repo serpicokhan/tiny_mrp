@@ -78,6 +78,30 @@
                                   {% endfor %}</td>
 
                             </tr>
+                            <tr class="text-center">
+                              <td colspan="2">رتبه شیفت در تولید</td>
+                              <td >
+                                {% for x in randeman_kol %}
+                                  {% if i.id == x.shift.id %}
+                                  {{x.tolid_rank}}
+                                  {% endif %}
+                                  {% endfor %}
+                              </td>
+                              <td colspan="2">
+                                {% for x in randeman_kol %}
+                                {% if i.id == x.shift.id %}
+                                {{x.padashe_tolid|intcomma}}
+                                {% endif %}
+                                {% endfor %}
+                              </td>
+                              <td colspan="2" >
+                              جمع کل (ریال ) مبلغ قابل پرداخت</td>
+                              <td colspan="2"> {% for x in randeman_kol %}
+                                {% if i.id == x.shift.id %}
+                                {{x.sum|intcomma}}
+                                {% endif %}
+                                {% endfor %}</td>
+                            </tr>
                           </tbody>
 
                         </table>

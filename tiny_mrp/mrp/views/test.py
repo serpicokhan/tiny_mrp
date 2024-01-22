@@ -533,6 +533,12 @@ def get_sum_randeman_by_shift(mah,sal,shift):
 
     return sum_production_value
 def get_monthly_workbook(request):
+    my_dict = {
+    1: 'اول',
+    2: 'دوم',
+    3:'سوم'
+    # Add more key-value pairs as needed
+}
     mah=request.GET.get("mah",False)
     sal=request.GET.get("sal",False)
     shift_list=Shift.objects.all()
@@ -547,7 +553,9 @@ def get_monthly_workbook(request):
         tolid_rank=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
         padashe_nezafat_personel=NezafatPadash.objects.get(rank=nezafat_rank).price_personnel
         padashe_tolid_personel=TolidPadash.objects.get(rank=tolid_rank).price_personnel
-        k.append({'randeman_kol':get_sum_randeman_by_shift(mah,sal,i),'shift':i,'nezafat_rank':nezafat_rank,'tolid_rank':tolid_rank,'padashe_nezafat':padashe_nezafat_personel,'padashe_tolid':padashe_tolid_personel})
+        randeman_kol=get_sum_randeman_by_shift(mah,sal,i)
+        sum=randeman_kol+padashe_nezafat_personel+padashe_tolid_personel
+        k.append({'randeman_kol':randeman_kol,'shift':i,'nezafat_rank':my_dict[nezafat_rank],'tolid_rank':my_dict[tolid_rank],'padashe_nezafat':padashe_nezafat_personel,'padashe_tolid':padashe_tolid_personel,'sum':sum})
 
     return render(request,'mrp/assetrandeman/finalRandemanList.html',{'shift_list':shift_list,'randeman_list':d,'randeman_kol':k})
 def list_heatset_info(request):
