@@ -539,11 +539,15 @@ def get_monthly_workbook(request):
     randeman_list=AssetRandemanPerMonth.objects.filter(mah=mah,sal=sal)
     d=[]
     for i in randeman_list:
-
         d.append({'operator_num':AssetRandemanInit.objects.get(asset_category=i.asset_category).operator_count,'randeman':i})
     k=[]
     for i in shift_list:
-        k.append({'randeman_kol':get_sum_randeman_by_shift(mah,sal,i),'shift':i})
+        randeman_list=AssetRandemanList.objects.get(mah=mah,sal=sal)
+        nezafat_rank=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
+        tolid_rank=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
+        padashe_nezafat_personel=NezafatPadash.objects.get(rank=nezafat_rank).price_personnel
+        padashe_tolid_personel=TolidPadash.objects.get(rank=tolid_rank).price_personnel
+        k.append({'randeman_kol':get_sum_randeman_by_shift(mah,sal,i),'shift':i,'nezafat_rank':nezafat_rank,'tolid_rank':tolid_rank,'padashe_nezafat':padashe_nezafat_personel,'padashe_tolid':padashe_tolid_personel})
 
     return render(request,'mrp/assetrandeman/finalRandemanList.html',{'shift_list':shift_list,'randeman_list':d,'randeman_kol':k})
 def list_heatset_info(request):

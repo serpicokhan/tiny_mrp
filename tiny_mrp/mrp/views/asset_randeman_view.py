@@ -144,7 +144,7 @@ def assetRandeman_padash_ranking(request,id):
                 'اسفند'
             ]
         asset_randeman=AssetRandemanList.objects.get(id=id)
-        shift=TolidRanking.objects.filter(asset_randeman_list=asset_randeman)
+        shift=TolidRanking.objects.filter(asset_randeman_list=asset_randeman).order_by('rank')
         data['html_assetRandeman_form'] = render_to_string('mrp/assetrandeman/partialTolidRankingList.html', {
             'shifts':shift,'mah':shamsi_months[asset_randeman.mah-1],'sal':asset_randeman.sal,
             'perms': PermWrapper(request.user),'title':'انتخاب رتبه تولید'
@@ -160,6 +160,30 @@ def assetRandeman_ranking_create(request):
             for i in received_data:
                 # print(i)
                 p=NezafatRanking.objects.get(id=i["id"])
+                p.rank=i['position']
+                p.save()
+
+            # Now 'received_data' is a list of dictionaries containing 'id' and 'position'
+
+            # Process the data as needed, for example, save it to the database
+            # YourModel.objects.bulk_create([YourModel(id=item['id'], position=item['position']) for item in received_data])
+
+            return JsonResponse({'status': 'success'})
+        except json.JSONDecodeError as e:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON format'})
+    else:
+            return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+@csrf_exempt
+def assetRandeman_tolid_ranking_create(request):
+    if request.method == 'POST':
+        try:
+            # Access the 'items' key from the POST data
+            received_data = json.loads(request.body)
+
+            for i in received_data:
+                # print(i)
+                p=TolidRanking.objects.get(id=i["id"])
                 p.rank=i['position']
                 p.save()
 

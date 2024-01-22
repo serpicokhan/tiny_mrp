@@ -56,7 +56,7 @@
                               {% endfor %}
                             </tr>
                             <tr>
-                              <td colspan="5">
+                              <td colspan="4">
                                 جمع کل دستگاهها
                               </td>
                               <td colspan="2" class="text-center">
@@ -66,8 +66,16 @@
                                   {% endif %}
                                   {% endfor %}</td>
                               <td>جمع راندمان نظافت</td>
-                              <td>دوم</td>
-                              <td colspan="2" class="text-center">3000</td>
+                              <td>  {% for x in randeman_kol %}
+                                  {% if i.id == x.shift.id %}
+                                  {{x.nezafat_rank}}
+                                  {% endif %}
+                                  {% endfor %}</td>
+                              <td colspan="2" class="text-center">  {% for x in randeman_kol %}
+                                  {% if i.id == x.shift.id %}
+                                  {{x.padashe_nezafat|intcomma}}
+                                  {% endif %}
+                                  {% endfor %}</td>
 
                             </tr>
                           </tbody>
