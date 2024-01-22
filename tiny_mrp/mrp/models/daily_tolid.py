@@ -9,6 +9,7 @@ class Shift(models.Model):
         return f"{self.name}"
     class Meta:
         db_table="shift"
+        ordering=('id',)
 
 class Formula(models.Model):
     machine = models.OneToOneField(Asset, on_delete=models.CASCADE)
@@ -181,3 +182,44 @@ class AssetRandemanPerMonth(models.Model):
 
     def __str__(self):
         return f"{self.asset_category} - Shift: {self.shift}, Tolid Value: {self.tolid_value}, MAH: {self.mah}, SAL: {self.sal}"
+
+class NezafatRanking(models.Model):
+    # Your model fields go here
+    # For example:
+    rank = models.IntegerField()
+    asset_randeman_list = models.ForeignKey(AssetRandemanList, on_delete=models.CASCADE)
+    shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
+    class Meta:
+        db_table='nezafatranking'
+    def __str__(self):
+        return self.description
+class TolidRanking(models.Model):
+    # Your model fields go here
+    # For example:
+    rank = models.IntegerField()
+    asset_randeman_list = models.ForeignKey(AssetRandemanList, on_delete=models.CASCADE)
+    shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
+    class Meta:
+        db_table='tolidranking'
+    def __str__(self):
+        return self.description
+class NezafatPadash(models.Model):
+    description = models.TextField()
+    rank = models.IntegerField()
+    price_sarshift = models.DecimalField(max_digits=10, decimal_places=2)
+    price_personnel = models.DecimalField(max_digits=10, decimal_places=2)
+    class Meta:
+        db_table='nezafatpadash'
+        ordering=('rank',)
+    def __str__(self):
+        return f"Rank: {self.rank}, Price: {self.price}"
+class TolidPadash(models.Model):
+    description = models.TextField()
+    rank = models.IntegerField()
+    price_sarshift = models.DecimalField(max_digits=10, decimal_places=2)
+    price_personnel = models.DecimalField(max_digits=10, decimal_places=2)
+    class Meta:
+        db_table='tolidpadash'
+        ordering=('rank',)
+    def __str__(self):
+        return f"Rank: {self.rank}, Price: {self.price}"

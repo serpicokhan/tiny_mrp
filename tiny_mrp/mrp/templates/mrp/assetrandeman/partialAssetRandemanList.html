@@ -5,7 +5,9 @@
 
   <td class="w-25">
     <button type="button" class="btn btn-outline-light js-update-assetRandeman" data-url="{% url 'assetRandeman_update' i.id %}" >  <i class="ti-eye"></i></button>
-    <a href="{% url 'get_monthly_workbook' %}?mah={{i.mah}}&sal={{i.sal}}" type="button" class="btn btn-outline-light js-view-workbook" target="_blank" >  <i class="ti-eye"></i></a>
+    <button type="button" class="btn btn-outline-light js-update-assetRandemanRanking" data-url="{% url 'assetRandeman_nezafat_ranking' i.id %}" >  <i class="ti-list-ol"></i></button>
+    <button type="button" class="btn btn-outline-light js-update-assetRandemanRanking" data-url="{% url 'assetRandeman_padash_ranking' i.id %}" >  <i class="ti-list-ol"></i></button>
+    <a href="{% url 'get_monthly_workbook' %}?mah={{i.mah}}&sal={{i.sal}}" type="button" class="btn btn-outline-light js-view-workbook" target="_blank" >  <i class="ti-bar-chart-alt"></i></a>
     <button type="button" class="btn btn-outline-light js-assetRandeman-delete" data-url="{% url 'assetRandeman_delete' i.id %}">  <i class="ti-close"></i></button>
   </td>
 

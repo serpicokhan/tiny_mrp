@@ -94,16 +94,60 @@ $(function () {
          });
 
 }
+var save_ranking=function () {
+  var dataArray = [];
+  var form = $(this);
 
+  // Iterate through each list item
+  $('#sortable li').each(function() {
+      var dataId = $(this).data('id');
+      var dataPosition = $(this).data('position');
+      var data_asset_randeman_list= $(this).data('assetrandeman');
+
+      // Create an object with data-id and data-position
+      var itemData = {
+          id: dataId,
+          position: dataPosition,
+          assetrandeman:data_asset_randeman_list
+      };
+
+      // Add the object to the dataArray
+      dataArray.push(itemData);
+  });
+  var sent_data={items:dataArray};
+
+  // Use AJAX to send the dataArray to your server
+  $.ajax({
+      url: form.attr("action"),
+
+      type: form.attr("method"),
+      data: JSON.stringify(dataArray),
+      beforeSend:function(){
+        console.log(dataArray);
+      },
+      success: function(response) {
+          console.log('Data sent successfully', response);
+          if(response.status=='success')
+          $("#modal-company").modal("hide");
+
+      },
+      error: function(error) {
+          console.error('Error sending data', error);
+      }
+  });
+  return false;
+ };
   $(".js-create-assetRandeman").click(myWoLoader);
   $("#modal-company").on("submit", ".js-assetRandeman-create-form", saveForm);
 
   // Update book
   $("#company-table").on("click", ".js-update-assetRandeman", myWoLoader);
+  $("#company-table").on("click", ".js-update-assetRandemanRanking", myWoLoader);
   $("#modal-company").on("submit", ".js-assetRandeman-update-form", saveForm);
   // Delete book
   $("#company-table").on("click", ".js-delete-assetRandeman", loadForm);
   $("#company-table").on("click", ".js-assetRandeman-delete", myWoLoader);
   $("#modal-company").on("submit", ".js-assetRandeman-delete-form", saveForm);
+  $("#modal-company").on("submit", ".js-assetRandeman-ranking-form", save_ranking);
 
   });

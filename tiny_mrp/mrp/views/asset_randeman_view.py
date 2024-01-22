@@ -16,7 +16,7 @@ from django.template.loader import render_to_string
 from mrp.business.tolid_util import *
 import datetime
 from django.shortcuts import get_object_or_404
-
+from django.views.decorators.csrf import csrf_exempt
 
 
 @login_required
@@ -36,6 +36,7 @@ def save_assetRandeman_form(request, form, template_name,id=None):
         if form.is_valid():
             bts=form.save()
             calc_assetrandeman(bts.mah,bts.sal)
+            create_first_padash(bts.id)
             data['form_is_valid'] = True
             books = AssetRandemanList.objects.all()
             wos=doPaging(request,books)
@@ -94,6 +95,87 @@ def assetRandeman_delete(request, id):
             request=request,
         )
     return JsonResponse(data)
+def assetRandeman_nezafat_ranking(request,id):
+    data=dict()
+    if (request.method == 'POST'):
+        pass
+    else:
+        shamsi_months = [
+                'فروردین',
+                'اردیبهشت',
+                'خرداد',
+                'تیر',
+                'مرداد',
+                'شهریور',
+                'مهر',
+                'آبان',
+                'آذر',
+                'دی',
+                'بهمن',
+                'اسفند'
+            ]
+        asset_randeman=AssetRandemanList.objects.get(id=id)
+        shift=NezafatRanking.objects.filter(asset_randeman_list=asset_randeman).order_by('rank')
+        # print(shift)
+
+        data['html_assetRandeman_form'] = render_to_string('mrp/assetrandeman/partialRankingList.html', {
+            'shifts':shift,'mah':shamsi_months[asset_randeman.mah-1],'sal':asset_randeman.sal,
+            'perms': PermWrapper(request.user),'title':'انتخاب رتبه نظافت'
+        },request=request)
+    return JsonResponse(data)
+
+def assetRandeman_padash_ranking(request,id):
+    data=dict()
+    if (request.method == 'POST'):
+        pass
+    else:
+        shamsi_months = [
+                'فروردین',
+                'اردیبهشت',
+                'خرداد',
+                'تیر',
+                'مرداد',
+                'شهریور',
+                'مهر',
+                'آبان',
+                'آذر',
+                'دی',
+                'بهمن',
+                'اسفند'
+            ]
+        asset_randeman=AssetRandemanList.objects.get(id=id)
+        shift=TolidRanking.objects.filter(asset_randeman_list=asset_randeman)
+        data['html_assetRandeman_form'] = render_to_string('mrp/assetrandeman/partialTolidRankingList.html', {
+            'shifts':shift,'mah':shamsi_months[asset_randeman.mah-1],'sal':asset_randeman.sal,
+            'perms': PermWrapper(request.user),'title':'انتخاب رتبه تولید'
+        })
+    return JsonResponse(data)
+@csrf_exempt
+def assetRandeman_ranking_create(request):
+    if request.method == 'POST':
+        try:
+            # Access the 'items' key from the POST data
+            received_data = json.loads(request.body)
+
+            for i in received_data:
+                # print(i)
+                p=NezafatRanking.objects.get(id=i["id"])
+                p.rank=i['position']
+                p.save()
+
+            # Now 'received_data' is a list of dictionaries containing 'id' and 'position'
+
+            # Process the data as needed, for example, save it to the database
+            # YourModel.objects.bulk_create([YourModel(id=item['id'], position=item['position']) for item in received_data])
+
+            return JsonResponse({'status': 'success'})
+        except json.JSONDecodeError as e:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON format'})
+    else:
+            return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+
 
 # def list_failures(request):
 #     formulas=Failure.objects.all()

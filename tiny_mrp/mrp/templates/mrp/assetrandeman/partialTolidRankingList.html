@@ -1,0 +1,53 @@
+
+<div class="modal-header bg-primary" >
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title">جدید</h4>
+</div>
+<div class="modal-body">
+  <div class="container mt-4">
+    <h2>{{title}} {{mah}} ماه {{sal}}</h2>
+    <ul class="list-group sortable-list" id="sortable">
+      {% for i in shifts %}
+      <li class="list-group-item" data-position={{i.rank}}>{{i.shift.name}} <span class="move-up" onclick="moveItemUp(this)">↑</span> <span class="move-down" onclick="moveItemDown(this)">↓</span></li>
+      {% endfor %}
+
+    </ul>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" data-dismiss="modal">انصراف</button>
+  {% if perms.mrp.add_assetfailure %}
+  <button type="submit" class="btn btn-primary" >ذخیره</button>
+  {% endif %}
+</div>
+<style>
+    .sortable-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .sortable-list li {
+      margin: 5px 0;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+    }
+
+    .move-up, .move-down {
+      cursor: pointer;
+    }
+  </style>
+<script type="text/javascript">
+  function moveItemUp(element) {
+      var li = $(element).closest('li');
+      li.insertBefore(li.prev());
+    }
+
+    function moveItemDown(element) {
+      var li = $(element).closest('li');
+      li.insertAfter(li.next());
+    }
+
+</script>

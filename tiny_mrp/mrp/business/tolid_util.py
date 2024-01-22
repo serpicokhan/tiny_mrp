@@ -151,7 +151,7 @@ def get_randeman_per_tolid_byshift(mah,sal,asset_cat,shift):
     start_date_gregorian, end_date_gregorian = DateJob.shamsi_to_gregorian_range(sal, mah)
 
     num_days=(end_date_gregorian-start_date_gregorian).days+1
-    
+
     sum_production_value=get_monthly_machine_by_date_shift(asset_cat,shift,start_date_gregorian,end_date_gregorian)
 
     if(not sum_production_value):
@@ -160,8 +160,8 @@ def get_randeman_per_tolid_byshift(mah,sal,asset_cat,shift):
     day_machine_failure_monthly_shift = get_day_machine_failure_monthly_shift(asset_cat,shift,start_date_gregorian,end_date_gregorian)
     total_day_per_shift= num_days - day_machine_failure_monthly_shift
     mean_day_per_shift=sum_production_value/total_day_per_shift
-   
-    print("day_machine_failure_monthly_shift",day_machine_failure_monthly_shift)
+
+    # print("day_machine_failure_monthly_shift",day_machine_failure_monthly_shift)
     # print("total_day_per_shift",total_day_per_shift)
     # print("mean_day_per_shift",mean_day_per_shift)
 
@@ -210,4 +210,10 @@ def calc_assetrandeman(mah,sal):
             else:
                 print(f"kole randeman {kole_randeman},tolid shift {tolid_shift} and  kole tolid={kole_tolid}")
                 result=(float(kole_randeman)*tolid_shift)/float(kole_tolid)
-            AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,mah=mah,sal=sal)
+                AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,mah=mah,sal=sal)
+def create_first_padash(AssetRandemanListId):
+    asset_randeman=AssetRandemanList.objects.get(id=AssetRandemanListId)
+    shifts=Shift.objects.all()
+    for i in shifts:
+        NezafatRanking.objects.create(asset_randeman_list=asset_randeman,shift=i,rank=i.id)
+        TolidRanking.objects.create(asset_randeman_list=asset_randeman,shift=i,rank=i.id)

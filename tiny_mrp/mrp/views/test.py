@@ -447,6 +447,12 @@ def list_formula(request):
 def list_speed_formula(request):
     formulas=SpeedFormula.objects.all()
     return render(request,"mrp/speed_formula/formulaList.html",{'formulas':formulas,'title':'لیست فرمولهای سرعت'})
+def list_nezafat_padash(request):
+    formulas=NezafatPadash.objects.all()
+    return render(request,"mrp/assetrandeman/nezafatPadashList.html",{'formulas':formulas,'title':'پاداش نظافت'})
+def list_tolid_padash(request):
+    formulas=TolidPadash.objects.all()
+    return render(request,"mrp/assetrandeman/tolidPadashList.html",{'formulas':formulas,'title':'پاداش تولید'})
 def monthly_detaild_report(request):
     days=[]
     shift=Shift.objects.all()
