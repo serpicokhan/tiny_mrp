@@ -133,7 +133,10 @@ def get_sum__speed_machine_by_category(assetCatregory,target_date):
         )
 
         for i in t2:
-            sum+=i.production_value/i.eval_max_tolid()
+            if(i.eval_max_tolid()>0):
+                sum+=i.production_value/i.eval_max_tolid()
+            else:
+                sum+=0
         # print(machine.id,target_date,production_sum)
         i=t2.count()
         if(i>0):

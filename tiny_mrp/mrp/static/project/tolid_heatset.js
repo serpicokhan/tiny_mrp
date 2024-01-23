@@ -180,6 +180,7 @@ var tableDataToJSON=function(tableId){
         var dayOfIssue = $("#search").val();
         var daf_num = $(this).attr('daf_num')||0;
         var dook_weight = $(this).find('td.dook_weight').text()||0;
+        var speed = $(this).find('td.speed').text()||0;
         var weight1 = $(this).find('td.weight1').text()||0;
         var weight2 = $(this).find('td.weight2').text()||0;
         var weight3 = $(this).find('td.weight3').text()||0;
@@ -204,7 +205,7 @@ var tableDataToJSON=function(tableId){
         // console.log(data_metraj);
         var nomre=0;
         var counter=0;
-        var speed=$(this).find('td.speed').text()||0;
+
 
 
         data.push({ machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre

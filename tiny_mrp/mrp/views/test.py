@@ -15,7 +15,7 @@ from mrp.business.tolid_util import *
 from django.template.loader import render_to_string
 from mrp.forms import HeatsetMetrajForm
 
-
+from django.db.models import Q
 @login_required
 def get_daily_amar(request):
     dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
@@ -148,14 +148,15 @@ def saveAmarTableInfo(request):
             s=Shift.objects.get(id=int(i["shift"]))
             d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
             if(d.count()>0):
-                d[0].machine=m
-                d[0].shift=s
-                d[0].dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
-                d[0].speed=i["speed"]
-                d[0].nomre=i["nomre"]
-                d[0].counter=float(i["counter"])
-                d[0].production_value=float(i["production_value"])
-                d[0].save()
+                x=d[0]
+                x.machine=m
+                x.shift=s
+                x.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
+                x.speed=i["speed"]
+                x.nomre=i["nomre"]
+                x.counter=float(i["counter"])
+                x.production_value=float(i["production_value"])
+                x.save()
 
             # print(i)
             # print(i)
@@ -183,31 +184,36 @@ def saveAmarHTableInfo(request):
     # print("********")
     for table_name, table_data in data.items():
         for i in table_data:
+            print(i["machine"],i["shift"])
             m=Asset.objects.get(id=int(i["machine"]))
             s=Shift.objects.get(id=int(i["shift"]))
             d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
+
+
             if(d.count()>0):
-                d[0].machine=m
-                d[0].shift=s
-                d[0].dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
+                x=d[0]
+                x.machine=m
+                x.shift=s
+                x.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
 
 
+                x.speed=int(i["speed"])
+                # print(x.speed,i["speed"])
 
-                d[0].speed=i["speed"]
-                print(d[0].speed)
-                d[0].nomre=i["nomre"]
-                d[0].counter=float(i["counter"])
-                d[0].production_value=float(i["production_value"])
-                d[0].daf_num=float(i["daf_num"])
-                d[0].dook_weight=float(i["dook_weight"])
-                d[0].weight1=float(i["weight1"])
-                d[0].weight2=float(i["weight2"])
-                d[0].weight3=float(i["weight3"])
-                d[0].weight4=float(i["weight4"])
-                d[0].weight5=float(i["weight5"])
-                d[0].net_weight=float(i["vazne_baghi"])
+                x.nomre=i["nomre"]
+                x.counter=float(i["counter"])
+                x.production_value=float(i["production_value"])
+                # print(x.production_value)
+                x.daf_num=float(i["daf_num"])
+                x.dook_weight=float(i["dook_weight"])
+                x.weight1=float(i["weight1"])
+                x.weight2=float(i["weight2"])
+                x.weight3=float(i["weight3"])
+                x.weight4=float(i["weight4"])
+                x.weight5=float(i["weight5"])
+                x.net_weight=float(i["vazne_baghi"])
 
-                d[0].save()
+                x.save()
 
             # print(i)
             # print(i)
@@ -263,8 +269,8 @@ def saveAmarHTableInfo(request):
 
 
 def show_daily_amar_tolid(request):
-    q=request.GET.get('date',datetime.now().date())
-    date_object = datetime.strptime(q, '%Y-%m-%d')
+    q=request.GET.get('date',datetime.datetime.now().date())
+    date_object = datetime.datetime.strptime(q, '%Y-%m-%d')
 
     next_day = date_object + timedelta(days=1)
 
@@ -272,7 +278,7 @@ def show_daily_amar_tolid(request):
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
     shifts=Shift.objects.all()
-    machines=Asset.objects.filter(assetTypes=2)
+    machines=Asset.objects.filter(Q(assetTypes=2)|Q(assetCategory__id=8))
     machines_with_amar=[]
     m_count=1
 
@@ -297,10 +303,13 @@ def show_daily_amar_tolid(request):
 
                 except Exception as e:
                     shift_val.append({'value':0,'shift':i})
-            machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format((sum/max_speed)*100)})
+            mx_speed=0
+            if(max_speed>0):
+                mx_speed=(sum/max_speed)*100
+            machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
             print("sum_randeman",sum_randeman)
             if(index<len(machines)):
-                sum_randeman+=(sum/max_speed)
+                sum_randeman+=mx_speed
 
             # print(get_sum_machine_by_date_shift(m.assetCategory,q,i))
 
@@ -333,9 +342,9 @@ def show_daily_amar_tolid(request):
     return render(request,'mrp/tolid/daily_amar_tolid.html',{'shift':shifts,'machines_with_amar':machines_with_amar,'title':'راندمان روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
 
 def show_daily_analyse_tolid(request):
-        q=request.GET.get('date',datetime.now().date())
-        q=request.GET.get('date',datetime.now().date())
-        date_object = datetime.strptime(q, '%Y-%m-%d')
+        q=request.GET.get('date',datetime.datetime.now().date())
+        q=request.GET.get('date',datetime.datetime.now().date())
+        date_object = datetime.datetime.strptime(q, '%Y-%m-%d')
         next_day = date_object + timedelta(days=1)
 
 
@@ -343,7 +352,7 @@ def show_daily_analyse_tolid(request):
     # Calculate previous day
         previous_day = date_object - timedelta(days=1)
         shifts=Shift.objects.all()
-        machines=Asset.objects.filter(assetTypes=2)
+        machines=Asset.objects.filter(Q(assetTypes=2)|Q(assetCategory__id=8))
         machines_with_amar=[]
         if(q):
             for index,m in enumerate(machines):
@@ -560,9 +569,9 @@ def get_monthly_workbook(request):
     return render(request,'mrp/assetrandeman/finalRandemanList.html',{'shift_list':shift_list,'randeman_list':d,'randeman_kol':k})
 def list_heatset_info(request):
         dayOfIssue=DateJob.getTaskDate(request.GET.get('event_id',False))
-        print(dayOfIssue)
 
-        date_object = datetime.strptime(str(dayOfIssue), '%Y-%m-%d')
+
+        date_object = datetime.datetime.strptime(str(dayOfIssue), '%Y-%m-%d')
 
         next_day = date_object + timedelta(days=1)
         data=dict()
@@ -590,7 +599,7 @@ def list_heatset_info(request):
 
                         'makhraj_metraj_daf': amar.makhraj_metraj_daf,
                     }
-                    metraj_val = {
+                    metraj_val = [
                         amar.metrajdaf1,
                         amar.metrajdaf2,
                         amar.metrajdaf3,
@@ -599,16 +608,20 @@ def list_heatset_info(request):
                         amar.metrajdaf6,
                         amar.metrajdaf7,
                         amar.metrajdaf8,
-                    }
+                    ]
+                    # metraj_val_with_default = {key: value if value is not None else 0 for key, value in metraj_val.items()}
+                    metraj_val = [value if value is not None else 0 for value in metraj_val]
+                    saved_data_with_default = {key: value if value is not None else 0 for key, value in saved_data.items()}
+
                     makhraj_value = amar.makhraj_metraj_daf
-                    if(makhraj_value==0):
+                    if(not makhraj_value or makhraj_value==0):
                         makhraj_value=1
 
-                    total_metraj = sum(metraj_val)
+                    total_metraj = sum(value if value is not None else 0 for value in metraj_val)
 
                     # Calculate the sum of makhraj values
                     total_val = total_metraj / makhraj_value
-                    machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'metraj':saved_data,'total_val':total_val})
+                    machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'metraj':saved_data_with_default,'total_val':total_val})
                     # else:
                     #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
