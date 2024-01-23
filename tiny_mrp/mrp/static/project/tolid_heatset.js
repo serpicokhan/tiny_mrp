@@ -346,7 +346,7 @@ console.log(JSON.stringify(sendData));
 
       },
       success: function (data) {
-        console.log(data);
+        
     $("#tblrows").empty();
     $("#tblrows").html(data.html_heatset_result);
 

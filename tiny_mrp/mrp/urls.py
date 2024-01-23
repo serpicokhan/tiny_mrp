@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^Formula/$', list_formula, name='list_formula'),
     url(r'^Tolid/Randeman/Init$', list_randeman_tolid, name='list_randeman_tolid'),
     url(r'^Tolid/Heatset/LoadInfo$', list_heatset_info, name='list_heatset_info'),
+    url(r'^Tolid/Asset/LoadInfo$', list_amar_daily_info, name='list_amar_daily_info'),
     url(r'^SpeedFormula/$', list_speed_formula, name='list_speed_formula'),
     url(r'^Failures/$', list_failures, name='list_failures'),
     url(r'^Failures/Create$', failure_create, name='failure_create'),

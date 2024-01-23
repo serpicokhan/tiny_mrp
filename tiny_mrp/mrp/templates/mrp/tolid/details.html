@@ -15,6 +15,9 @@
                               <li class="list-inline-item mb-0">
                                 <button type="button" name="button" class="btn btn-outline-light" id="save_production">ذخیره</button>
                               </li>
+                              <li class="list-inline-item mb-0">
+                                <button type="button" name="button" class="btn btn-outline-light" id="new_amar">جدید</button>
+                              </li>
                                 <li class="list-inline-item mb-0">
                                     <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown">
                                       عملیات
@@ -44,9 +47,9 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu width-15 height-15"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                                 </a>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="جستجو ایمیل" aria-describedby="button-addon1" id="search">
+                                    <input type="text" class="form-control" placeholder="جستجو ایمیل" aria-describedby="button-addon1" id="search" >
                                     <div class="input-group-append">
-                                        <button class="btn btn-outline-light" type="button" id="button-addon1">
+                                        <button class="btn btn-outline-light" type="button" id="button-addon1" data-url="{% url 'list_amar_daily_info' %}">
                                             <i class="ti-search"></i>
                                         </button>
                                     </div>
@@ -75,7 +78,7 @@
 
                         <div class="card-body">
                           <h5 class="card-title">آمار روزانه</h5>
-                          <div class="row">
+                          <div class="row" id="tblrows">
                             <!-- Column 1 -->
                             {% for i in shifts %}
 

@@ -1,0 +1,105 @@
+{% for i in shifts %}
+
+  {% if forloop.counter == 1 %}
+<div class="col-md-4">
+
+  <h3>{{i.name}}</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped company-table" id="tbl1">
+      <thead class="thead-dark">
+        <tr>
+          <th>نام ماشین</th>
+          <th>نمره</th>
+          <th> کنتور</th>
+          <th>تولید</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in machines %}
+        {% if c.shift.id == i.id %}
+        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed="{{c.speed}}">
+          <td>{{c.machine.assetName}}</td>
+          <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.nomre}}</td>
+          <td contenteditable="true" class="editable-cell btc counter selectable1"></td>
+
+          <td contenteditable="true" data-formula="{{c.formula}}" class='production'></td>
+
+        </tr>
+        {% endif %}
+
+        {% endfor %}
+        <!-- Add more rows as needed -->
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="col-md-3">
+
+  <h3>{{i.name}}</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped company-table" id="tbl{{forloop.counter}}">
+      <thead class="thead-dark">
+
+        <tr>
+
+          <th>شماره کنتور</th>
+          <th>تولید</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in machines %}
+        {% if c.shift.id == i.id %}
+
+        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed="{{c.speed}}">
+
+          <td contenteditable="true" class="editable-cell btc counter selectable1" data-nomre={{c.nomre}}></td>
+
+          <td contenteditable="true" data-formula="{{c.formula}}" class='production'></td>
+
+        </tr>
+        {% endif %}
+
+        {% endfor %}
+        <!-- Add more rows as needed -->
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+<div class="col-md-2">
+
+ <h3 >تولید 100</h3>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped company-table" >
+      <thead class="thead-dark">
+        <tr>
+
+          <th>سرعت</th>
+          <th>100%</th>
+
+
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in machines %}
+        
+
+
+          <td contenteditable="true" class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
+          <td contenteditable="true" class="editable-cell3 production selectable1" data-formula="{{c.speedformula}}">{{c.max}}</td>
+
+
+        </tr>
+
+
+        {% endfor %}
+        <!-- Add more rows as needed -->
+      </tbody>
+    </table>
+  </div>
+</div>

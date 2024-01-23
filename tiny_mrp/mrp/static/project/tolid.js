@@ -299,10 +299,35 @@ $(function () {
       }
     });
   });
+  $("#button-addon1").click(function(){
+    var btn=$(this);
+    return $.ajax({
+      url: $(btn).attr("data-url")+'?event_id='+$("#search").val(),
+      type: 'get',
+      dataType: 'json',
+      beforeSend: function () {
+        //alert(btn.attr("data-url"));
+        //alert("321321");
+        // /$("#modal-maintenanceType").modal("hide");
+
+      },
+      success: function (data) {
+
+    $("#tblrows").empty();
+    $("#tblrows").html(data.html_heatset_result);
+
+
+      }
+    });
+  }
+);
   // $('.editable-cell').on('input', function() {
   //       // Allow only numeric input
   //       var text = $(this).text();
   //       $(this).text(text.replace(/[^0-9]/g, ''));
   //   });
   $("#modal-company").on("submit",'.js-zayeatVazn-create-form',save_zayeat);
+  $("#new_amar").click(function(){
+    window.location='/';
+  });
 });
