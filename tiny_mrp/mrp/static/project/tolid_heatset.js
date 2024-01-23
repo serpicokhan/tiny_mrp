@@ -241,11 +241,14 @@ console.log(JSON.stringify(sendData));
     success: function(response) {
       // Handle the success response from the server
       console.log('Data sent successfully:', response);
+      toastr.success("اطلاعات با موفقیت ذخیره شد");
+
       $(".preloader").hide();
     },
     error: function(xhr, status, error) {
       // Handle any errors that occur during the AJAX request
       console.error('Error sending data:', error);
+      toastr.error(error);
     }
   });
   // var tbl2=tableDataToJSON('tbl2');
