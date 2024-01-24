@@ -65,6 +65,8 @@ class DailyProduction(models.Model):
     metrajdaf7 = models.FloatField(null=True, blank=True)
     metrajdaf8 = models.FloatField(null=True, blank=True)
     makhraj_metraj_daf = models.FloatField(null=True, blank=True)
+    def __str__(self):
+        return f"{self.nomre} , {self.speed} ,{self.counter}"
     def eval_max_tolid(self):
         if self.machine:
                 formula_obj = SpeedFormula.objects.get(machine=self.machine)
@@ -88,6 +90,8 @@ class DailyProduction(models.Model):
                     calculated_value = eval(formula)
                     # self.production_value = calculated_value
                     return calculated_value
+                except (ZeroDivisionError, ValueError):
+                    return 0
 
                 except (SyntaxError, ValueError) as e:
                     # Handle exceptions if the formula is incorrect or cannot be evaluated

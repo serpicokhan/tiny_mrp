@@ -638,14 +638,17 @@ def list_heatset_info(request):
         # return render(request,"mrp/tolid/daily_details.html",{'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
         return JsonResponse(data)
 def list_amar_daily_info(request):
-        dayOfIssue=DateJob.getTaskDate(request.GET.get('event_id',False))
-        date_object = datetime.datetime.strptime(str(dayOfIssue), '%Y-%m-%d')
-        next_day = date_object + timedelta(days=1)
+        print("here!")
         data=dict()
+        dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
+        date_object = DateJob.getTaskDate(dayOfIssue)
+
+        next_day = date_object + timedelta(days=1)
 
     # Calculate previous day
         previous_day = date_object - timedelta(days=1)
         machines=Asset.objects.filter(assetTypes=2)
+
         shift=Shift.objects.all()
         machines_with_formulas = []
         for s in shift:
@@ -653,19 +656,55 @@ def list_amar_daily_info(request):
                 try:
                     formula = Formula.objects.get(machine=machine)
                     speedformula = SpeedFormula.objects.get(machine=machine)
-                    amar=DailyProduction.objects.get(machine=machine,dayOfIssue=dayOfIssue,shift=s)
-
+                    amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
+                    if(machine.id==3 and s.id==1):
+                        print(amar.nomre,date_object)
                     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
+
                     # else:
                     #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
 
+                except DailyProduction.DoesNotExist:
+                        new_daily_production = DailyProduction(
+                        machine=machine,
+                        shift=s,
+                        dayOfIssue=dayOfIssue,
+
+                        speed=10,
+                        nomre=10,
+                        counter=0,
+                        production_value=0,
+                        daf_num=0,
+                        dook_weight=0,
+                        weight1=0,
+                        weight2=0,
+                        weight3=0,
+                        weight4=0,
+                        weight5=0,
+                        net_weight=0,
+                        metrajdaf1=0,
+                        metrajdaf2=0,
+                        metrajdaf3=0,
+                        metrajdaf4=0,
+                        metrajdaf5=0,
+                        metrajdaf6=0,
+                        metrajdaf7=0,
+                        metrajdaf8=0,
+                        makhraj_metraj_daf=1,
+                        )
+
+                        # Save the object to the database
+                        # new_daily_production.save()
+
+                        machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'amar':new_daily_production,'shift':s})
                 except Formula.DoesNotExist:
                     machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0})
                 except SpeedFormula.DoesNotExist:
                     machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0})
                 except DailyProduction.DoesNotExist:
                     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+
 
         data['html_heatset_result'] = render_to_string('mrp/tolid/partialAssetAmarList.html',{
             'machines':machines_with_formulas,

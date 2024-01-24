@@ -300,6 +300,7 @@ $(function () {
     });
   });
   $("#button-addon1").click(function(){
+
     var btn=$(this);
     return $.ajax({
       url: $(btn).attr("data-url")+'?event_id='+$("#search").val(),
@@ -312,7 +313,7 @@ $(function () {
 
       },
       success: function (data) {
-
+        console.log(data);
     $("#tblrows").empty();
     $("#tblrows").html(data.html_heatset_result);
 
