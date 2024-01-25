@@ -412,10 +412,14 @@ def get_tolid_calendar_info(request):
     user_info=DailyProduction.objects.values_list('dayOfIssue').distinct()
     print(user_info)
     for i in user_info:
-        print(i)
+        z=get_sum_vaz_zayeat_by_date(i[0])
         data.append({'title': "آمار روزانه",\
                 'start': i[0],\
                  'color': '#53c797',\
+                'id':i[0]})
+        data.append({'title': "جمع ضایعات روز: {}".format(float(z)),\
+                'start': i[0],\
+                 'color': 'red',\
                 'id':i[0]})
 
     return JsonResponse(data,safe=False)
@@ -638,7 +642,7 @@ def list_heatset_info(request):
         # return render(request,"mrp/tolid/daily_details.html",{'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
         return JsonResponse(data)
 def list_amar_daily_info(request):
-        print("here!")
+
         data=dict()
         dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
         date_object = DateJob.getTaskDate(dayOfIssue)
@@ -657,8 +661,6 @@ def list_amar_daily_info(request):
                     formula = Formula.objects.get(machine=machine)
                     speedformula = SpeedFormula.objects.get(machine=machine)
                     amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
-                    if(machine.id==3 and s.id==1):
-                        print(amar.nomre,date_object)
                     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
 
                     # else:
@@ -666,6 +668,8 @@ def list_amar_daily_info(request):
 
 
                 except DailyProduction.DoesNotExist:
+
+
                         new_daily_production = DailyProduction(
                         machine=machine,
                         shift=s,
@@ -697,11 +701,11 @@ def list_amar_daily_info(request):
                         # Save the object to the database
                         # new_daily_production.save()
 
-                        machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'amar':new_daily_production,'shift':s})
+                        machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'amar':new_daily_production,'shift':s,'speedformula':speedformula.formula})
                 except Formula.DoesNotExist:
                     machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0})
                 except SpeedFormula.DoesNotExist:
-                    machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0})
+                    machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'speedformula':speedformula.formula})
                 except DailyProduction.DoesNotExist:
                     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 

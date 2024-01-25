@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from django.views.decorators import csrf
 
-
+from collections import defaultdict
 
 @login_required
 @csrf_exempt
@@ -30,16 +30,27 @@ def zayeatVazn_create(request):
 
 
                     for row in table:
-                        z=ZayeatVaz()
-                        z.vazn=float(row['vazn'])
-                        z.zayeat=Zayeat.objects.get(id=row['id'])
-                        z.dayOfIssue=row['date']
-                        z.shift=Shift.objects.get(id=row['shift'])
-                        z.save()
+                        ff=ZayeatVaz.objects.filter(zayeat=Zayeat.objects.get(id=row['id']),shift=Shift.objects.get(id=row['shift']))
+                        if(ff.count()>0):
+                            z=ff[0]
+                            z.vazn=float(row['vazn'])
+                            z.zayeat=Zayeat.objects.get(id=row['id'])
+                            z.dayOfIssue=row['date']
+                            z.shift=Shift.objects.get(id=row['shift'])
+                            z.save()
+
+                        else:
+                            z=ZayeatVaz()
+                            z.vazn=float(row['vazn'])
+                            z.zayeat=Zayeat.objects.get(id=row['id'])
+                            z.dayOfIssue=row['date']
+                            z.shift=Shift.objects.get(id=row['shift'])
+                            z.save()
 
             # For demonstration purposes, just returning the received data as JSON response
             return JsonResponse({'success': True, 'data_received': received_data})
         except Exception as e:
+            print(e)
             return JsonResponse({'success': False, 'error': str(e)})
     else:
         data=dict()
@@ -51,10 +62,15 @@ def zayeatVazn_create(request):
         else:
             date_of_issue=datetime.now().date()
         za=Zayeat.objects.all()
+        date_zayeat=ZayeatVaz.objects.filter(dayOfIssue=date_of_issue)
         shift=Shift.objects.all()
+        zayeat_vazn_dict = defaultdict(list)
+        for zv in date_zayeat:
+            zayeat_vazn_dict[zv.zayeat.id].append({'vazn':zv.vazn,'shift':zv.shift.id})
         data['data']=render_to_string('mrp/zayeat_vazn/partialZayeatVaznCreate.html',
             {   'shifts':shift,
                 'zayeat':za,
+                'zayeat_vazn':zayeat_vazn_dict,
                 'date':date_of_issue.strftime('%Y-%m-%d')
             },request
         )

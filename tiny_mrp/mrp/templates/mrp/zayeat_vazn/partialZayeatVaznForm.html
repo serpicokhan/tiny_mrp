@@ -1,4 +1,5 @@
 {% load widget_tweaks %}
+{% load custom_filters %}
 <div class="row">
 <div class="col-sm-12 b-r">
   <input type="hidden" id="js_data"/>
@@ -15,7 +16,12 @@
     </thead>
     <tbody>
       {% for i in zayeat %}
-      <td contenteditable="true" class="editable-cell" data-shift={{c.id}} data-date={{date}} data-id="{{i.id}}" style="  width: 100px; /* Set the width of the editable cell */   min-width: 100px; /* Ensure a minimum width */    max-width: 100px; /* Ensure a maximum width */    outline: none; /* Remove the default focus outline */    border: 1px solid #ccc; /* Add a border for better visibility */    padding: 5px; /* Add padding for better appearance */    /* Other styles as needed */"></td>
+
+      <td contenteditable="true" class="editable-cell" data-shift={{c.id}} data-date={{date}} data-id="{{i.id}}" style="  width: 100px; /* Set the width of the editable cell */   min-width: 100px; /* Ensure a minimum width */    max-width: 100px; /* Ensure a maximum width */    outline: none; /* Remove the default focus outline */    border: 1px solid #ccc; /* Add a border for better visibility */    padding: 5px; /* Add padding for better appearance */    /* Other styles as needed */">
+        {% if zayeat_vazn %}
+        {{zayeat_vazn|get_item:i.id|get_item_from_shift:c.id}}
+        {% endif %}
+      </td>
       {% endfor %}
 
     </tbody>

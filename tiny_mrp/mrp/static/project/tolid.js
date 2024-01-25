@@ -1,35 +1,35 @@
 
-document.addEventListener('DOMContentLoaded', function() {
-  const tables = document.querySelectorAll('.company-table');
-
-  // Function to handle cell value change in the second column
-  const handleCellValueChange = (event) => {
-    const changedValue = event.target.innerText;
-    const columnIndex = Array.from(event.target.parentElement.children).indexOf(event.target);
-
-    if (columnIndex === 1) { // Assuming the second column is index 1 (0-indexed)
-      tables.forEach((table) => {
-        const rows = table.querySelectorAll('tr');
-        const cellToUpdate = rows[event.target.parentElement.rowIndex].querySelectorAll('.editable-cell')[0];
-        if (cellToUpdate && cellToUpdate !== event.target) {
-          // cellToUpdate.innerText = changedValue;
-          // cellToUpdate.attr('data-nomre',changedValue);
-          cellToUpdate.setAttribute('data-nomre', changedValue);
-
-        }
-      });
-    }
-  };
-
-  // Add event listeners to detect cell value changes in the second column
-  tables.forEach((table) => {
-    const cells = table.querySelectorAll('.editable-cell');
-    cells.forEach((cell) => {
-      cell.addEventListener('input', handleCellValueChange);
-    });
-  });
-
-});
+// document.addEventListener('DOMContentLoaded', function() {
+//   const tables = document.querySelectorAll('.company-table');
+//
+//   // Function to handle cell value change in the second column
+//   const handleCellValueChange = (event) => {
+//     const changedValue = event.target.innerText;
+//     const columnIndex = Array.from(event.target.parentElement.children).indexOf(event.target);
+//
+//     if (columnIndex === 1) { // Assuming the second column is index 1 (0-indexed)
+//       tables.forEach((table) => {
+//         const rows = table.querySelectorAll('tr');
+//         const cellToUpdate = rows[event.target.parentElement.rowIndex].querySelectorAll('.editable-cell')[0];
+//         if (cellToUpdate && cellToUpdate !== event.target) {
+//           // cellToUpdate.innerText = changedValue;
+//           // cellToUpdate.attr('data-nomre',changedValue);
+//           cellToUpdate.setAttribute('data-nomre', changedValue);
+//
+//         }
+//       });
+//     }
+//   };
+//
+//   // Add event listeners to detect cell value changes in the second column
+//   tables.forEach((table) => {
+//     const cells = table.querySelectorAll('.editable-cell');
+//     cells.forEach((cell) => {
+//       cell.addEventListener('input', handleCellValueChange);
+//     });
+//   });
+//
+// });
 
 document.addEventListener('DOMContentLoaded', function() {
   const cells = document.querySelectorAll('.editable-cell');
@@ -84,6 +84,27 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 $(function () {
+
+});
+$(function () {
+  var handleCellValueChange = function(event) {
+     const tables = $('.company-table');
+
+    const changedValue = $(event.target).text();
+    const columnIndex = $(event.target).index();
+
+    if (columnIndex === 1) { // Assuming the second column is index 1 (0-indexed)
+      tables.each(function() {
+        const rows = $(this).find('tr');
+        const cellToUpdate = $(rows[event.target.parentElement.rowIndex]).find('.editable-cell').eq(0);
+        if (cellToUpdate.length && cellToUpdate[0] !== event.target) {
+          // cellToUpdate.text(changedValue);
+          // cellToUpdate.attr('data-nomre', changedValue);
+          cellToUpdate.attr('data-nomre', changedValue);
+        }
+      });
+    }
+  };
   $(".btc").on("input", function() {
             var row = $(this).closest("tr");
             var nomre = parseFloat(row.find(".nomre").text()) || parseFloat(row.find(".counter").attr('data-nomre'));
@@ -105,7 +126,7 @@ $(function () {
                 return "Error";
             }
         }
-  $(".editable-cell2").on("input", function(event) {
+  $("#tblrows").on("input",'.editable-cell2', function(event) {
             var row = $(this).closest("tr");
             var z = parseFloat(row.find(".speed").text()) || 0;
             var p = parseFloat(row.find(".speed").data('nomre')) || 0;
@@ -143,6 +164,7 @@ $(function () {
         });
 
         function evaluateFormula2(formula, Z, P) {
+          console.log(formula,Z,P);
             formula = formula.replace("Z", Z).replace("P", P);
             try {
                 var result = eval(formula);
@@ -218,8 +240,6 @@ console.log(JSON.stringify(sendData));
   // var tbl2=tableDataToJSON('tbl2');
   // var tbl3=tableDataToJSON('tbl3');
 });
-});
-$(function () {
   function processDataFromTables() {
     const tables = $('.tbl-zayeat-vazn'); // Select all tables with class 'table'
     const allTableData = []; // Array to store data from all tables
@@ -258,6 +278,7 @@ $(function () {
 
     // Initialize an empty array to store the data
             const collectedData = processDataFromTables();
+            console.log(collectedData);
             const url = form.attr('action'); // Replace with your actual POST endpoint URL
 
             $.ajax({
@@ -328,6 +349,7 @@ $(function () {
   //       $(this).text(text.replace(/[^0-9]/g, ''));
   //   });
   $("#modal-company").on("submit",'.js-zayeatVazn-create-form',save_zayeat);
+   $("#tblrows").on('input','.editable-cell', handleCellValueChange);
   $("#new_amar").click(function(){
     window.location='/';
   });
