@@ -51,8 +51,13 @@ document.addEventListener('DOMContentLoaded', function () {
     info.el.querySelector('.fc-event-title').innerHTML =   content.replace('&lt;br/&gt;','<br/>');
   },
        eventClick: function(info) {
+          if(info.event.backgroundColor!="red"){
      // Open a new window when an event is clicked
      window.open('/Tolid/DailyAnalyse?date=' + info.event.id, '_blank');
+   }
+   else{
+     window.open('/Tolid/DailyZayeat?event_id=' + info.event.id, '_blank');
+   }
    },
 
         customButtons: {

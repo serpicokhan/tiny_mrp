@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^Tolid/Heatset/Metraj/Create$',tolid_heatset_metraj_create,name='tolid_heatset_metraj_create'),
     url(r'^Tolid/Daily$',show_daily_amar_tolid,name='show_daily_amar_tolid'),
     url(r'^Tolid/DailyDetails$',get_daily_amar,name='get_daily_amar'),
+    url(r'^Tolid/DailyZayeat$',get_daily_zaye,name='get_daily_zaye'),
     url(r'^Tolid/Calendar$',calendar_main,name='calendar_main'),
     url(r'^Tolid/Randeman/Calendar$',calendar_randeman,name='calendar_randeman'),
     url(r'^Tolid/Tahlil/Calendar$',calendar_tahlil,name='calendar_tahlil'),

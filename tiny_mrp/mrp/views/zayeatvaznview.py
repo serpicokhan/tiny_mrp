@@ -75,3 +75,19 @@ def zayeatVazn_create(request):
             },request
         )
         return JsonResponse(data)
+def get_daily_zaye(request):
+    dayOfIssue=request.GET.get('event_id',datetime.now())
+    date_object = datetime.strptime(dayOfIssue, '%Y-%m-%d')
+    za=Zayeat.objects.all()
+    date_zayeat=ZayeatVaz.objects.filter(dayOfIssue=date_object)
+    shift=Shift.objects.all()
+    zayeat_vazn_dict = defaultdict(list)
+    for zv in date_zayeat:
+        zayeat_vazn_dict[zv.zayeat.id].append({'vazn':zv.vazn,'shift':zv.shift.id})
+    return render(request,'mrp/zayeat_vazn/zayeatVaznList.html',
+        {   'shifts':shift,
+            'zayeat':za,
+            'zayeat_vazn':zayeat_vazn_dict,
+            'date':date_object,'jalali':jdatetime.date.fromgregorian(date=date_object).strftime('%d-%m-%Y')
+        }
+    )

@@ -44,8 +44,14 @@ document.addEventListener('DOMContentLoaded', function () {
          }
        },
        eventClick: function(info) {
+         if(info.event.backgroundColor!="red"){
+
      // Open a new window when an event is clicked
      window.open('/Tolid/Daily?date=' + info.event.id, '_blank');
+   }
+   else{
+      window.open('/Tolid/DailyZayeat?event_id=' + info.event.id, '_blank');
+   }
    },
 
         customButtons: {
