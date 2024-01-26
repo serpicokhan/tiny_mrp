@@ -12,6 +12,7 @@ urlpatterns = [
 
 
     url(r'^$',index,name='index'),
+    url(r'^Dashboard$',list_dashboard,name='list_dashboard'),
     url(r'^Tolid/Heatset$',tolid_heatset,name='tolid_heatset'),
     url(r'^Tolid/Heatset/Metraj/Create$',tolid_heatset_metraj_create,name='tolid_heatset_metraj_create'),
     url(r'^Tolid/Daily$',show_daily_amar_tolid,name='show_daily_amar_tolid'),

@@ -184,7 +184,7 @@ def saveAmarHTableInfo(request):
     # print("********")
     for table_name, table_data in data.items():
         for i in table_data:
-            print(i["machine"],i["shift"])
+            
             m=Asset.objects.get(id=int(i["machine"]))
             s=Shift.objects.get(id=int(i["shift"]))
             d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
@@ -198,12 +198,12 @@ def saveAmarHTableInfo(request):
 
 
                 x.speed=int(i["speed"])
-                # print(x.speed,i["speed"])
+                
 
                 x.nomre=i["nomre"]
                 x.counter=float(i["counter"])
                 x.production_value=float(i["production_value"])
-                # print(x.production_value)
+                
                 x.daf_num=float(i["daf_num"])
                 x.dook_weight=float(i["dook_weight"])
                 x.weight1=float(i["weight1"])
@@ -212,6 +212,44 @@ def saveAmarHTableInfo(request):
                 x.weight4=float(i["weight4"])
                 x.weight5=float(i["weight5"])
                 x.net_weight=float(i["vazne_baghi"])
+                z=i["data_metraj"]
+                if(z):
+                   print(type(z))
+                   if('dict' in str(type(z))):
+                        # z=json.loads(i["data_metraj"])
+                        print(z,z['metrajdaf1'])
+                        x.metrajdaf1=z["metrajdaf1"]
+                        print(x.metrajdaf1)
+                        
+                        x.metrajdaf2=int(i["data_metraj"]["metrajdaf2"])
+                        x.metrajdaf3=int(i["data_metraj"]["metrajdaf3"])
+                        x.metrajdaf4=int(i["data_metraj"]["metrajdaf4"])
+                        x.metrajdaf5=int(i["data_metraj"]["metrajdaf5"])
+                        x.metrajdaf6=int(i["data_metraj"]["metrajdaf6"])
+                        x.metrajdaf7=int(i["data_metraj"]["metrajdaf7"])
+                        x.metrajdaf8=int(i["data_metraj"]["metrajdaf8"])
+                        x.makhraj_metraj_daf=int(i["data_metraj"]["makhraj_metraj_daf"])
+                    
+                        
+                    # x.metrajdaf1=int(i["data_metraj"][0])
+                    # x.metrajdaf2=int(i["data_metraj"]["metrajdaf2"])
+                    # x.metrajdaf3=int(i["data_metraj"]["metrajdaf3"])
+                    # x.metrajdaf4=int(i["data_metraj"]["metrajdaf4"])
+                    # x.metrajdaf5=int(i["data_metraj"]["metrajdaf5"])
+                    # x.metrajdaf6=int(i["data_metraj"]["metrajdaf6"])
+                    # x.metrajdaf7=int(i["data_metraj"]["metrajdaf7"])
+                    # x.metrajdaf8=int(i["data_metraj"]["metrajdaf8"])
+                    # x.makhraj_metraj_daf=int(i["data_metraj"]["makhraj_metraj_daf"])
+                else:
+                    x.metrajdaf1=0
+                    x.metrajdaf2=0
+                    x.metrajdaf3=0
+                    x.metrajdaf4=0
+                    x.metrajdaf5=0
+                    x.metrajdaf6=0
+                    x.metrajdaf7=0
+                    x.metrajdaf8=0
+                    x.makhraj_metraj_daf=0
 
                 x.save()
 
@@ -675,8 +713,8 @@ def list_amar_daily_info(request):
                         shift=s,
                         dayOfIssue=dayOfIssue,
 
-                        speed=10,
-                        nomre=10,
+                        speed=0,
+                        nomre=0,
                         counter=0,
                         production_value=0,
                         daf_num=0,
@@ -775,20 +813,24 @@ def tolid_heatset_metraj_create(request):
         return save_HeatsetMetraj_form(request, form, 'mrp/tolid/partialHeatsetMetrajCreate.html')
     else:
         data_is_ok=False
-
+        initial_data=None
         try:
-            metraj_data=data = json.loads(request.GET.get("data",False))
-            initial_data=metraj_data
+            metraj_data=eval(json.loads(request.GET.get("data",False)))
+         
+            initial_data=metraj_data            
             data_is_ok=True
 
-        except:
+        except  Exception as ex:
+            # print(request.GET.get("data",False))
+            print(ex)
             pass
 
         if(data_is_ok==False):
             initial_data = {'metrajdaf1': 0, 'metrajdaf2': 0, 'metrajdaf3': 0, 'metrajdaf4': 0,
                         'metrajdaf5': 0, 'metrajdaf6': 0, 'metrajdaf7': 0, 'metrajdaf8': 0,
                         'makhraj_metraj_daf': 1}
-        form = HeatsetMetrajForm(initial=initial_data)
+        form = HeatsetMetrajForm(initial=metraj_data)
+        
 
 
         return save_HeatsetMetraj_form(request, form, 'mrp/tolid/partialHeatsetMetrajCreate.html')

@@ -248,6 +248,7 @@ console.log(JSON.stringify(sendData));
     error: function(xhr, status, error) {
       // Handle any errors that occur during the AJAX request
       console.error('Error sending data:', error);
+      $(".preloader").hide();
       toastr.error(error);
     }
   });
@@ -357,7 +358,8 @@ console.log(JSON.stringify(sendData));
 );
 var open_daf_metraj_modal=function(){
   var btn=$(this);
-  var params=`?data=${$(btn).attr("data-metraj")}`
+  var json_info=JSON.stringify($(btn).attr("data-metraj"));
+  var params=`?data=${json_info}`
   return $.ajax({
     url: $(btn).attr("data-url")+params,
     type: 'get',

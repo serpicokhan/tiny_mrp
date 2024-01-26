@@ -235,6 +235,7 @@ console.log(JSON.stringify(sendData));
       // Handle any errors that occur during the AJAX request
       console.error('Error sending data:', error);
       toastr.error(error);
+      $(".preloader").hide();
     }
   });
   // var tbl2=tableDataToJSON('tbl2');
