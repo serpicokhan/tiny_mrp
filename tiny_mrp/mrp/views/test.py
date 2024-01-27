@@ -184,7 +184,7 @@ def saveAmarHTableInfo(request):
     # print("********")
     for table_name, table_data in data.items():
         for i in table_data:
-            
+
             m=Asset.objects.get(id=int(i["machine"]))
             s=Shift.objects.get(id=int(i["shift"]))
             d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
@@ -198,12 +198,12 @@ def saveAmarHTableInfo(request):
 
 
                 x.speed=int(i["speed"])
-                
+
 
                 x.nomre=i["nomre"]
                 x.counter=float(i["counter"])
                 x.production_value=float(i["production_value"])
-                
+
                 x.daf_num=float(i["daf_num"])
                 x.dook_weight=float(i["dook_weight"])
                 x.weight1=float(i["weight1"])
@@ -220,7 +220,7 @@ def saveAmarHTableInfo(request):
                         print(z,z['metrajdaf1'])
                         x.metrajdaf1=z["metrajdaf1"]
                         print(x.metrajdaf1)
-                        
+
                         x.metrajdaf2=int(i["data_metraj"]["metrajdaf2"])
                         x.metrajdaf3=int(i["data_metraj"]["metrajdaf3"])
                         x.metrajdaf4=int(i["data_metraj"]["metrajdaf4"])
@@ -229,8 +229,8 @@ def saveAmarHTableInfo(request):
                         x.metrajdaf7=int(i["data_metraj"]["metrajdaf7"])
                         x.metrajdaf8=int(i["data_metraj"]["metrajdaf8"])
                         x.makhraj_metraj_daf=int(i["data_metraj"]["makhraj_metraj_daf"])
-                    
-                        
+
+
                     # x.metrajdaf1=int(i["data_metraj"][0])
                     # x.metrajdaf2=int(i["data_metraj"]["metrajdaf2"])
                     # x.metrajdaf3=int(i["data_metraj"]["metrajdaf3"])
@@ -583,6 +583,23 @@ def get_sum_randeman_by_shift(mah,sal,shift):
         return 0
 
     return sum_production_value
+def get_sum_randeman(mah,sal):
+
+
+    filtered_production = AssetRandemanPerMonth.objects.filter(
+    mah=mah,sal=sal  # Filter by date range
+
+
+    )
+    # Calculate the sum of production_value
+    sum_production_value = filtered_production.aggregate(
+        total_production_value=models.Sum('tolid_value')
+    )['total_production_value']
+
+    if(not sum_production_value):
+        return 0
+
+    return sum_production_value
 def get_monthly_workbook(request):
     my_dict = {
     1: 'اول',
@@ -609,6 +626,41 @@ def get_monthly_workbook(request):
         k.append({'randeman_kol':randeman_kol,'shift':i,'nezafat_rank':my_dict[nezafat_rank],'tolid_rank':my_dict[tolid_rank],'padashe_nezafat':padashe_nezafat_personel,'padashe_tolid':padashe_tolid_personel,'sum':sum})
 
     return render(request,'mrp/assetrandeman/finalRandemanList.html',{'shift_list':shift_list,'randeman_list':d,'randeman_kol':k})
+def get_monthly_sarshift_workbook(request):
+        my_dict = {
+        1: 'اول',
+        2: 'دوم',
+        3:'سوم'
+        # Add more key-value pairs as needed
+        }
+        mah=request.GET.get("mah",False)
+        sal=request.GET.get("sal",False)
+        shift_list=Shift.objects.all()
+        k=[]
+
+        sum_shift_randeman_tolid=0
+        sum_padashe_tolid_personel=0
+        sum_padashe_nezafat_personel=0
+        sum_sum=0
+        randeman_tolid=get_sum_randeman(mah,sal)
+        for i in shift_list:
+            randeman_list=AssetRandemanList.objects.get(mah=mah,sal=sal)
+            nezafat_rank=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
+            tolid_rank=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
+            padashe_nezafat_personel=NezafatPadash.objects.get(rank=nezafat_rank).price_sarshift
+            padashe_tolid_personel=TolidPadash.objects.get(rank=tolid_rank).price_sarshift
+            randeman_kol=get_sum_randeman_by_shift(mah,sal,i)
+            shift_randeman_tolid=(230000000*randeman_kol)/randeman_tolid
+            sum_shift_randeman_tolid+=shift_randeman_tolid
+            sum=randeman_kol+padashe_nezafat_personel+padashe_tolid_personel+shift_randeman_tolid
+            sum_padashe_tolid_personel+=padashe_tolid_personel
+            sum_padashe_nezafat_personel+=padashe_nezafat_personel
+            k.append({'randeman_kol':randeman_kol,'shift':i,'nezafat_rank':my_dict[nezafat_rank],'tolid_rank':my_dict[tolid_rank],'padashe_nezafat':padashe_nezafat_personel,'padashe_tolid':padashe_tolid_personel,'sum':sum,'shift_randeman_tolid':shift_randeman_tolid,
+            })
+
+        sum_sum=randeman_tolid+sum_shift_randeman_tolid+sum_padashe_tolid_personel+sum_padashe_nezafat_personel
+        return render(request,'mrp/assetrandeman/finalSarshiftRandemanList.html',{'title':'راندمان ماهانه سر شیفت ها','k':k,
+        'randeman_tolid':randeman_tolid,'shift_randeman_tolid':shift_randeman_tolid,'sum_padashe_tolid_personel':sum_padashe_tolid_personel,'sum_padashe_nezafat_personel':sum_padashe_nezafat_personel,'sum_sum':sum_sum,'sum_shift_randeman_tolid':sum_shift_randeman_tolid})
 def list_heatset_info(request):
         dayOfIssue=DateJob.getTaskDate(request.GET.get('event_id',False))
         date_object = datetime.datetime.strptime(str(dayOfIssue), '%Y-%m-%d')
@@ -816,8 +868,8 @@ def tolid_heatset_metraj_create(request):
         initial_data=None
         try:
             metraj_data=eval(json.loads(request.GET.get("data",False)))
-         
-            initial_data=metraj_data            
+
+            initial_data=metraj_data
             data_is_ok=True
 
         except  Exception as ex:
@@ -829,8 +881,8 @@ def tolid_heatset_metraj_create(request):
             initial_data = {'metrajdaf1': 0, 'metrajdaf2': 0, 'metrajdaf3': 0, 'metrajdaf4': 0,
                         'metrajdaf5': 0, 'metrajdaf6': 0, 'metrajdaf7': 0, 'metrajdaf8': 0,
                         'makhraj_metraj_daf': 1}
-        form = HeatsetMetrajForm(initial=metraj_data)
-        
+        form = HeatsetMetrajForm(initial=initial_data)
+
 
 
         return save_HeatsetMetraj_form(request, form, 'mrp/tolid/partialHeatsetMetrajCreate.html')

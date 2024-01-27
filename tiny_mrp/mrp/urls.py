@@ -50,6 +50,7 @@ urlpatterns = [
     url(r'^Asset/Randeman/(?P<id>\d+)/update/$', assetRandeman_update, name='assetRandeman_update'),
     url(r'^Asset/Randeman/(?P<id>\d+)/delete/$', assetRandeman_delete, name='assetRandeman_delete'),
     url(r'^Asset/Randeman/WorkBook/$', get_monthly_workbook, name='get_monthly_workbook'),
+    url(r'^Asset/Randeman/Sarshift/WorkBook/$', get_monthly_sarshift_workbook, name='get_monthly_sarshift_workbook'),
     url(r'^Asset/Randeman/(?P<id>\d+)/NezafatRanking/$', assetRandeman_nezafat_ranking, name='assetRandeman_nezafat_ranking'),
     url(r'^Asset/Randeman/NezafatRanking/Create$', assetRandeman_ranking_create, name='assetRandeman_ranking_create'),
     url(r'^Asset/Randeman/TolidRanking/Create$', assetRandeman_tolid_ranking_create, name='assetRandeman_tolid_ranking_create'),
