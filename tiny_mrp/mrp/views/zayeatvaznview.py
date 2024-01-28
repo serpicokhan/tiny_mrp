@@ -30,7 +30,8 @@ def zayeatVazn_create(request):
 
 
                     for row in table:
-                        ff=ZayeatVaz.objects.filter(zayeat=Zayeat.objects.get(id=row['id']),shift=Shift.objects.get(id=row['shift']))
+                        
+                        ff=ZayeatVaz.objects.filter(zayeat=Zayeat.objects.get(id=row['id']),shift=Shift.objects.get(id=row['shift']),dayOfIssue=row['date'])
                         if(ff.count()>0):
                             z=ff[0]
                             z.vazn=float(row['vazn'])

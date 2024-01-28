@@ -347,7 +347,7 @@ console.log(JSON.stringify(sendData));
 
       },
       success: function (data) {
-        
+
     $("#tblrows").empty();
     $("#tblrows").html(data.html_heatset_result);
 
@@ -430,5 +430,8 @@ var save_daf_metraj_heatset_Form= function () {
   //   });
   $("#modal-company").on("submit",'.js-zayeatVazn-create-form',save_zayeat);
   $("#modal-company").on("submit",'.js-HeatsetMetraj-create-form',save_daf_metraj_heatset_Form);
-  $("#tblrows").on('click','.js_daf_metraj_create',open_daf_metraj_modal)
+  $("#tblrows").on('click','.js_daf_metraj_create',open_daf_metraj_modal);
+  $("#new_amar").click(function(){
+    window.location='/Tolid/Heatset';
+  });
 });

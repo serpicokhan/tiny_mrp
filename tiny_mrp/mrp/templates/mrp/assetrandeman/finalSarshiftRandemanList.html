@@ -1,0 +1,65 @@
+{% extends 'mrp/blank-page.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">{{title}}</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="bg-info">
+              <tr>
+
+                <th scope="col">نام</th>
+                <th scope="col">تولید کل دستگاهها</th>
+                <th scope="col">راندمان تولید</th>
+                <th scope="col">رتبه تولید</th>
+                <th scope="col">راندمان رتبه تولید</th>
+                <th scope="col">رتبه نظافت</th>
+                <th scope="col">راندمان نظافت</th>
+                <th scope="col">جمع کل</th>
+
+              </tr>
+            </thead>
+            <tbody>
+            {% for i in k %}
+            <tr>
+              <td>{{i.shift.name}}</td>
+              <td>{{i.randeman_kol|floatformat:0|intcomma}}</td>
+              <td>{{i.shift_randeman_tolid|floatformat:0|intcomma}}</td>
+              <td>{{i.tolid_rank}}</td>
+              <td>{{i.padashe_tolid|intcomma}}</td>
+              <td>{{i.nezafat_rank}}</td>
+              <td>{{i.padashe_nezafat|intcomma}}</td>
+              <td>{{i.sum|floatformat:0|intcomma}}</td>
+            </tr>
+
+            {% endfor %}
+            <tr>
+              <td>جمع</td>
+              <td>{{randeman_tolid|floatformat:0|intcomma}}</td>
+              <td>{{sum_shift_randeman_tolid|floatformat:0|intcomma}}</td>
+              <td></td>
+              <td>{{sum_padashe_tolid_personel|intcomma}}</td>
+              <td></td>
+              <td>{{sum_padashe_nezafat_personel|intcomma}}</td>
+              <td class="bg-warning">{{sum_sum|floatformat:0|intcomma}}</td>
+            </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+
+
+{% endblock %}
