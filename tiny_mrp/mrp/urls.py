@@ -58,6 +58,8 @@ urlpatterns = [
     url(r'^Asset/Randeman/NezafatPadash/$', list_nezafat_padash, name='list_nezafat_padash'),
     url(r'^Asset/Randeman/TolidPadash/$', list_tolid_padash, name='list_tolid_padash'),
     url(r'^Dashboard/Zayeat/Line/$', get_line_zayeat_vazn_data, name='get_line_zayeat_vazn_data'),
+    url(r'^Dashboard/Zayeat/Pie/$', get_pie_zayeat_vazn_data, name='get_pie_zayeat_vazn_data'),
+    url(r'^Dashboard/AssetFailure/Line/$', assetFailure_duration_data, name='assetFailure_duration_data'),
 
 
 

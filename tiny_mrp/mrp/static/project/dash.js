@@ -13,7 +13,7 @@ function renderChart(dates, sums) {
                     type: 'line'
                 },
                 stroke: {
-                    width: 2,  // Set the stroke width
+                    width: 10,  // Set the stroke width
                     colors: ['#FF0000']  // Red color in hex format
                 },
                 series: [{
@@ -28,7 +28,33 @@ function renderChart(dates, sums) {
             var chart = new ApexCharts(document.querySelector("#mychart"), options);
             chart.render();
   }
+function renderPieChartZayeat(labels, values) {
 
+         var options = {
+             chart: {
+                 type: 'donut', // Change to 'pie' for a pie chart
+                 height: 400,    // Set the height of the chart
+                 width: 400
+             },
+             series: values,
+             labels: labels
+         };
+
+         var chart = new ApexCharts(document.querySelector("#pieChart"), options);
+         chart.render();
+     }
+
+
+var draw_pie_zayeat=function(){
+
+
+       fetch('/Dashboard/Zayeat/Pie/')  // Update with the correct URL
+        .then(response => response.json())
+        .then(data => {
+            renderPieChartZayeat(data.labels, data.values);
+        })
+        .catch(error => console.error('Error:', error));
+}
 var draw_zayeat=function(){
 
   fetch('/Dashboard/Zayeat/Line/')
@@ -38,5 +64,31 @@ var draw_zayeat=function(){
        })
        .catch(error => console.error('Error:', error));
 }
+var draw_line_asset_failure=function(){
+  fetch('/Dashboard/AssetFailure/Line/')  // Replace with the URL of your Django view
+       .then(response => response.json())
+       .then(data => {
+           var options = {
+               chart: {
+                   type: 'line'
+               },
+               series: [{
+                   name: 'Total Duration',
+                   data: data.total_durations
+               }],
+               xaxis: {
+                   categories: data.dates
+               },
+               // ... other chart options ...
+           };
+
+           var chart = new ApexCharts(document.querySelector("#lineAssetFailureChart"), options);
+           chart.render();
+       })
+       .catch(error => console.error('Error:', error));
+}
+draw_pie_zayeat();
 draw_zayeat();
+draw_line_asset_failure();
+
 });
