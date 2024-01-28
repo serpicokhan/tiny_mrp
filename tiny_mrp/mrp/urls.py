@@ -60,6 +60,7 @@ urlpatterns = [
     url(r'^Dashboard/Zayeat/Line/$', get_line_zayeat_vazn_data, name='get_line_zayeat_vazn_data'),
     url(r'^Dashboard/Zayeat/Pie/$', get_pie_zayeat_vazn_data, name='get_pie_zayeat_vazn_data'),
     url(r'^Dashboard/AssetFailure/Line/$', assetFailure_duration_data, name='assetFailure_duration_data'),
+    url(r'^Dashboard/AssetFailure/Pie/$', failure_pie_data, name='failure_pie_data'),
 
 
 

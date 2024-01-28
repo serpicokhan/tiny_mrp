@@ -57,8 +57,20 @@ def assetFailure_duration_data(request):
     dates, total_durations = get_assetFailure__duration_aggregate(start_date,end_date)
     return JsonResponse({'dates': dates, 'total_durations': total_durations})
 
-def get_failure_aggregate():
-    aggregated_data = AssetFailure.objects.values('failure_name__name').annotate(count=Count('id')).order_by('failure_name')
+def get_failure_pie_aggregate(start_date,end_date):
+    aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date]).annotate(
+        duration_minutes=ExpressionWrapper(
+            F('duration__hour') * 60 + F('duration__minute'),
+            output_field=fields.IntegerField())
+        ).values('failure_name__name').annotate(total_duration=Sum('duration_minutes')).order_by('failure_name')
+
     labels = [item['failure_name__name'] for item in aggregated_data]
-    counts = [item['count'] for item in aggregated_data]
-    return labels, counts
+    total_durations = [item['total_duration'] for item in aggregated_data]
+
+    return labels, total_durations
+def failure_pie_data(request):
+    start_date = request.GET.get('start',dt.now().replace(day=1))  # Modify these dates as needed
+    end_date = request.GET.get('end',dt.now())
+    labels, total_durations  = get_failure_pie_aggregate(start_date,end_date)
+    print(labels, total_durations)
+    return JsonResponse({'labels': labels, 'total_durations': total_durations})

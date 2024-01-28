@@ -87,8 +87,28 @@ var draw_line_asset_failure=function(){
        })
        .catch(error => console.error('Error:', error));
 }
+var draw_pie_asset_failure=function(){
+  fetch('/Dashboard/AssetFailure/Pie/')  // Replace with the URL of your Django view
+  .then(response => response.json())
+   .then(data => {
+       var options = {
+           chart: {
+               type: 'pie',
+               height: 400,    // Set the height of the chart
+               width: 400
+           },
+           series: data.total_durations,
+           labels: data.labels,
+           // ... other chart options ...
+       };
+
+       var chart = new ApexCharts(document.querySelector("#PieAssetFailureChart"), options);
+       chart.render();
+   })
+   .catch(error => console.error('Error:', error));
+}
 draw_pie_zayeat();
 draw_zayeat();
 draw_line_asset_failure();
-
+draw_pie_asset_failure();
 });
