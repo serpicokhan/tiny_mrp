@@ -63,7 +63,8 @@ urlpatterns = [
     url(r'^Dashboard/Zayeat/Pie/$', get_pie_zayeat_vazn_data, name='get_pie_zayeat_vazn_data'),
     url(r'^Dashboard/AssetFailure/Line/$', assetFailure_duration_data, name='assetFailure_duration_data'),
     url(r'^Dashboard/AssetFailure/Pie/$', failure_pie_data, name='failure_pie_data'),
-    url(r'^Dashboard/AssetFailure/Monthly/$', failure_pie_data, name='failure_pie_data'),
+    url(r'^Dashboard/AssetFailure/Monthly/$', current_year_vazn_data, name='current_year_vazn_data'),
+    url(r'^Dashboard/AssetFailure/StackedMonthly/$', monthly_vazn_by_zayeat_data, name='monthly_vazn_by_zayeat_data'),
 
 
 

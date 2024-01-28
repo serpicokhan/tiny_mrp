@@ -33,8 +33,8 @@ function renderPieChartZayeat(labels, values) {
          var options = {
              chart: {
                  type: 'donut', // Change to 'pie' for a pie chart
-                 height: 400,    // Set the height of the chart
-                 width: 400
+                 height: 350,    // Set the height of the chart
+                 width: 350
              },
              series: values,
              labels: labels
@@ -60,6 +60,7 @@ var draw_zayeat=function(){
   fetch('/Dashboard/Zayeat/Line/')
        .then(response => response.json())
        .then(data => {
+        
            renderChart(data.dates, data.sums);
        })
        .catch(error => console.error('Error:', error));
@@ -94,8 +95,8 @@ var draw_pie_asset_failure=function(){
        var options = {
            chart: {
                type: 'pie',
-               height: 400,    // Set the height of the chart
-               width: 400
+               height: 350,    // Set the height of the chart
+               width: 350
            },
            series: data.total_durations,
            labels: data.labels,
@@ -111,29 +112,67 @@ var current_year_zayeatvazn_data=function(){
   fetch('/Dashboard/AssetFailure/Monthly/')  // Replace with the URL of your Django view
           .then(response => response.json())
           .then(data => {
-            console.log(data);
-              var options = {
-                  chart: {
-                      type: 'bar'
-                  },
-                  series: [{
-                      name: 'وزن کل',
-                      data: data.sums
-                  }],
-                  xaxis: {
-                      categories: data.labels
-                  },
-                  // ... other chart options ...
-              };
+            
+            var options = {
+                chart: {
+                    type: 'bar',
+                    height: 400, // Set the height of the chart (in pixels)
+                    
+                },
+                colors: '#ff0000',
+               
+                series: [{
+                    name: 'مجموع وزن',
+                    data: data.sums
+                }],
+                xaxis: {
+                    categories: data.labels,
+                    title: {
+                        text: 'ماه'
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'وزن'
+                    }
+                },
+                // ... other chart options ...
+            };
 
               var chart = new ApexCharts(document.querySelector("#lineAssetFailureCurrentYear"), options);
               chart.render();
           })
           .catch(error => console.error('Error:', error));
 }
+var stackzayeat=function(){
+    fetch('/Dashboard/AssetFailure/StackedMonthly/')  // Replace with the URL of your Django view
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        var options = {
+            chart: {
+                type: 'bar',
+                stacked: true,
+                
+                stackType: '100%',
+                height:400
+            },
+          
+            series: data.series,
+            xaxis: data.xaxis,
+            // ... other chart options ...
+        };
+
+        var chart = new ApexCharts(document.querySelector("#stackeAssetFailureCurrentYear"), options);
+        chart.render();
+    })
+    .catch(error => console.error('Error:', error));
+}
 draw_pie_zayeat();
 draw_zayeat();
 draw_line_asset_failure();
 draw_pie_asset_failure();
+
 current_year_zayeatvazn_data();
+stackzayeat();
 });
