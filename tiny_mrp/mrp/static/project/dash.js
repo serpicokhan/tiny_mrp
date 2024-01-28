@@ -109,7 +109,7 @@ var draw_pie_asset_failure=function(){
    .catch(error => console.error('Error:', error));
 }
 var current_year_zayeatvazn_data=function(){
-  fetch('/Dashboard/AssetFailure/Monthly/')  // Replace with the URL of your Django view
+  fetch('/Dashboard/Zayeat/Monthly/')  // Replace with the URL of your Django view
           .then(response => response.json())
           .then(data => {
             
@@ -139,13 +139,13 @@ var current_year_zayeatvazn_data=function(){
                 // ... other chart options ...
             };
 
-              var chart = new ApexCharts(document.querySelector("#lineAssetFailureCurrentYear"), options);
+              var chart = new ApexCharts(document.querySelector("#lineZayeatCurrentYear"), options);
               chart.render();
           })
           .catch(error => console.error('Error:', error));
 }
 var stackzayeat=function(){
-    fetch('/Dashboard/AssetFailure/StackedMonthly/')  // Replace with the URL of your Django view
+    fetch('/Dashboard/Zayeat/StackedMonthly/')  // Replace with the URL of your Django view
     .then(response => response.json())
     .then(data => {
         console.log(data);
@@ -163,6 +163,51 @@ var stackzayeat=function(){
             // ... other chart options ...
         };
 
+        var chart = new ApexCharts(document.querySelector("#stackeZayeatCurrentYear"), options);
+        chart.render();
+    })
+    .catch(error => console.error('Error:', error));
+}
+var draw_monthly_assetFailure_line=function(){
+    fetch('/Dashboard/AssetFailure/Monthly/')  // Replace with the URL of your Django view
+        .then(response => response.json())
+        .then(data => {
+            var options = {
+                chart: {
+                    type: 'bar'
+                },
+                series: [{
+                    name: 'Total Duration',
+                    data: data.sums
+                }],
+                xaxis: {
+                    categories: data.labels
+                },
+                // ... other chart options ...
+            };
+
+            var chart = new ApexCharts(document.querySelector("#lineAssetFailureCurrentYear"), options);
+            chart.render();
+        })
+        .catch(error => console.error('Error:', error));
+
+}
+var draw_asset_failure_stack_zayeat=function(){
+    fetch('/Dashboard/AssetFailure/StackedMonthly/')  // Replace with the URL of your Django view
+    .then(response => response.json())
+    .then(data => {
+        var options = {
+            chart: {
+                type: 'bar',
+                stacked: true
+            },
+            series: data.series,
+            xaxis: {
+                categories: data.xaxis.categories
+            },
+            // ... other chart options ...
+        };
+
         var chart = new ApexCharts(document.querySelector("#stackeAssetFailureCurrentYear"), options);
         chart.render();
     })
@@ -175,4 +220,6 @@ draw_pie_asset_failure();
 
 current_year_zayeatvazn_data();
 stackzayeat();
+draw_monthly_assetFailure_line();
+draw_asset_failure_stack_zayeat();
 });
