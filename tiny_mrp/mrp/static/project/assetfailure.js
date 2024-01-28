@@ -101,7 +101,9 @@ $(function () {
   // Update book
   $("#company-table").on("click", ".js-update-assetFailure", myWoLoader);
   $("#modal-company").on("submit", ".js-assetFailure-update-form", saveForm);
-  // Delete book
-  $("#company-table").on("click", ".js-delete-assetFailure", loadForm);
-  $("#company-table").on("click", ".js-assetFailure-delete", delete_asset_failure);
+  $("#modal-company").on("submit", ".js-AssetFailure-delete-form", saveForm);
+
+  // Delete book js-assetFailure-delete
+  // $("#company-table").on("click", ".js-delete-assetFailure", loadForm);
+  $("#company-table").on("click", ".js-assetFailure-delete", myWoLoader);
   });

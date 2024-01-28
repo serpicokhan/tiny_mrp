@@ -6,7 +6,7 @@ class ZayeatVaznForm(forms.ModelForm):
          fields = '__all__'
 
 class AssetFailureForm(forms.ModelForm):
-    asset_name= forms.ModelChoiceField(label="نام مکان",queryset=Asset.objects.filter(assetIsLocatedAt__isnull=False,assetTypes=2),
+    asset_name= forms.ModelChoiceField(label="نام مکان",queryset=Asset.objects.filter(assetIsLocatedAt__isnull=False),
     widget=forms.Select(attrs={'class':'selectpicker','data-live-search':'true'}),required=False)
     class Meta:
          model = AssetFailure

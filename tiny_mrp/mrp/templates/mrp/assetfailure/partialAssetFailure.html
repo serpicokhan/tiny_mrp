@@ -6,7 +6,7 @@
   <td>{{i.failure_name}}</td>.
   <td class="w-25">
     <button type="button" class="btn btn-outline-light js-update-assetFailure" data-url="{% url 'assetFailure_update' i.id %}" >  <i class="ti-eye"></i></button>
-    <button type="button" class="btn btn-outline-light js-assetFailure-delete">  <i class="ti-close"></i></button>
+    <button type="button" class="btn btn-outline-light js-assetFailure-delete" data-url="{% url 'assetFailure_delete' i.id %}">  <i class="ti-close"></i></button>
   </td>
 
 </tr>

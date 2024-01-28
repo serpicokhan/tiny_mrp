@@ -98,6 +98,7 @@ def assetFailure_create(request):
         mydt=request.GET.get("dt",False)
         form = AssetFailureForm(initial={'dayOfIssue': DateJob.getTaskDate(mydt)})
         return save_assetFailure_form(request, form, 'mrp/assetfailure/partialAssetFailureCreate.html')
+    
 def failure_create(request):
     if (request.method == 'POST'):
         form = FailureForm(request.POST)
@@ -150,7 +151,28 @@ def failure_delete(request, id):
             request=request,
         )
     return JsonResponse(data)
-
+def assetFailure_delete(request, id):
+    comp1 = get_object_or_404(AssetFailure, id=id)
+    print("com",comp1)
+    data = dict()
+    if (request.method == 'POST'):
+        dayOfIssue=comp1.dayOfIssue
+        comp1.delete()
+        data['form_is_valid'] = True  # This is just to play along with the existing code
+        companies =  AssetFailure.objects.filter(dayOfIssue=dayOfIssue)
+        wos=doPaging(request,companies)
+        #Tasks.objects.filter(maintenanceTypeId=id).update(maintenanceType=id)
+        data['html_assetFailure_list'] = render_to_string('mrp/assetfailure/partialAssetFailure.html', {
+            'assetfailures': wos,
+            'perms': PermWrapper(request.user)
+        })
+    else:
+        context = {'failures': comp1}
+        data['html_assetFailure_form'] = render_to_string('mrp/assetfailure/partialAssetFailureDelete.html',
+            context,
+            request=request,
+        )
+    return JsonResponse(data)
 def list_failures(request):
     formulas=Failure.objects.all()
     return render(request,"mrp/failures/failureList.html",{'failures':formulas,'title':'لیست توقفات'})
