@@ -107,8 +107,33 @@ var draw_pie_asset_failure=function(){
    })
    .catch(error => console.error('Error:', error));
 }
+var current_year_zayeatvazn_data=function(){
+  fetch('/Dashboard/AssetFailure/Monthly/')  // Replace with the URL of your Django view
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+              var options = {
+                  chart: {
+                      type: 'bar'
+                  },
+                  series: [{
+                      name: 'وزن کل',
+                      data: data.sums
+                  }],
+                  xaxis: {
+                      categories: data.labels
+                  },
+                  // ... other chart options ...
+              };
+
+              var chart = new ApexCharts(document.querySelector("#lineAssetFailureCurrentYear"), options);
+              chart.render();
+          })
+          .catch(error => console.error('Error:', error));
+}
 draw_pie_zayeat();
 draw_zayeat();
 draw_line_asset_failure();
 draw_pie_asset_failure();
+current_year_zayeatvazn_data();
 });

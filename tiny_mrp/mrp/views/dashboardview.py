@@ -74,3 +74,32 @@ def failure_pie_data(request):
     labels, total_durations  = get_failure_pie_aggregate(start_date,end_date)
     print(labels, total_durations)
     return JsonResponse({'labels': labels, 'total_durations': total_durations})
+def get_current_year_zayeatvazn_sum():
+    # Get the current Jalali year
+    current_jalali_year = jdatetime.date.today().year
+
+    # Create a dictionary to hold sums for each Jalali month in the current year
+    monthly_sums = {}
+
+    # Query all ZayeatVazn objects
+    for zv in ZayeatVazn.objects.all():
+        # Convert dayOfIssue to Jalali date
+        jalali_date = jdatetime.date.fromgregorian(date=zv.dayOfIssue)
+
+        # Check if the year matches the current Jalali year
+        if jalali_date.year == current_jalali_year:
+            jalali_month = jalali_date.strftime("%Y-%m")  # Format as 'Year-Month'
+
+            # Aggregate sums by month
+            monthly_sums[jalali_month] = monthly_sums.get(jalali_month, 0) + zv.vazn
+
+    # Sort and split the dictionary into two lists for labels and values
+    sorted_months = sorted(monthly_sums)
+    labels = [month for month in sorted_months]
+    sums = [monthly_sums[month] for month in sorted_months]
+
+    return labels, sums
+
+def current_year_vazn_data(request):
+    labels, sums = get_current_year_zayeatvazn_sum()
+    return JsonResponse({'labels': labels, 'sums': sums})
