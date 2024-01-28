@@ -57,6 +57,7 @@ urlpatterns = [
     url(r'^Asset/Randeman/(?P<id>\d+)/TolidRanking/$', assetRandeman_padash_ranking, name='assetRandeman_padash_ranking'),
     url(r'^Asset/Randeman/NezafatPadash/$', list_nezafat_padash, name='list_nezafat_padash'),
     url(r'^Asset/Randeman/TolidPadash/$', list_tolid_padash, name='list_tolid_padash'),
+    url(r'^Dashboard/Zayeat/Line/$', get_line_zayeat_vazn_data, name='get_line_zayeat_vazn_data'),
 
 
 

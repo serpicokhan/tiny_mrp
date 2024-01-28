@@ -83,9 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-$(function () {
 
-});
 $(function () {
   var handleCellValueChange = function(event) {
      const tables = $('.company-table');
