@@ -410,7 +410,7 @@ def show_daily_analyse_tolid(request):
                         print(e)
                 natije=round(sum-tolid_standard.good_production_rate)
                 machines_with_amar.append({'machine':m.assetName,'good':tolid_standard.good_production_rate,'mean':tolid_standard.mean_production_rate,
-                'bad':tolid_standard.bad_production_rate,'real':,'kasre_tolid':f"{natije:0.0f}")
+                'bad':tolid_standard.bad_production_rate,'real':sum,'kasre_tolid':f"{natije:0.0f}"})
                 try:
                     if(machines[index].assetCategory !=machines[index+1].assetCategory and asset_types>1):
 
