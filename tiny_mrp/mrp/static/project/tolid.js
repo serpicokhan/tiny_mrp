@@ -103,7 +103,7 @@ $(function () {
       });
     }
   };
-  $(".btc").on("input", function() {
+  $("#tblrows").on("input",'.btc', function() {
             var row = $(this).closest("tr");
             var nomre = parseFloat(row.find(".nomre").text()) || parseFloat(row.find(".counter").attr('data-nomre'));
             var counter = parseFloat(row.find(".counter").text()) || 0;
