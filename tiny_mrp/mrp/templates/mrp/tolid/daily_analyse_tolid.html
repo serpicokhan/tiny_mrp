@@ -103,11 +103,11 @@
                           <td class="{{i.css}}">{{i.good}}</td>
                           <td class="{{i.css}}">{{i.mean}}</td>
                           <td class="{{i.css}}">{{i.bad}}</td>
-                            <td class="{{i.css}}">{{i.real|floatformat:2}}</td>
+                            <td class="{{i.css}}">{{i.real|floatformat:0}}</td>
                             {% if i.kasre_tolid < 0 %}
                             <td class="bg-dark {{i.css}}" >{{i.kasre_tolid|floatformat:0}}</td>
                             {% else %}
-                              <td class="{{i.css}}" >{{i.x|floatformat:0}}</td>
+                              <td class="{{i.css}}" >{{i.kasre_tolid|floatformat:0}}</td>
 
                             {% endif %}
                         </tr>
