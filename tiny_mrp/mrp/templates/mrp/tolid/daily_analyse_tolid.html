@@ -105,9 +105,9 @@
                           <td class="{{i.css}}">{{i.bad}}</td>
                             <td class="{{i.css}}">{{i.real}}</td>
                             {% if i.kasre_tolid < 0 %}
-                            <td class="bg-dark {{i.css}}" >{{i.kasre_tolid}}</td>
+                            <td class="bg-dark {{i.css}}" >{{i.kasre_tolid|floatformat:0}}</td>
                             {% else %}
-                              <td class="{{i.css}}" >{{i.kasre_tolid}}</td>
+                              <td class="{{i.css}}" >{{i.kasre_tolid|floatformat:0}}</td>
 
                             {% endif %}
                         </tr>
