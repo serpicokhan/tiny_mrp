@@ -47,7 +47,7 @@ class DailyProduction(models.Model):
     speed=models.IntegerField(default=0)
     nomre = models.FloatField()
     counter = models.FloatField()
-    production_value = models.IntegerField(blank=True, null=True)  # Result of the formula
+    production_value = models.FloatField(blank=True, null=True)  # Result of the formula
     daf_num = models.FloatField(null=True, blank=True)
     dook_weight = models.FloatField(null=True, blank=True)
     weight1 = models.FloatField(null=True, blank=True)
