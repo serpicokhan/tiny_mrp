@@ -287,7 +287,7 @@ def saveAmarHTableInfo(request):
                 amar.machine=m
                 amar.shift=s
                 amar.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
-                amar.speed=0
+                amar.speed=int(i["speed"])
                 amar.nomre=i["nomre"]
                 amar.counter=float(i["counter"])
                 amar.production_value=float(i["production_value"])

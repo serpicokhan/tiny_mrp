@@ -189,6 +189,7 @@ var tableDataToJSON=function(tableId){
         var vazne_baghi = $(this).find('td.vazne_baghi').text()||0;
         var production_value =  $(this).find('td.production').text()||0;
         var button = $(this).find("button");
+        console.log("speed",speed);
 
      // Check if a button is found in the row
          if (button.length > 0) {
