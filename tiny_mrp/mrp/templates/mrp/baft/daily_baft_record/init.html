@@ -106,7 +106,7 @@
                             <th  style="width: 56.66%">
                               شماره
                             </th>
-                            <th >طرح</th>
+                            <th class="tarh-autocomplete" >طرح</th>
                             <th >رنگ زمینه</th>
                             <th >تراکم</th>
                           {% for i in sizes %}
@@ -166,7 +166,21 @@
 
 {% block javascript %}
 
-
+<script>
+  $(document).ready(function() {
+  var availableTags = [
+    "123",
+    "456",
+    "789",
+    // Add more options for the autocomplete
+  ];
+  
+  // Initialize autocomplete
+  $('.tarh-autocomplete').autocomplete({
+    source: availableTags
+  });
+});
+</script>
  <script src="{% static 'project/baft.js' %}"></script>
  <script src="{% static 'vendors/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
 {% endblock %}

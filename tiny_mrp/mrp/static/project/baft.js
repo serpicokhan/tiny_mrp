@@ -2,6 +2,10 @@
 $(function () {
 
   $('#company-table').on('keypress', 'td[contenteditable="true"]', function(e) {
+    if ((e.which < 48 || e.which > 57) && e.which !== 13 && e.which !== 8 && e.which !== 0) {
+      e.preventDefault();
+      return false;
+  }
 
     // Check if the pressed key is 'Enter'
     if (e.which == 13) {
