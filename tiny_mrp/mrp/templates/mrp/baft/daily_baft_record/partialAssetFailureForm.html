@@ -1,0 +1,31 @@
+{% load widget_tweaks %}
+<div class="mb-3">
+    <label>{{form.asset_name.label}}</label>
+    {% render_field form.asset_name  class='form-control' %}
+  </div>
+  <div class="mb-3">
+    <label>{{form.failure_name.label}}</label>
+    {% render_field form.failure_name  class='form-control' %}
+  </div>
+  <div class="mb-3">
+    <label for="timeInput" class="form-label">مدت توقف</label>
+    <div class="input-group clockpicker-example">
+        <div class="input-group-prepend">
+          <span class="input-group-text">
+            <i class="fa fa-clock-o"></i>
+          </span>
+        </div>
+          {% render_field form.duration  class='form-control' %}
+
+      </div>
+  </div>
+  <div class="mb-3">
+    <label>{{form.shift.label}}</label>
+    {% render_field form.shift  class='form-control' %}
+  </div>
+  <div class="mb-3">
+
+
+
+    {{ form.dayOfIssue.as_hidden  }}
+  </div>

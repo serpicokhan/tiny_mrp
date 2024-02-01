@@ -1,0 +1,160 @@
+{% extends 'mrp/blank-page.html' %}
+
+{% block content %}
+{% load static %}
+{% load custom_filters %}
+<div class="row app-block">
+
+    <div class="col-md-12 app-content">
+        <div class="app-content-overlay"></div>
+        <div class="app-action">
+            <div class="action-left">
+                <div class="custom-control custom-checkbox mr-3">
+                    <select class="form-control" id="22">
+                        <option >انتخاب سال</option>
+                        <option selected value="1402">1402</option>
+                        <option value="1403">1403</option>
+
+                      </select>
+
+                </div>
+                <ul class="list-inline">
+
+
+                    <li class="list-inline-item mb-0">
+
+
+                    </li>
+
+                </ul>
+            </div>
+            <div class="action-right">
+                <form class="d-flex mr-3">
+                    <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu width-15 height-15"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </a>
+                    <div class="input-group">
+                      <select class="form-control" id="jalaliMonths">
+                          <option selected>انتخاب ماه</option>
+                          <option value="1" {% if month == '1' %} selected {% endif %}>فروردین</option>
+                          <option value="2" {% if month == '2' %} selected {% endif %}>اردیبهشت</option>
+                          <option value="3" {% if month == '3' %} selected {% endif %}>خرداد</option>
+                          <option value="4" {% if month == '4' %} selected {% endif %}>تیر</option>
+                          <option value="5" {% if month == '5' %} selected {% endif %}>مرداد</option>
+                          <option value="6" {% if month == '6' %} selected {% endif %}>شهریور</option>
+                          <option value="7" {% if month == '7' %} selected {% endif %}>مهر</option>
+                          <option value="8" {% if month == '8' %} selected {% endif %}>آبان</option>
+                          <option value="9" {% if month == '9' %} selected {% endif %}>آذر</option>
+                          <option value="10" {% if month == '10' %} selected {% endif %}>دی</option>
+                          <option value="11" {% if month == '11' %} selected {% endif %}>بهمن</option>
+                          <option value="12" {% if month == '12' %} selected {% endif %}>اسفند</option>
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-light" type="button" id="button-addon1">
+                                <i class="ti-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+
+                <h6 class="card-title">{{title}}</h6>
+
+
+                <ul class="nav nav-pills mb-3" role="tablist">
+
+                    {% for c in cat_list %}
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if forloop.counter == 1 %}active
+                        {% endif %}" id="tab{{c.cat.id}}" data-toggle="tab" href="#sub{{c.cat.id}}"
+                        role="tab" aria-controls="sub{{c.cat.id}}" aria-selected="{% if forloop.counter == 1 %}true
+                        {% else %}false{% endif %}">{{c.cat.name}}</a>
+                    </li>
+                    {% endfor %}
+
+                </ul>
+                <hr/>
+                <div class="tab-content">
+                    {% for cat_item in cat_list %}
+
+                    <div class="tab-pane fade {% if forloop.counter == 1 %}active show {% endif %}"
+                    id="sub{{cat_item.cat.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.cat.id}}">
+
+
+
+                        <h3>{{ shift_val.shift.name }}</h3>
+                        <div class="table-responsive">
+                            <table class="table table-striped" border="1">
+                                <thead>
+                                    <tr class="bg-dark">
+                                        <th>روز هفته</th>
+                                        <th>تاریخ</th>
+                                        {% for sh in shift %}
+                                            <th>{{ sh.name }}</th>
+                                        {% endfor %}
+                                        <!-- Add more headers if needed -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for day in cat_item.shift_val %}
+                                        <tr >
+                                            <td>{{ day.day_of_week }}</td>
+                                            <td>{{ day.date }}</td>
+                                            {% for shifts in shift %}
+                                            {% if cat_item.cat == day.cat %}
+
+                                                <td>{{ day.product|get_item:shifts.id }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <!-- Add more columns for other data -->
+                                        </tr>
+
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+
+
+
+                    </div>
+                    {% endfor %}
+
+                </div>
+
+                <div data-label="کد نمونه" class="demo-code-preview">
+
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+{% endblock%}
+{% block javascript %}
+<script type="text/javascript">
+  $("#button-addon1").click(function(){
+    if($("#jalaliMonths").val()>0){
+    window.location.href="/AssetFailure/Monthly/?month="+$("#jalaliMonths").val();
+  }
+  else {
+    toastr.error("یک مقدار انتخاب نمایید");
+  }
+  });
+
+</script>
+{% endblock %}

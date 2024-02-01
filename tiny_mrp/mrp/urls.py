@@ -68,6 +68,8 @@ urlpatterns = [
     url(r'^Dashboard/AssetFailure/Monthly/$', jalali_monthly_duration_data, name='jalali_monthly_duration_data'),
     url(r'^Dashboard/AssetFailure/StackedMonthly/$', jalali_monthly_duration_by_failure_data, name='jalali_monthly_duration_by_failure_data'),
 
+    url(r'^Baft/DailyRecord/create$', craete_daily_baft_record, name='craete_daily_baft_record'),
+
 
 
 

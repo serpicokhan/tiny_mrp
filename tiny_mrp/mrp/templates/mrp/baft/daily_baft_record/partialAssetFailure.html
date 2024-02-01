@@ -1,0 +1,17 @@
+{% for i in assetfailures %}
+<tr>
+  <td>{{i.asset_name}}</td>
+  <td>{{i.shift}}</td>
+  <td>{{i.duration|time:"H:i"}}</td>
+  <td>{{i.failure_name}}</td>.
+  <td class="w-25">
+    <button type="button" class="btn btn-outline-light js-update-assetFailure" data-url="{% url 'assetFailure_update' i.id %}" >  <i class="ti-eye"></i></button>
+    <button type="button" class="btn btn-outline-light js-assetFailure-delete" data-url="{% url 'assetFailure_delete' i.id %}">  <i class="ti-close"></i></button>
+  </td>
+
+</tr>
+{% empty %}
+<tr>
+  <td colspan="5" class="text-center">موردی برای نمایش وجود ندارد</td>
+</tr>
+{% endfor %}
