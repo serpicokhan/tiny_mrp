@@ -1,11 +1,14 @@
 
 $(function () {
 
-  $('#company-table').on('keypress', 'td[contenteditable="true"]', function(e) {
+ 
+$('#company-table').on('keypress', 'td[contenteditable="true"]', function(e) {
+  if ($(this).hasClass('numeric-td')) {
     if ((e.which < 48 || e.which > 57) && e.which !== 13 && e.which !== 8 && e.which !== 0) {
       e.preventDefault();
       return false;
   }
+}
 
     // Check if the pressed key is 'Enter'
     if (e.which == 13) {
@@ -18,8 +21,11 @@ $(function () {
         var cols = table.find('thead th').length;
 
         // Add the same number of cells to the new row
-        for (var i = 0; i < cols; i++) {
+        for (var i = 0; i < 3; i++) {
             newRow.append('<td contenteditable="true"></td>');
+        }
+        for (var i = 3; i < cols; i++) {
+          newRow.append('<td contenteditable="true" class="numeric-td"></td>');
         }
 
         // Append the new row to the table body
