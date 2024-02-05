@@ -42,8 +42,6 @@ urlpatterns = [
     url(r'^AssetFailure$', asset_failure_list, name='asset_failure_list'),
     url(r'^AssetFailure/calendar$', calendar_asset_failure, name='calendar_asset_failure'),
     url(r'^AssetFailure/Create$', assetFailure_create, name='assetFailure_create'),
-    url(r'^AssetFailure/(?P<id>\d+)/delete$', assetFailure_delete, name='assetFailure_delete'),
-
     url(r'^AssetFailure/(?P<id>\d+)/update/$', assetFailure_update, name='assetFailure_update'),
     url(r'^AssetFailure/Monthly/$', monthly_detaild_failured_report, name='monthly_detaild_failured_report'),
     url(r'^AssetFailure/Daily/GetInfo/$', get_assetfailure_calendar_info, name='get_assetfailure_calendar_info'),
@@ -63,11 +61,7 @@ urlpatterns = [
     url(r'^Dashboard/Zayeat/Pie/$', get_pie_zayeat_vazn_data, name='get_pie_zayeat_vazn_data'),
     url(r'^Dashboard/AssetFailure/Line/$', assetFailure_duration_data, name='assetFailure_duration_data'),
     url(r'^Dashboard/AssetFailure/Pie/$', failure_pie_data, name='failure_pie_data'),
-    url(r'^Dashboard/Zayeat/Monthly/$', current_year_vazn_data, name='current_year_vazn_data'),
-    url(r'^Dashboard/Zayeat/StackedMonthly/$', monthly_vazn_by_zayeat_data, name='monthly_vazn_by_zayeat_data'),
-    url(r'^Dashboard/AssetFailure/Monthly/$', jalali_monthly_duration_data, name='jalali_monthly_duration_data'),
-    url(r'^Dashboard/AssetFailure/StackedMonthly/$', jalali_monthly_duration_by_failure_data, name='jalali_monthly_duration_by_failure_data'),
-
+    url(r'^Dashboard/AssetFailure/Monthly/$', current_year_vazn_data, name='current_year_vazn_data'),
 
 
 
