@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from mrp.business.tolid_util import *
 from django.template.loader import render_to_string
 from mrp.forms import HeatsetMetrajForm
+from django.db import IntegrityError
 
 from django.db.models import Q
 @login_required
@@ -140,13 +141,21 @@ def tolid_heatset(request):
 def saveAmarTableInfo(request):
     # print(request.body)
     # print(request.POST)
-    data = json.loads(request.body)
+    data2 = json.loads(request.body)
+    data=dict()
     # print("********")
-    for table_name, table_data in data.items():
+    for table_name, table_data in data2.items():
         for i in table_data:
             m=Asset.objects.get(id=int(i["machine"]))
             s=Shift.objects.get(id=int(i["shift"]))
-            d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
+            d=None
+
+            if(i["id"]!="0"):
+                print(i["id"])
+                d=DailyProduction.objects.filter(id=i["id"])
+            else:
+                d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
+
             if(d.count()>0):
                 x=d[0]
                 x.machine=m
@@ -156,7 +165,11 @@ def saveAmarTableInfo(request):
                 x.nomre=i["nomre"]
                 x.counter=float(i["counter"])
                 x.production_value=float(i["production_value"])
-                x.save()
+                try:
+                    x.save()
+                except IntegrityError:
+                    print("برای این تاریخ مقدار از قبل وجود دارد!")
+                    data["error"]="برای این تاریخ مقدار از قبل وجود دارد!"
 
             # print(i)
             # print(i)
@@ -171,39 +184,53 @@ def saveAmarTableInfo(request):
                 amar.nomre=i["nomre"]
                 amar.counter=float(i["counter"])
                 amar.production_value=float(i["production_value"])
-                amar.save()
+                try:
+                    amar.save()
+                    print("done!!!")
+                except IntegrityError:
+                    print("A MyModel instance with this field1 and field2 combination already exists.")
+                    data["error"]="برای این تاریخ مقدار از قبل وجود دارد!"
+
+
             # print("done",amar.id)
     data=dict()
     return JsonResponse(data)
 
 @csrf_exempt
 def saveAmarHTableInfo(request):
+    print("######################")
     # print(request.body)
     # print(request.POST)
-    data = json.loads(request.body)
+    data2 = json.loads(request.body)
+    data=dict()
     # print("********")
-    for table_name, table_data in data.items():
+    for table_name, table_data in data2.items():
         for i in table_data:
+
 
             m=Asset.objects.get(id=int(i["machine"]))
             s=Shift.objects.get(id=int(i["shift"]))
-            d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
+            d=None
+            print(i["id"],'!!!!!!!!')
+
+            if(i["id"]!="0"):
+                print(i["id"])
+                d=DailyProduction.objects.filter(id=i["id"])
+            else:
+
+                d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
 
 
             if(d.count()>0):
+
                 x=d[0]
                 x.machine=m
                 x.shift=s
                 x.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
-
-
                 x.speed=int(i["speed"])
-
-
                 x.nomre=i["nomre"]
                 x.counter=float(i["counter"])
                 x.production_value=float(i["production_value"])
-
                 x.daf_num=float(i["daf_num"])
                 x.dook_weight=float(i["dook_weight"])
                 x.weight1=float(i["weight1"])
@@ -214,13 +241,11 @@ def saveAmarHTableInfo(request):
                 x.net_weight=float(i["vazne_baghi"])
                 z=i["data_metraj"]
                 if(z):
-                   print(type(z))
                    if('dict' in str(type(z))):
                         # z=json.loads(i["data_metraj"])
                         print(z,z['metrajdaf1'])
                         x.metrajdaf1=z["metrajdaf1"]
                         print(x.metrajdaf1)
-
                         x.metrajdaf2=int(i["data_metraj"]["metrajdaf2"])
                         x.metrajdaf3=int(i["data_metraj"]["metrajdaf3"])
                         x.metrajdaf4=int(i["data_metraj"]["metrajdaf4"])
@@ -250,28 +275,34 @@ def saveAmarHTableInfo(request):
                     x.metrajdaf7=0
                     x.metrajdaf8=0
                     x.makhraj_metraj_daf=0
-
-                x.save()
+                try:
+                    x.save()
+                except IntegrityError:
+                    print("برای این تاریخ مقدار از قبل وجود دارد!")
+                    data["error"]="برای این تاریخ مقدار از قبل وجود دارد!"
 
             # print(i)
             # print(i)
             # print("********")
             else:
-                print("here!!!")
+
 
 
                 amar=DailyProduction()
-                if(i["data_metraj"]):
+                z=i["data_metraj"]
+                if(z):
 
-                    amar.metrajdaf1=i["data_metraj"]["metrajdaf1"]
-                    amar.metrajdaf2=i["data_metraj"]["metrajdaf2"]
-                    amar.metrajdaf3=i["data_metraj"]["metrajdaf3"]
-                    amar.metrajdaf4=i["data_metraj"]["metrajdaf4"]
-                    amar.metrajdaf5=i["data_metraj"]["metrajdaf5"]
-                    amar.metrajdaf6=i["data_metraj"]["metrajdaf6"]
-                    amar.metrajdaf7=i["data_metraj"]["metrajdaf7"]
-                    amar.metrajdaf8=i["data_metraj"]["metrajdaf8"]
-                    amar.makhraj_metraj_daf=i["data_metraj"]["makhraj_metraj_daf"]
+                     if('dict' in str(type(z))):
+
+                        amar.metrajdaf1=i["data_metraj"]["metrajdaf1"]
+                        amar.metrajdaf2=i["data_metraj"]["metrajdaf2"]
+                        amar.metrajdaf3=i["data_metraj"]["metrajdaf3"]
+                        amar.metrajdaf4=i["data_metraj"]["metrajdaf4"]
+                        amar.metrajdaf5=i["data_metraj"]["metrajdaf5"]
+                        amar.metrajdaf6=i["data_metraj"]["metrajdaf6"]
+                        amar.metrajdaf7=i["data_metraj"]["metrajdaf7"]
+                        amar.metrajdaf8=i["data_metraj"]["metrajdaf8"]
+                        amar.makhraj_metraj_daf=i["data_metraj"]["makhraj_metraj_daf"]
                 else:
                     amar.metrajdaf1=0
                     amar.metrajdaf2=0
@@ -299,10 +330,15 @@ def saveAmarHTableInfo(request):
                 amar.weight4=float(i["weight4"])
                 amar.weight5=float(i["weight5"])
                 amar.net_weight=float(i["vazne_baghi"])
-                amar.save()
-                print("done!!!")
+                try:
+                    amar.save()
+                    print("done!!!")
+                except IntegrityError:
+                    print("A MyModel instance with this field1 and field2 combination already exists.")
+                    data["error"]="برای این تاریخ مقدار از قبل وجود دارد!"
+
             # print("done",amar.id)
-    data=dict()
+
     return JsonResponse(data)
 
 
@@ -886,3 +922,42 @@ def tolid_heatset_metraj_create(request):
 
 
         return save_HeatsetMetraj_form(request, form, 'mrp/tolid/partialHeatsetMetrajCreate.html')
+def delete_heatset_info(request):
+    dayOfIssue=request.GET.get('event_id',False)
+    date=DateJob.getTaskDate(request.GET.get('event_id',False))
+    heatset_amar=DailyProduction.objects.filter(dayOfIssue=dayOfIssue,mechine__assetCategory=8)
+    shift=Shift.objects.all()
+    for i in heatset_amar:
+        i.delete()
+    data=dict()
+    data['html_heatset_result'] = render_to_string('mrp/tolid/partialHeatsetList.html',{
+        'machines':'',
+        'shifts':shift,'next_date':'','prev_date':'','today':''}
+    )
+    return JsonResponse(data)
+def delete_heatset_info(request):
+    dayOfIssue=request.GET.get('event_id',False)
+    date=DateJob.getTaskDate(request.GET.get('event_id',False))
+    heatset_amar=DailyProduction.objects.filter(dayOfIssue=dayOfIssue,mechine__assetCategory=8)
+    shift=Shift.objects.all()
+    for i in heatset_amar:
+        i.delete()
+    data=dict()
+    data['html_heatset_result'] = render_to_string('mrp/tolid/partialHeatsetList.html',{
+        'machines':'',
+        'shifts':shift,'next_date':'','prev_date':'','today':''}
+    )
+    return JsonResponse(data)
+def delete_amar_info(request):
+    dayOfIssue=request.GET.get('event_id',False)
+    date=DateJob.getTaskDate(request.GET.get('event_id',False))
+    heatset_amar=DailyProduction.objects.filter(dayOfIssue=dayOfIssue,assetTypes=2)
+    shift=Shift.objects.all()
+    for i in heatset_amar:
+        i.delete()
+    data=dict()
+    data['html_heatset_result'] = render_to_string('mrp/tolid/partialHeatsetList.html',{
+        'machines':'',
+        'shifts':shift,'next_date':'','prev_date':'','today':''}
+    )
+    return JsonResponse(data)

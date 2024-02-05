@@ -176,6 +176,7 @@ var tableDataToJSON=function(tableId){
       $('#' + tableId + ' tr').each(function() {
         if($(this).attr('data-machine')){
         var machine=$(this).attr('data-machine');
+        var amar_id=$(this).attr('data-id')||'0';
         var shift = $(this).attr('data-shift');
         var dayOfIssue = $("#search").val();
         var daf_num = $(this).attr('daf_num')||0;
@@ -201,7 +202,6 @@ var tableDataToJSON=function(tableId){
            // Display the result (you can modify this part based on your needs)
 
          }
-        console.log($(this).find('td.btn.js_daf_metraj_create').attr('data-metraj'));
         // var data_metraj =  JSON.stringify($(this).find('td.js_daf_metraj_create').attr('data-metraj'))||'';
         // console.log(data_metraj);
         var nomre=0;
@@ -209,7 +209,7 @@ var tableDataToJSON=function(tableId){
 
 
 
-        data.push({ machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
+        data.push({ id:amar_id,machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
           , counter: counter,production_value: production_value,daf_num:daf_num,dook_weight:dook_weight,
           weight1:weight1,weight2:weight2,weight3:weight3,weight4:weight4,weight5:weight5,vazne_baghi:vazne_baghi,data_metraj:data_metraj
            });
@@ -229,7 +229,7 @@ $("#save_production").click(function(){
     table2: tbl2,
     table3: tbl3
   };
-console.log(JSON.stringify(sendData));
+
   // AJAX request to send data to the server
   $.ajax({
     url: '/Tolid/SaveHTableInfo',
@@ -241,8 +241,16 @@ console.log(JSON.stringify(sendData));
     },
     success: function(response) {
       // Handle the success response from the server
-      console.log('Data sent successfully:', response);
-      toastr.success("اطلاعات با موفقیت ذخیره شد");
+      if(response.error)
+      {
+        toastr.error(response.error);
+      }
+      else{
+        console.log('Data sent successfully:', response);
+        toastr.success("اطلاعات با موفقیت ذخیره شد");
+
+      }
+
 
       $(".preloader").hide();
     },
@@ -331,6 +339,29 @@ console.log(JSON.stringify(sendData));
         console.log(data);
         //alert("3123@!");
         $("#modal-company .modal-content").html(data.data);
+
+      }
+    });
+  });
+  $(".delete-info").click(function(){
+    var btn=$(this);
+    return $.ajax({
+      url: $(btn).attr("data-url")+'?event_id='+$("#search").val(),
+      type: 'get',
+      dataType: 'json',
+      beforeSend: function (x) {
+        //alert(btn.attr("data-url"));
+        //alert("321321");
+        // /$("#modal-maintenanceType").modal("hide");
+        a=confirm("آیا مظمئن هستید؟همه اطلاعات این تاریخ حذف خواهد شد!");
+        if(!a){
+          x.abort();
+        }
+
+      },
+      success: function (data) {
+        $("#tblrows").empty();
+        $("#tblrows").html(data.html_heatset_result);
 
       }
     });

@@ -132,6 +132,7 @@ class DailyProduction(models.Model):
     #     super(DailyProduction, self).save(*args, **kwargs)
     class Meta:
         db_table="dailyproduction"
+        unique_together = (('machine', 'shift','dayOfIssue'),)
 
 class Zayeat(models.Model):
     name = models.CharField(max_length=100)
