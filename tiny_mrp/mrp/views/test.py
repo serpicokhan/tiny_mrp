@@ -17,6 +17,7 @@ from mrp.forms import HeatsetMetrajForm
 from django.db import IntegrityError
 import subprocess
 from django.http import HttpResponse
+from django.db import transaction
 
 
 from django.db.models import Q
@@ -534,6 +535,33 @@ def get_tolid_calendar_info(request):
                 'id':i[0]})
 
     return JsonResponse(data,safe=False)
+@csrf_exempt
+def move_tolid_calendar_info(request):
+    start=request.POST.get("start",datetime.datetime.now())
+    end=request.POST.get("end",datetime.datetime.now())
+
+    # datetime_obj = datetime.fromisoformat(start.replace('Z', '+00:00'))
+
+    # Extract the date part and format it as 'YYYY-MM-DD'
+    # start = datetime_obj.strftime('%Y-%m-%d')
+    # datetime_obj = datetime.fromisoformat(end.replace('Z', '+00:00'))
+
+    # Extract the date part and format it as 'YYYY-MM-DD'
+    # end = datetime_obj.strftime('%Y-%m-%d')
+    data=dict()
+    if(request.method=="POST"):
+        daily_amar=DailyProduction.objects.filter(dayOfIssue=start)
+        zayeat=ZayeatVaz.objects.filter(dayOfIssue=start)
+        with transaction.atomic():
+            for i in daily_amar:
+                i.dayOfIssue=end
+                i.save()
+            for i in zayeat:
+                i.dayOfIssue=end
+                i.save()
+            data["success"]="success"
+    return JsonResponse(data)
+        
 def get_randeman_calendar_info(request):
     data=[]
     user_info=DailyProduction.objects.values_list('dayOfIssue').distinct()

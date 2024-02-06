@@ -22,7 +22,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // initialize the calendar
     // -----------------------------------------------------------------
-
+    function formatDateToYYYYMMDD(date) {
+        const year = date.getFullYear(); // Gets the year (4 digits)
+        
+        // Gets the month (0-11). Adding 1 to make it 1-12, and padStart to ensure two digits
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        
+        // Gets the day of the month (1-31), padStart to ensure two digits
+        const day = date.getDate().toString().padStart(2, '0');
+        
+        // Concatenate in YYYY-MM-DD format
+        return `${year}-${month}-${day}`;
+      }
     var calendar = new Calendar(calendarEl, {
 
         headerToolbar: {
@@ -42,6 +53,43 @@ document.addEventListener('DOMContentLoaded', function () {
            // Handle failure to fetch events
            alert('There was an error while fetching events!');
          }
+       },
+       eventDrop:function(info){
+        if(info.event.backgroundColor!="red"){
+            // Open a new window when an event is clicked
+            confirm_it=confirm("اطلاعات به تاریخ جدید کپی شود؟");
+            if(confirm_it){
+                console.log(info.oldEvent.start,info.event.start);
+                console.log(new Date(info.event.start).toLocaleDateString());
+                $.ajax({
+                    url: '/Tolid/Move/', // Your endpoint to update the event
+                    type: 'POST',
+                    data: {
+                      id: info.event.id,
+                      start: formatDateToYYYYMMDD(new Date(info.oldEvent.start)),
+                      end: info.event.start ? formatDateToYYYYMMDD(new Date(info.event.start)) : null,
+                    },
+                    success: function(response) {
+                        if(response.success=="success")
+                            console.log('Event updated successfully');    
+                        else{
+                            TransformStream.error("انتقال ناموفق بود");
+                        }
+                    },
+                    error: function() {
+                      console.log('Error updating event');
+                      info.revert(); // Revert the event to its original position in case of error
+                    }
+                  });
+                }
+            else{
+                info.revert();
+            }
+          }
+          else{
+            window.open('/Tolid/DailyZayeat?event_id=' + info.event.id, '_blank');
+          }
+        
        },
        eventClick: function(info) {
          if(info.event.backgroundColor!="red"){

@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^Tolid/SaveTableInfo$',saveAmarTableInfo,name='saveAmarTableInfo'),
     url(r'^Tolid/SaveHTableInfo$',saveAmarHTableInfo,name='saveAmarHTableInfo'),
     url(r'^Tolid/GetInfo/$', get_tolid_calendar_info, name='get_tolid_calendar_info'),
+    url(r'^Tolid/Move/$', move_tolid_calendar_info, name='move_tolid_calendar_info'),
     url(r'^Tolid/Randeman/GetInfo/$', get_randeman_calendar_info, name='get_randeman_calendar_info'),
     url(r'^Tolid/Tahlil/GetInfo/$', get_tahlil_calendar_info, name='get_tahlil_calendar_info'),
     url(r'^Shift/$', list_shifts, name='list_shifts'),
