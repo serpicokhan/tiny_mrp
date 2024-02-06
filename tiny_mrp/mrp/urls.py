@@ -45,6 +45,7 @@ urlpatterns = [
     url(r'^AssetFailure$', asset_failure_list, name='asset_failure_list'),
     url(r'^AssetFailure/calendar$', calendar_asset_failure, name='calendar_asset_failure'),
     url(r'^AssetFailure/Create$', assetFailure_create, name='assetFailure_create'),
+    url(r'^AssetFailure/(?P<id>\d+)/delete$', assetFailure_delete, name='assetFailure_delete'),
     url(r'^AssetFailure/(?P<id>\d+)/update/$', assetFailure_update, name='assetFailure_update'),
     url(r'^AssetFailure/Monthly/$', monthly_detaild_failured_report, name='monthly_detaild_failured_report'),
     url(r'^AssetFailure/Daily/GetInfo/$', get_assetfailure_calendar_info, name='get_assetfailure_calendar_info'),

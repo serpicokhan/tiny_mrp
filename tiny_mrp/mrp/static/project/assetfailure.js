@@ -31,6 +31,9 @@ $(function () {
 
 
   };
+  $("#button-addon1").click(function(){
+    window.location=`AssetFailure?fdate=${$("#search").val()}`;
+  });
   var saveForm= function () {
      var form = $(this);
 

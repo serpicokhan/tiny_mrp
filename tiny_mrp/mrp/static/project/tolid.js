@@ -31,60 +31,80 @@
 //
 // });
 
-document.addEventListener('DOMContentLoaded', function() {
-  const cells = document.querySelectorAll('.editable-cell');
+// document.addEventListener('DOMContentLoaded', function() {
+//   const cells = document.querySelectorAll('.editable-cell');
 
-  // Function to select all text in an editable cell when clicked
-  const selectText = (event) => {
-    const selection = window.getSelection();
-    const range = document.createRange();
-    range.selectNodeContents(event.target);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  };
+//   // Function to select all text in an editable cell when clicked
+//   const selectText = (event) => {
+//     const selection = window.getSelection();
+//     const range = document.createRange();
+//     range.selectNodeContents(event.target);
+//     selection.removeAllRanges();
+//     selection.addRange(range);
+//   };
 
-  // Add click event listener to each editable cell
-
-
-
-  // Add event listeners to detect keypress in cells
-  cells.forEach((cell) => {
-    cell.addEventListener('click', selectText);
+//   // Add click event listener to each editable cell
 
 
-  });
-});
-document.addEventListener('DOMContentLoaded', function() {
-  const cells = document.querySelectorAll('.company-table .editable-cell');
 
-  // Function to handle key press
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent default Enter behavior (line break)
+//   // Add event listeners to detect keypress in cells
+//   cells.forEach((cell) => {
+//     cell.addEventListener('click', selectText);
 
-      const cellIndex = Array.from(cells).indexOf(event.target);
-      const rows = Array.from(event.target.parentElement.parentElement.children);
-      const rowIndex = rows.indexOf(event.target.parentElement);
-      const nextRow = rows[rowIndex + 1];
 
-      if (nextRow) {
-        const nextCell = nextRow.querySelector('.editable-cell');
-        if (nextCell) {
-          nextCell.focus();
-          window.getSelection().selectAllChildren(nextCell);
-        }
-      }
-    }
-  };
+//   });
+// });
+// document.addEventListener('DOMContentLoaded', function() {
+//   const cells = document.querySelectorAll('.company-table .editable-cell');
 
-  // Add event listeners to detect keypress in cells
-  cells.forEach((cell) => {
-    cell.addEventListener('keydown', handleKeyPress);
-  });
-});
+//   // Function to handle key press
+//   const handleKeyPress = (event) => {
+//     if (event.key === 'Enter') {
+//       event.preventDefault(); // Prevent default Enter behavior (line break)
+
+//       const cellIndex = Array.from(cells).indexOf(event.target);
+//       const rows = Array.from(event.target.parentElement.parentElement.children);
+//       const rowIndex = rows.indexOf(event.target.parentElement);
+//       const nextRow = rows[rowIndex + 1];
+
+//       if (nextRow) {
+//         const nextCell = nextRow.querySelector('.counter');
+//         if (nextCell) {
+//           nextCell.focus();
+//           window.getSelection().selectAllChildren(nextCell);
+//         }
+//       }
+//     }
+//   };
+
+//   // Add event listeners to detect keypress in cells
+//   cells.forEach((cell) => {
+//     cell.addEventListener('keydown', handleKeyPress);
+//   });
+// });
 
 
 $(function () {
+  $('#tblrows').on('keydown','.editable-cell, .production',(function(e) {
+        if (e.keyCode == 13) { // Enter key
+            e.preventDefault(); // Prevent default Enter behavior
+
+            var $currentCell = $(this);
+            var $nextRow = $currentCell.closest('tr').next('tr');
+            
+            if ($nextRow.length) {
+                // Find the same index cell in the next row and focus it
+                var cellIndex = $currentCell.index();
+                var $nextCell = $nextRow.find('td').eq(cellIndex);
+                
+                if ($nextCell.length && $nextCell.is('[contenteditable=true]')) {
+                    $nextCell.focus();
+                }
+            }
+        }
+    }));
+
+
   var handleCellValueChange = function(event) {
      const tables = $('.company-table');
 
@@ -145,9 +165,8 @@ $(function () {
                        // const correspondingRow = correspondingCell.closest('tr');
                        // console.log(correspondingRow);
                        // correspondingRow.setAttribute('data-speed',z);
-                       tables[i].rows[rowIndex+1].setAttribute('data-speed',z);
-                       console.log(rowIndex);
-                       console.log(tables[i].rows[rowIndex]);
+                       tables[i].rows[rowIndex+1].setAttribute('data-speed2',z);
+                       
 
 
                      }
@@ -190,7 +209,9 @@ var tableDataToJSON=function(tableId){
         var amar_id=$(this).attr('data-id')||'0';
         var shift = $(this).attr('data-shift');
         var dayOfIssue = $("#search").val();
-        var speed = $(this).attr('data-speed')||0;
+        var speed = $(this).attr('data-speed2')||0;
+        if(tableId=="tbl1")
+        console.log(speed,tableId);
         var nomre = $(this).find('td.nomre').text()||$(this).find('td:eq(0)').attr('data-nomre');
         var counter = $(this).find('td.counter').text()||0;
         var production_value =  $(this).find('td.production').text()||0;
@@ -200,7 +221,7 @@ var tableDataToJSON=function(tableId){
            });
          }
       });
-      // console.log(JSON.stringify(data));
+      
       return data;
 
 

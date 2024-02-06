@@ -181,7 +181,7 @@ def saveAmarTableInfo(request):
             d=None
 
             if(i["id"]!="0"):
-                print(i["id"])
+                
                 d=DailyProduction.objects.filter(id=i["id"])
             else:
                 d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
@@ -191,6 +191,9 @@ def saveAmarTableInfo(request):
                 x.machine=m
                 x.shift=s
                 x.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
+                if(s.id==1):
+                    print(i)
+                    print('!!!!!!!!',i["speed"],i["id"],s.id)
                 x.speed=i["speed"]
                 x.nomre=i["nomre"]
                 x.counter=float(i["counter"])
@@ -410,8 +413,12 @@ def show_daily_amar_tolid(request):
             mx_speed=0
             if(max_speed>0):
                 mx_speed=(sum/max_speed)*100
-            machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
-            print("sum_randeman",sum_randeman)
+            if(m.id in (16,5,4,3)):
+                 machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
+
+            else:
+                machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
+            
             if(index<len(machines)):
                 sum_randeman+=mx_speed
 
@@ -423,7 +430,7 @@ def show_daily_amar_tolid(request):
                     x=[]
                     for i in shifts:
                         x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
-                    print(sum_randeman)
+                    
                     machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
                     sum_randeman=0
             except:
@@ -814,11 +821,13 @@ def list_amar_daily_info(request):
         for s in shift:
             for machine in machines:
                 try:
+                    
                     formula = Formula.objects.get(machine=machine)
                     speedformula = SpeedFormula.objects.get(machine=machine)
                     amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
+                    
                     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
-
+                    
                     # else:
                     #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
@@ -853,6 +862,7 @@ def list_amar_daily_info(request):
                         metrajdaf8=0,
                         makhraj_metraj_daf=1,
                         )
+                        
 
                         # Save the object to the database
                         # new_daily_production.save()
@@ -863,6 +873,7 @@ def list_amar_daily_info(request):
                 except SpeedFormula.DoesNotExist:
                     machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'speedformula':speedformula.formula})
                 except DailyProduction.DoesNotExist:
+                    
                     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
 

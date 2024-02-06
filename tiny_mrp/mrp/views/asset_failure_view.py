@@ -19,7 +19,11 @@ from django.shortcuts import get_object_or_404
 
 @login_required
 def asset_failure_list(request):
-    dt=request.GET.get("date",datetime.datetime.now().date())
+    dt=request.GET.get("fdate",False)
+    if(dt):
+        dt=DateJob.getTaskDate(dt)
+    else:
+        dt=request.GET.get("date",datetime.datetime.now().date())
     date_object = datetime.datetime.strptime(str(dt),'%Y-%m-%d').date()
     print(date_object)
     next_day = date_object + timedelta(days=1)
