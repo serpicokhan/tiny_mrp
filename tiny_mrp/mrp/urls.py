@@ -12,9 +12,11 @@ urlpatterns = [
 
 
     url(r'^$',index,name='index'),
+    url(r'^Backup/$',backup_database,name='backup_database'),
     url(r'^Dashboard$',list_dashboard,name='list_dashboard'),
     url(r'^Tolid/Heatset$',tolid_heatset,name='tolid_heatset'),
     url(r'^Tolid/Heatset/Delete$',delete_heatset_info,name='delete_heatset_info'),
+    url(r'^Tolid/Delete$',delete_amar_info,name='delete_amar_info'),
     url(r'^Tolid/Heatset/Metraj/Create$',tolid_heatset_metraj_create,name='tolid_heatset_metraj_create'),
     url(r'^Tolid/Daily$',show_daily_amar_tolid,name='show_daily_amar_tolid'),
     url(r'^Tolid/DailyDetails$',get_daily_amar,name='get_daily_amar'),

@@ -18,7 +18,7 @@
       <tbody>
         {% for c in machines %}
         {% if c.shift.id == i.id %}
-        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed="{{c.speed}}">
+        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed="{{c.speed}}" data-id="{{c.amar.id}}">
           <td>{{c.machine.assetName}}</td>
           <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
           <td contenteditable="true" class="editable-cell btc counter selectable1">{{c.amar.counter}}</td>
@@ -56,7 +56,7 @@
           {% if c.shift.id == i.id %}
 
 
-        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed="{{c.amar.speed}}">
+        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed="{{c.amar.speed}}" data-id="{{c.amar.id}}">
 
           <td contenteditable="true" class="editable-cell btc counter selectable1" data-nomre={{c.amar.nomre}}>{{c.amar.counter}}</td>
 
@@ -103,7 +103,7 @@
 
           {% if c.shift.id == 1 %}
 
-          <td contenteditable="true" class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.amar.nomre}}>{{c.amar.speed}}</td>
+          <td contenteditable="true" class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.amar.nomre}} data-id="{{c.amar.id}}">{{c.amar.speed}}</td>
           <td contenteditable="true" class="editable-cell3 production selectable1"  data-formula="{{c.speedformula}}">{{c.amar.eval_max_tolid|floatformat:"2"}}</td>
           {% endif %}
 

@@ -15,8 +15,38 @@ from mrp.business.tolid_util import *
 from django.template.loader import render_to_string
 from mrp.forms import HeatsetMetrajForm
 from django.db import IntegrityError
+import subprocess
+from django.http import HttpResponse
+
 
 from django.db.models import Q
+
+def backup_database(request):
+    # Define your database credentials and output file's path
+   # Define your database credentials and output file's path
+    db_name = 'mrp'
+    db_user = 'root'  # Default XAMPP MySQL user
+    output_file = 'file102.sql'  # Ensure you use double backslashes on Windows or raw string
+
+    # Full path to the mysqldump executable in the XAMPP installation
+    mysqldump_path = 'C:\\xampp\\mysql\\bin\\mysqldump.exe'
+
+    # Command to backup MySQL database without a password
+    command = f'"{mysqldump_path}" -u {db_user} {db_name} > {output_file}'
+
+    try:
+        # Execute the command
+        subprocess.run(command, shell=True, check=True)
+
+        # return HttpResponse("Database backup was successful.")
+        with open(output_file, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/sql")
+            response['Content-Disposistion'] = 'attachment; filename=' + os.path.basename(output_file) +'.sql'
+            return response
+    except subprocess.CalledProcessError:
+        return HttpResponse("Failed to backup database.")
+    except Exception as e:
+        return HttpResponse(f"Error: {str(e)}")
 @login_required
 def get_daily_amar(request):
     dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
@@ -951,12 +981,13 @@ def delete_heatset_info(request):
 def delete_amar_info(request):
     dayOfIssue=request.GET.get('event_id',False)
     date=DateJob.getTaskDate(request.GET.get('event_id',False))
-    heatset_amar=DailyProduction.objects.filter(dayOfIssue=dayOfIssue,assetTypes=2)
+    heatset_amar=DailyProduction.objects.filter(dayOfIssue=dayOfIssue,machine__assetTypes=2)
     shift=Shift.objects.all()
+    print(heatset_amar.count())
     for i in heatset_amar:
         i.delete()
     data=dict()
-    data['html_heatset_result'] = render_to_string('mrp/tolid/partialHeatsetList.html',{
+    data['html_heatset_result'] = render_to_string('mrp/tolid/partialAssetAmarList.html',{
         'machines':'',
         'shifts':shift,'next_date':'','prev_date':'','today':''}
     )

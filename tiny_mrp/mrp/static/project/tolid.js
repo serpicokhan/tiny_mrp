@@ -195,7 +195,7 @@ var tableDataToJSON=function(tableId){
         var counter = $(this).find('td.counter').text()||0;
         var production_value =  $(this).find('td.production').text()||0;
 
-        data.push({ machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
+        data.push({id:amar_id, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
           , counter: counter,production_value: production_value
            });
          }
