@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from mrp.models import *
-from mrp.forms import AssetFailureForm,FailureForm
+from mrp.forms import AssetFailureForm,FailureForm,AssetFailureForm2
 import jdatetime
 from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
@@ -96,8 +96,33 @@ def save_Failure_form(request, form, template_name):
 ##########################################################
 def assetFailure_create(request):
     if (request.method == 'POST'):
-        form = AssetFailureForm(request.POST)
-        return save_assetFailure_form(request, form, 'mrp/assetfailure/partialAssetFailureCreate.html')
+        print(request.body)
+        form = AssetFailureForm2(request.POST)
+        if form.is_valid():
+            # Do something with the form data
+            shift = form.cleaned_data['shift']
+            duration = form.cleaned_data['duration']
+            failure_name = form.cleaned_data['failure_name']
+            dayOfIssue = form.cleaned_data['dayOfIssue']
+            for asset in form.cleaned_data['asset_name']:
+                AssetFailure.objects.create(
+                    asset_name=asset,
+                    shift=shift,
+                    duration=duration,
+                    failure_name=failure_name,
+                    dayOfIssue=dayOfIssue,
+                )
+            data=dict()
+            data['form_is_valid'] = True
+            books = AssetFailure.objects.filter(dayOfIssue=dayOfIssue)
+            data['html_assetFailure_list'] = render_to_string('mrp/assetfailure/partialAssetFailure.html', {
+                'assetfailures': books,
+                'perms': PermWrapper(request.user)
+            })
+
+        return JsonResponse(data)
+        # form = AssetFailureForm(request.POST)
+        # return save_assetFailure_form(request, form, 'mrp/assetfailure/partialAssetFailureCreate.html')
     else:
         mydt=request.GET.get("dt",False)
         form = AssetFailureForm(initial={'dayOfIssue': DateJob.getTaskDate(mydt)})

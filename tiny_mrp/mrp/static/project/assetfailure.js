@@ -24,6 +24,9 @@ $(function () {
             donetext: 'Done',
             autoclose: true
         });
+        $('.select').select2({
+          placeholder: 'Select'
+      });
 
         }
       });

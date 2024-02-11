@@ -54,37 +54,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
   });
 });
-document.addEventListener('DOMContentLoaded', function() {
-  const cells = document.querySelectorAll('.company-table .editable-cell');
+// document.addEventListener('DOMContentLoaded', function() {
+//   const cells = document.querySelectorAll('.company-table .editable-cell');
 
-  // Function to handle key press
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent default Enter behavior (line break)
+//   // Function to handle key press
+//   const handleKeyPress = (event) => {
+//     if (event.key === 'Enter') {
+//       event.preventDefault(); // Prevent default Enter behavior (line break)
 
-      const cellIndex = Array.from(cells).indexOf(event.target);
-      const rows = Array.from(event.target.parentElement.parentElement.children);
-      const rowIndex = rows.indexOf(event.target.parentElement);
-      const nextRow = rows[rowIndex + 1];
+//       const cellIndex = Array.from(cells).indexOf(event.target);
+//       const rows = Array.from(event.target.parentElement.parentElement.children);
+//       const rowIndex = rows.indexOf(event.target.parentElement);
+//       const nextRow = rows[rowIndex + 1];
 
-      if (nextRow) {
-        const nextCell = nextRow.querySelector('.editable-cell');
-        if (nextCell) {
-          nextCell.focus();
-          window.getSelection().selectAllChildren(nextCell);
-        }
-      }
-    }
-  };
+//       if (nextRow) {
+//         const nextCell = nextRow.querySelector('.editable-cell');
+//         if (nextCell) {
+//           nextCell.focus();
+//           window.getSelection().selectAllChildren(nextCell);
+//         }
+//       }
+//     }
+//   };
 
-  // Add event listeners to detect keypress in cells
-  cells.forEach((cell) => {
-    cell.addEventListener('keydown', handleKeyPress);
-  });
-});
+//   // Add event listeners to detect keypress in cells
+//   cells.forEach((cell) => {
+//     cell.addEventListener('keydown', handleKeyPress);
+//   });
+// });
 
 
 $(function () {
+  $('#tblrows').on('keydown','.editable-cell, .production',(function(e) {
+    if (e.keyCode == 13) { // Enter key
+        e.preventDefault(); // Prevent default Enter behavior
+
+        var $currentCell = $(this);
+        var $nextRow = $currentCell.closest('tr').next('tr');
+        
+        if ($nextRow.length) {
+            // Find the same index cell in the next row and focus it
+            var cellIndex = $currentCell.index();
+            var $nextCell = $nextRow.find('td').eq(cellIndex);
+            
+            if ($nextCell.length && $nextCell.is('[contenteditable=true]')) {
+                $nextCell.focus();
+            }
+        }
+    }
+}));
   $("#tblrows").on("input",".btc", function() {
             var row = $(this).closest("tr");
             var daf_num = parseFloat(row.find(".daf_num").text()) ||0;

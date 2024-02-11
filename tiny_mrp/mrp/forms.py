@@ -6,7 +6,7 @@ class ZayeatVaznForm(forms.ModelForm):
          fields = '__all__'
 
 class AssetFailureForm(forms.ModelForm):
-    asset_name= forms.ModelChoiceField(label="نام مکان",queryset=Asset.objects.filter(assetIsLocatedAt__isnull=False),
+    asset_name= forms.ModelChoiceField(label="نام مکان",queryset=Asset.objects.filter(assetIsLocatedAt__isnull=False),empty_label=None,
     widget=forms.Select(attrs={'class':'selectpicker','data-live-search':'true'}),required=False)
     class Meta:
          model = AssetFailure
@@ -16,6 +16,26 @@ class FailureForm(forms.ModelForm):
     class Meta:
          model = Failure
          fields = '__all__'
+class AssetFailureForm2(forms.Form):
+    asset_name = forms.ModelMultipleChoiceField(
+        queryset=Asset.objects.filter(assetIsLocatedAt__isnull=False),
+        widget=forms.SelectMultiple,
+        label="نام تجهیز",
+        required=False
+    )
+    shift = forms.ModelChoiceField(
+        queryset=Shift.objects.all(),
+        label="نام شیفت",
+        required=True
+    )
+    duration = forms.TimeField(label="مدت توقف", required=True)
+    failure_name = forms.ModelChoiceField(
+        queryset=Failure.objects.all(),
+        label="علت توقف",
+        required=True
+    )
+    dayOfIssue = forms.DateField(label="تاریخ", required=True)
+
 class HeatsetMetrajForm(forms.Form):
     metrajdaf1 = forms.IntegerField(initial=0,label='متراز داف 1')
     metrajdaf2 = forms.IntegerField(initial=0,label='متراز داف 2')
