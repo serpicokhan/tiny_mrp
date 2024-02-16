@@ -6,6 +6,9 @@
   .custom-height {
     height: 20.2em; /* Adjust this value based on your requirements */
   }
+  .custom-height2 {
+    height: 6.7em; /* Adjust this value based on your requirements */
+  }
 </style>
 {% endblock %}
 {% block content %}
@@ -85,8 +88,12 @@
                                     {% endfor %}
                                     {% for c in heatsets %}
                                       {% if c.shift.id == i.id %}
+                                      {% if c.machine.id == 22 %}
+                                      {% include 'mrp/tolid/partialheatsettrornek.html' %}
+                                      {% else %}
 
                                     {% include 'mrp/tolid/partialheatsettr.html' %}
+                                    {% endif %}
                                       {% endif %}
                                     {% endfor %}
 
@@ -126,8 +133,14 @@
                                     {% endfor %}
                                     {% for c in heatsets %}
                                       {% if c.shift.id == i.id %}
+                                      {% if c.machine.id == 22 %}
+                                      {% include 'mrp/tolid/partialheatsettrornek2.html' %}
+                                      {% else %}
 
                                     {% include 'mrp/tolid/partialheatsettr2.html' %}
+                                    {% endif %}
+
+                                    
                                       {% endif %}
                                     {% endfor %}
 
@@ -170,8 +183,11 @@
                                     </tr>
                                     {% endfor %}
                                     {% for c in heatsets %}
+                                    {% if c.machine.id == 22 %}
+                                    <tr class="custom-height2">
+                                      {% else %}
                                     <tr class="custom-height">
-
+                                      {% endif %}
                                       {% if c.shift.id == 1 %}
 
                                       <td   class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.amar.nomre}}>{{c.amar.speed}}</td>

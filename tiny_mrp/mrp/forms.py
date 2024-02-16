@@ -21,9 +21,9 @@ class AssetFailureForm2(forms.Form):
         queryset=Asset.objects.filter(assetIsLocatedAt__isnull=False),
         widget=forms.SelectMultiple,
         label="نام تجهیز",
-        required=False
+        required=True
     )
-    shift = forms.ModelChoiceField(
+    shift = forms.ModelMultipleChoiceField(
         queryset=Shift.objects.all(),
         label="نام شیفت",
         required=True

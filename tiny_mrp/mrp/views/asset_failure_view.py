@@ -100,18 +100,19 @@ def assetFailure_create(request):
         form = AssetFailureForm2(request.POST)
         if form.is_valid():
             # Do something with the form data
-            shift = form.cleaned_data['shift']
+            # shift = form.cleaned_data['shift']
             duration = form.cleaned_data['duration']
             failure_name = form.cleaned_data['failure_name']
             dayOfIssue = form.cleaned_data['dayOfIssue']
             for asset in form.cleaned_data['asset_name']:
-                AssetFailure.objects.create(
-                    asset_name=asset,
-                    shift=shift,
-                    duration=duration,
-                    failure_name=failure_name,
-                    dayOfIssue=dayOfIssue,
-                )
+                for shift in form.cleaned_data['shift']:
+                    AssetFailure.objects.create(
+                        asset_name=asset,
+                        shift=shift,
+                        duration=duration,
+                        failure_name=failure_name,
+                        dayOfIssue=dayOfIssue,
+                    )
             data=dict()
             data['form_is_valid'] = True
             books = AssetFailure.objects.filter(dayOfIssue=dayOfIssue)
@@ -125,7 +126,7 @@ def assetFailure_create(request):
         # return save_assetFailure_form(request, form, 'mrp/assetfailure/partialAssetFailureCreate.html')
     else:
         mydt=request.GET.get("dt",False)
-        form = AssetFailureForm(initial={'dayOfIssue': DateJob.getTaskDate(mydt)})
+        form = AssetFailureForm2(initial={'dayOfIssue': DateJob.getTaskDate(mydt)})
         return save_assetFailure_form(request, form, 'mrp/assetfailure/partialAssetFailureCreate.html')
     
 def failure_create(request):

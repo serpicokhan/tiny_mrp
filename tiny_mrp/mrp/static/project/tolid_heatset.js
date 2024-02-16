@@ -197,7 +197,7 @@ var tableDataToJSON=function(tableId){
         var amar_id=$(this).attr('data-id')||'0';
         var shift = $(this).attr('data-shift');
         var dayOfIssue = $("#search").val();
-        var daf_num = $(this).attr('daf_num')||0;
+        var daf_num = $(this).find('td.daf_num').text()||0;
         var dook_weight = $(this).find('td.dook_weight').text()||0;
         var speed = $(this).find('td.speed').text()||0;
         var weight1 = $(this).find('td.weight1').text()||0;
@@ -208,7 +208,7 @@ var tableDataToJSON=function(tableId){
         var vazne_baghi = $(this).find('td.vazne_baghi').text()||0;
         var production_value =  $(this).find('td.production').text()||0;
         var button = $(this).find("button");
-        console.log("speed",speed);
+        console.log("daf",daf_num);
 
      // Check if a button is found in the row
          if (button.length > 0) {
