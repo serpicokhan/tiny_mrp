@@ -478,9 +478,14 @@ var save_daf_metraj_heatset_Form= function () {
   //       var text = $(this).text();
   //       $(this).text(text.replace(/[^0-9]/g, ''));
   //   });
-  $("#modal-company").on("submit",'.js-zayeatVazn-create-form',save_zayeat);
+  // $("#modal-company").on("submit",'.js-zayeatVazn-create-form',save_zayeat);
   $("#modal-company").on("submit",'.js-HeatsetMetraj-create-form',save_daf_metraj_heatset_Form);
+  $('#modal-company').on('hidden.bs.modal', function () {
+    // do something…
+    $(".highlight").removeClass("highlight");
+  })
   $("#tblrows").on('click','.js_daf_metraj_create',open_daf_metraj_modal);
+
   $("#new_amar").click(function(){
     window.location='/Tolid/Heatset';
   });
