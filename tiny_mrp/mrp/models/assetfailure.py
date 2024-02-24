@@ -15,8 +15,7 @@ class AssetFailure(models.Model):
 
     def __str__(self):
         return f"{self.asset_name} - {self.failure_name}"
-    class Meta:
-        unique_together = (("asset_name", "shift",'failure_name','dayOfIssue'),)
+
     def save(self, *args, **kwargs):
         # Calculate total duration for the given asset, shift, and date
         existing_failures = AssetFailure.objects.filter(
