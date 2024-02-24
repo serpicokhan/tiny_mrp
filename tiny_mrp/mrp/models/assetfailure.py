@@ -2,6 +2,8 @@ from django.db import models
 from .asset import Asset  # Import your Asset model
 from .daily_tolid import Shift  # Import your Shift model
 from .failure import Failure  # Import your Failure model
+from django.core.exceptions import ValidationError
+from datetime import timedelta
 
 class AssetFailure(models.Model):
     asset_name = models.ForeignKey(Asset,verbose_name="نام تجهیز", on_delete=models.CASCADE)
@@ -15,4 +17,27 @@ class AssetFailure(models.Model):
         return f"{self.asset_name} - {self.failure_name}"
     class Meta:
         unique_together = (("asset_name", "shift",'failure_name','dayOfIssue'),)
+    def save(self, *args, **kwargs):
+        # Calculate total duration for the given asset, shift, and date
+        existing_failures = AssetFailure.objects.filter(
+            asset_name=self.asset_name,
+            shift=self.shift,
+            dayOfIssue=self.dayOfIssue
+        )
+
+        total_duration = timedelta()
+        for failure in existing_failures:
+            # Convert TimeField to timedelta for addition
+            duration_timedelta = timedelta(hours=failure.duration.hour, minutes=failure.duration.minute)
+            total_duration += duration_timedelta
+
+        # Add the duration of the current instance
+        current_duration = timedelta(hours=self.duration.hour, minutes=self.duration.minute)
+        total_duration += current_duration
+
+        # Check if total duration exceeds 8 hours
+        if total_duration > timedelta(hours=8):
+            raise ValidationError("مدت زمان توقف این تجهیز نمی تواند از 8 ساعت تجاوز کند!")
+
+        super().save(*args, **kwargs)
    

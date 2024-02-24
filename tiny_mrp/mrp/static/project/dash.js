@@ -51,6 +51,7 @@ var draw_pie_zayeat=function(){
        fetch('/Dashboard/Zayeat/Pie/')  // Update with the correct URL
         .then(response => response.json())
         .then(data => {
+            console.log(data.values);
             renderPieChartZayeat(data.labels, data.values);
         })
         .catch(error => console.error('Error:', error));

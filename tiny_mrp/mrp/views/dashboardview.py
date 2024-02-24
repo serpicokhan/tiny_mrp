@@ -39,6 +39,7 @@ def get_line_zayeat_vazn_data(request):
 def get_pie_zayeat_vazn_data(request):
     start_date = request.GET.get('start',dt.now().replace(day=1))  # Modify these dates as needed
     end_date = request.GET.get('end',dt.now())
+    print(start_date,end_date)
     labels, values = get_zayeat_pie_aggregate(start_date,end_date)
     print(labels,values)
     return JsonResponse({'labels': labels, 'values': values})

@@ -16,6 +16,7 @@ from django.template.loader import render_to_string
 from mrp.business.tolid_util import *
 import datetime
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ValidationError
 
 @login_required
 def asset_failure_list(request):
@@ -53,11 +54,17 @@ def save_assetFailure_form(request, form, template_name,id=None):
 
 
     data = dict()
-    if (request.method == 'POST'):
+    if (request.method == 'POST'):       
+        books=[]
         if form.is_valid():
-            bts=form.save()
-            data['form_is_valid'] = True
-            books = AssetFailure.objects.filter(dayOfIssue=bts.dayOfIssue)
+            try:
+                bts=form.save()
+                data['form_is_valid'] = True
+                books = AssetFailure.objects.filter(dayOfIssue=bts.dayOfIssue)
+
+
+            except ValidationError as ex:
+                data['error']=ex.message
             data['html_assetFailure_list'] = render_to_string('mrp/assetfailure/partialAssetFailure.html', {
                 'assetfailures': books,
                 'perms': PermWrapper(request.user)
@@ -96,7 +103,8 @@ def save_Failure_form(request, form, template_name):
 ##########################################################
 def assetFailure_create(request):
     if (request.method == 'POST'):
-        print(request.body)
+        data=dict()
+        
         form = AssetFailureForm2(request.POST)
         if form.is_valid():
             # Do something with the form data
@@ -104,17 +112,23 @@ def assetFailure_create(request):
             duration = form.cleaned_data['duration']
             failure_name = form.cleaned_data['failure_name']
             dayOfIssue = form.cleaned_data['dayOfIssue']
-            for asset in form.cleaned_data['asset_name']:
-                for shift in form.cleaned_data['shift']:
-                    AssetFailure.objects.create(
-                        asset_name=asset,
-                        shift=shift,
-                        duration=duration,
-                        failure_name=failure_name,
-                        dayOfIssue=dayOfIssue,
-                    )
-            data=dict()
-            data['form_is_valid'] = True
+            try:
+                for asset in form.cleaned_data['asset_name']:
+                    for shift in form.cleaned_data['shift']:
+                        
+                        AssetFailure.objects.create(
+                            asset_name=asset,
+                            shift=shift,
+                            duration=duration,
+                            failure_name=failure_name,
+                            dayOfIssue=dayOfIssue,
+                        )
+                data['form_is_valid'] = True
+                
+            except ValidationError as ex:
+                data["error"]=ex.message
+
+        
             books = AssetFailure.objects.filter(dayOfIssue=dayOfIssue)
             data['html_assetFailure_list'] = render_to_string('mrp/assetfailure/partialAssetFailure.html', {
                 'assetfailures': books,

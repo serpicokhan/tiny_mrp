@@ -55,8 +55,7 @@ $(function () {
          }
          else {
 
-           $("#company-table tbody").html(data.html_assetFailure_list);
-           $("#modal-company .modal-content").html(data.html_assetFailure_form);
+           toastr.error(data.error);
          }
        }
      });
