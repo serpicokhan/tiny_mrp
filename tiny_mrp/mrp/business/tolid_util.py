@@ -106,8 +106,9 @@ def get_day_machine_failure_monthly_shift(assetCatregory,shift,start,end):
             hours = total_failure_duration // 60
             minutes = total_failure_duration % 60
             formatted_duration = f"{hours:02d}:{minutes:02d}"
-            
-            return hours/8
+
+
+            return (hours/8)+(minutes/800)
         else:
             return 0
 def get_good_standard_machine_by_date_category(assetCatregory):
