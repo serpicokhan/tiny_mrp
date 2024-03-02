@@ -12,6 +12,9 @@ class AssetFailure(models.Model):
     failure_name = models.ForeignKey(Failure,verbose_name="علت توقف", on_delete=models.CASCADE)
     dayOfIssue = models.DateField("تاریخ")
     timestamp = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        unique_together = (('asset_name', 'shift', 'failure_name', 'dayOfIssue'),)
+        ordering=('shift','asset_name','-duration',)
 
     def __str__(self):
         return f"{self.asset_name} - {self.failure_name}"
@@ -39,4 +42,3 @@ class AssetFailure(models.Model):
             raise ValidationError("مدت زمان توقف این تجهیز نمی تواند از 8 ساعت تجاوز کند!")
 
         super().save(*args, **kwargs)
-   

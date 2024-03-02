@@ -54,7 +54,7 @@ def save_assetFailure_form(request, form, template_name,id=None):
 
 
     data = dict()
-    if (request.method == 'POST'):       
+    if (request.method == 'POST'):
         books=[]
         if form.is_valid():
             try:
@@ -65,6 +65,8 @@ def save_assetFailure_form(request, form, template_name,id=None):
 
             except ValidationError as ex:
                 data['error']=ex.message
+            except IntegrityError:
+                data['error']='برای این تجهیز با این کد توقف قبلا رکوردی ثبت شده است'
             data['html_assetFailure_list'] = render_to_string('mrp/assetfailure/partialAssetFailure.html', {
                 'assetfailures': books,
                 'perms': PermWrapper(request.user)
@@ -104,7 +106,7 @@ def save_Failure_form(request, form, template_name):
 def assetFailure_create(request):
     if (request.method == 'POST'):
         data=dict()
-        
+
         form = AssetFailureForm2(request.POST)
         if form.is_valid():
             # Do something with the form data
@@ -115,7 +117,7 @@ def assetFailure_create(request):
             try:
                 for asset in form.cleaned_data['asset_name']:
                     for shift in form.cleaned_data['shift']:
-                        
+
                         AssetFailure.objects.create(
                             asset_name=asset,
                             shift=shift,
@@ -124,11 +126,13 @@ def assetFailure_create(request):
                             dayOfIssue=dayOfIssue,
                         )
                 data['form_is_valid'] = True
-                
+
             except ValidationError as ex:
                 data["error"]=ex.message
+            except IntegrityError:
+                data['error']='برای این تجهیز با این کد توقف قبلا رکوردی ثبت شده است'
 
-        
+
             books = AssetFailure.objects.filter(dayOfIssue=dayOfIssue)
             data['html_assetFailure_list'] = render_to_string('mrp/assetfailure/partialAssetFailure.html', {
                 'assetfailures': books,
@@ -142,7 +146,7 @@ def assetFailure_create(request):
         mydt=request.GET.get("dt",False)
         form = AssetFailureForm2(initial={'dayOfIssue': DateJob.getTaskDate(mydt)})
         return save_assetFailure_form(request, form, 'mrp/assetfailure/partialAssetFailureCreate.html')
-    
+
 def failure_create(request):
     if (request.method == 'POST'):
         form = FailureForm(request.POST)
