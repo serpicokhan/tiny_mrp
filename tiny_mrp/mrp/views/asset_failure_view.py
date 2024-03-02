@@ -208,10 +208,10 @@ def assetFailure_delete(request, id):
         comp1.delete()
         data['form_is_valid'] = True  # This is just to play along with the existing code
         companies =  AssetFailure.objects.filter(dayOfIssue=dayOfIssue)
-        wos=doPaging(request,companies)
+        # wos=doPaging(request,companies)
         #Tasks.objects.filter(maintenanceTypeId=id).update(maintenanceType=id)
         data['html_assetFailure_list'] = render_to_string('mrp/assetfailure/partialAssetFailure.html', {
-            'assetfailures': wos,
+            'assetfailures': companies,
             'perms': PermWrapper(request.user)
         })
     else:
