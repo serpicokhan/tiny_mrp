@@ -51,6 +51,7 @@ def backup_database(request):
 @login_required
 def get_daily_amar(request):
     dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
+    print(dayOfIssue,'!!!!!!!!!!!!!!!!!!')
     date_object = datetime.datetime.strptime(dayOfIssue, '%Y-%m-%d')
 
     next_day = date_object + timedelta(days=1)
@@ -96,6 +97,13 @@ def get_daily_amar(request):
 @login_required
 def index(request):
     machines=Asset.objects.filter(assetTypes=2)
+    date_object=datetime.datetime.now()
+    next_day = date_object + timedelta(days=1)
+
+
+# Calculate previous day
+    previous_day = date_object - timedelta(days=1)
+
     shift=Shift.objects.all()
     machines_with_formulas = []
     for machine in machines:
@@ -129,10 +137,16 @@ def index(request):
         except DailyProduction.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
-    return render(request,"mrp/tolid/details.html",{'machines':machines_with_formulas,'shifts':shift,'title':'ورود داده های روزانه'})
+    return render(request,"mrp/tolid/details.html",{'machines':machines_with_formulas,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d')})
 @login_required
 def tolid_heatset(request):
     machines=Asset.objects.filter(assetCategory__id=8)
+    date_object=datetime.datetime.now()
+    next_day = date_object + timedelta(days=1)
+
+
+# Calculate previous day
+    previous_day = date_object - timedelta(days=1)
     shift=Shift.objects.all()
     machines_with_formulas = []
     for machine in machines:
@@ -166,7 +180,7 @@ def tolid_heatset(request):
         except DailyProduction.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
-    return render(request,"mrp/tolid/heatset_details.html",{'machines':machines_with_formulas,'shifts':shift,'title':'ورود داده های روزانه'})
+    return render(request,"mrp/tolid/heatset_details.html",{'machines':machines_with_formulas,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d')})
 
 @csrf_exempt
 def saveAmarTableInfo(request):
@@ -182,7 +196,7 @@ def saveAmarTableInfo(request):
             d=None
 
             if(i["id"]!="0"):
-                
+
                 d=DailyProduction.objects.filter(id=i["id"])
             else:
                 d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
@@ -419,7 +433,7 @@ def show_daily_amar_tolid(request):
 
             else:
                 machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
-            
+
             if(index<len(machines)):
                 sum_randeman+=mx_speed
 
@@ -431,7 +445,7 @@ def show_daily_amar_tolid(request):
                     x=[]
                     for i in shifts:
                         x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
-                    
+
                     machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
                     sum_randeman=0
             except:
@@ -561,7 +575,7 @@ def move_tolid_calendar_info(request):
                 i.save()
             data["success"]="success"
     return JsonResponse(data)
-        
+
 def get_randeman_calendar_info(request):
     data=[]
     user_info=DailyProduction.objects.values_list('dayOfIssue').distinct()
@@ -763,8 +777,14 @@ def get_monthly_sarshift_workbook(request):
         return render(request,'mrp/assetrandeman/finalSarshiftRandemanList.html',{'title':'راندمان ماهانه سر شیفت ها','k':k,
         'randeman_tolid':randeman_tolid,'shift_randeman_tolid':shift_randeman_tolid,'sum_padashe_tolid_personel':sum_padashe_tolid_personel,'sum_padashe_nezafat_personel':sum_padashe_nezafat_personel,'sum_sum':sum_sum,'sum_shift_randeman_tolid':sum_shift_randeman_tolid})
 def list_heatset_info(request):
-        dayOfIssue=DateJob.getTaskDate(request.GET.get('event_id',False))
-        date_object = datetime.datetime.strptime(str(dayOfIssue), '%Y-%m-%d')
+        dayOfIssue=request.GET.get('event',False)
+        if(not dayOfIssue):
+            dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
+            date_object = DateJob.getTaskDate(dayOfIssue)
+        else:
+            date_object=datetime.datetime.strptime(str(dayOfIssue), '%Y-%m-%d')
+
+
         next_day = date_object + timedelta(days=1)
         data=dict()
 
@@ -829,14 +849,21 @@ def list_heatset_info(request):
             'machines':machines_with_formulas,
             'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)}
         )
+        data['prev_date']=previous_day.strftime('%Y-%m-%d')
+        data['next_date']=next_day.strftime('%Y-%m-%d')
+        data['today_shamsi']=str(jdatetime.date.fromgregorian(date=date_object))
 
         # return render(request,"mrp/tolid/daily_details.html",{'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
         return JsonResponse(data)
 def list_amar_daily_info(request):
 
         data=dict()
-        dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
-        date_object = DateJob.getTaskDate(dayOfIssue)
+        dayOfIssue=request.GET.get('event',False)
+        if(not dayOfIssue):
+            dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
+            date_object = DateJob.getTaskDate(dayOfIssue)
+        else:
+            date_object=datetime.datetime.strptime(str(dayOfIssue), '%Y-%m-%d')
 
         next_day = date_object + timedelta(days=1)
 
@@ -849,13 +876,13 @@ def list_amar_daily_info(request):
         for s in shift:
             for machine in machines:
                 try:
-                    
+
                     formula = Formula.objects.get(machine=machine)
                     speedformula = SpeedFormula.objects.get(machine=machine)
                     amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
-                    
+
                     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
-                    
+
                     # else:
                     #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
@@ -890,7 +917,7 @@ def list_amar_daily_info(request):
                         metrajdaf8=0,
                         makhraj_metraj_daf=1,
                         )
-                        
+
 
                         # Save the object to the database
                         # new_daily_production.save()
@@ -901,7 +928,7 @@ def list_amar_daily_info(request):
                 except SpeedFormula.DoesNotExist:
                     machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'speedformula':speedformula.formula})
                 except DailyProduction.DoesNotExist:
-                    
+
                     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
 
@@ -909,6 +936,9 @@ def list_amar_daily_info(request):
             'machines':machines_with_formulas,
             'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)}
         )
+        data['prev_date']=previous_day.strftime('%Y-%m-%d')
+        data['next_date']=next_day.strftime('%Y-%m-%d')
+        data['today_shamsi']=str(jdatetime.date.fromgregorian(date=date_object))
 
         # return render(request,"mrp/tolid/daily_details.html",{'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
         return JsonResponse(data)

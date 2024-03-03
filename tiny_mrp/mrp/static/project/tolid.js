@@ -91,12 +91,12 @@ $(function () {
 
             var $currentCell = $(this);
             var $nextRow = $currentCell.closest('tr').next('tr');
-            
+
             if ($nextRow.length) {
                 // Find the same index cell in the next row and focus it
                 var cellIndex = $currentCell.index();
                 var $nextCell = $nextRow.find('td').eq(cellIndex);
-                
+
                 if ($nextCell.length && $nextCell.is('[contenteditable=true]')) {
                     $nextCell.focus();
                 }
@@ -166,7 +166,7 @@ $(function () {
                        // console.log(correspondingRow);
                        // correspondingRow.setAttribute('data-speed',z);
                        tables[i].rows[rowIndex+1].setAttribute('data-speed2',z);
-                       
+
 
 
                      }
@@ -221,7 +221,7 @@ var tableDataToJSON=function(tableId){
            });
          }
       });
-      
+
       return data;
 
 
@@ -362,15 +362,43 @@ console.log(JSON.stringify(sendData));
 
       },
       success: function (data) {
-        console.log(data);
+
     $("#tblrows").empty();
     $("#tblrows").html(data.html_heatset_result);
+    $("#btn_next_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.next_date}`);
+    $("#btn_prev_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.prev_date}`);
 
 
       }
     });
   }
 );
+$(".page-link").click(function(){
+  var btn=$(this);
+  console.log(btn.attr("data-url"));
+  return $.ajax({
+    url: $(btn).attr("data-url"),
+    type: 'get',
+    dataType: 'json',
+    beforeSend: function () {
+      //alert(btn.attr("data-url"));
+      //alert("321321");
+      // /$("#modal-maintenanceType").modal("hide");
+
+    },
+    success: function (data) {
+
+      $("#tblrows").empty();
+      $("#tblrows").html(data.html_heatset_result);
+      $("#btn_next_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.next_date}`);
+      $("#btn_prev_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.prev_date}`);
+      $("#search").val(data.today_shamsi);
+
+
+    }
+  });
+
+});
 $(".delete-info").click(function(){
   var btn=$(this);
   return $.ajax({
