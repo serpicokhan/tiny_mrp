@@ -888,6 +888,9 @@ def list_amar_daily_info(request):
 
 
                 except DailyProduction.DoesNotExist:
+                        print("error",)
+                        formula = Formula.objects.get(machine=machine)
+                        speedformula = SpeedFormula.objects.get(machine=machine)
 
 
                         new_daily_production = DailyProduction(
@@ -922,7 +925,7 @@ def list_amar_daily_info(request):
                         # Save the object to the database
                         # new_daily_production.save()
 
-                        machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'amar':new_daily_production,'shift':s,'speedformula':speedformula.formula})
+                        machines_with_formulas.append({'machine': machine, 'formula': None,'formula': formula.formula,'speedformula':speedformula.formula,'nomre':0,'amar':new_daily_production,'shift':s,'speedformula':speedformula.formula})
                 except Formula.DoesNotExist:
                     machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0})
                 except SpeedFormula.DoesNotExist:
