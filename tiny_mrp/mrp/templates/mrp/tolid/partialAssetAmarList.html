@@ -18,7 +18,7 @@
       <tbody>
         {% for c in machines %}
         {% if c.shift.id == i.id %}
-        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.amar.speed}}" data-id="{{c.amar.id}}">
+        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.amar.speed}}" data-id="{{c.amar.id|default_if_none:'-1'}}">
           <td>{{c.machine.assetName}}</td>
           <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
           <td contenteditable="true" class="editable-cell btc counter selectable1">{{c.amar.counter}}</td>
@@ -56,7 +56,7 @@
           {% if c.shift.id == i.id %}
 
 
-        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.amar.speed}}" data-id="{{c.amar.id}}">
+        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.amar.speed}}" data-id="{{c.amar.id|default_if_none:'-1'}}">
 
           <td contenteditable="true" class="editable-cell btc counter selectable1" data-nomre={{c.amar.nomre}}>{{c.amar.counter}}</td>
 

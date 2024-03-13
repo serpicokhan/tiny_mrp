@@ -18,7 +18,7 @@ from django.db import IntegrityError
 import subprocess
 from django.http import HttpResponse
 from django.db import transaction
-
+from django.db.models import Max
 
 from django.db.models import Q
 
@@ -259,7 +259,7 @@ def saveAmarHTableInfo(request):
             m=Asset.objects.get(id=int(i["machine"]))
             s=Shift.objects.get(id=int(i["shift"]))
             d=None
-            print(i["id"],'!!!!!!!!')
+
 
             if(i["id"]!="0"):
                 print(i["id"])
@@ -888,10 +888,11 @@ def list_amar_daily_info(request):
 
 
                 except DailyProduction.DoesNotExist:
-                        print("error",)
+                        # print("error",)
                         formula = Formula.objects.get(machine=machine)
                         speedformula = SpeedFormula.objects.get(machine=machine)
-
+                        max_nomre = DailyProduction.objects.filter(machine=machine).aggregate(Max('nomre'))
+                        print(max_nomre['nomre__max'],'!!!!!!!!!!!!!!!!')
 
                         new_daily_production = DailyProduction(
                         machine=machine,
@@ -899,7 +900,7 @@ def list_amar_daily_info(request):
                         dayOfIssue=dayOfIssue,
 
                         speed=0,
-                        nomre=0,
+                        nomre=max_nomre['nomre__max'],
                         counter=0,
                         production_value=0,
                         daf_num=0,
@@ -925,7 +926,7 @@ def list_amar_daily_info(request):
                         # Save the object to the database
                         # new_daily_production.save()
 
-                        machines_with_formulas.append({'machine': machine, 'formula': None,'formula': formula.formula,'speedformula':speedformula.formula,'nomre':0,'amar':new_daily_production,'shift':s,'speedformula':speedformula.formula})
+                        machines_with_formulas.append({'machine': machine, 'formula': None,'formula': formula.formula,'speedformula':speedformula.formula,'nomre':max_nomre['nomre__max'],'amar':new_daily_production,'shift':s,'speedformula':speedformula.formula})
                 except Formula.DoesNotExist:
                     machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0})
                 except SpeedFormula.DoesNotExist:
