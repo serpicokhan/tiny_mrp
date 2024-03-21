@@ -633,11 +633,13 @@ def monthly_detaild_report(request):
 
     current_date_time = jdatetime.date(current_year, int(j_month), 1)
     current_jalali_date = current_date_time
+    j_year=int(request.GET.get('year',current_jalali_date.year))
+
 
 
 
     if current_jalali_date.month == 12:
-        first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=current_jalali_date.year + 1)
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=j_year + 1)
     else:
         first_day_of_next_month = current_jalali_date.replace(day=1, month=current_jalali_date.month + 1)
 
@@ -650,13 +652,13 @@ def monthly_detaild_report(request):
         days=[]
         for day in range(1,num_days+1):
             product={}
-            j_date=jdatetime.date(current_jalali_date.year,current_jalali_date.month,day)
+            j_date=jdatetime.date(j_year,current_jalali_date.month,day)
             for sh in shift:
                 product[sh.id]=get_sum_machine_by_date_shift(cats,sh,j_date.togregorian())
-            days.append({'cat':cats,'date':"{0}/{1}/{2}".format(current_jalali_date.year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
+            days.append({'cat':cats,'date':"{0}/{1}/{2}".format(j_year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
         product={}
-        start=jdatetime.date(current_jalali_date.year,current_jalali_date.month,1)
-        end=jdatetime.date(current_jalali_date.year,current_jalali_date.month,num_days)
+        start=jdatetime.date(j_year,current_jalali_date.month,1)
+        end=jdatetime.date(j_year,current_jalali_date.month,num_days)
         for sh in shift:
             product[sh.id]=get_monthly_machine_by_date_shift(cats,sh,start.togregorian(),end.togregorian())
         days.append({'cat':cats,'date':"",'day_of_week':'جمع','product':product})

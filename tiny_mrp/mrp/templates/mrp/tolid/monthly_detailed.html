@@ -10,10 +10,10 @@
         <div class="app-action">
             <div class="action-left">
                 <div class="custom-control custom-checkbox mr-3">
-                    <select class="form-control" id="22">
+                    <select class="form-control" id="year">
                         <option >انتخاب سال</option>
-                        <option selected value="1402">1402</option>
-                        <option value="1403">1403</option>
+                        <option  value="1402">1402</option>
+                        <option selected value="1403">1403</option>
 
                       </select>
 
@@ -148,8 +148,8 @@
 {% block javascript %}
 <script type="text/javascript">
   $("#button-addon1").click(function(){
-    if($("#jalaliMonths").val()>0){
-    window.location.href="/Monthly?month="+$("#jalaliMonths").val();
+    if($("#jalaliMonths").val()>0 && $("#year").val()>0){
+    window.location.href=`/Monthly?month=${$("#jalaliMonths").val()}&year=${$("#year").val()}`;
   }
   else {
     toastr.error("یک مقدار انتخاب نمایید");
