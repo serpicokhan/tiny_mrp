@@ -10,10 +10,12 @@
         <div class="app-action">
             <div class="action-left">
                 <div class="custom-control custom-checkbox mr-3">
+            
+
                     <select class="form-control" id="year">
                         <option >انتخاب سال</option>
-                        <option  value="1402">1402</option>
-                        <option selected value="1403">1403</option>
+                        <option {% if year == 1402 %} selected {% endif %} value="1402">1402</option>
+                        <option {% if year == 1403 %} selected {% endif %} value="1403">1403</option>
 
                       </select>
 

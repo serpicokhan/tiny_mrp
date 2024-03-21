@@ -237,9 +237,11 @@ def monthly_detaild_failured_report(request):
     j_month=request.GET.get('month',current_date_time2.month)
 
 
-    current_jalali_date = current_date_time
-    j_year=request.GET.get('year',current_date_time2.month)
+    j_year=int(request.GET.get('year',current_year))
     current_date_time = jdatetime.date(j_year, int(j_month), 1)
+
+    current_jalali_date = current_date_time
+
 
 
 
@@ -282,4 +284,4 @@ def monthly_detaild_failured_report(request):
 
         cat_list.append({'cat':cats,'shift_val':days})
 
-    return render(request,'mrp/assetfailure/monthly_failure_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month})
+    return render(request,'mrp/assetfailure/monthly_failure_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
