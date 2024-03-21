@@ -631,9 +631,10 @@ def monthly_detaild_report(request):
     j_month=request.GET.get('month',current_date_time2.month)
 
 
-    current_date_time = jdatetime.date(current_year, int(j_month), 1)
     current_jalali_date = current_date_time
     j_year=int(request.GET.get('year',current_jalali_date.year))
+    current_date_time = jdatetime.date(j_year, int(j_month), 1)
+
 
 
 

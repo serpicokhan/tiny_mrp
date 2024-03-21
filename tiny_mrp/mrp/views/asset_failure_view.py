@@ -237,13 +237,16 @@ def monthly_detaild_failured_report(request):
     j_month=request.GET.get('month',current_date_time2.month)
 
 
-    current_date_time = jdatetime.date(current_year, int(j_month), 1)
     current_jalali_date = current_date_time
+    j_year=request.GET.get('year',current_date_time2.month)
+    current_date_time = jdatetime.date(j_year, int(j_month), 1)
+
+
 
 
 
     if current_jalali_date.month == 12:
-        first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=current_jalali_date.year + 1)
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=j_year + 1)
     else:
         first_day_of_next_month = current_jalali_date.replace(day=1, month=current_jalali_date.month + 1)
 

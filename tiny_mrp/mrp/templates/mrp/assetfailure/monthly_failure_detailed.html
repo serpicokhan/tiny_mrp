@@ -1,4 +1,4 @@
-{% extends 'mrp/blank-page.html' %}
+ extends 'mrp/blank-page.html' %}
 
 {% block content %}
 {% load static %}
@@ -10,10 +10,10 @@
         <div class="app-action">
             <div class="action-left">
                 <div class="custom-control custom-checkbox mr-3">
-                    <select class="form-control" id="22">
+                    <select class="form-control" id="year">
                         <option >انتخاب سال</option>
-                        <option selected value="1402">1402</option>
-                        <option value="1403">1403</option>
+                        <option  value="1402">1402</option>
+                        <option selected value="1403">1403</option>
 
                       </select>
 
@@ -148,8 +148,8 @@
 {% block javascript %}
 <script type="text/javascript">
   $("#button-addon1").click(function(){
-    if($("#jalaliMonths").val()>0){
-    window.location.href="/AssetFailure/Monthly/?month="+$("#jalaliMonths").val();
+    if($("#jalaliMonths").val()>0 && $("#year").val()>0){
+    window.location.href=`/AssetFailure/Monthly/?month=${$("#jalaliMonths").val()}&yea=${$("#year").val()}`;
   }
   else {
     toastr.error("یک مقدار انتخاب نمایید");
