@@ -1,72 +1,100 @@
 <form method="post" action="{% url 'assetRandeman_ranking_create'   %}" class="js-assetRandeman-ranking-form" autocomplete="off">
 
-<div class="modal-header bg-primary" >
-  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-  </button>
-  <h4 class="modal-title">جدید</h4>
-</div>
-<div class="modal-body">
-  <div class="container mt-4">
-    <h2>{{title}} {{mah}} ماه {{sal}}</h2>
-    <ul class="list-group sortable-list" id="sortable">
-      {% for i in shifts %}
-      <li class="list-group-item" data-assetrandeman={{i.asset_randeman_list.id}} data-id={{i.id}} data-position={{i.rank}}>{{i.shift.name}} <span class="move-up" onclick="moveItemUp(this)">↑</span> <span class="move-down" onclick="moveItemDown(this)">↓</span></li>
-      {% endfor %}
-
-    </ul>
+  <div class="modal-header bg-primary" >
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">جدید</h4>
   </div>
-</div>
-<div class="modal-footer">
-  <button type="button" class="btn btn-default" data-dismiss="modal">انصراف</button>
-  {% if perms.mrp.add_assetfailure %}
-  <button type="submit" class="btn btn-primary" >ذخیره</button>
-  {% endif %}
-</div>
+  <div class="modal-body">
+    <div class="container mt-4">
+      <h2>{{title}} {{mah}} ماه {{sal}}</h2>
+      <div class="row">
+        <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;"> <!-- Required for Responsive -->
+          <table class="table table-striped table-bordered" id="sortable-table">
+            <thead class="bg-dark">
+              <tr>
+                <th>نام شیفت</th>
+                <th>رتبه نظافت</th>
+                <th>پاداش سرشیفت</th>
+                <th>پاداش پرسنل</th>
+
+
+
+              </tr>
+            </thead>
+            <tbody id="tbody_sortable">
+
+            {% for i in shifts %}
+            <tr data-assetrandeman={{i.asset_randeman_list.id}} data-id={{i.id}} data-position={{i.rank}}>
+              <td>{{i.shift.name}}</td>
+              <td><input type="number"  name="" value="{{i.rank}}" class="form-control rank"></td>
+              <td><input type="number" name="" value="{{i.price_sarshift}}" class="form-control sarshift_val"></td>
+              <td><input type="number" name="" value="{{i.price_personnel}}" class="form-control operator_val"></td>
+
+            </tr>
+            {% endfor %}
+
+
+            </tbody>
+
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">انصراف</button>
+    {% if perms.mrp.add_assetfailure %}
+    <button type="submit" class="btn btn-primary" >ذخیره</button>
+    {% endif %}
+  </div>
 </form>
 <style>
-    .sortable-list {
-      list-style-type: none;
-      padding: 0;
-    }
+  .sortable-list {
+    list-style-type: none;
+    padding: 0;
+  }
 
-    .sortable-list li {
-      margin: 5px 0;
-      padding: 10px;
-      background-color: #f8f9fa;
-      border: 1px solid #dee2e6;
-    }
+  .sortable-list li {
+    margin: 5px 0;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+  }
 
-    .move-up, .move-down {
-      cursor: pointer;
-    }
-  </style>
+  .move-up, .move-down {
+    cursor: pointer;
+  }
+</style>
 <script type="text/javascript">
   function moveItemUp(element) {
-      var li = $(element).closest('li');
-      var position=parseInt(li.attr("data-position"));
-      if(position >1){
+    var li = $(element).closest('li');
+    var position=parseInt(li.attr("data-position"));
+    if(position >1){
       position=position-1;
       prev_pos=parseInt(li.prev().attr("data-position"));
       prev_pos=prev_pos+1;
       li.attr("data-position",position);
       li.prev().attr("data-position",prev_pos);
     }
-      li.insertBefore(li.prev());
-    }
+    li.insertBefore(li.prev());
+  }
 
-    function moveItemDown(element) {
-      var li = $(element).closest('li');
+  function moveItemDown(element) {
+    var li = $(element).closest('li');
 
-      var position=parseInt(li.attr("data-position"));
-      if(position <3){
+    var position=parseInt(li.attr("data-position"));
+    if(position <3){
       position=position+1;
       prev_pos=parseInt(li.next().attr("data-position"));
       prev_pos=prev_pos-1;
       li.attr("data-position",position);
       li.next().attr("data-position",prev_pos);
     }
-      li.insertAfter(li.next());
-    }
+    li.insertAfter(li.next());
+  }
 
 </script>

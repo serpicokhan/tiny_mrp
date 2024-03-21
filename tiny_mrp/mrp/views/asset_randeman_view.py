@@ -116,6 +116,10 @@ def assetRandeman_nezafat_ranking(request,id):
             ]
         asset_randeman=AssetRandemanList.objects.get(id=id)
         shift=NezafatRanking.objects.filter(asset_randeman_list=asset_randeman).order_by('rank')
+        # shift2=NezafatPadash.objects.filter(asset_randeman_list=asset_randeman).order_by('rank')
+        # shift=[]
+        # for i in shift1:
+        #     shift.push({'id_rank':})
         # print(shift)
 
         data['html_assetRandeman_form'] = render_to_string('mrp/assetrandeman/partialRankingList.html', {
@@ -160,8 +164,13 @@ def assetRandeman_ranking_create(request):
             for i in received_data:
                 # print(i)
                 p=NezafatRanking.objects.get(id=i["id"])
+                # q=NezafatPadash.objects.get(id=i["id"])
                 p.rank=i['position']
+                # q.rank=i['position']
+                p.price_sarshift=i['nezafatdash_sarshift']
+                p.price_personnel=i['nezafatdash_operator']
                 p.save()
+                # q.save()
 
             # Now 'received_data' is a list of dictionaries containing 'id' and 'position'
 
@@ -169,8 +178,16 @@ def assetRandeman_ranking_create(request):
             # YourModel.objects.bulk_create([YourModel(id=item['id'], position=item['position']) for item in received_data])
 
             return JsonResponse({'status': 'success'})
+        except NezafatRanking.DoesNotExist:
+            # NezafatRanking.objects.create()
+            print("123!!!!!!!")
+        except NezafatPadash.DoesNotExist:
+            # NezafatRanking.objects.create()
+            print("$$$$$$$$$$")
+
         except json.JSONDecodeError as e:
             return JsonResponse({'status': 'error', 'message': 'Invalid JSON format'})
+        return JsonResponse({'status': 'error'})
     else:
             return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 

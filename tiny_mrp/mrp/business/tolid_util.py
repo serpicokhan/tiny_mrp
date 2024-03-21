@@ -222,12 +222,14 @@ def calc_assetrandeman(mah,sal):
             if(kole_tolid==0):
                 result=0
             else:
-                print(f"kole randeman {kole_randeman},tolid shift {tolid_shift} and  kole tolid={kole_tolid}")
+                # print(f"kole randeman {kole_randeman},tolid shift {tolid_shift} and  kole tolid={kole_tolid}")
                 result=(float(kole_randeman)*tolid_shift)/float(kole_tolid)
                 AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,mah=mah,sal=sal)
 def create_first_padash(AssetRandemanListId):
     asset_randeman=AssetRandemanList.objects.get(id=AssetRandemanListId)
     shifts=Shift.objects.all()
     for i in shifts:
-        NezafatRanking.objects.create(asset_randeman_list=asset_randeman,shift=i,rank=i.id)
-        TolidRanking.objects.create(asset_randeman_list=asset_randeman,shift=i,rank=i.id)
+        NezafatRanking.objects.create(asset_randeman_list=asset_randeman,shift=i,rank=i.id,price_sarshift=0,price_personnel=0)
+        TolidRanking.objects.create(asset_randeman_list=asset_randeman,shift=i,rank=i.id,price_sarshift=0,price_personnel=0)
+        # NezafatPadash.objects.create(asset_randeman_list=asset_randeman,rank=i.id,price_sarshift=0,price_personnel=0)
+        # TolidPadash.objects.create(asset_randeman_list=asset_randeman,rank=i.id,price_sarshift=0,price_personnel=0)
