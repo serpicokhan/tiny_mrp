@@ -197,11 +197,15 @@ def assetRandeman_tolid_ranking_create(request):
         try:
             # Access the 'items' key from the POST data
             received_data = json.loads(request.body)
+            print("!!!!!!!!!!!!!!!")
 
             for i in received_data:
                 # print(i)
                 p=TolidRanking.objects.get(id=i["id"])
                 p.rank=i['position']
+                # q.rank=i['position']
+                p.price_sarshift=i['nezafatdash_sarshift']
+                p.price_personnel=i['nezafatdash_operator']
                 p.save()
 
             # Now 'received_data' is a list of dictionaries containing 'id' and 'position'
@@ -261,3 +265,6 @@ def assetRandeman_tolid_ranking_create(request):
 #         cat_list.append({'cat':cats,'shift_val':days})
 #
 #     return render(request,'mrp/assetfailure/monthly_failure_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift})
+def get_init_asset_randeman(request):
+    all_asset_randeman_init=AssetRandemanInit.objects.all()
+    return render(request,'mrp/assetrandeman/assetrandemaninit/initRandemanList.html',{'formulas':all_asset_randeman_init})

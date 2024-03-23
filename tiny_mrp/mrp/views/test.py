@@ -662,17 +662,18 @@ def monthly_detaild_report(request):
         for sh in shift:
             product[sh.id]=get_monthly_machine_by_date_shift(cats,sh,start.togregorian(),end.togregorian())
         days.append({'cat':cats,'date':"",'day_of_week':'جمع','product':product})
-        product={}
+        failure_days={}
         for sh in shift:
-            product[sh.id]=get_day_machine_failure_monthly_shift(cats,sh,start.togregorian(),end.togregorian())
+            failure_days[sh.id]=get_day_machine_failure_monthly_shift(cats,sh,start.togregorian(),end.togregorian())
 
         total_day_per_shift={}
         for sh in shift:
-            total_day_per_shift[sh.id]=num_days-product[sh.id]
+            total_day_per_shift[sh.id]=num_days-failure_days[sh.id]
         days.append({'cat':cats,'date':"",'day_of_week':'روز کاری','product':total_day_per_shift})
         mean_day_per_shift={}
         for sh in shift:
             mean_day_per_shift[sh.id]=product[sh.id]/total_day_per_shift[sh.id]
+        print(mean_day_per_shift)
         days.append({'cat':cats,'date':"",'day_of_week':'میانگین','product':mean_day_per_shift})
 
 
@@ -736,8 +737,8 @@ def get_monthly_workbook(request):
         randeman_list=AssetRandemanList.objects.get(mah=mah,sal=sal)
         nezafat_rank=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
         tolid_rank=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
-        padashe_nezafat_personel=NezafatPadash.objects.get(rank=nezafat_rank).price_personnel
-        padashe_tolid_personel=TolidPadash.objects.get(rank=tolid_rank).price_personnel
+        padashe_nezafat_personel=NezafatRanking.objects.get(rank=nezafat_rank).price_personnel
+        padashe_tolid_personel=TolidRanking.objects.get(rank=tolid_rank).price_personnel
         randeman_kol=get_sum_randeman_by_shift(mah,sal,i)
         sum=randeman_kol+padashe_nezafat_personel+padashe_tolid_personel
         k.append({'randeman_kol':randeman_kol,'shift':i,'nezafat_rank':my_dict[nezafat_rank],'tolid_rank':my_dict[tolid_rank],'padashe_nezafat':padashe_nezafat_personel,'padashe_tolid':padashe_tolid_personel,'sum':sum})
@@ -764,18 +765,18 @@ def get_monthly_sarshift_workbook(request):
             randeman_list=AssetRandemanList.objects.get(mah=mah,sal=sal)
             nezafat_rank=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
             tolid_rank=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
-            padashe_nezafat_personel=NezafatPadash.objects.get(rank=nezafat_rank).price_sarshift
-            padashe_tolid_personel=TolidPadash.objects.get(rank=tolid_rank).price_sarshift
+            padashe_nezafat_personel=NezafatRanking.objects.get(rank=nezafat_rank).price_sarshift
+            padashe_tolid_personel=TolidRanking.objects.get(rank=tolid_rank).price_sarshift
             randeman_kol=get_sum_randeman_by_shift(mah,sal,i)
-            shift_randeman_tolid=(230000000*randeman_kol)/randeman_tolid
+            shift_randeman_tolid=(23000000*randeman_kol)/randeman_tolid
             sum_shift_randeman_tolid+=shift_randeman_tolid
-            sum=randeman_kol+padashe_nezafat_personel+padashe_tolid_personel+shift_randeman_tolid
+            sum=padashe_nezafat_personel+padashe_tolid_personel+shift_randeman_tolid
             sum_padashe_tolid_personel+=padashe_tolid_personel
             sum_padashe_nezafat_personel+=padashe_nezafat_personel
             k.append({'randeman_kol':randeman_kol,'shift':i,'nezafat_rank':my_dict[nezafat_rank],'tolid_rank':my_dict[tolid_rank],'padashe_nezafat':padashe_nezafat_personel,'padashe_tolid':padashe_tolid_personel,'sum':sum,'shift_randeman_tolid':shift_randeman_tolid,
             })
 
-        sum_sum=randeman_tolid+sum_shift_randeman_tolid+sum_padashe_tolid_personel+sum_padashe_nezafat_personel
+        sum_sum=sum_shift_randeman_tolid+sum_padashe_tolid_personel+sum_padashe_nezafat_personel
         return render(request,'mrp/assetrandeman/finalSarshiftRandemanList.html',{'title':'راندمان ماهانه سر شیفت ها','k':k,
         'randeman_tolid':randeman_tolid,'shift_randeman_tolid':shift_randeman_tolid,'sum_padashe_tolid_personel':sum_padashe_tolid_personel,'sum_padashe_nezafat_personel':sum_padashe_nezafat_personel,'sum_sum':sum_sum,'sum_shift_randeman_tolid':sum_shift_randeman_tolid})
 def list_heatset_info(request):

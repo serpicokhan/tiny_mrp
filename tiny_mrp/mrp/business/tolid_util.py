@@ -57,6 +57,7 @@ def get_sum_machine_failure_by_date_shift(assetCatregory,shift,target_date):
             failure.duration.hour * 60 + failure.duration.minute for failure in filtered_failures
         )
         if total_failure_duration:
+            
             total_failure_duration=int(total_failure_duration / assets_count)
             hours = total_failure_duration // 60
             minutes = total_failure_duration % 60
@@ -170,7 +171,7 @@ def get_randeman_per_tolid_byshift(mah,sal,asset_cat,shift):
 
     if(not sum_production_value):
         return 0
-    print(start_date_gregorian,end_date_gregorian)
+    # print(start_date_gregorian,end_date_gregorian)
     day_machine_failure_monthly_shift = get_day_machine_failure_monthly_shift(asset_cat,shift,start_date_gregorian,end_date_gregorian)
     total_day_per_shift= num_days - day_machine_failure_monthly_shift
     mean_day_per_shift=sum_production_value/total_day_per_shift
@@ -214,16 +215,20 @@ def calc_assetrandeman(mah,sal):
     for i in asset_cat_list:
         data_shift=[]
         for shift in shift_list:
+            
             kole_randeman=AssetRandemanInit.objects.get(asset_category=i).randeman_tolid
             tolid_shift=get_randeman_per_tolid_byshift(mah,sal,i,shift)
+           
 
-            kole_tolid=get_randeman_per_tolid(mah,sal,i)
+            kole_tolid=get_randeman_per_tolid(mah,sal,i)            
             result=0
             if(kole_tolid==0):
                 result=0
             else:
                 # print(f"kole randeman {kole_randeman},tolid shift {tolid_shift} and  kole tolid={kole_tolid}")
                 result=(float(kole_randeman)*tolid_shift)/float(kole_tolid)
+                if(i.id==10):
+                     print("!!!!!!!!!!")
                 AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,mah=mah,sal=sal)
 def create_first_padash(AssetRandemanListId):
     asset_randeman=AssetRandemanList.objects.get(id=AssetRandemanListId)

@@ -46,6 +46,10 @@ class HeatsetMetrajForm(forms.Form):
     metrajdaf7 = forms.IntegerField(initial=0,label='متراز داف 7')
     metrajdaf8 = forms.IntegerField(initial=0,label='متراز داف 8')
     makhraj_metraj_daf = forms.IntegerField(initial=0,label='مخرج متراز داف')
+class AssetRandemanInitForm(forms.ModelForm):
+    class Meta:
+         model = AssetRandemanInit
+         fields = '__all__'
 
 class AssetRandemanForm(forms.ModelForm):
     SAL_CHOICES = (

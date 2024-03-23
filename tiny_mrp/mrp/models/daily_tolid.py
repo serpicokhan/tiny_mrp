@@ -157,13 +157,13 @@ class ZayeatVaz(models.Model):
         db_table="zayeatvazn"
 class AssetRandemanInit(models.Model):
     asset_category = models.ForeignKey('AssetCategory', on_delete=models.CASCADE)
-    operator_count = models.IntegerField()
-    max_randeman = models.DecimalField(max_digits=10, decimal_places=0)
-    randeman_yek_dastgah = models.DecimalField(max_digits=10, decimal_places=0)
-    randeman_mazrab_3 = models.DecimalField(max_digits=10, decimal_places=0)
-    mablaghe_kole_randeman = models.DecimalField(max_digits=10, decimal_places=0)
-    mablaghe_kole_randeman_round = models.DecimalField(max_digits=10, decimal_places=0)
-    randeman_tolid = models.DecimalField(max_digits=10, decimal_places=0)
+    operator_count = models.IntegerField("تعداد اپراتور")
+    max_randeman = models.DecimalField("حداکثر راندمان",max_digits=10, decimal_places=0)
+    randeman_yek_dastgah = models.DecimalField("راندمان کل یک دستگاه",max_digits=10, decimal_places=0)
+    randeman_mazrab_3 = models.DecimalField("مضرب 3 رانمان",max_digits=10, decimal_places=0)
+    mablaghe_kole_randeman = models.DecimalField("مبلغ کل راندمان (واقعی)",max_digits=10, decimal_places=0)
+    mablaghe_kole_randeman_round = models.DecimalField("مبلغ کل راندمان (واقعی)",max_digits=10, decimal_places=0)
+    randeman_tolid = models.DecimalField("راندمان تولید",max_digits=10, decimal_places=0)
     class Meta:
         db_table="assetrandemaninit"
 

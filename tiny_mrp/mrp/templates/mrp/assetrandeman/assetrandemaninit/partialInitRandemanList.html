@@ -1,0 +1,17 @@
+{% load humanize %}
+{% for c in formulas %}
+<tr>
+  <td>{{c.asset_category.name}}</td>
+  <td>{{c.operator_count}}</td>
+  <td>{{c.max_randeman|floatformat:0|intcomma}}</td>
+  <td>{{c.randeman_yek_dastgah|floatformat:0|intcomma}}</td>
+  <td>{{c.randeman_mazrab_3|floatformat:0|intcomma}}</td>
+  <td>{{c.mablaghe_kole_randeman|floatformat:0|intcomma}}</td>
+  <td>{{c.mablaghe_kole_randeman_round|floatformat:0|intcomma}}</td>
+  <td>{{c.randeman_tolid|floatformat:0|intcomma}}</td>
+
+<td><button type="button" class="btn btn-outline-light js-update-assetRandeman" data-url="{% url 'assetrandemaninit_update' c.id %}">  <i class="ti-eye"></i></button></td>
+
+</tr>
+{% endfor %}
+

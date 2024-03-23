@@ -9,12 +9,39 @@
 <div class="modal-body">
   <div class="container mt-4">
     <h2>{{title}} {{mah}} ماه {{sal}}</h2>
-    <ul class="list-group sortable-list" id="sortable">
-      {% for i in shifts %}
-      <li class="list-group-item" data-assetrandeman={{i.asset_randeman_list.id}} data-id={{i.id}} data-position={{i.rank}}>{{i.shift.name}} <span class="move-up" onclick="moveItemUp(this)">↑</span> <span class="move-down" onclick="moveItemDown(this)">↓</span></li>
-      {% endfor %}
+    <div class="row">
+      <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;"> <!-- Required for Responsive -->
+        <table class="table table-striped table-bordered" id="sortable-table">
+          <thead class="bg-dark">
+            <tr>
+              <th>نام شیفت</th>
+              <th>رتبه نظافت</th>
+              <th>پاداش سرشیفت</th>
+              <th>پاداش پرسنل</th>
 
-    </ul>
+
+
+            </tr>
+          </thead>
+          <tbody id="tbody_sortable">
+
+          {% for i in shifts %}
+          <tr data-assetrandeman={{i.asset_randeman_list.id}} data-id={{i.id}} data-position={{i.rank}}>
+            <td>{{i.shift.name}}</td>
+            <td><input type="number"  name="" value="{{i.rank}}" class="form-control rank"></td>
+            <td><input type="number" name="" value="{{i.price_sarshift}}" class="form-control sarshift_val"></td>
+            <td><input type="number" name="" value="{{i.price_personnel}}" class="form-control operator_val"></td>
+
+          </tr>
+          {% endfor %}
+
+
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
   </div>
 </div>
 <div class="modal-footer">
