@@ -217,7 +217,6 @@ class NezafatPadash(models.Model):
     rank = models.IntegerField()
     price_sarshift = models.DecimalField(max_digits=10, decimal_places=2)
     price_personnel = models.DecimalField(max_digits=10, decimal_places=2)
-    asset_randeman_list = models.ForeignKey(AssetRandemanList, on_delete=models.CASCADE,null=True,blank=True)
 
     class Meta:
         db_table='nezafatpadash'
@@ -229,7 +228,6 @@ class TolidPadash(models.Model):
     rank = models.IntegerField()
     price_sarshift = models.DecimalField(max_digits=10, decimal_places=2)
     price_personnel = models.DecimalField(max_digits=10, decimal_places=2)
-    asset_randeman_list = models.ForeignKey(AssetRandemanList, on_delete=models.CASCADE,null=True,blank=True,related_name='ewew')
 
     class Meta:
         db_table='tolidpadash'
