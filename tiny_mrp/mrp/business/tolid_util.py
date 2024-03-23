@@ -3,6 +3,7 @@ from django.db.models import Sum
 from datetime import timedelta
 from django.core.paginator import *
 from mrp.business.DateJob import *
+import math
 
 def doPaging(request,books):
     page=request.GET.get('page',1)
@@ -183,26 +184,14 @@ def get_randeman_per_tolid_byshift(mah,sal,asset_cat,shift):
     return mean_day_per_shift
 def get_randeman_per_tolid(mah,sal,asset_cat):
     start_date_gregorian, end_date_gregorian = DateJob.shamsi_to_gregorian_range(sal, mah)
+    
 
     sum=0
     shifts=Shift.objects.all()
     for i in shifts:
         sum+=get_randeman_per_tolid_byshift(mah,sal,asset_cat,i)
 
-    # filtered_production = DailyProduction.objects.filter(
-    # dayOfIssue__range=(start_date_gregorian, end_date_gregorian),  # Filter by date range
-    #
-    # machine__assetCategory=asset_cat  # Filter by asset category n
-    # )
-    # # Calculate the sum of production_value
-    # sum_production_value = filtered_production.aggregate(
-    #     total_production_value=models.Sum('production_value')
-    # )['total_production_value']
-    #
-    # if(not sum_production_value):
-    #     return 0
-    #
-    # return sum_production_value
+    
     return sum
 
 
@@ -211,22 +200,26 @@ def get_randeman_per_tolid(mah,sal,asset_cat):
 def calc_assetrandeman(mah,sal):
     asset_cat_list=AssetCategory.objects.all()
     shift_list=Shift.objects.all()
+
     AssetRandemanPerMonth.objects.filter(mah=mah,sal=sal).delete()
     for i in asset_cat_list:
+        
         data_shift=[]
         for shift in shift_list:
             
             kole_randeman=AssetRandemanInit.objects.get(asset_category=i).randeman_tolid
-            tolid_shift=get_randeman_per_tolid_byshift(mah,sal,i,shift)
+            tolid_shift=get_randeman_per_tolid_byshift(mah,sal,i,shift)           
            
 
             kole_tolid=get_randeman_per_tolid(mah,sal,i)            
             result=0
             if(kole_tolid==0):
-                result=0
+                if(i.id==10):
+                    result=math.ceil((float(kole_randeman)*2000)/float(6000))
+                    AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,mah=mah,sal=sal)
             else:
                 # print(f"kole randeman {kole_randeman},tolid shift {tolid_shift} and  kole tolid={kole_tolid}")
-                result=(float(kole_randeman)*tolid_shift)/float(kole_tolid)
+                result=math.ceil((float(kole_randeman)*tolid_shift)/float(kole_tolid))
                 if(i.id==10):
                      print("!!!!!!!!!!")
                 AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,mah=mah,sal=sal)

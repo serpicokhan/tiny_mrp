@@ -48,7 +48,7 @@
                               <td>جمع دستگاه</td>
                               {% for x in randeman_list %}
                               {% if i.id == x.randeman.shift.id %}
-                              <td>{{x.randeman.tolid_value|intcomma}}</td>
+                              <td>{{x.randeman.tolid_value|floatformat:0|intcomma}}</td>
                               {% endif %}
                               {% endfor %}
                             </tr>
@@ -59,7 +59,7 @@
                               <td colspan="2" class="text-center">
                                 {% for x in randeman_kol %}
                                   {% if i.id == x.shift.id %}
-                                  {{x.randeman_kol|intcomma}}
+                                  {{x.randeman_kol|floatformat:0|intcomma}}
                                   {% endif %}
                                   {% endfor %}</td>
                               <td>جمع راندمان نظافت</td>
@@ -70,7 +70,7 @@
                                   {% endfor %}</td>
                               <td colspan="2" class="text-center">  {% for x in randeman_kol %}
                                   {% if i.id == x.shift.id %}
-                                  {{x.padashe_nezafat|intcomma}}
+                                  {{x.padashe_nezafat|floatformat:0|intcomma}}
                                   {% endif %}
                                   {% endfor %}</td>
 
@@ -87,15 +87,15 @@
                               <td colspan="2">
                                 {% for x in randeman_kol %}
                                 {% if i.id == x.shift.id %}
-                                {{x.padashe_tolid|intcomma}}
+                                {{x.padashe_tolid|floatformat:0|intcomma}}
                                 {% endif %}
                                 {% endfor %}
                               </td>
-                              <td colspan="2" >
+                              <td colspan="3" >
                               جمع کل (ریال ) مبلغ قابل پرداخت</td>
                               <td colspan="2"> {% for x in randeman_kol %}
                                 {% if i.id == x.shift.id %}
-                                {{x.sum|intcomma}}
+                                {{x.sum|floatformat:0|intcomma}}
                                 {% endif %}
                                 {% endfor %}</td>
                             </tr>

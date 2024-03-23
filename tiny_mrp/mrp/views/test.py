@@ -728,7 +728,7 @@ def get_monthly_workbook(request):
     mah=request.GET.get("mah",False)
     sal=request.GET.get("sal",False)
     shift_list=Shift.objects.all()
-    randeman_list=AssetRandemanPerMonth.objects.filter(mah=mah,sal=sal)
+    randeman_list=AssetRandemanPerMonth.objects.filter(mah=mah,sal=sal).order_by('asset_category__priority')
     d=[]
     for i in randeman_list:
         d.append({'operator_num':AssetRandemanInit.objects.get(asset_category=i.asset_category).operator_count,'randeman':i})
