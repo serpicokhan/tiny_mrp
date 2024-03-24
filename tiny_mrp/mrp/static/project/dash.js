@@ -45,16 +45,16 @@ function renderPieChartZayeat(labels, values) {
      }
 
 
-var draw_pie_zayeat=function(){
+var draw_pie_zayeat=function(start_dt,end_dt){
 
 
-       fetch('/Dashboard/Zayeat/Pie/')  // Update with the correct URL
+       fetch(`/Dashboard/Zayeat/Pie/?start=${start_dt}&end=${end_dt}`)  // Update with the correct URL
         .then(response => response.json())
         .then(data => {
             console.log(data.values);
             renderPieChartZayeat(data.labels, data.values);
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => console.error(`Error:`, error));
 }
 var draw_zayeat=function(){
 
@@ -66,16 +66,17 @@ var draw_zayeat=function(){
        })
        .catch(error => console.error('Error:', error));
 }
-var draw_line_asset_failure=function(){
-  fetch('/Dashboard/AssetFailure/Line/')  // Replace with the URL of your Django view
+var draw_line_asset_failure=function(start_dt,end_dt){
+  fetch(`/Dashboard/AssetFailure/Line/?start=${start_dt}&end=${end_dt}`)  // Replace with the URL of your Django view
        .then(response => response.json())
        .then(data => {
+        
            var options = {
                chart: {
-                   type: 'line'
+                   type: `line`
                },
                series: [{
-                   name: 'Total Duration',
+                   name: `Total Duration`,
                    data: data.total_durations
                }],
                xaxis: {
@@ -83,26 +84,29 @@ var draw_line_asset_failure=function(){
                },
                // ... other chart options ...
            };
-
+        $('#lineAssetFailureChart').remove(); // this is my <canvas> element
+        $('#lineAssetFailureChartholder').append('<div id="lineAssetFailureChart"><div>');
            var chart = new ApexCharts(document.querySelector("#lineAssetFailureChart"), options);
            chart.render();
        })
-       .catch(error => console.error('Error:', error));
+       .catch(error => console.error(`Error:`, error));
 }
-var draw_pie_asset_failure=function(){
-  fetch('/Dashboard/AssetFailure/Pie/')  // Replace with the URL of your Django view
+var draw_pie_asset_failure=function(start_dt,end_dt){
+  fetch(`/Dashboard/AssetFailure/Pie/?start=${start_dt}&end=${end_dt}`)  // Replace with the URL of your Django view
   .then(response => response.json())
    .then(data => {
        var options = {
            chart: {
-               type: 'pie',
-               height: 350,    // Set the height of the chart
-               width: 350
+               type: `pie`,
+            //    height: 400,    // Set the height of the chart
+            //    width: 4000
            },
            series: data.total_durations,
            labels: data.labels,
            // ... other chart options ...
        };
+       $('#PieAssetFailureChart').remove(); // this is my <canvas> element
+       $('#PieAssetFailureChartholder').append('<div id="PieAssetFailureChart"><div>');
 
        var chart = new ApexCharts(document.querySelector("#PieAssetFailureChart"), options);
        chart.render();
@@ -170,15 +174,16 @@ var stackzayeat=function(){
     .catch(error => console.error('Error:', error));
 }
 var draw_monthly_assetFailure_line=function(){
-    fetch('/Dashboard/AssetFailure/Monthly/')  // Replace with the URL of your Django view
+    fetch(`/Dashboard/AssetFailure/Monthly/`)  // Replace with the URL of your Django view
         .then(response => response.json())
         .then(data => {
+            console.log(data);
             var options = {
                 chart: {
-                    type: 'bar'
+                    type: `bar`
                 },
                 series: [{
-                    name: 'Total Duration',
+                    name: `Total Duration`,
                     data: data.sums
                 }],
                 xaxis: {
@@ -186,7 +191,9 @@ var draw_monthly_assetFailure_line=function(){
                 },
                 // ... other chart options ...
             };
-
+            // $('#lineAssetFailureCurrentYear').remove(); // this is my <canvas> element
+            // $('#lineAssetFailureCurrentYearholder').append('<div id="lineAssetFailureCurrentYear"><div>');
+     
             var chart = new ApexCharts(document.querySelector("#lineAssetFailureCurrentYear"), options);
             chart.render();
         })
@@ -214,13 +221,25 @@ var draw_asset_failure_stack_zayeat=function(){
     })
     .catch(error => console.error('Error:', error));
 }
-draw_pie_zayeat();
-draw_zayeat();
-draw_line_asset_failure();
-draw_pie_asset_failure();
 
-current_year_zayeatvazn_data();
-stackzayeat();
+
+$("#button-addon1").click(function(){
+// draw_pie_zayeat($("#startdate").val(),$("#enddate").val());
+draw_line_asset_failure($("#startdate").val(),$("#enddate").val());
+draw_pie_asset_failure($("#startdate").val(),$("#enddate").val());
 draw_monthly_assetFailure_line();
 draw_asset_failure_stack_zayeat();
+
+
+
+
+
+});
+// draw_zayeat();
+// draw_line_asset_failure($("#startdate").val(),$("#enddate").val());
+// draw_pie_asset_failure();
+
+// current_year_zayeatvazn_data();
+// stackzayeat();
+// draw_asset_failure_stack_zayeat();
 });

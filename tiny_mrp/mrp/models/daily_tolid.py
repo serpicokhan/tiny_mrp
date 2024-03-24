@@ -3,6 +3,7 @@ from mrp.models.asset import Asset
 import jdatetime
 import ast
 
+
 class Shift(models.Model):
     name = models.CharField(max_length=255)
     def __str__(self):

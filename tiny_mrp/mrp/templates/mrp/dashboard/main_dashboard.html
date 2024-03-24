@@ -4,434 +4,339 @@
 
 <div class="row  app-block">
       <div class="col-md-12 app-content">
-        <div></div>
+       
         <div class="app-action">
-
+            <div class="action-left">
+                <ul class="list-inline">
+                    <li class="list-inline-item mb-0">
+                        <div class="input-group">
+                            <input type="text" class="form-control pdate" placeholder="تاریخ شروع" aria-describedby="button-addon1" id="startdate" >
+                            <div class="input-group-append">
+                                <span class="btn btn-outline-light" >
+                                    <i class="ti-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-inline-item mb-0">
+                        <div class="input-group">
+                            <input type="text" class="form-control pdate" placeholder="تاریخ پایان" aria-describedby="button-addon2" id="enddate" >
+                            <div class="input-group-append">
+                                <span class="btn btn-outline-light">
+                                    <i class="ti-calendar"></i>
+                                </span>
+                            </div>
+                    </li>
+                    <li class="list-inline-item mb-0">
+                        <select name="" id="" class="form-control">
+                            {% for i in assets %}
+                            <option value="{{i.asset_id}}" data-type={{asset_type}}>{{i.asset_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </li>
+                </ul>
+            </div>
+            <div class="action-right">
+                <form class="d-flex mr-3">
+                    <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </a>
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="جستجو فایل" aria-describedby="button-addon1">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-light" type="button" id="button-addon1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card app-content-body">
             <div class="row">
-
-              <div class="form-row">
-                                  <div class="form-group col-md-6">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control pdate" placeholder="تاریخ شروع" aria-describedby="button-addon1" id="startdate" >
-                                        <div class="input-group-append">
-                                            <span class="btn btn-outline-light" >
-                                                <i class="ti-calendar"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                  </div>
-                                  <div class="form-group col-md-6">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control pdate" placeholder="تاریخ پایان" aria-describedby="button-addon2" id="enddate" >
-                                        <div class="input-group-append">
-                                            <span class="btn btn-outline-light">
-                                                <i class="ti-calendar"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="input-group">
-                                        <select name="" id="" class="form-control">
-                                            {% for i in assets %}
-                                            <option value="{{i.value}}">{{i.assetName}}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                  </div>
-
-                              </div>
-
-
-            </div>
-        </div>
-        </div>
-        </div>
-        <div class="row">
-
-
-    <div class="col-md-7">
-        <div class="card bg-secondary-gradient">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-7">
-                        <h6 class="card-title mb-3">خوش آمدید</h6>
-                        <p>"به سیستم MRP خوش آمدید. اینجا کنترل کامل بر تمام جنبه‌های فرآیند تولید در اختیار شماست. از پیش‌بینی تقاضا گرفته تا برنامه‌ریزی خرید و مدیریت موجودی، هر چیزی برای افزایش بهره‌وری و کاهش هزینه‌ها در دستان شماست. لطفا اطلاعات مورد نیاز را وارد کنید تا فرآیند برنامه‌ریزی آغاز شود."</p>
-                        <ul class="mb-3">
-                            <li></li>
-                            <li></li>
-                        </ul>
-                        <a href="#" class="btn bg-white">بیشتر بدانید</a>
+                <div class="col-md-6">
+                    {% comment %} <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">میزان ضایعات</h6>
+                                <div>
+                                    <a href="#" class="mr-3">
+                                        <i class="fa fa-refresh"></i>
+                                    </a>
+                                    <span class="dropdown">
+                                        <a href="#" data-toggle="dropdown" aria-haspopup="true"
+                                           aria-expanded="false">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </a>
+                                        <span class="dropdown-menu dropdown-menu-left">
+                                            <a href="#" class="dropdown-item">گزارش</a>
+                                            <a href="#" class="dropdown-item">دانلود</a>
+                                            <a href="#" class="dropdown-item">بستن</a>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                                 <!-- <canvas id="hot-products"></canvas>
+                                 <div id="hot-products-legends"></div> -->
+            
+            
+            
+                                 <div id="center">
+            
+                                    <div id="pieChart"></div>
+                                 </div>
+                            <!-- <div class="card">
+                                    <canvas id="countries"></canvas>
+                            </div> -->
+                        </div>
+                    </div> {% endcomment %}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">نمودار توقفات</h6>
+                                <div>
+                                    <a href="#" class="mr-3">
+                                        <i class="fa fa-refresh"></i>
+                                    </a>
+                                    <span class="dropdown">
+                                        <a href="#" data-toggle="dropdown" aria-haspopup="true"
+                                           aria-expanded="false">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </a>
+                                        <span class="dropdown-menu dropdown-menu-left">
+                                            <a href="#" class="dropdown-item">گزارش</a>
+                                            <a href="#" class="dropdown-item">دانلود</a>
+                                            <a href="#" class="dropdown-item">بستن</a>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                                 <!-- <canvas id="hot-products"></canvas>
+                                 <div id="hot-products-legends"></div> -->
+            
+            
+            
+                                 <div id="lineAssetFailureChartholder">
+            
+                                    <div id="lineAssetFailureChart"></div>
+                                 </div>
+                            <!-- <div class="card">
+                                    <canvas id="countries"></canvas>
+                            </div> -->
+                        </div>
                     </div>
-                    <div class="col-md-5">
-                        <img src="{% static 'assets/media/svg/undraw_onboarding_o8mv.svg' %}" alt="..." class="img-fluid">
+                    {% comment %} <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">ضایعات ماهانه</h6>
+                                <div>
+                                    <a href="#" class="mr-3">
+                                        <i class="fa fa-refresh"></i>
+                                    </a>
+                                    <span class="dropdown">
+                                        <a href="#" data-toggle="dropdown" aria-haspopup="true"
+                                           aria-expanded="false">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </a>
+                                        <span class="dropdown-menu dropdown-menu-left">
+                                            <a href="#" class="dropdown-item">گزارش</a>
+                                            <a href="#" class="dropdown-item">دانلود</a>
+                                            <a href="#" class="dropdown-item">بستن</a>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                                 <!-- <canvas id="hot-products"></canvas>
+                                 <div id="hot-products-legends"></div> -->
+            
+            
+            
+                                 <div id="center">
+            
+                                    <div id="lineZayeatCurrentYear"></div>
+                                 </div>
+                            <!-- <div class="card">
+                                    <canvas id="countries"></canvas>
+                            </div> -->
+                        </div>
+                    </div> {% endcomment %}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">توقفات ماهیانه</h6>
+                                <div>
+                                    <a href="#" class="mr-3">
+                                        <i class="fa fa-refresh"></i>
+                                    </a>
+                                    <span class="dropdown">
+                                        <a href="#" data-toggle="dropdown" aria-haspopup="true"
+                                           aria-expanded="false">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </a>
+                                        <span class="dropdown-menu dropdown-menu-left">
+                                            <a href="#" class="dropdown-item">گزارش</a>
+                                            <a href="#" class="dropdown-item">دانلود</a>
+                                            <a href="#" class="dropdown-item">بستن</a>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                                 <!-- <canvas id="hot-products"></canvas>
+                                 <div id="hot-products-legends"></div> -->
+            
+            
+            
+                                 <div id="lineAssetFailureCurrentYearholder">
+            
+                                    <div id="lineAssetFailureCurrentYear"></div>
+                                 </div>
+                            <!-- <div class="card">
+                                    <canvas id="countries"></canvas>
+                            </div> -->
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-5">
-        <div class="card">
-            <div class="card-body">
-                <div class="card-title d-flex justify-content-between">
-                    <h6 class="card-title">تولید کلی </h6>
-                    <div>
-                        <div class="dropdown">
-                            <a href="#" data-toggle="dropdown" aria-haspopup="true"
-                               aria-expanded="false">
-                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
-                            </a>
-                            <span class="dropdown-menu dropdown-menu-left">
-                                <a href="#" class="dropdown-item">گزارش</a>
-                                <a href="#" class="dropdown-item">دانلود</a>
-                                <a href="#" class="dropdown-item">بستن</a>
-                            </span>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">توقفات امسال</h6>
+                                <div>
+                                    <a href="#" class="mr-3">
+                                        <i class="fa fa-refresh"></i>
+                                    </a>
+                                    <span class="dropdown">
+                                        <a href="#" data-toggle="dropdown" aria-haspopup="true"
+                                           aria-expanded="false">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </a>
+                                        <span class="dropdown-menu dropdown-menu-left">
+                                            <a href="#" class="dropdown-item">گزارش</a>
+                                            <a href="#" class="dropdown-item">دانلود</a>
+                                            <a href="#" class="dropdown-item">بستن</a>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                                 <!-- <canvas id="hot-products"></canvas>
+                                 <div id="hot-products-legends"></div> -->
+            
+            
+            
+                                 <div id="center">
+            
+                                    <div id="stackeAssetFailureCurrentYear"></div>
+                                 </div>
+                            <!-- <div class="card">
+                                    <canvas id="countries"></canvas>
+                            </div> -->
                         </div>
                     </div>
                 </div>
-                <h2 class="mb-3 font-weight-bold">469,453</h2>
-                <div class="progress mb-3" style="height: 10px">
-                    <div class="progress-bar w-25 bg-secondary-gradient" role="progressbar"></div>
-                    <div class="progress-bar w-50 bg-info-gradient" role="progressbar"></div>
-                    <div class="progress-bar w-25 bg-warning-gradient" role="progressbar"></div>
-                    <div class="progress-bar w-25 bg-success-gradient" role="progressbar"></div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <p class="mb-0">
-                            <span class="fa fa-circle text-danger mr-1"></span>
-                            پزشکی
-                        </p>
-                        <h5 class="mt-2 mb-0">25%</h5>
+                <div class="col-md-6">
+                    {% comment %} <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">ضایعات</h6>
+                                <div>
+                                    <a href="#" class="mr-3">
+                                        <i class="fa fa-refresh"></i>
+                                    </a>
+                                    <span class="dropdown">
+                                        <a href="#" data-toggle="dropdown" aria-haspopup="true"
+                                           aria-expanded="false">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </a>
+                                        <span class="dropdown-menu dropdown-menu-left">
+                                            <a href="#" class="dropdown-item">گزارش</a>
+                                            <a href="#" class="dropdown-item" >دانلود</a>
+                                            <a href="#" class="dropdown-item">بستن</a>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div id="mychart"></div>
+                        </div>
+                    </div> {% endcomment %}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">حجم توقفات</h6>
+                                <div>
+                                    <a href="#" class="mr-3">
+                                        <i class="fa fa-refresh"></i>
+                                    </a>
+                                    <span class="dropdown">
+                                        <a href="#" data-toggle="dropdown" aria-haspopup="true"
+                                           aria-expanded="false">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </a>
+                                        <span class="dropdown-menu dropdown-menu-left">
+                                            <a href="#" class="dropdown-item">گزارش</a>
+                                            <a href="#" class="dropdown-item">دانلود</a>
+                                            <a href="#" class="dropdown-item">بستن</a>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                                 <!-- <canvas id="hot-products"></canvas>
+                                 <div id="hot-products-legends"></div> -->
+            
+            
+            
+                                 <div id="PieAssetFailureChartholder">
+            
+                                    <div id="PieAssetFailureChart"></div>
+                                 </div>
+                            <!-- <div class="card">
+                                    <canvas id="countries"></canvas>
+                            </div> -->
+                        </div>
                     </div>
-                    <div class="col">
-                        <p class="mb-0">
-                            <span class="fa fa-circle text-info mr-1"></span>
-                            بهداشتی
-                        </p>
-                        <h5 class="mt-2 mb-0">50%</h5>
-                    </div>
-                    <div class="col">s
-                        <p class="mb-0">
-                            <span class="fa fa-circle text-warning mr-1"></span>
-                            مو و پوست
-                        </p>
-                        <h5 class="mt-2 mb-0">15%</h5>
-                    </div>
-                    <div class="col">
-                        <p class="mb-0">
-                            <span class="fa fa-circle text-success mr-1"></span>
-                            دیگر
-                        </p>
-                        <h5 class="mt-2 mb-0">20%</h5>
-                    </div>
+                    {% comment %} <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">ضایعات ماهانه</h6>
+                                <div>
+                                    <a href="#" class="mr-3">
+                                        <i class="fa fa-refresh"></i>
+                                    </a>
+                                    <span class="dropdown">
+                                        <a href="#" data-toggle="dropdown" aria-haspopup="true"
+                                           aria-expanded="false">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </a>
+                                        <span class="dropdown-menu dropdown-menu-left">
+                                            <a href="#" class="dropdown-item">گزارش</a>
+                                            <a href="#" class="dropdown-item">دانلود</a>
+                                            <a href="#" class="dropdown-item">بستن</a>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                                 <!-- <canvas id="hot-products"></canvas>
+                                 <div id="hot-products-legends"></div> -->
+            
+            
+            
+                                 <div id="center">
+            
+                                    <div id="stackeZayeatCurrentYear"></div>
+                                 </div>
+                            <!-- <div class="card">
+                                    <canvas id="countries"></canvas>
+                            </div> -->
+                        </div>
+                    </div> {% endcomment %}
+                    
+            
+            
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <h6 class="card-title">میزان ضایعات</h6>
-                    <div>
-                        <a href="#" class="mr-3">
-                            <i class="fa fa-refresh"></i>
-                        </a>
-                        <span class="dropdown">
-                            <a href="#" data-toggle="dropdown" aria-haspopup="true"
-                               aria-expanded="false">
-                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
-                            </a>
-                            <span class="dropdown-menu dropdown-menu-left">
-                                <a href="#" class="dropdown-item">گزارش</a>
-                                <a href="#" class="dropdown-item">دانلود</a>
-                                <a href="#" class="dropdown-item">بستن</a>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                     <!-- <canvas id="hot-products"></canvas>
-                     <div id="hot-products-legends"></div> -->
 
 
 
-                     <div id="center">
-
-                        <div id="pieChart"></div>
-                     </div>
-                <!-- <div class="card">
-                        <canvas id="countries"></canvas>
-                </div> -->
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <h6 class="card-title">نمودار توقفات</h6>
-                    <div>
-                        <a href="#" class="mr-3">
-                            <i class="fa fa-refresh"></i>
-                        </a>
-                        <span class="dropdown">
-                            <a href="#" data-toggle="dropdown" aria-haspopup="true"
-                               aria-expanded="false">
-                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
-                            </a>
-                            <span class="dropdown-menu dropdown-menu-left">
-                                <a href="#" class="dropdown-item">گزارش</a>
-                                <a href="#" class="dropdown-item">دانلود</a>
-                                <a href="#" class="dropdown-item">بستن</a>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                     <!-- <canvas id="hot-products"></canvas>
-                     <div id="hot-products-legends"></div> -->
-
-
-
-                     <div id="center">
-
-                        <div id="lineAssetFailureChart"></div>
-                     </div>
-                <!-- <div class="card">
-                        <canvas id="countries"></canvas>
-                </div> -->
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <h6 class="card-title">ضایعات ماهانه</h6>
-                    <div>
-                        <a href="#" class="mr-3">
-                            <i class="fa fa-refresh"></i>
-                        </a>
-                        <span class="dropdown">
-                            <a href="#" data-toggle="dropdown" aria-haspopup="true"
-                               aria-expanded="false">
-                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
-                            </a>
-                            <span class="dropdown-menu dropdown-menu-left">
-                                <a href="#" class="dropdown-item">گزارش</a>
-                                <a href="#" class="dropdown-item">دانلود</a>
-                                <a href="#" class="dropdown-item">بستن</a>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                     <!-- <canvas id="hot-products"></canvas>
-                     <div id="hot-products-legends"></div> -->
-
-
-
-                     <div id="center">
-
-                        <div id="lineZayeatCurrentYear"></div>
-                     </div>
-                <!-- <div class="card">
-                        <canvas id="countries"></canvas>
-                </div> -->
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <h6 class="card-title">توقفات ماهیانه</h6>
-                    <div>
-                        <a href="#" class="mr-3">
-                            <i class="fa fa-refresh"></i>
-                        </a>
-                        <span class="dropdown">
-                            <a href="#" data-toggle="dropdown" aria-haspopup="true"
-                               aria-expanded="false">
-                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
-                            </a>
-                            <span class="dropdown-menu dropdown-menu-left">
-                                <a href="#" class="dropdown-item">گزارش</a>
-                                <a href="#" class="dropdown-item">دانلود</a>
-                                <a href="#" class="dropdown-item">بستن</a>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                     <!-- <canvas id="hot-products"></canvas>
-                     <div id="hot-products-legends"></div> -->
-
-
-
-                     <div id="center">
-
-                        <div id="lineAssetFailureCurrentYear"></div>
-                     </div>
-                <!-- <div class="card">
-                        <canvas id="countries"></canvas>
-                </div> -->
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <h6 class="card-title">ضایعات</h6>
-                    <div>
-                        <a href="#" class="mr-3">
-                            <i class="fa fa-refresh"></i>
-                        </a>
-                        <span class="dropdown">
-                            <a href="#" data-toggle="dropdown" aria-haspopup="true"
-                               aria-expanded="false">
-                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
-                            </a>
-                            <span class="dropdown-menu dropdown-menu-left">
-                                <a href="#" class="dropdown-item">گزارش</a>
-                                <a href="#" class="dropdown-item" >دانلود</a>
-                                <a href="#" class="dropdown-item">بستن</a>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div id="mychart"></div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <h6 class="card-title">حجم توقفات</h6>
-                    <div>
-                        <a href="#" class="mr-3">
-                            <i class="fa fa-refresh"></i>
-                        </a>
-                        <span class="dropdown">
-                            <a href="#" data-toggle="dropdown" aria-haspopup="true"
-                               aria-expanded="false">
-                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
-                            </a>
-                            <span class="dropdown-menu dropdown-menu-left">
-                                <a href="#" class="dropdown-item">گزارش</a>
-                                <a href="#" class="dropdown-item">دانلود</a>
-                                <a href="#" class="dropdown-item">بستن</a>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                     <!-- <canvas id="hot-products"></canvas>
-                     <div id="hot-products-legends"></div> -->
-
-
-
-                     <div id="center">
-
-                        <div id="PieAssetFailureChart"></div>
-                     </div>
-                <!-- <div class="card">
-                        <canvas id="countries"></canvas>
-                </div> -->
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <h6 class="card-title">ضایعات ماهانه</h6>
-                    <div>
-                        <a href="#" class="mr-3">
-                            <i class="fa fa-refresh"></i>
-                        </a>
-                        <span class="dropdown">
-                            <a href="#" data-toggle="dropdown" aria-haspopup="true"
-                               aria-expanded="false">
-                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
-                            </a>
-                            <span class="dropdown-menu dropdown-menu-left">
-                                <a href="#" class="dropdown-item">گزارش</a>
-                                <a href="#" class="dropdown-item">دانلود</a>
-                                <a href="#" class="dropdown-item">بستن</a>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                     <!-- <canvas id="hot-products"></canvas>
-                     <div id="hot-products-legends"></div> -->
-
-
-
-                     <div id="center">
-
-                        <div id="stackeZayeatCurrentYear"></div>
-                     </div>
-                <!-- <div class="card">
-                        <canvas id="countries"></canvas>
-                </div> -->
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <h6 class="card-title">توقفات امسال</h6>
-                    <div>
-                        <a href="#" class="mr-3">
-                            <i class="fa fa-refresh"></i>
-                        </a>
-                        <span class="dropdown">
-                            <a href="#" data-toggle="dropdown" aria-haspopup="true"
-                               aria-expanded="false">
-                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
-                            </a>
-                            <span class="dropdown-menu dropdown-menu-left">
-                                <a href="#" class="dropdown-item">گزارش</a>
-                                <a href="#" class="dropdown-item">دانلود</a>
-                                <a href="#" class="dropdown-item">بستن</a>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                     <!-- <canvas id="hot-products"></canvas>
-                     <div id="hot-products-legends"></div> -->
-
-
-
-                     <div id="center">
-
-                        <div id="stackeAssetFailureCurrentYear"></div>
-                     </div>
-                <!-- <div class="card">
-                        <canvas id="countries"></canvas>
-                </div> -->
-            </div>
-        </div>
-
-
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-6">
-
-    </div>
-    <div class="col-md-6">
-
-    </div>
-    </div>
-<div class="row">
-    <div class="col-md-6">
-
-    </div>
-    <div class="col-md-6">
-
-    </div>
-
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-
-        </div>
-        <div class="col-md-6">
-
-        </div>
-
-        </div>
 
 
 

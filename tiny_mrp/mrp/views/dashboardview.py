@@ -4,7 +4,8 @@ from django.db.models import Sum, DateField
 from django.db.models.functions import Cast
 from django.db.models import Q
 from django.http import JsonResponse
-
+from mrp.business.tolid_util import * 
+from django.utils import timezone
 from datetime import timedelta,datetime as dt
 from django.db.models import Sum, F, ExpressionWrapper, fields
 def get_daily_vazn_sums(start_date, end_date):
@@ -23,7 +24,20 @@ def get_zayeat_pie_aggregate(start_date, end_date):
     return labels, values
 def list_dashboard(request):
     assets=Asset.objects.filter(Q(assetTypes=2)|Q(assetCategory__id=8))
-    return render(request,'mrp/dashboard/main_dashboard.html',{'title':'داشبورد مدیریتی','assets':assets})
+    asset_list=[]
+    for index,i in enumerate(assets):
+        asset_types=get_asset_count(i.assetCategory)
+        asset_list.append({'asset_name':i.assetName,'asset_id':i.id,'asset_type':0})
+        try:
+            if(assets[index].assetCategory !=assets[index+1].assetCategory and asset_types>1):
+                asset_list.append({'asset_name':"جمع {} ها".format(i.assetCategory),'asset_id':i.assetCategory.id,'asset_type':1})
+
+        except:
+            if(index==len(assets)-1 and asset_types>1):
+                asset_list.append({'asset_name':"جمع {} ها".format(i.assetCategory),'asset_id':i.assetCategory.id,'asset_type':1})
+
+
+    return render(request,'mrp/dashboard/main_dashboard.html',{'title':'داشبورد مدیریتی','assets':asset_list})
 def get_line_zayeat_vazn_data(request):
     start_date = request.GET.get('start',dt.now().replace(day=1))  # Modify these dates as needed
     end_date = request.GET.get('end',dt.now())
@@ -39,9 +53,11 @@ def get_line_zayeat_vazn_data(request):
 def get_pie_zayeat_vazn_data(request):
     start_date = request.GET.get('start',dt.now().replace(day=1))  # Modify these dates as needed
     end_date = request.GET.get('end',dt.now())
-    print(start_date,end_date)
+    start_date=DateJob.getTaskDate(start_date)
+    end_date=DateJob.getTaskDate(end_date)
+    
     labels, values = get_zayeat_pie_aggregate(start_date,end_date)
-    print(labels,values)
+    print(labels,values,'!!!!!!!!!!!!!!!!!')
     return JsonResponse({'labels': labels, 'values': values})
 
 def get_assetFailure__duration_aggregate(start_date,end_date):
@@ -56,6 +72,8 @@ def get_assetFailure__duration_aggregate(start_date,end_date):
 def assetFailure_duration_data(request):
     start_date = request.GET.get('start',dt.now().replace(day=1))  # Modify these dates as needed
     end_date = request.GET.get('end',dt.now())
+    start_date=DateJob.getTaskDate(start_date)
+    end_date=DateJob.getTaskDate(end_date)
     dates, total_durations = get_assetFailure__duration_aggregate(start_date,end_date)
     return JsonResponse({'dates': dates, 'total_durations': total_durations})
 
@@ -73,6 +91,8 @@ def get_failure_pie_aggregate(start_date,end_date):
 def failure_pie_data(request):
     start_date = request.GET.get('start',dt.now().replace(day=1))  # Modify these dates as needed
     end_date = request.GET.get('end',dt.now())
+    start_date=DateJob.getTaskDate(start_date)
+    end_date=DateJob.getTaskDate(end_date)
     labels, total_durations  = get_failure_pie_aggregate(start_date,end_date)
     print(labels, total_durations)
     return JsonResponse({'labels': labels, 'total_durations': total_durations})
@@ -172,25 +192,38 @@ def monthly_vazn_by_zayeat_data(request):
 ########################
 def get_jalali_monthly_duration_sum():
     # Determine the current Jalali year
-    current_jalali_year = jdatetime.date.today().year
+    # current_jalali_year = jdatetime.date.today().year-1
 
     # Create a dictionary to hold sums for each Jalali month
     monthly_sums = {}
 
     # Query all AssetFailure objects
-    for record in AssetFailure.objects.all():
-        # Convert dayOfIssue to Jalali date
+    # for record in AssetFailure.objects.all():
+    #     # Convert dayOfIssue to Jalali date
+    #     jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
+
+    #     # Check if the year matches the current Jalali year
+    #     if jalali_date.year == current_jalali_year:
+    #         jalali_month = jalali_date.strftime("%Y-%m")  # Format as 'Year-Month'
+
+    #         # Convert duration to minutes
+    #         duration_minutes = record.duration.hour * 60 + record.duration.minute
+
+    #         # Aggregate sums by month
+    #         monthly_sums[jalali_month] = monthly_sums.get(jalali_month, 0) + duration_minutes
+    
+    current_date = timezone.now()
+    one_year_ago = current_date - timedelta(days=365)
+    records_last_12_months = AssetFailure.objects.filter(
+    dayOfIssue__gte=one_year_ago,
+    dayOfIssue__lte=current_date
+    )
+    for record in records_last_12_months:
         jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
+        jalali_month = jalali_date.strftime("%Y-%m")  # Format as 'Year-Month'
+        duration_minutes = record.duration.hour * 60 + record.duration.minute    
+        monthly_sums[jalali_month] = monthly_sums.get(jalali_month, 0) + duration_minutes
 
-        # Check if the year matches the current Jalali year
-        if jalali_date.year == current_jalali_year:
-            jalali_month = jalali_date.strftime("%Y-%m")  # Format as 'Year-Month'
-
-            # Convert duration to minutes
-            duration_minutes = record.duration.hour * 60 + record.duration.minute
-
-            # Aggregate sums by month
-            monthly_sums[jalali_month] = monthly_sums.get(jalali_month, 0) + duration_minutes
 
     # Sort and split the dictionary into two lists for labels and values
     sorted_months = sorted(monthly_sums)
@@ -204,7 +237,7 @@ def jalali_monthly_duration_data(request):
 ##############################
 def get_jalali_monthly_duration_sum_by_failure():
     # Determine the current Jalali year
-    current_jalali_year = jdatetime.date.today().year
+    # current_jalali_year = jdatetime.date.today().year-1
 
     # Prepare data for each failure
     series = []
@@ -212,10 +245,23 @@ def get_jalali_monthly_duration_sum_by_failure():
 
     # Find unique Jalali months in the current year
     jalali_months = set()
-    for record in AssetFailure.objects.all():
+    current_date = timezone.now()
+    one_year_ago = current_date - timedelta(days=365)
+    records_last_12_months = AssetFailure.objects.filter(
+    dayOfIssue__gte=one_year_ago,
+    dayOfIssue__lte=current_date
+    )
+    for record in records_last_12_months:
         jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
-        if jalali_date.year == current_jalali_year:
-            jalali_months.add(jalali_date.strftime('%Y-%m'))
+        # jalali_month = jalali_date.strftime("%Y-%m")  # Format as 'Year-Month'
+        jalali_months.add(jalali_date.strftime('%Y-%m'))
+
+        # duration_minutes = record.duration.hour * 60 + record.duration.minute    
+        # monthly_sums[jalali_month] = monthly_sums.get(jalali_month, 0) + duration_minutes
+    # for record in AssetFailure.objects.all():
+    #     jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
+    #     if jalali_date.year == current_jalali_year:
+    #         jalali_months.add(jalali_date.strftime('%Y-%m'))
 
     sorted_jalali_months = sorted(jalali_months)
 
