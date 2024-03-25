@@ -28,9 +28,9 @@
                             </div>
                     </li>
                     <li class="list-inline-item mb-0">
-                        <select name="" id="" class="form-control">
+                        <select name="" id="machines" class="form-control">
                             {% for i in assets %}
-                            <option value="{{i.asset_id}}" data-type={{asset_type}}>{{i.asset_name}}</option>
+                            <option value="{{i.asset_id}}" data-type={{i.asset_type}}>{{i.asset_name}}</option>
                             {% endfor %}
                         </select>
                     </li>

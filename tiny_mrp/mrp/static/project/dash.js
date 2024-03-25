@@ -66,8 +66,8 @@ var draw_zayeat=function(){
        })
        .catch(error => console.error('Error:', error));
 }
-var draw_line_asset_failure=function(start_dt,end_dt){
-  fetch(`/Dashboard/AssetFailure/Line/?start=${start_dt}&end=${end_dt}`)  // Replace with the URL of your Django view
+var draw_line_asset_failure=function(start_dt,end_dt,machine,category){
+  fetch(`/Dashboard/AssetFailure/Line/?start=${start_dt}&end=${end_dt}&machine=${machine}&asset_type=${category}`)  // Replace with the URL of your Django view
        .then(response => response.json())
        .then(data => {
         
@@ -92,8 +92,8 @@ var draw_line_asset_failure=function(start_dt,end_dt){
        .catch(error => console.error(`Error:`, error));
 }
 
-var draw_line_asset_production=function(start_dt,end_dt){
-    fetch(`/Dashboard/Asset/Production/Line/?start=${start_dt}&end=${end_dt}`)  // Replace with the URL of your Django view
+var draw_line_asset_production=function(start_dt,end_dt,machine,category){
+    fetch(`/Dashboard/Asset/Production/Line/?start=${start_dt}&end=${end_dt}&machine=${machine}&asset_type=${category}`)  // Replace with the URL of your Django view
          .then(response => response.json())
          .then(data => {
           
@@ -170,8 +170,8 @@ var draw_line_asset_production=function(start_dt,end_dt){
          })
          .catch(error => console.error(`Error:`, error));
   }
-var draw_pie_asset_failure=function(start_dt,end_dt){
-  fetch(`/Dashboard/AssetFailure/Pie/?start=${start_dt}&end=${end_dt}`)  // Replace with the URL of your Django view
+var draw_pie_asset_failure=function(start_dt,end_dt,machine,category){
+  fetch(`/Dashboard/AssetFailure/Pie/?start=${start_dt}&end=${end_dt}&machine=${machine}&asset_type=${category}`)  // Replace with the URL of your Django view
   .then(response => response.json())
    .then(data => {
        var options = {
@@ -312,12 +312,12 @@ var draw_asset_failure_stack_zayeat=function(){
 $("#button-addon1").click(function(){
     $(".app-content-body").show();
 // draw_pie_zayeat($("#startdate").val(),$("#enddate").val());
-draw_line_asset_failure($("#startdate").val(),$("#enddate").val());
-draw_pie_asset_failure($("#startdate").val(),$("#enddate").val());
+draw_line_asset_failure($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
+draw_pie_asset_failure($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
 draw_monthly_assetFailure_line();
 draw_asset_failure_stack_zayeat();
-draw_line_asset_production($("#startdate").val(),$("#enddate").val());
-draw_bar_daily_asset_production($("#enddate").val());
+draw_line_asset_production($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
+// draw_bar_daily_asset_production($("#enddate").val());
 
 
 

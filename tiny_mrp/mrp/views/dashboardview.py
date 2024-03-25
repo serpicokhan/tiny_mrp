@@ -42,7 +42,6 @@ def list_dashboard(request):
 def get_line_zayeat_vazn_data(request):
     start_date = request.GET.get('start',dt.now().replace(day=1))  # Modify these dates as needed
     end_date = request.GET.get('end',dt.now())
-    print(start_date,end_date)
     dates, sums = get_daily_vazn_sums(start_date, end_date)
 
     data = {
@@ -58,15 +57,30 @@ def get_pie_zayeat_vazn_data(request):
     end_date=DateJob.getTaskDate(end_date)
     
     labels, values = get_zayeat_pie_aggregate(start_date,end_date)
-    print(labels,values,'!!!!!!!!!!!!!!!!!')
+    # print(labels,values,'!!!!!!!!!!!!!!!!!')
     return JsonResponse({'labels': labels, 'values': values})
 
-def get_assetFailure__duration_aggregate(start_date,end_date):
-    aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date]).annotate(
-        duration_minutes=ExpressionWrapper(
-            F('duration__hour') * 60 + F('duration__minute'),
-            output_field=fields.IntegerField())
-        ).values('dayOfIssue').annotate(total_duration=Sum('duration_minutes')).order_by('dayOfIssue')
+def get_assetFailure__duration_aggregate(start_date,end_date,machine=None,asset_type=None):
+    print(machine,asset_type,'!!!!!!!!!!!!!!!!!!!')
+    if(asset_type=='0'):
+        if(int(machine)>1):
+            aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date],asset_name=machine).annotate(
+                duration_minutes=ExpressionWrapper(
+                    F('duration__hour') * 60 + F('duration__minute'),
+                    output_field=fields.IntegerField())
+                ).values('dayOfIssue').annotate(total_duration=Sum('duration_minutes')).order_by('dayOfIssue')
+        else:
+            aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date]).annotate(
+                duration_minutes=ExpressionWrapper(
+                    F('duration__hour') * 60 + F('duration__minute'),
+                    output_field=fields.IntegerField())
+                ).values('dayOfIssue').annotate(total_duration=Sum('duration_minutes')).order_by('dayOfIssue')
+    else:
+        aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date],asset_name__assetCategory=asset_type).annotate(
+                duration_minutes=ExpressionWrapper(
+                    F('duration__hour') * 60 + F('duration__minute'),
+                    output_field=fields.IntegerField())
+                ).values('dayOfIssue').annotate(total_duration=Sum('duration_minutes')).order_by('dayOfIssue')
     dates = [jdatetime.date.fromgregorian(date=item['dayOfIssue']).strftime("%Y-%m-%d") for item in aggregated_data]
     total_durations = [item['total_duration'] for item in aggregated_data]
     return dates, total_durations
@@ -75,15 +89,33 @@ def assetFailure_duration_data(request):
     end_date = request.GET.get('end',dt.now())
     start_date=DateJob.getTaskDate(start_date)
     end_date=DateJob.getTaskDate(end_date)
-    dates, total_durations = get_assetFailure__duration_aggregate(start_date,end_date)
+    machine = request.GET.get('machine',False)
+    asset_type = request.GET.get('asset_type',False)
+    dates, total_durations = get_assetFailure__duration_aggregate(start_date,end_date,machine,asset_type)
     return JsonResponse({'dates': dates, 'total_durations': total_durations})
 
-def get_failure_pie_aggregate(start_date,end_date):
-    aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date]).annotate(
-        duration_minutes=ExpressionWrapper(
-            F('duration__hour') * 60 + F('duration__minute'),
-            output_field=fields.IntegerField())
-        ).values('failure_name__name').annotate(total_duration=Sum('duration_minutes')).order_by('failure_name')
+def get_failure_pie_aggregate(start_date,end_date,machine=None,asset_type=None):
+    if(asset_type=='0'):
+        if(int(machine)>1):
+            aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date],asset_name=machine).annotate(
+                duration_minutes=ExpressionWrapper(
+                    F('duration__hour') * 60 + F('duration__minute'),
+                    output_field=fields.IntegerField())
+                ).values('failure_name__name').annotate(total_duration=Sum('duration_minutes')).order_by('failure_name')
+        else:
+
+            aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date]).annotate(
+                duration_minutes=ExpressionWrapper(
+                    F('duration__hour') * 60 + F('duration__minute'),
+                    output_field=fields.IntegerField())
+                ).values('failure_name__name').annotate(total_duration=Sum('duration_minutes')).order_by('failure_name')
+    else:
+        aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date],asset_name__asset_category=asset_type).annotate(
+                duration_minutes=ExpressionWrapper(
+                    F('duration__hour') * 60 + F('duration__minute'),
+                    output_field=fields.IntegerField())
+                ).values('failure_name__name').annotate(total_duration=Sum('duration_minutes')).order_by('failure_name')
+  
 
     labels = [item['failure_name__name'] for item in aggregated_data]
     total_durations = [item['total_duration'] for item in aggregated_data]
@@ -94,8 +126,9 @@ def failure_pie_data(request):
     end_date = request.GET.get('end',dt.now())
     start_date=DateJob.getTaskDate(start_date)
     end_date=DateJob.getTaskDate(end_date)
-    labels, total_durations  = get_failure_pie_aggregate(start_date,end_date)
-    print(labels, total_durations)
+    machine = request.GET.get('machine',False)
+    asset_type = request.GET.get('asset_type',False)
+    labels, total_durations  = get_failure_pie_aggregate(start_date,end_date,machine,asset_type)
     return JsonResponse({'labels': labels, 'total_durations': total_durations})
 def get_current_year_zayeatvazn_sum():
     # Get the current Jalali year
@@ -303,22 +336,48 @@ def get_jalali_monthly_duration_sum_by_failure():
 def jalali_monthly_duration_by_failure_data(request):
     series, labels = get_jalali_monthly_duration_sum_by_failure()
     return JsonResponse({'series': series, 'xaxis': {'categories': labels}})
-def get_daily_tolid_sums(start_date, end_date):
-    daily_sums = DailyProduction.objects.filter(dayOfIssue__range=[start_date, end_date]) \
-                                  .annotate(date=Cast('dayOfIssue', DateField())) \
-                                  .values('date') \
-                                  .annotate(sum_vazn=Sum('production_value')) \
-                                  .order_by('date')
+def get_daily_tolid_sums(start_date, end_date,machine=None):
+    
+    if(int(machine)>1):
+        daily_sums = DailyProduction.objects.filter(dayOfIssue__range=[start_date, end_date],machine=machine) \
+                                    .annotate(date=Cast('dayOfIssue', DateField())) \
+                                    .values('date') \
+                                    .annotate(sum_vazn=Sum('production_value')) \
+                                    .order_by('date')
+    else:
+        daily_sums = DailyProduction.objects.filter(dayOfIssue__range=[start_date, end_date]) \
+                                    .annotate(date=Cast('dayOfIssue', DateField())) \
+                                    .values('date') \
+                                    .annotate(sum_vazn=Sum('production_value')) \
+                                    .order_by('date')
+    dates = [jdatetime.date.fromgregorian(date=entry['date']).strftime("%Y-%m-%d") for entry in daily_sums]
+    sums = [int(entry['sum_vazn']) for entry in daily_sums]
+    return dates, sums
+def get_daily_tolid_sums_by_cat(start_date, end_date,category):
+    
+    
+    daily_sums = DailyProduction.objects.filter(dayOfIssue__range=[start_date, end_date],machine__assetCategory=category) \
+                                    .annotate(date=Cast('dayOfIssue', DateField())) \
+                                    .values('date') \
+                                    .annotate(sum_vazn=Sum('production_value')) \
+                                    .order_by('date')
+    
     dates = [jdatetime.date.fromgregorian(date=entry['date']).strftime("%Y-%m-%d") for entry in daily_sums]
     sums = [int(entry['sum_vazn']) for entry in daily_sums]
     return dates, sums
 def get_line_tolid_vazn_data(request):
     start_date = request.GET.get('start',dt.now().replace(day=1))  # Modify these dates as needed
     end_date = request.GET.get('end',dt.now())
+    machine = request.GET.get('machine',False)
+    asset_type = request.GET.get('asset_type',False)
     start_date=DateJob.getTaskDate(start_date)
     end_date=DateJob.getTaskDate(end_date)
+    if(asset_type=='0'):
     
-    dates, sums = get_daily_tolid_sums(start_date, end_date)
+        dates, sums = get_daily_tolid_sums(start_date, end_date,machine)
+    else:
+        dates, sums = get_daily_tolid_sums_by_cat(start_date, end_date,asset_type)
+
 
     data = {
         'dates': dates,
