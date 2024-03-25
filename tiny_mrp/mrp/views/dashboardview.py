@@ -25,6 +25,7 @@ def get_zayeat_pie_aggregate(start_date, end_date):
 def list_dashboard(request):
     assets=Asset.objects.filter(Q(assetTypes=2)|Q(assetCategory__id=8))
     asset_list=[]
+    asset_list.append({'asset_name':'همه','asset_id':-1,'asset_type':0})
     for index,i in enumerate(assets):
         asset_types=get_asset_count(i.assetCategory)
         asset_list.append({'asset_name':i.assetName,'asset_id':i.id,'asset_type':0})
@@ -302,3 +303,44 @@ def get_jalali_monthly_duration_sum_by_failure():
 def jalali_monthly_duration_by_failure_data(request):
     series, labels = get_jalali_monthly_duration_sum_by_failure()
     return JsonResponse({'series': series, 'xaxis': {'categories': labels}})
+def get_daily_tolid_sums(start_date, end_date):
+    daily_sums = DailyProduction.objects.filter(dayOfIssue__range=[start_date, end_date]) \
+                                  .annotate(date=Cast('dayOfIssue', DateField())) \
+                                  .values('date') \
+                                  .annotate(sum_vazn=Sum('production_value')) \
+                                  .order_by('date')
+    dates = [jdatetime.date.fromgregorian(date=entry['date']).strftime("%Y-%m-%d") for entry in daily_sums]
+    sums = [int(entry['sum_vazn']) for entry in daily_sums]
+    return dates, sums
+def get_line_tolid_vazn_data(request):
+    start_date = request.GET.get('start',dt.now().replace(day=1))  # Modify these dates as needed
+    end_date = request.GET.get('end',dt.now())
+    start_date=DateJob.getTaskDate(start_date)
+    end_date=DateJob.getTaskDate(end_date)
+    
+    dates, sums = get_daily_tolid_sums(start_date, end_date)
+
+    data = {
+        'dates': dates,
+        'sums': sums,
+    }
+    # print(data,'!!!!!!!!!!!!!!!!!!!!')
+    return JsonResponse(data)
+def production_chart(request):
+    # Assume 'date' is passed as 'YYYY-MM-DD' format from the front end
+    date_str=DailyProduction.objects.order_by('-dayOfIssue').first().dayOfIssue
+
+    # date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+    
+    # Query to get sum of production_value for each machine for the given date
+    production_data = DailyProduction.objects.filter(dayOfIssue=date_str)\
+                      .values('machine__assetName')\
+                      .annotate(total_production=Sum('production_value'))\
+                      .order_by('machine')
+    
+    data = {
+        'machines': [item['machine__assetName'] for item in production_data],
+        'production_values': [int(item['total_production']) for item in production_data]
+    }
+    
+    return JsonResponse(data)

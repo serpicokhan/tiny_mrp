@@ -91,6 +91,76 @@ var draw_line_asset_failure=function(start_dt,end_dt){
        })
        .catch(error => console.error(`Error:`, error));
 }
+
+var draw_line_asset_production=function(start_dt,end_dt){
+    fetch(`/Dashboard/Asset/Production/Line/?start=${start_dt}&end=${end_dt}`)  // Replace with the URL of your Django view
+         .then(response => response.json())
+         .then(data => {
+          
+            var options = {
+                chart: {
+                    type: 'area',
+                    height: 400
+                },
+                stroke: {
+                    width: 10,  // Set the stroke width
+                    // colors: ['#00FF00'],
+                    curve: 'smooth'  // Red color in hex format
+                },
+                series: [{
+                    name: 'Vazn Sum',
+                    data: data.sums
+                }],
+                xaxis: {
+                    categories: data.dates
+                }
+            
+                 // ... other chart options ...
+             };
+          $('#lineAssetProductionChart').remove(); // this is my <canvas> element
+          $('#lineAssetProductionChartholder').append('<div id="lineAssetProductionChart"><div>');
+             var chart = new ApexCharts(document.querySelector("#lineAssetProductionChart"), options);
+             chart.render();
+         })
+         .catch(error => console.error(`Error:`, error));
+  }
+  var draw_bar_daily_asset_production=function(start_dt){
+    fetch(`/Dashboard/Asset/Production/Daily/Bar/?date=${start_dt}`)  // Replace with the URL of your Django view
+         .then(response => response.json())
+         .then(data => {
+          console.log(data);
+            var options = {
+                chart: {
+                    type: 'bar',
+                    height:400
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '55%',
+                        endingShape: 'rounded'
+                    },
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
+                series: [{
+                    name: 'Production Value',
+                    data: data.production_values
+                }],
+                xaxis: {
+                    categories: data.machines
+                }
+            };
+          $('#barAssetProductionChart').remove(); // this is my <canvas> element
+          $('#barAssetProductionChartholder').append('<div id="barAssetProductionChart"><div>');
+             var chart = new ApexCharts(document.querySelector("#barAssetProductionChart"), options);
+             chart.render();
+         })
+         .catch(error => console.error(`Error:`, error));
+  }
 var draw_pie_asset_failure=function(start_dt,end_dt){
   fetch(`/Dashboard/AssetFailure/Pie/?start=${start_dt}&end=${end_dt}`)  // Replace with the URL of your Django view
   .then(response => response.json())
@@ -125,6 +195,13 @@ var current_year_zayeatvazn_data=function(){
                     
                 },
                 colors: '#ff0000',
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '55%',
+                        endingShape: 'rounded'
+                    },
+                },
                
                 series: [{
                     name: 'مجموع وزن',
@@ -224,11 +301,14 @@ var draw_asset_failure_stack_zayeat=function(){
 
 
 $("#button-addon1").click(function(){
+    $(".app-content-body").show();
 // draw_pie_zayeat($("#startdate").val(),$("#enddate").val());
 draw_line_asset_failure($("#startdate").val(),$("#enddate").val());
 draw_pie_asset_failure($("#startdate").val(),$("#enddate").val());
 draw_monthly_assetFailure_line();
 draw_asset_failure_stack_zayeat();
+draw_line_asset_production($("#startdate").val(),$("#enddate").val());
+draw_bar_daily_asset_production($("#enddate").val());
 
 
 
