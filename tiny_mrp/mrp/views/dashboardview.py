@@ -231,20 +231,7 @@ def get_jalali_monthly_duration_sum():
     # Create a dictionary to hold sums for each Jalali month
     monthly_sums = {}
 
-    # Query all AssetFailure objects
-    # for record in AssetFailure.objects.all():
-    #     # Convert dayOfIssue to Jalali date
-    #     jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
 
-    #     # Check if the year matches the current Jalali year
-    #     if jalali_date.year == current_jalali_year:
-    #         jalali_month = jalali_date.strftime("%Y-%m")  # Format as 'Year-Month'
-
-    #         # Convert duration to minutes
-    #         duration_minutes = record.duration.hour * 60 + record.duration.minute
-
-    #         # Aggregate sums by month
-    #         monthly_sums[jalali_month] = monthly_sums.get(jalali_month, 0) + duration_minutes
     
     current_date = timezone.now()
     one_year_ago = current_date - timedelta(days=365)
@@ -265,8 +252,40 @@ def get_jalali_monthly_duration_sum():
     sums = [f"{monthly_sums[month]/60:0.0f}" for month in sorted_months]
 
     return labels, sums
+def get_jalali_monthly_production_sum():
+    # Determine the current Jalali year
+    # current_jalali_year = jdatetime.date.today().year-1
+
+    # Create a dictionary to hold sums for each Jalali month
+    monthly_sums = {}
+
+
+    
+    current_date = timezone.now()
+    one_year_ago = current_date - timedelta(days=365)
+    records_last_12_months = DailyProduction.objects.filter(
+    dayOfIssue__gte=one_year_ago,
+    dayOfIssue__lte=current_date
+    )
+    for record in records_last_12_months:
+        jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
+        jalali_month = jalali_date.strftime("%Y-%m")  # Format as 'Year-Month'
+        # duration_minutes = record.duration.hour * 60 + record.duration.minute 
+        production_val=record.production_value   
+        monthly_sums[jalali_month] = monthly_sums.get(jalali_month, 0) + production_val
+
+
+    # Sort and split the dictionary into two lists for labels and values
+    sorted_months = sorted(monthly_sums)
+    labels = [month for month in sorted_months]
+    sums = [f"{monthly_sums[month]:0.0f}" for month in sorted_months]
+
+    return labels, sums
 def jalali_monthly_duration_data(request):
     labels, sums = get_jalali_monthly_duration_sum()
+    return JsonResponse({'labels': labels, 'sums': sums})
+def jalali_monthly_production_data(request):
+    labels, sums = get_jalali_monthly_production_sum()
     return JsonResponse({'labels': labels, 'sums': sums})
 ##############################
 def get_jalali_monthly_duration_sum_by_failure():
@@ -290,12 +309,7 @@ def get_jalali_monthly_duration_sum_by_failure():
         # jalali_month = jalali_date.strftime("%Y-%m")  # Format as 'Year-Month'
         jalali_months.add(jalali_date.strftime('%Y-%m'))
 
-        # duration_minutes = record.duration.hour * 60 + record.duration.minute    
-        # monthly_sums[jalali_month] = monthly_sums.get(jalali_month, 0) + duration_minutes
-    # for record in AssetFailure.objects.all():
-    #     jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
-    #     if jalali_date.year == current_jalali_year:
-    #         jalali_months.add(jalali_date.strftime('%Y-%m'))
+
 
     sorted_jalali_months = sorted(jalali_months)
 

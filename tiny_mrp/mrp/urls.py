@@ -71,6 +71,7 @@ urlpatterns = [
     url(r'^Dashboard/Asset/Production/Daily/Bar/$', production_chart, name='production_chart'),
     url(r'^Dashboard/AssetFailure/Pie/$', failure_pie_data, name='failure_pie_data'),
     url(r'^Dashboard/AssetFailure/Monthly/$', jalali_monthly_duration_data, name='jalali_monthly_duration_data'),
+    url(r'^Dashboard/Production/Monthly/$', jalali_monthly_production_data, name='jalali_monthly_production_data'),
     url(r'^Dashboard/AssetFailure/StackedMonthly/$', jalali_monthly_duration_by_failure_data, name='jalali_monthly_duration_by_failure_data'),
 
 
