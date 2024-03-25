@@ -337,10 +337,17 @@ def production_chart(request):
                       .values('machine__assetName')\
                       .annotate(total_production=Sum('production_value'))\
                       .order_by('machine')
+    kambood=[]
+    for i in production_data:
+        tolid_standard=ProductionStandard.objects.get(machine_name__assetName=i['machine__assetName'])
+        kambood.append(int(i['total_production']-tolid_standard.good_production_rate))
+
     
     data = {
         'machines': [item['machine__assetName'] for item in production_data],
-        'production_values': [int(item['total_production']) for item in production_data]
+        'production_values': [int(item['total_production']) for item in production_data],
+        'date':str(jdatetime.date.fromgregorian(date=date_str)),
+        'production_kambood':kambood
     }
     
     return JsonResponse(data)

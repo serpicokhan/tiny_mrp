@@ -134,27 +134,36 @@ var draw_line_asset_production=function(start_dt,end_dt){
                     type: 'bar',
                     height:400
                 },
+                colors: [ // this array contains different color code for each data
+                "#33b2df",
+                "#546E7A",
+                
+            ],
                 plotOptions: {
                     bar: {
                         horizontal: false,
-                        columnWidth: '55%',
-                        endingShape: 'rounded'
+                       
                     },
                 },
                 stroke: {
                     show: true,
-                    width: 2,
-                    colors: ['transparent']
+                    
+                    
                 },
                 series: [{
-                    name: 'Production Value',
+                    name: 'مقدار تولید',
                     data: data.production_values
-                }],
+                },
+            {
+                name: 'کمبود تولید',
+                    data: data.production_kambood
+            }],
                 xaxis: {
                     categories: data.machines
                 }
             };
           $('#barAssetProductionChart').remove(); // this is my <canvas> element
+          $("#last_date").html(`تولید در ${data.date}`);
           $('#barAssetProductionChartholder').append('<div id="barAssetProductionChart"><div>');
              var chart = new ApexCharts(document.querySelector("#barAssetProductionChart"), options);
              chart.render();
@@ -315,6 +324,8 @@ draw_bar_daily_asset_production($("#enddate").val());
 
 
 });
+draw_bar_daily_asset_production($("#enddate").val());
+
 // draw_zayeat();
 // draw_line_asset_failure($("#startdate").val(),$("#enddate").val());
 // draw_pie_asset_failure();
