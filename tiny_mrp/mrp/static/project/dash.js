@@ -277,10 +277,37 @@ var draw_monthly_assetFailure_line=function(){
                 },
                 // ... other chart options ...
             };
-            // $('#lineAssetFailureCurrentYear').remove(); // this is my <canvas> element
-            // $('#lineAssetFailureCurrentYearholder').append('<div id="lineAssetFailureCurrentYear"><div>');
+            $('#lineAssetFailureCurrentYear').remove(); // this is my <canvas> element
+            $('#lineAssetFailureCurrentYearholder').append('<div id="lineAssetFailureCurrentYear"><div>');
      
             var chart = new ApexCharts(document.querySelector("#lineAssetFailureCurrentYear"), options);
+            chart.render();
+        })
+        .catch(error => console.error('Error:', error));
+    }
+var draw_monthly_production_bar=function(machine,asset_type){
+    fetch(`/Dashboard/Production/Monthly/?machine=${machine}&asset_type=${asset_type}`)  // Replace with the URL of your Django view
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            var options = {
+                chart: {
+                    type: `bar`,
+                    height:400
+                },
+                series: [{
+                    name: `Total Duration`,
+                    data: data.sums
+                }],
+                xaxis: {
+                    categories: data.labels
+                },
+                // ... other chart options ...
+            };
+            $('#barProductionCurrentYear').remove(); // this is my <canvas> element
+            $('#barProductionCurrentYearholder').append('<div id="barProductionCurrentYear"><div>');
+     
+            var chart = new ApexCharts(document.querySelector("#barProductionCurrentYear"), options);
             chart.render();
         })
         .catch(error => console.error('Error:', error));
@@ -310,13 +337,14 @@ var draw_asset_failure_stack_zayeat=function(){
 
 
 $("#button-addon1").click(function(){
-    $(".app-content-body").show();
+    // $(".app-content-body").show();
 // draw_pie_zayeat($("#startdate").val(),$("#enddate").val());
 draw_line_asset_failure($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
 draw_pie_asset_failure($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
 draw_monthly_assetFailure_line();
 draw_asset_failure_stack_zayeat();
 draw_line_asset_production($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
+draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_bar_daily_asset_production($("#enddate").val());
 
 
@@ -325,6 +353,8 @@ draw_line_asset_production($("#startdate").val(),$("#enddate").val(),$("#machine
 
 });
 draw_bar_daily_asset_production($("#enddate").val());
+draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
+
 
 // draw_zayeat();
 // draw_line_asset_failure($("#startdate").val(),$("#enddate").val());

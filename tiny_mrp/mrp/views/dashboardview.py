@@ -252,7 +252,7 @@ def get_jalali_monthly_duration_sum():
     sums = [f"{monthly_sums[month]/60:0.0f}" for month in sorted_months]
 
     return labels, sums
-def get_jalali_monthly_production_sum():
+def get_jalali_monthly_production_sum(machine,asset_type):
     # Determine the current Jalali year
     # current_jalali_year = jdatetime.date.today().year-1
 
@@ -263,10 +263,23 @@ def get_jalali_monthly_production_sum():
     
     current_date = timezone.now()
     one_year_ago = current_date - timedelta(days=365)
-    records_last_12_months = DailyProduction.objects.filter(
-    dayOfIssue__gte=one_year_ago,
-    dayOfIssue__lte=current_date
-    )
+    if(asset_type=="0"):
+        if(int(machine)>1):
+            records_last_12_months = DailyProduction.objects.filter(
+                dayOfIssue__gte=one_year_ago,
+                dayOfIssue__lte=current_date,machine=machine
+                )
+        else:
+
+            records_last_12_months = DailyProduction.objects.filter(
+            dayOfIssue__gte=one_year_ago,
+            dayOfIssue__lte=current_date
+            )
+    else:
+        records_last_12_months = DailyProduction.objects.filter(
+        dayOfIssue__gte=one_year_ago,
+        dayOfIssue__lte=current_date,machine__asset_category=asset_type
+        )
     for record in records_last_12_months:
         jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
         jalali_month = jalali_date.strftime("%Y-%m")  # Format as 'Year-Month'
@@ -285,7 +298,9 @@ def jalali_monthly_duration_data(request):
     labels, sums = get_jalali_monthly_duration_sum()
     return JsonResponse({'labels': labels, 'sums': sums})
 def jalali_monthly_production_data(request):
-    labels, sums = get_jalali_monthly_production_sum()
+    machine = request.GET.get('machine',False)
+    asset_type = request.GET.get('asset_type',False)
+    labels, sums = get_jalali_monthly_production_sum(machine,asset_type)
     return JsonResponse({'labels': labels, 'sums': sums})
 ##############################
 def get_jalali_monthly_duration_sum_by_failure():
