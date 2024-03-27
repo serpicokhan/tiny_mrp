@@ -680,6 +680,71 @@ def monthly_detaild_report(request):
         cat_list.append({'cat':cats,'shift_val':days})
 
     return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
+def monthly_brief_report(request):
+    days=[]
+    shift=Shift.objects.all()
+    # asset_category = AssetCategory.objects.annotate(
+    #     min_priority=models.Min('asset__assetTavali')
+    #     # ).order_by('min_priority')
+    assets=Asset.objects.filter(Q(assetTypes=2)|Q(assetCategory__id=8))
+
+    current_date_time2 = jdatetime.datetime.now()
+    current_year=current_date_time2.year
+    j_month=request.GET.get('month',current_date_time2.month)
+
+    j_year=int(request.GET.get('year',current_year))
+    current_date_time = jdatetime.date(j_year, int(j_month), 1)
+    current_jalali_date = current_date_time
+
+
+
+
+
+    if current_jalali_date.month == 12:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=j_year + 1)
+    else:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=current_jalali_date.month + 1)
+
+
+    num_days = (first_day_of_next_month - jdatetime.timedelta(days=1)).day
+    cat_list=[]
+    for cats in assets:
+        sh_list=[]
+
+        days=[]
+        for sh in shift:
+                product={}
+                j_date1=jdatetime.date(j_year,current_jalali_date.month,1)
+                j_date2=jdatetime.date(j_year,current_jalali_date.month,num_days)
+                product[sh.id]=get_sum_machine_by_date_range_shift(cats,sh,j_date1.togregorian(),j_date1.togregorian())
+                
+      
+            
+           
+        product={}
+        start=jdatetime.date(j_year,current_jalali_date.month,1)
+        end=jdatetime.date(j_year,current_jalali_date.month,num_days)
+        for sh in shift:
+            product[sh.id]=get_monthly_machine_by_date_shift(cats,sh,start.togregorian(),end.togregorian())
+        days.append({'cat':cats,'date':"",'day_of_week':'جمع','product':product})
+        failure_days={}
+        for sh in shift:
+            failure_days[sh.id]=get_day_machine_failure_monthly_shift(cats,sh,start.togregorian(),end.togregorian())
+
+        total_day_per_shift={}
+        for sh in shift:
+            total_day_per_shift[sh.id]=num_days-failure_days[sh.id]
+        days.append({'cat':cats,'date':"",'day_of_week':'روز کاری','product':total_day_per_shift})
+        mean_day_per_shift={}
+        for sh in shift:
+            mean_day_per_shift[sh.id]=product[sh.id]/total_day_per_shift[sh.id]
+        print(mean_day_per_shift)
+        days.append({'cat':cats,'date':"",'day_of_week':'میانگین','product':mean_day_per_shift})
+
+
+        cat_list.append({'cat':cats,'shift_val':days})
+
+    return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
 def list_randeman_tolid(request):
     formulas=AssetRandemanInit.objects.all()
     return render(request,"mrp/tolid_randeman/randemanList.html",{'formulas':formulas,'title':'لیست راندمان'})

@@ -35,6 +35,12 @@ def get_sum_machine_by_date_shift(assetCatregory,shift,target_date):
         dayOfIssue=target_date,shift=shift
         ).aggregate(Sum('production_value'))['production_value__sum'] or 0
         # print(machine.id,target_date,production_sum)
+def get_sum_machine_by_date_range_shift(assetCatregory,shift,start_date,end_date):
+        t2 = DailyProduction.objects.filter(
+        machine__assetCategory=assetCatregory,
+        dayOfIssue__range=[start_date,end_date],shift=shift
+        ).aggregate(Sum('production_value'))['production_value__sum'] or 0
+        # print(machine.id,target_date,production_sum)
         return t2
 def get_monthly_machine_by_date_shift(assetCatregory,shift,start,end):
         t2 = DailyProduction.objects.filter(

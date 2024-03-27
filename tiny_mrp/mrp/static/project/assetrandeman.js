@@ -48,6 +48,9 @@ $(function () {
            $("#modal-company").modal("hide");
          }
          else {
+          if(data.form_error){
+            toastr.error(data.form_error);
+          }
 
            $("#company-table tbody").html(data.html_assetRandeman_list);
            $("#modal-company .modal-content").html(data.html_assetRandeman_form);

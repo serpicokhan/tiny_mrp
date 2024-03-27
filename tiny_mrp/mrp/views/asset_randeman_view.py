@@ -33,20 +33,28 @@ def save_assetRandeman_form(request, form, template_name,id=None):
 
     data = dict()
     if (request.method == 'POST'):
-        if form.is_valid():
-            bts=form.save()
-            calc_assetrandeman(bts.mah,bts.sal)
-            create_first_padash(bts.id)
-            data['form_is_valid'] = True
-            books = AssetRandemanList.objects.all()
-            wos=doPaging(request,books)
-            data['html_assetRandeman_list'] = render_to_string('mrp/assetrandeman/partialAssetRandemanList.html', {
-                'assetfailures': wos,
-                'perms': PermWrapper(request.user)
-            })
-        else:
-            data['form_is_valid'] = False
-            print(form.errors)
+        
+            if form.is_valid():
+                try:
+                    bts=form.save()
+                    calc_assetrandeman(bts.mah,bts.sal)
+                    create_first_padash(bts.id)
+                    data['form_is_valid'] = True
+                    books = AssetRandemanList.objects.all()
+                    wos=doPaging(request,books)
+                    data['html_assetRandeman_list'] = render_to_string('mrp/assetrandeman/partialAssetRandemanList.html', {
+                        'assetfailures': wos,
+                        'perms': PermWrapper(request.user)
+                    })
+                except IntegrityError:
+                    data['form_is_valid'] = False
+
+                    data['form_error']='برای این تاریخ راندمان از قبل وجود دارد'
+            else:
+                data['form_is_valid'] = False
+                print(form.errors)
+                data['form_error']='خطایی رخ داده است'               
+      
 
     context = {'form': form}
 

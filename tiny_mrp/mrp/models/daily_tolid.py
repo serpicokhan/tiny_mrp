@@ -176,6 +176,7 @@ class AssetRandemanList(models.Model):
     class Meta:
         db_table="assetrandemanlist"
         ordering=('-sal','-mah')
+        unique_together = ('mah', 'sal',)
 
 class AssetRandemanPerMonth(models.Model):
     asset_category = models.ForeignKey('AssetCategory', on_delete=models.CASCADE)
