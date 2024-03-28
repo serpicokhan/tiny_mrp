@@ -68,7 +68,7 @@
                                   {{x.nezafat_rank}}
                                   {% endif %}
                                   {% endfor %}</td>
-                              <td colspan="2" class="text-center">  {% for x in randeman_kol %}
+                              <td colspan="3" class="text-center">  {% for x in randeman_kol %}
                                   {% if i.id == x.shift.id %}
                                   {{x.padashe_nezafat|floatformat:0|intcomma}}
                                   {% endif %}
@@ -84,7 +84,7 @@
                                   {% endif %}
                                   {% endfor %}
                               </td>
-                              <td colspan="2">
+                              <td colspan="3">
                                 {% for x in randeman_kol %}
                                 {% if i.id == x.shift.id %}
                                 {{x.padashe_tolid|floatformat:0|intcomma}}
