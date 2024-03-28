@@ -20,6 +20,11 @@ $(function () {
         success: function (data) {
 
           $("#modal-company .modal-content").html(data.html_assetRandeman_form);
+          
+
+
+
+
           $('.clockpicker-example').clockpicker({
             donetext: 'Done',
             autoclose: true

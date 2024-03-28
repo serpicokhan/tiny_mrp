@@ -235,4 +235,4 @@ class TolidPadash(models.Model):
         db_table='tolidpadash'
         ordering=('rank',)
     def __str__(self):
-        return f"Rank: {self.rank}, Price: {self.price}"
+        return f"Rank: {self.rank}, Price: {self.price_sarshift}"

@@ -706,16 +706,7 @@ def monthly_brief_report(request):
     sum={}
     for sh in shifts:
         sum[sh.id]=0
-    # for cat in asset_cats:
-    #     val_per_shift={}
-    #     for i in shifts:
-    #         # print(cat.id)
-    #         try:
-    #             val_per_shift[i.id]=AssetRandemanPerMonth.objects.get(mah=int(j_month),sal=int(j_year),shift=i,asset_category__id=cat.id).tolid_value
-    #         except:
-    #             pass
-    #         # sum[i.id]+=val_per_shift[i.id]
-    #     totals.append({'cat':cat,'val':val_per_shift})
+    
     for cats in asset_cats:
             product={}
             start=jdatetime.date(j_year,current_jalali_date.month,1)
@@ -751,6 +742,14 @@ def monthly_brief_report(request):
 
     
     return render(request,'mrp/tolid/monthly_brief.html',{'cats':totals,'sum':sum,'shift':shifts,'title':'آمار ماهانه کلی','month':j_month,'year':j_year})
+
+            
+            
+    
+
+
+    
+    
 def list_randeman_tolid(request):
     formulas=AssetRandemanInit.objects.all()
     return render(request,"mrp/tolid_randeman/randemanList.html",{'formulas':formulas,'title':'لیست راندمان'})
