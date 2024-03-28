@@ -1,0 +1,140 @@
+{% extends 'mrp/blank-page.html' %}
+
+{% block content %}
+{% load static %}
+{% load custom_filters %}
+<div class="row app-block">
+
+    <div class="col-md-12 app-content">
+        <div class="app-content-overlay"></div>
+        <div class="app-action">
+            <div class="action-left">
+                <div class="custom-control custom-checkbox mr-3">
+            
+
+                    <select class="form-control" id="year">
+                        <option >انتخاب سال</option>
+                        <option {% if year == 1402 %} selected {% endif %} value="1402">1402</option>
+                        <option {% if year == 1403 %} selected {% endif %} value="1403">1403</option>
+
+                      </select>
+
+                </div>
+                <ul class="list-inline">
+
+
+                    <li class="list-inline-item mb-0">
+
+
+                    </li>
+
+                </ul>
+            </div>
+            <div class="action-right">
+                <form class="d-flex mr-3">
+                    <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu width-15 height-15"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </a>
+                    <div class="input-group">
+                        <select class="form-control" id="jalaliMonths">
+                            <option selected>انتخاب ماه</option>
+                            <option value="1" {% if month == '1' %} selected {% endif %}>فروردین</option>
+                            <option value="2" {% if month == '2' %} selected {% endif %}>اردیبهشت</option>
+                            <option value="3" {% if month == '3' %} selected {% endif %}>خرداد</option>
+                            <option value="4" {% if month == '4' %} selected {% endif %}>تیر</option>
+                            <option value="5" {% if month == '5' %} selected {% endif %}>مرداد</option>
+                            <option value="6" {% if month == '6' %} selected {% endif %}>شهریور</option>
+                            <option value="7" {% if month == '7' %} selected {% endif %}>مهر</option>
+                            <option value="8" {% if month == '8' %} selected {% endif %}>آبان</option>
+                            <option value="9" {% if month == '9' %} selected {% endif %}>آذر</option>
+                            <option value="10" {% if month == '10' %} selected {% endif %}>دی</option>
+                            <option value="11" {% if month == '11' %} selected {% endif %}>بهمن</option>
+                            <option value="12" {% if month == '12' %} selected {% endif %}>اسفند</option>
+                          </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-light" type="button" id="button-addon1">
+                                <i class="ti-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+
+                <h6 class="card-title">{{title}}</h6>
+
+
+               
+                <hr/>
+                <div class="table-responsive">
+                    <table class="table table-striped" border="1">
+                        <thead>
+                            <tr class="bg-dark">
+                               <th>
+                                نام دستگاه
+                               </th>
+                               {% for i in shift %}
+                               <th>
+                                {{i}}
+                               </th>
+
+                               {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in cats %}
+                            <tr>
+                                <td>{{i.cat.name}}</td>
+                                {% for shifts in shift %}
+                                
+
+                                    <td>{{ i.product|get_item:shifts.id|floatformat:2 }}</td>
+                                    
+                                {% endfor %}
+                            </tr>
+                            
+                            {% endfor %}
+                            
+                            <tr class="bg-dark">
+                                <td>مجموع</td>
+                                {% for k in sum %}
+                                
+                                <td>{{sum|get_item:k|floatformat:2}} <span class="text-success"> {{ sum|get_rank:k }} </span> </td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+{% endblock%}
+{% block javascript %}
+<script type="text/javascript">
+  $("#button-addon1").click(function(){
+    if($("#jalaliMonths").val()>0 && $("#year").val()>0){
+    window.location.href=`/Monthly/Brief?month=${$("#jalaliMonths").val()}&year=${$("#year").val()}`;
+  }
+  else {
+    toastr.error("یک مقدار انتخاب نمایید");
+  }
+  });
+
+</script>
+{% endblock %}

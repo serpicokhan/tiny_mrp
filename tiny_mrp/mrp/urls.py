@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^Failures/(?P<id>\d+)/update$', failure_update, name='failure_update'),
     url(r'^Failures/(?P<id>\d+)/delete$', failure_delete, name='failure_delete'),
     url(r'^Monthly/$', monthly_detaild_report, name='monthly_detaild_report'),
+    url(r'^Monthly/Brief$', monthly_brief_report, name='monthly_brief_report'),
     url(r'^Zayeat/Vazn/Create$', zayeatVazn_create, name='zayeatVazn_create'),
     url(r'^AssetFailure$', asset_failure_list, name='asset_failure_list'),
     url(r'^AssetFailure/calendar$', calendar_asset_failure, name='calendar_asset_failure'),
