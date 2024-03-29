@@ -21,6 +21,7 @@ from django.db import transaction
 from django.db.models import Max
 
 from django.db.models import Q
+from mrp.utils import utilMonth
 
 def backup_database(request):
     # Define your database credentials and output file's path
@@ -615,10 +616,8 @@ def list_speed_formula(request):
     return render(request,"mrp/speed_formula/formulaList.html",{'formulas':formulas,'title':'لیست فرمولهای سرعت'})
 def list_nezafat_padash(request):
     formulas=NezafatPadash.objects.all()
-    return render(request,"mrp/assetrandeman/nezafatPadashList.html",{'formulas':formulas,'title':'پاداش نظافت'})
-def list_tolid_padash(request):
-    formulas=TolidPadash.objects.all()
-    return render(request,"mrp/assetrandeman/tolidPadashList.html",{'formulas':formulas,'title':'پاداش تولید'})
+    return render(request,"mrp/assetrandeman/nezafatpadash/nezafatPadashList.html",{'formulas':formulas,'title':'پاداش نظافت'})
+
 def monthly_detaild_report(request):
     days=[]
     shift=Shift.objects.all()
@@ -813,7 +812,7 @@ def get_monthly_workbook(request):
         sum=randeman_kol+padashe_nezafat_personel+padashe_tolid_personel
         k.append({'randeman_kol':randeman_kol,'shift':i,'nezafat_rank':my_dict[nezafat_rank],'tolid_rank':my_dict[tolid_rank],'padashe_nezafat':padashe_nezafat_personel,'padashe_tolid':padashe_tolid_personel,'sum':sum})
 
-    return render(request,'mrp/assetrandeman/finalRandemanList.html',{'shift_list':shift_list,'randeman_list':d,'randeman_kol':k})
+    return render(request,'mrp/assetrandeman/finalRandemanList.html',{'shift_list':shift_list,'randeman_list':d,'randeman_kol':k,'mah':utilMonth[12-int(mah)],'sal':sal})
 def get_monthly_sarshift_workbook(request):
         my_dict = {
         1: 'اول',

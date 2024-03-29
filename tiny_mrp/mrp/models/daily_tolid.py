@@ -208,17 +208,17 @@ class TolidRanking(models.Model):
     rank = models.IntegerField()
     asset_randeman_list = models.ForeignKey(AssetRandemanList, on_delete=models.CASCADE)
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
-    price_sarshift = models.DecimalField(max_digits=10, decimal_places=2)
-    price_personnel = models.DecimalField(max_digits=10, decimal_places=2)
+    price_sarshift = models.DecimalField(max_digits=10, decimal_places=0)
+    price_personnel = models.DecimalField(max_digits=10, decimal_places=0)
     class Meta:
         db_table='tolidranking'
     def __str__(self):
         return self.description
 class NezafatPadash(models.Model):
-    description = models.TextField()
-    rank = models.IntegerField()
-    price_sarshift = models.DecimalField(max_digits=10, decimal_places=2)
-    price_personnel = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField("َشرح")
+    rank = models.IntegerField("رتبه")
+    price_sarshift = models.DecimalField("پاداش سرشیفت",max_digits=10, decimal_places=0)
+    price_personnel = models.DecimalField("پاداش پرسنل",max_digits=10, decimal_places=0)
 
     class Meta:
         db_table='nezafatpadash'
@@ -226,10 +226,10 @@ class NezafatPadash(models.Model):
     def __str__(self):
         return f"Rank: {self.rank}, Price: {self.price}"
 class TolidPadash(models.Model):
-    description = models.TextField()
-    rank = models.IntegerField()
-    price_sarshift = models.DecimalField(max_digits=10, decimal_places=2)
-    price_personnel = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField("شرح")
+    rank = models.IntegerField("رتبه")
+    price_sarshift = models.DecimalField("پاداش سرشیفت",max_digits=10, decimal_places=0)
+    price_personnel = models.DecimalField("پاداش پرسنل",max_digits=10, decimal_places=0)
 
     class Meta:
         db_table='tolidpadash'

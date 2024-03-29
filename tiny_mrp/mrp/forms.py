@@ -16,6 +16,14 @@ class FailureForm(forms.ModelForm):
     class Meta:
          model = Failure
          fields = '__all__'
+class TolidPadashForm(forms.ModelForm):
+    class Meta:
+         model = TolidPadash
+         fields = '__all__'
+class NezafatPadashForm(forms.ModelForm):
+    class Meta:
+         model = NezafatPadash
+         fields = '__all__'
 class AssetFailureForm2(forms.Form):
     asset_name = forms.ModelMultipleChoiceField(
         queryset=Asset.objects.filter(assetIsLocatedAt__isnull=False),

@@ -16,7 +16,11 @@ from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404
 
 
-from mrp.forms import AssetRandemanInitForm
+from mrp.forms import AssetRandemanInitForm,TolidPadashForm,NezafatPadashForm
+
+def list_tolid_padash(request):
+    formulas=TolidPadash.objects.all()
+    return render(request,"mrp/assetrandeman/tolidpadash/tolidPadashList.html",{'formulas':formulas,'title':'پاداش تولید'})
 
 def save_assetrandemaninit_form(request, form, template_name):
 
@@ -40,6 +44,51 @@ def save_assetrandemaninit_form(request, form, template_name):
 
     data['html_failure_form'] = render_to_string(template_name, context, request=request)
     return JsonResponse(data)
+def save_tolidPadash_form(request, form, template_name):
+
+
+    data = dict()
+    if (request.method == 'POST'):
+        if form.is_valid():
+            bts=form.save()
+            data['form_is_valid'] = True
+            books = TolidPadash.objects.all()
+            data['html_failure_list'] = render_to_string('mrp/assetrandeman/tolidpadash/partialTolidPadashList.html', {
+                'formulas': books,
+                'perms': PermWrapper(request.user)
+            })
+        else:
+            data['form_is_valid'] = False
+            print(form.errors)
+
+    context = {'form': form}
+
+
+    data['html_failure_form'] = render_to_string(template_name, context, request=request)
+    return JsonResponse(data)
+
+def save_nezafatPadash_form(request, form, template_name):
+
+
+    data = dict()
+    if (request.method == 'POST'):
+        if form.is_valid():
+            bts=form.save()
+            data['form_is_valid'] = True
+            books = NezafatPadash.objects.all()
+            data['html_failure_list'] = render_to_string('mrp/assetrandeman/nezafatpadash/partialNezafatPadashList.html', {
+                'formulas': books,
+                'perms': PermWrapper(request.user)
+            })
+        else:
+            data['form_is_valid'] = False
+            print(form.errors)
+
+    context = {'form': form}
+
+
+    data['html_failure_form'] = render_to_string(template_name, context, request=request)
+    return JsonResponse(data)
 
 def assetrandemaninit_update(request, id):
     company= get_object_or_404(AssetRandemanInit, id=id)
@@ -51,3 +100,25 @@ def assetrandemaninit_update(request, id):
 
 
     return save_assetrandemaninit_form(request, form,"mrp/assetrandeman/assetrandemaninit/partialAssetRandemanInitUpdate.html")
+
+def tolidPadash_update(request, id):
+    company= get_object_or_404(TolidPadash, id=id)
+    template=""
+    if (request.method == 'POST'):
+        form = TolidPadashForm(request.POST, instance=company)
+    else:
+        form = TolidPadashForm(instance=company)
+
+
+    return save_tolidPadash_form(request, form,"mrp/assetrandeman/tolidpadash/partialTolidPadashUpdate.html")
+
+def nezafatPadash_update(request, id):
+    company= get_object_or_404(TolidPadash, id=id)
+    template=""
+    if (request.method == 'POST'):
+        form = NezafatPadashForm(request.POST, instance=company)
+    else:
+        form = NezafatPadashForm(instance=company)
+
+
+    return save_nezafatPadash_form(request, form,"mrp/assetrandeman/nezafatpadash/partialnezafatPadashUpdate.html")

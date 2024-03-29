@@ -58,7 +58,7 @@ $(function () {
 
    var myWoLoader= function(){
      btn=$(this);
-     
+     console.log(1);
 
 
 
@@ -73,8 +73,8 @@ $(function () {
   // $("#modal-company").on("submit", ".js-assetFailure-create-form", saveForm);
 
   // // Update book
-  $("#company-table").on("click", ".js-update-assetRandeman", myWoLoader);
-  $("#modal-company").on("submit", ".js-assetRandemanInit-update-form", saveForm);
+  $("#company-table").on("click", ".js-update-tolidPadash", myWoLoader);
+  $("#modal-company").on("submit", ".js-tolidPadash-update-form", saveForm);
   // $("#modal-company").on("submit", ".js-AssetFailure-delete-form", saveForm);
 
   // // Delete book js-assetFailure-delete

@@ -5,6 +5,7 @@
   <td>{{c.rank}}</td>
   <td>{{c.price_sarshift|floatformat:0|intcomma}}</td>
   <td>{{c.price_personnel|floatformat:0|intcomma}}</td>
+<td><button type="button" class="btn btn-outline-light js-update-nezafatPadash" data-url="{% url 'nezafatPadash_update' c.id %}">  <i class="ti-eye"></i></button></td>
   
 </tr>
 {% endfor %}
