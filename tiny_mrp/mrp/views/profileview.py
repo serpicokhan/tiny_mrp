@@ -8,7 +8,7 @@ from mrp.business.tolid_util import *
 
 
 def profile_list(request):
-    profile = FinancialProfile.objects.all()
+    profile = FinancialProfile.objects.order_by('-id')
     return render(request, 'mrp/financial_profile/profile_list.html', {'profiles': profile,'title':'پروفال مالی'})
 
 

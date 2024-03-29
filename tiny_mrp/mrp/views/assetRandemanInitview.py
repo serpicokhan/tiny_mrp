@@ -23,7 +23,7 @@ def get_init_asset_randeman(request):
     profile=request.GET.get('profile',last_profile.id)
 
 
-    all_asset_randeman_init=AssetRandemanInit.objects.filter(profile__id=profile)
+    all_asset_randeman_init=AssetRandemanInit.objects.filter(profile__id=profile).order_by('asset_category__priority')
     return render(request,'mrp/assetrandeman/assetrandemaninit/initRandemanList.html',{'formulas':all_asset_randeman_init,'selected_profile':int(profile),'profile_list':profile_list})
 
 def list_tolid_padash(request):
@@ -50,7 +50,7 @@ def save_assetrandemaninit_form(request, form, template_name):
         if form.is_valid():
             bts=form.save()
             data['form_is_valid'] = True
-            books = AssetRandemanInit.objects.filter(profile=bts.profile)
+            books = AssetRandemanInit.objects.filter(profile=bts.profile).order_by('asset_category__priority')
             data['html_failure_list'] = render_to_string('mrp/assetrandeman/assetrandemaninit/partialInitRandemanList.html', {
                 'formulas': books,
                 'perms': PermWrapper(request.user)

@@ -1,9 +1,9 @@
 {% for i in assetfailures %}
 <tr>
-  <td>{{i.sal}}</td>
+  <td scope="row">{{i.sal}}</td>
   <td>{{i.mah}}</td>
 
-  <td class="w-25">
+  <td>
     <button type="button" class="btn btn-outline-light js-update-assetRandeman" data-url="{% url 'assetRandeman_update' i.id %}" >  <i class="ti-eye"></i></button>
     <button type="button" class="btn btn-outline-light js-update-assetRandemanRanking" data-url="{% url 'assetRandeman_nezafat_ranking' i.id %}" >  <i class="ti-list-ol"></i></button>
     <button type="button" class="btn btn-outline-light js-update-assetRandemanRanking" data-url="{% url 'assetRandeman_padash_ranking' i.id %}" >  <i class="ti-list-ol"></i></button>

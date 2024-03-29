@@ -157,7 +157,7 @@ class ZayeatVaz(models.Model):
     class Meta:
         db_table="zayeatvazn"
 class AssetRandemanInit(models.Model):
-    asset_category = models.ForeignKey('AssetCategory', on_delete=models.CASCADE)
+    asset_category = models.ForeignKey('AssetCategory', on_delete=models.CASCADE,verbose_name='نوع تجهیز')
     operator_count = models.IntegerField("تعداد اپراتور")
     max_randeman = models.DecimalField("حداکثر راندمان",max_digits=10, decimal_places=0)
     randeman_yek_dastgah = models.DecimalField("راندمان کل یک دستگاه",max_digits=10, decimal_places=0)
@@ -175,7 +175,7 @@ class AssetRandemanInit(models.Model):
 class AssetRandemanList(models.Model):
     mah = models.IntegerField()
     sal = models.IntegerField()
-    profile = models.ForeignKey('FinancialProfile', on_delete=models.CASCADE,null=True,blank=True)
+    profile = models.ForeignKey('FinancialProfile', on_delete=models.CASCADE,null=True,blank=True,verbose_name='پروفایل مالی')
 
     class Meta:
         db_table="assetrandemanlist"
@@ -253,4 +253,4 @@ class FinancialProfile(models.Model):
         db_table='financialprofile'
 
     def __str__(self):
-        return f"Profile created on {self.time_created}"
+        return f"{self.description}"

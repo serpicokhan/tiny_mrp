@@ -22,7 +22,7 @@ from django.views.decorators.csrf import csrf_exempt
 @login_required
 def asset_randeman_list(request):
 
-    books = AssetRandemanList.objects.all()
+    books = AssetRandemanList.objects.order_by('-id')
     wos=doPaging(request,books)
     return render(request,"mrp/assetrandeman/assetRandemanList.html",{'assetfailures':wos,'title':'لیست راندمانهای محاسبه شده'})
 
