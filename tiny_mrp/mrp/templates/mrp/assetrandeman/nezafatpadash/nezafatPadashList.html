@@ -1,7 +1,30 @@
 {% extends 'mrp/blank-page.html' %}
 {% load static %}
 {% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title">انتخاب پروفایل مالی</div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <select name="" id="profile_year" class="form-control">
 
+                            {% for i in profile_list %}
+                            <option value="{{i.id}}" {% if i.id == selected_profile %} selected {% endif%}> {{i.description}}</option>
+         
+                            {% endfor %}
+                         </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-light" id="go_to_profile">برو به این پروفایل</button>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-12">
 

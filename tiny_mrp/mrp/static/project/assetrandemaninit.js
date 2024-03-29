@@ -68,7 +68,13 @@ $(function () {
 
 
    
-
+   var redirect_to_tolid_padash=function(){
+  
+    window.location=`/Asset/Randeman/InitRandeman/?profile=${$("#profile_year").val()}`;
+  }
+  $("#go_to_profile").click(function(){
+    redirect_to_tolid_padash();
+  });
   // $(".js-create-assetFailure").click(myWoLoader);
   // $("#modal-company").on("submit", ".js-assetFailure-create-form", saveForm);
 

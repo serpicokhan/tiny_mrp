@@ -308,3 +308,24 @@ def get_tolid_rank(sal,mah):
     # Find the rank of the current item based on its position in sorted keys
    
     return sum  # Adding 1 to start rank at 1 instead of 0
+def create_related_tolid_padash(id):
+     tolid_padash=TolidPadash.objects.order_by('-id')[:3]
+     for i in tolid_padash:
+          new_padash=i
+          new_padash.pk=None
+          new_padash.profile=FinancialProfile.objects.get(id=id)
+          new_padash.save()
+def create_related_nezafat_padash(id):
+     nezafat_padash=NezafatPadash.objects.order_by('-id')[:3]
+     for i in nezafat_padash:
+          new_padash=i
+          new_padash.pk=None
+          new_padash.profile=FinancialProfile.objects.get(id=id)
+          new_padash.save()
+def create_related_randemanInit_padash(id):
+     init_randeman=AssetRandemanInit.objects.order_by('-id')[:10]
+     for i in init_randeman:
+          new_padash=i
+          new_padash.pk=None
+          new_padash.profile=FinancialProfile.objects.get(id=id)
+          new_padash.save()

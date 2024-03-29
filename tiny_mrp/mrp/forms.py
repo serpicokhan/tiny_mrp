@@ -11,6 +11,10 @@ class AssetFailureForm(forms.ModelForm):
     class Meta:
          model = AssetFailure
          fields = '__all__'
+class FinancialProfileForm(forms.ModelForm):
+    class Meta:
+         model = FinancialProfile
+         fields = '__all__'
 
 class FailureForm(forms.ModelForm):
     class Meta:
@@ -19,11 +23,11 @@ class FailureForm(forms.ModelForm):
 class TolidPadashForm(forms.ModelForm):
     class Meta:
          model = TolidPadash
-         fields = '__all__'
+         exclude = ('profile',)
 class NezafatPadashForm(forms.ModelForm):
     class Meta:
          model = NezafatPadash
-         fields = '__all__'
+         exclude = ('profile',)
 class AssetFailureForm2(forms.Form):
     asset_name = forms.ModelMultipleChoiceField(
         queryset=Asset.objects.filter(assetIsLocatedAt__isnull=False),
@@ -55,9 +59,11 @@ class HeatsetMetrajForm(forms.Form):
     metrajdaf8 = forms.IntegerField(initial=0,label='متراز داف 8')
     makhraj_metraj_daf = forms.IntegerField(initial=0,label='مخرج متراز داف')
 class AssetRandemanInitForm(forms.ModelForm):
+
     class Meta:
          model = AssetRandemanInit
-         fields = '__all__'
+         exclude = ('profile',)
+         
 
 class AssetRandemanForm(forms.ModelForm):
     SAL_CHOICES = (

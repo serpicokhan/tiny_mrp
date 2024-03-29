@@ -55,8 +55,8 @@ urlpatterns = [
     url(r'^Asset/Randeman/Create$', assetRandeman_create, name='assetRandeman_create'),
     url(r'^Asset/Randeman/(?P<id>\d+)/update/$', assetRandeman_update, name='assetRandeman_update'),
     url(r'^Asset/Randeman/(?P<id>\d+)/delete/$', assetRandeman_delete, name='assetRandeman_delete'),
-    url(r'^Asset/Randeman/WorkBook/$', get_monthly_workbook, name='get_monthly_workbook'),
-    url(r'^Asset/Randeman/Sarshift/WorkBook/$', get_monthly_sarshift_workbook, name='get_monthly_sarshift_workbook'),
+    url(r'^Asset/Randeman/Workprofile/$', get_monthly_workbook, name='get_monthly_workbook'),
+    url(r'^Asset/Randeman/Sarshift/Workprofile/$', get_monthly_sarshift_workbook, name='get_monthly_sarshift_workbook'),
     url(r'^Asset/Randeman/(?P<id>\d+)/NezafatRanking/$', assetRandeman_nezafat_ranking, name='assetRandeman_nezafat_ranking'),
     url(r'^Asset/Randeman/NezafatRanking/Create$', assetRandeman_ranking_create, name='assetRandeman_ranking_create'),
     url(r'^Asset/Randeman/TolidRanking/Create$', assetRandeman_tolid_ranking_create, name='assetRandeman_tolid_ranking_create'),
@@ -77,6 +77,10 @@ urlpatterns = [
     url(r'^Dashboard/AssetFailure/Monthly/$', jalali_monthly_duration_data, name='jalali_monthly_duration_data'),
     url(r'^Dashboard/Production/Monthly/$', jalali_monthly_production_data, name='jalali_monthly_production_data'),
     url(r'^Dashboard/AssetFailure/StackedMonthly/$', jalali_monthly_duration_by_failure_data, name='jalali_monthly_duration_by_failure_data'),
+    url(r'^profile/$', profile_list, name='profile_list'),
+    url(r'^profile/create/$', profile_create, name='profile_create'),
+    url(r'^profile/(?P<pk>\d+)/update/$', profile_update, name='profile_update'),
+    url(r'^profile/(?P<pk>\d+)/delete/$', profile_delete, name='profile_delete'),
 
 
 

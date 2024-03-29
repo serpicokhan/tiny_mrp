@@ -614,9 +614,6 @@ def list_formula(request):
 def list_speed_formula(request):
     formulas=SpeedFormula.objects.all()
     return render(request,"mrp/speed_formula/formulaList.html",{'formulas':formulas,'title':'لیست فرمولهای سرعت'})
-def list_nezafat_padash(request):
-    formulas=NezafatPadash.objects.all()
-    return render(request,"mrp/assetrandeman/nezafatpadash/nezafatPadashList.html",{'formulas':formulas,'title':'پاداش نظافت'})
 
 def monthly_detaild_report(request):
     days=[]

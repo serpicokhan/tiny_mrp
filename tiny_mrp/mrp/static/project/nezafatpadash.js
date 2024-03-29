@@ -11,7 +11,7 @@ $(function () {
       }
 
       return $.ajax({
-        url: btn.attr("data-url")+`?dt=${$("#search").val()}`,
+        url: btn.attr("data-url"),
         type: 'get',
         dataType: 'json',
         beforeSend: function () {
@@ -58,7 +58,6 @@ $(function () {
 
    var myWoLoader= function(){
      btn=$(this);
-     console.log(1);
 
 
 
@@ -67,7 +66,13 @@ $(function () {
    }
 
 
-   
+   var redirect_to_tolid_padash=function(){
+  
+    window.location=`/Asset/Randeman/NezafatPadash/?profile=${$("#profile_year").val()}`;
+  }
+  $("#go_to_profile").click(function(){
+    redirect_to_tolid_padash();
+  });
 
   // $(".js-create-assetFailure").click(myWoLoader);
   // $("#modal-company").on("submit", ".js-assetFailure-create-form", saveForm);

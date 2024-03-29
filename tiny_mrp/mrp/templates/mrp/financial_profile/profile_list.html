@@ -1,0 +1,54 @@
+{% extends 'mrp/blank-page.html' %}
+{% load static %}
+{% block content %}
+
+<div class="row">
+    
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">{{title}}</h6>
+                <p>
+                    <button type="button" class="btn btn-primary js-create-profile" data-url="{% url 'profile_create' %}">
+                      <span class="glyphicon glyphicon-plus"></span>
+                      جدید
+                    </button>
+                  </p>
+                <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
+                    <table class="table table-striped table-bordered" id="profile-table">
+                        <thead>
+                        <tr class="bg-info">
+                        <th>نام پروفایل</th>
+                        <th>تاریخ ایجاد</th>
+                        <th>عملیات</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                          {% include 'mrp/financial_profile/partial_profile_list.html' %}
+
+                          </tbody>
+                    </table>
+                </div>
+                <div class="modal fade" id="modal-profile">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                
+                      </div>
+                    </div>
+                  </div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+{% endblock %}
+{% load static %}
+
+{% block javascript %}
+  <script src="{% static 'project\financialprofile.js' %}"></script>
+{% endblock %}

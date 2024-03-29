@@ -165,6 +165,8 @@ class AssetRandemanInit(models.Model):
     mablaghe_kole_randeman = models.DecimalField("مبلغ کل راندمان (واقعی)",max_digits=10, decimal_places=0)
     mablaghe_kole_randeman_round = models.DecimalField("مبلغ کل راندمان (واقعی)",max_digits=10, decimal_places=0)
     randeman_tolid = models.DecimalField("راندمان تولید",max_digits=10, decimal_places=0)
+    profile = models.ForeignKey('FinancialProfile', on_delete=models.CASCADE,null=True,blank=True)
+
     class Meta:
         db_table="assetrandemaninit"
 
@@ -173,6 +175,8 @@ class AssetRandemanInit(models.Model):
 class AssetRandemanList(models.Model):
     mah = models.IntegerField()
     sal = models.IntegerField()
+    profile = models.ForeignKey('FinancialProfile', on_delete=models.CASCADE,null=True,blank=True)
+
     class Meta:
         db_table="assetrandemanlist"
         ordering=('-sal','-mah')
@@ -219,6 +223,8 @@ class NezafatPadash(models.Model):
     rank = models.IntegerField("رتبه")
     price_sarshift = models.DecimalField("پاداش سرشیفت",max_digits=10, decimal_places=0)
     price_personnel = models.DecimalField("پاداش پرسنل",max_digits=10, decimal_places=0)
+    profile = models.ForeignKey('FinancialProfile', on_delete=models.CASCADE,null=True,blank=True)
+
 
     class Meta:
         db_table='nezafatpadash'
@@ -226,13 +232,25 @@ class NezafatPadash(models.Model):
     def __str__(self):
         return f"Rank: {self.rank}, Price: {self.price}"
 class TolidPadash(models.Model):
+
     description = models.TextField("شرح")
     rank = models.IntegerField("رتبه")
     price_sarshift = models.DecimalField("پاداش سرشیفت",max_digits=10, decimal_places=0)
     price_personnel = models.DecimalField("پاداش پرسنل",max_digits=10, decimal_places=0)
+    profile = models.ForeignKey('FinancialProfile', on_delete=models.CASCADE,null=True,blank=True)
 
     class Meta:
         db_table='tolidpadash'
         ordering=('rank',)
     def __str__(self):
         return f"Rank: {self.rank}, Price: {self.price_sarshift}"
+class FinancialProfile(models.Model):
+    def get_jalali_time_created(self):
+        return jdatetime.date.fromgregorian(date=self.time_created)
+    description = models.TextField("شرح")
+    time_created = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        db_table='financialprofile'
+
+    def __str__(self):
+        return f"Profile created on {self.time_created}"

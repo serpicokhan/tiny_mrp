@@ -17,10 +17,30 @@ from django.shortcuts import get_object_or_404
 
 
 from mrp.forms import AssetRandemanInitForm,TolidPadashForm,NezafatPadashForm
+def get_init_asset_randeman(request):
+    profile_list=FinancialProfile.objects.all().order_by('-id')
+    last_profile=FinancialProfile.objects.order_by('-id').first()
+    profile=request.GET.get('profile',last_profile.id)
+
+
+    all_asset_randeman_init=AssetRandemanInit.objects.filter(profile__id=profile)
+    return render(request,'mrp/assetrandeman/assetrandemaninit/initRandemanList.html',{'formulas':all_asset_randeman_init,'selected_profile':int(profile),'profile_list':profile_list})
 
 def list_tolid_padash(request):
-    formulas=TolidPadash.objects.all()
-    return render(request,"mrp/assetrandeman/tolidpadash/tolidPadashList.html",{'formulas':formulas,'title':'پاداش تولید'})
+    profile_list=FinancialProfile.objects.all().order_by('-id')
+    last_profile=FinancialProfile.objects.order_by('-id').first()
+    profile=request.GET.get('profile',last_profile.id)
+
+    formulas=TolidPadash.objects.filter(profile__id=profile)
+    return render(request,"mrp/assetrandeman/tolidpadash/tolidPadashList.html",{'formulas':formulas,'title':'پاداش تولید','selected_profile':int(profile),'profile_list':profile_list})
+def list_nezafat_padash(request):
+    profile_list=FinancialProfile.objects.all().order_by('-id')
+    last_profile=FinancialProfile.objects.order_by('-id').first()
+    profile=request.GET.get('profile',last_profile.id)
+
+    formulas=NezafatPadash.objects.filter(profile__id=profile)
+    return render(request,"mrp/assetrandeman/nezafatpadash/nezafatPadashList.html",{'formulas':formulas,'title':'پاداش نظافت','selected_profile':int(profile),'profile_list':profile_list})
+
 
 def save_assetrandemaninit_form(request, form, template_name):
 
@@ -30,7 +50,7 @@ def save_assetrandemaninit_form(request, form, template_name):
         if form.is_valid():
             bts=form.save()
             data['form_is_valid'] = True
-            books = AssetRandemanInit.objects.all()
+            books = AssetRandemanInit.objects.filter(profile=bts.profile)
             data['html_failure_list'] = render_to_string('mrp/assetrandeman/assetrandemaninit/partialInitRandemanList.html', {
                 'formulas': books,
                 'perms': PermWrapper(request.user)
@@ -52,7 +72,7 @@ def save_tolidPadash_form(request, form, template_name):
         if form.is_valid():
             bts=form.save()
             data['form_is_valid'] = True
-            books = TolidPadash.objects.all()
+            books = TolidPadash.objects.filter(profile=bts.profile)
             data['html_failure_list'] = render_to_string('mrp/assetrandeman/tolidpadash/partialTolidPadashList.html', {
                 'formulas': books,
                 'perms': PermWrapper(request.user)
@@ -75,7 +95,7 @@ def save_nezafatPadash_form(request, form, template_name):
         if form.is_valid():
             bts=form.save()
             data['form_is_valid'] = True
-            books = NezafatPadash.objects.all()
+            books = NezafatPadash.objects.filter(profile=bts.profile)
             data['html_failure_list'] = render_to_string('mrp/assetrandeman/nezafatpadash/partialNezafatPadashList.html', {
                 'formulas': books,
                 'perms': PermWrapper(request.user)
@@ -113,7 +133,7 @@ def tolidPadash_update(request, id):
     return save_tolidPadash_form(request, form,"mrp/assetrandeman/tolidpadash/partialTolidPadashUpdate.html")
 
 def nezafatPadash_update(request, id):
-    company= get_object_or_404(TolidPadash, id=id)
+    company= get_object_or_404(NezafatPadash, id=id)
     template=""
     if (request.method == 'POST'):
         form = NezafatPadashForm(request.POST, instance=company)
