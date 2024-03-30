@@ -109,7 +109,7 @@ var save_ranking=function () {
   // Iterate through each list item
   $('#tbody_sortable tr').each(function() {
       var dataId = $(this).data('id');
-      var dataPosition = $(this).find('td:eq(1) input').val()||0;
+      var dataPosition = $(this).find('td:eq(1) .rank').val()||0;
       var nezafatpadash_sarshift=$(this).find('td:eq(2) input').val()||0
       var nezafatdash_operator=$(this).find('td:eq(3) input').val()||0
       var data_asset_randeman_list= $(this).data('assetrandeman');

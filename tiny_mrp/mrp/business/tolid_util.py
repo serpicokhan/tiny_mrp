@@ -210,6 +210,7 @@ def get_randeman_per_tolid(mah,sal,asset_cat):
 def calc_assetrandeman(mah,sal):
     asset_cat_list=AssetCategory.objects.all()
     shift_list=Shift.objects.all()
+    asset_randeman_list=AssetRandemanList.objects.get(mah=mah,sal=sal)
 
     AssetRandemanPerMonth.objects.filter(mah=mah,sal=sal).delete()
     for i in asset_cat_list:
@@ -217,7 +218,7 @@ def calc_assetrandeman(mah,sal):
         data_shift=[]
         for shift in shift_list:
             
-            kole_randeman=AssetRandemanInit.objects.get(asset_category=i).randeman_tolid
+            kole_randeman=AssetRandemanInit.objects.get(asset_category=i,profile=asset_randeman_list.profile).randeman_tolid
             tolid_shift=get_randeman_per_tolid_byshift(mah,sal,i,shift)           
            
 
@@ -243,9 +244,8 @@ def create_first_padash(AssetRandemanListId):
     for i in shifts:
         # TolidPadash.objects.create(asset_randeman_list=asset_randeman,rank=i.id,price_sarshift=0,price_personnel=0)
         # print(tolid_rank.index(i.id),'!!!!!!!!!')
-        print(i.id,'$$$$$$$$$$$$')
-        print(sorted_footballers_by_goals.index(1),'!!!!!!!!!!!!!')
-        padash_tolid=TolidPadash.objects.get(rank=sorted_footballers_by_goals.index(i.id)+1) #tolid_rank.index(i.id)
+      
+        padash_tolid=TolidPadash.objects.get(rank=sorted_footballers_by_goals.index(i.id)+1,profile=asset_randeman.profile) #tolid_rank.index(i.id)
         rank=sorted_footballers_by_goals.index(i.id)+1
         TolidRanking.objects.create(asset_randeman_list=asset_randeman,shift=i,rank=rank,price_sarshift=padash_tolid.price_sarshift,price_personnel=padash_tolid.price_personnel)
         NezafatRanking.objects.create(asset_randeman_list=asset_randeman,shift=i,rank=i.id,price_sarshift=0,price_personnel=0)

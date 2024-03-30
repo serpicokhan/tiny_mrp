@@ -209,7 +209,12 @@ class NezafatRanking(models.Model):
 class TolidRanking(models.Model):
     # Your model fields go here
     # For example:
-    rank = models.IntegerField()
+    RANK_CHOICES = (
+        (1, 'رتبه اول'),
+        (2, 'رتبه دوم'),
+        (3, 'رتبه سوم'),
+    )
+    rank = models.IntegerField(choices=RANK_CHOICES)
     asset_randeman_list = models.ForeignKey(AssetRandemanList, on_delete=models.CASCADE)
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
     price_sarshift = models.DecimalField(max_digits=10, decimal_places=0)
@@ -219,8 +224,13 @@ class TolidRanking(models.Model):
     def __str__(self):
         return self.description
 class NezafatPadash(models.Model):
+    RANK_CHOICES = (
+        (1, 'رتبه اول'),
+        (2, 'رتبه دوم'),
+        (3, 'رتبه سوم'),
+    )
+    rank = models.IntegerField(choices=RANK_CHOICES)
     description = models.TextField("َشرح")
-    rank = models.IntegerField("رتبه")
     price_sarshift = models.DecimalField("پاداش سرشیفت",max_digits=10, decimal_places=0)
     price_personnel = models.DecimalField("پاداش پرسنل",max_digits=10, decimal_places=0)
     profile = models.ForeignKey('FinancialProfile', on_delete=models.CASCADE,null=True,blank=True)
