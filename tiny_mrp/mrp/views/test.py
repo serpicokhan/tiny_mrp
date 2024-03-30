@@ -795,16 +795,17 @@ def get_monthly_workbook(request):
     sal=request.GET.get("sal",False)
     shift_list=Shift.objects.all()
     randeman_list=AssetRandemanPerMonth.objects.filter(mah=mah,sal=sal).order_by('asset_category__priority')
+    profile=AssetRandemanList.objects.get(sal=sal,mah=mah).profile
     d=[]
     for i in randeman_list:
-        d.append({'operator_num':AssetRandemanInit.objects.get(asset_category=i.asset_category).operator_count,'randeman':i})
+        d.append({'operator_num':AssetRandemanInit.objects.get(asset_category=i.asset_category,profile=profile).operator_count,'randeman':i})
     k=[]
     for i in shift_list:
         randeman_list=AssetRandemanList.objects.get(mah=mah,sal=sal)
         nezafat_rank=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
         tolid_rank=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
-        padashe_nezafat_personel=NezafatRanking.objects.get(rank=nezafat_rank).price_personnel
-        padashe_tolid_personel=TolidRanking.objects.get(rank=tolid_rank).price_personnel
+        padashe_nezafat_personel=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).price_personnel
+        padashe_tolid_personel=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).price_personnel
         randeman_kol=get_sum_randeman_by_shift(mah,sal,i)
         sum=randeman_kol+padashe_nezafat_personel+padashe_tolid_personel
         k.append({'randeman_kol':randeman_kol,'shift':i,'nezafat_rank':my_dict[nezafat_rank],'tolid_rank':my_dict[tolid_rank],'padashe_nezafat':padashe_nezafat_personel,'padashe_tolid':padashe_tolid_personel,'sum':sum})

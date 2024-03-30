@@ -200,12 +200,12 @@ class NezafatRanking(models.Model):
     rank = models.IntegerField()
     asset_randeman_list = models.ForeignKey(AssetRandemanList, on_delete=models.CASCADE)
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
-    price_sarshift = models.DecimalField(max_digits=10, decimal_places=2)
-    price_personnel = models.DecimalField(max_digits=10, decimal_places=2)
+    price_sarshift = models.DecimalField(max_digits=10, decimal_places=0)
+    price_personnel = models.DecimalField(max_digits=10, decimal_places=0)
     class Meta:
         db_table='nezafatranking'
     def __str__(self):
-        return self.description
+        return f'{self.id} {self.rank} {self.price_sarshift} {self.price_personel}'
 class TolidRanking(models.Model):
     # Your model fields go here
     # For example:
@@ -240,7 +240,7 @@ class NezafatPadash(models.Model):
         db_table='nezafatpadash'
         ordering=('rank',)
     def __str__(self):
-        return f"Rank: {self.rank}, Price: {self.price}"
+        return f"Rank: {self.rank}, Price: {self.price_personnel}"
 class TolidPadash(models.Model):
 
     description = models.TextField("شرح")

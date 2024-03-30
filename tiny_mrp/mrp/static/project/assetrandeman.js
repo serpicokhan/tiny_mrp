@@ -149,6 +149,63 @@ var save_ranking=function () {
   });
   return false;
  };
+ var calc_ranking=function () {
+  var dataArray = [];
+  var form = $("#ssetRandeman-ranking-form");
+
+  // Iterate through each list item
+  $('#tbody_sortable tr').each(function() {
+      var dataId = $(this).data('id');
+      var dataPosition = $(this).find('td:eq(1) .rank').val()||0;
+      var nezafatpadash_sarshift=$(this).find('td:eq(2) input').val()||0
+      var nezafatdash_operator=$(this).find('td:eq(3) input').val()||0
+      var data_asset_randeman_list= $(this).data('assetrandeman');
+
+      // Create an object with data-id and data-position
+      var itemData = {
+          id: dataId,
+          position: dataPosition,
+          nezafatdash_sarshift: nezafatpadash_sarshift,
+          nezafatdash_operator: nezafatdash_operator,
+          assetrandeman:data_asset_randeman_list
+      };
+
+      // Add the object to the dataArray
+      dataArray.push(itemData);
+  });
+  var sent_data={items:dataArray};
+
+  // Use AJAX to send the dataArray to your server
+  $.ajax({
+      url: $(this).attr("data-url"),
+
+      type: 'post',
+      data: JSON.stringify(dataArray),
+      beforeSend:function(){
+        console.log(dataArray);
+      },
+      success: function(data) {
+          console.log('Data sent successfully', data);
+          if(data.status=='1'){
+            if(data.result){
+              for( var i in data.result){
+                var targetRow = $(`tr[data-id="${data.result[i].id}"]`);
+                
+                targetRow.find('input.sarshift_val').val(data.result[i].price_sarshift);
+                targetRow.find('input.operator_val').val(data.result[i].price_personnel);
+              }
+            }
+          }
+          
+
+
+      },
+      error: function(error) {
+          console.error('Error sending data', error);
+      }
+  });
+  return false;
+ };
   $(".js-create-assetRandeman").click(myWoLoader);
   $("#modal-company").on("submit", ".js-assetRandeman-create-form", saveForm);
 
@@ -161,5 +218,6 @@ var save_ranking=function () {
   $("#company-table").on("click", ".js-assetRandeman-delete", myWoLoader);
   $("#modal-company").on("submit", ".js-assetRandeman-delete-form", saveForm);
   $("#modal-company").on("submit", ".js-assetRandeman-ranking-form", save_ranking);
+  $("#modal-company").on("click", ".js-calc_assetRandeman_nezafat_ranking", calc_ranking);
 
   });

@@ -329,3 +329,14 @@ def create_related_randemanInit_padash(id):
           new_padash.pk=None
           new_padash.profile=FinancialProfile.objects.get(id=id)
           new_padash.save()
+def find_who_take_1_padash(my_list):
+     obj_with_ranking_1 = [obj for obj in my_list if int(obj.rank) == 1]
+    #  print(obj_with_ranking_3)
+     return obj_with_ranking_1
+def find_who_take_2_padash(my_list):
+     obj_with_ranking_2 = [obj for obj in my_list if int(obj.rank) ==2]
+     return obj_with_ranking_2
+
+def find_who_take_3_padash(my_list):
+    obj_with_ranking_3 = [obj for obj in my_list if int(obj.rank) ==3]
+    return obj_with_ranking_3

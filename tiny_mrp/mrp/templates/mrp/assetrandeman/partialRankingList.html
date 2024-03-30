@@ -1,4 +1,4 @@
-<form method="post" action="{% url 'assetRandeman_ranking_create'   %}" class="js-assetRandeman-ranking-form" autocomplete="off">
+<form method="post" action="{% url 'assetRandeman_ranking_create'   %}" class="js-assetRandeman-ranking-form" id='assetRandeman-ranking-form' autocomplete="off">
 
   <div class="modal-header bg-primary" >
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -54,6 +54,7 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal">انصراف</button>
+    <button type="button" class="btn btn-default js-calc_assetRandeman_nezafat_ranking" data-url='{% url "calc_assetRandeman_nezafat_ranking" %}'>محاسبه رتبه</button>
     {% if perms.mrp.add_assetfailure %}
     <button type="submit" class="btn btn-primary" >ذخیره</button>
     {% endif %}
