@@ -319,6 +319,126 @@ def calc_assetRandeman_nezafat_ranking(request):
             return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 @csrf_exempt
+def calc_assetRandeman_tolid_ranking(request):
+    if request.method == 'POST':
+        try:
+            a={}
+            b=[]
+            for i in range(1,4):
+                a[i]=0
+            
+            # Access the 'items' key from the POST data
+            received_data = json.loads(request.body)
+
+            for i in received_data:
+                # print(i)
+                p=TolidRanking.objects.get(id=i["id"])
+                p.rank=i['position']
+                p.price_sarshift=i['nezafatdash_sarshift']
+                p.price_personnel=i['nezafatdash_operator']
+                a[int(p.rank)]+=1
+                b.append(p)
+            rank_1=find_who_take_1_padash(b)
+            rank_2=find_who_take_2_padash(b)
+            rank_3=find_who_take_3_padash(b)
+            padash_1=TolidPadash.objects.get(rank=1,profile=b[0].asset_randeman_list.profile)
+            padash_2=TolidPadash.objects.get(rank=2,profile=b[0].asset_randeman_list.profile)
+            padash_3=TolidPadash.objects.get(rank=3,profile=b[0].asset_randeman_list.profile)
+            if(len(rank_1)==1):
+                n=rank_1[0]
+                n.price_sarshift=padash_1.price_sarshift
+                n.price_personnel=padash_1.price_personnel
+                
+            elif(len(rank_1)==2):
+                # print(padash_2)
+                
+                padash_sarshift=(padash_1.price_sarshift+padash_2.price_sarshift)/2
+                padash_personel=(padash_1.price_personnel+padash_2.price_personnel)/2
+                
+                for i in rank_1:
+                    i.price_sarshift=padash_sarshift
+                    i.price_personnel=padash_personel
+                    
+            else:
+                padash_sarshift=(padash_1.price_sarshift+padash_2.price_sarshift+padash_3.price_sarshift)/3
+                padash_personel=(padash_1.price_personnel+padash_2.price_personnel+padash_3.price_personnel)/3
+                for i in rank_1:
+                    i.price_sarshift=padash_sarshift
+                    i.price_personnel=padash_personel
+
+
+            if(len(rank_2)==1):
+                n=rank_2[0]
+                n.price_sarshift=padash_2.price_sarshift
+                n.price_personnel=padash_2.price_personnel
+                
+            elif(len(rank_2)==2):
+                # print(padash_2)
+                
+                padash_sarshift=(padash_2.price_sarshift+padash_3.price_sarshift)/2
+                padash_personel=(padash_2.price_personnel+padash_3.price_personnel)/2
+                
+                for i in rank_2:
+                    i.price_sarshift=padash_sarshift
+                    i.price_personnel=padash_personel
+                    
+            else:
+                padash_sarshift=(padash_1.price_sarshift+padash_2.price_sarshift+padash_3.price_sarshift)/3
+                padash_personel=(padash_1.price_personnel+padash_2.price_personnel+padash_3.price_personnel)/3
+                for i in rank_2:
+                    i.price_sarshift=padash_sarshift
+                    i.price_personnel=padash_personel
+
+
+            if(len(rank_3)==1):
+                n=rank_3[0]
+                n.price_sarshift=padash_3.price_sarshift
+                n.price_personnel=padash_3.price_personnel
+                
+            elif(len(rank_3)==2):
+                # print(padash_2)
+                
+                padash_sarshift=(padash_2.price_sarshift+padash_3.price_sarshift)/2
+                padash_personel=(padash_2.price_personnel+padash_3.price_personnel)/2
+                
+                for i in rank_3:
+                    i.price_sarshift=padash_sarshift
+                    i.price_personnel=padash_personel
+                    
+            else:
+                padash_sarshift=(padash_1.price_sarshift+padash_2.price_sarshift+padash_3.price_sarshift)/3
+                padash_personel=(padash_1.price_personnel+padash_2.price_personnel+padash_3.price_personnel)/3
+                for i in rank_2:
+                    i.price_sarshift=padash_sarshift
+                    i.price_personnel=padash_personel
+                    
+
+
+            # rank_2=find_who_take_2_padash(b)
+            # rank_3=find_who_take_3_padash(b)
+           
+            result=[]
+            for i in rank_1:
+                result.append({'id':i.id,'rank':i.rank,'price_sarshift':i.price_sarshift,'price_personnel':i.price_personnel})
+            for i in rank_2:
+                result.append({'id':i.id,'rank':i.rank,'price_sarshift':i.price_sarshift,'price_personnel':i.price_personnel})
+            for i in rank_3:
+                result.append({'id':i.id,'rank':i.rank,'price_sarshift':i.price_sarshift,'price_personnel':i.price_personnel})
+            return JsonResponse({'status': '1','result':result})
+        except TolidRanking.DoesNotExist:
+            # NezafatRanking.objects.create()
+            print("123!!!!!!!")
+        except TolidPadash.DoesNotExist:
+            # NezafatRanking.objects.create()
+            print("$$$$$$$$$$")
+
+        except json.JSONDecodeError as e:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON format'})
+        return JsonResponse({'status': 'error'})
+    else:
+            return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+@csrf_exempt
 def assetRandeman_tolid_ranking_create(request):
     if request.method == 'POST':
         try:

@@ -832,8 +832,8 @@ def get_monthly_sarshift_workbook(request):
             randeman_list=AssetRandemanList.objects.get(mah=mah,sal=sal)
             nezafat_rank=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
             tolid_rank=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
-            padashe_nezafat_personel=NezafatRanking.objects.get(rank=nezafat_rank).price_sarshift
-            padashe_tolid_personel=TolidRanking.objects.get(rank=tolid_rank).price_sarshift
+            padashe_nezafat_personel=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).price_sarshift
+            padashe_tolid_personel=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).price_sarshift
             randeman_kol=get_sum_randeman_by_shift(mah,sal,i)
             shift_randeman_tolid=(23000000*randeman_kol)/randeman_tolid
             sum_shift_randeman_tolid+=shift_randeman_tolid
@@ -845,7 +845,7 @@ def get_monthly_sarshift_workbook(request):
 
         sum_sum=sum_shift_randeman_tolid+sum_padashe_tolid_personel+sum_padashe_nezafat_personel
         return render(request,'mrp/assetrandeman/finalSarshiftRandemanList.html',{'title':'راندمان ماهانه سر شیفت ها','k':k,
-        'randeman_tolid':randeman_tolid,'shift_randeman_tolid':shift_randeman_tolid,'sum_padashe_tolid_personel':sum_padashe_tolid_personel,'sum_padashe_nezafat_personel':sum_padashe_nezafat_personel,'sum_sum':sum_sum,'sum_shift_randeman_tolid':sum_shift_randeman_tolid})
+        'randeman_tolid':randeman_tolid,'shift_randeman_tolid':shift_randeman_tolid,'sum_padashe_tolid_personel':sum_padashe_tolid_personel,'sum_padashe_nezafat_personel':sum_padashe_nezafat_personel,'sum_sum':sum_sum,'sum_shift_randeman_tolid':sum_shift_randeman_tolid,'mah':utilMonth[12-int(mah)],'sal':sal})
 def list_heatset_info(request):
         dayOfIssue=request.GET.get('event',False)
         if(not dayOfIssue):

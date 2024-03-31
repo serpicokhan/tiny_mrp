@@ -28,7 +28,13 @@
           {% for i in shifts %}
           <tr data-assetrandeman={{i.asset_randeman_list.id}} data-id={{i.id}} data-position={{i.rank}}>
             <td>{{i.shift.name}}</td>
-            <td><input type="number"  name="" value="{{i.rank}}" class="form-control rank"></td>
+            <td>
+              <select class="form-control rank" data-rank={{i.rank}}>
+                <option value="1" {% if i.rank == 1%} selected {% endif %}>رتبه اول</option>
+                <option value="2" {% if i.rank == 2%} selected {% endif %}>رتبه دوم</option>
+                <option value="3" {% if i.rank == 3%} selected {% endif %}>رتبه سوم</option>
+              </select>
+            </td>
             <td><input type="number" name="" value="{{i.price_sarshift}}" class="form-control sarshift_val"></td>
             <td><input type="number" name="" value="{{i.price_personnel}}" class="form-control operator_val"></td>
 
@@ -46,6 +52,8 @@
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-default" data-dismiss="modal">انصراف</button>
+  <button type="button" class="btn btn-default js-calc_assetRandeman_nezafat_ranking" data-url='{% url "calc_assetRandeman_tolid_ranking" %}'>محاسبه رتبه</button>
+
   {% if perms.mrp.add_assetfailure %}
   <button type="submit" class="btn btn-primary" >ذخیره</button>
   {% endif %}
