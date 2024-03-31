@@ -110,7 +110,7 @@ def get_failure_pie_aggregate(start_date,end_date,machine=None,asset_type=None):
                     output_field=fields.IntegerField())
                 ).values('failure_name__name').annotate(total_duration=Sum('duration_minutes')).order_by('failure_name')
     else:
-        aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date],asset_name__asset_category=asset_type).annotate(
+        aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date],asset_name__assetCategory=asset_type).annotate(
                 duration_minutes=ExpressionWrapper(
                     F('duration__hour') * 60 + F('duration__minute'),
                     output_field=fields.IntegerField())
@@ -224,21 +224,38 @@ def monthly_vazn_by_zayeat_data(request):
         series, categories = get_monthly_vazn_sum_by_zayeat()
         return JsonResponse({'series': series, 'xaxis': {'categories': categories}})
 ########################
-def get_jalali_monthly_duration_sum():
+def get_jalali_monthly_duration_sum(machine,asset_type):
     # Determine the current Jalali year
     # current_jalali_year = jdatetime.date.today().year-1
 
     # Create a dictionary to hold sums for each Jalali month
+
     monthly_sums = {}
 
 
     
     current_date = timezone.now()
     one_year_ago = current_date - timedelta(days=365)
-    records_last_12_months = AssetFailure.objects.filter(
-    dayOfIssue__gte=one_year_ago,
-    dayOfIssue__lte=current_date
-    )
+    if(asset_type=="0"):
+        if(int(machine)>1):
+            records_last_12_months = AssetFailure.objects.filter(
+            dayOfIssue__gte=one_year_ago,
+            dayOfIssue__lte=current_date,
+            asset_name=machine
+            )
+        else:
+            records_last_12_months = AssetFailure.objects.filter(
+            dayOfIssue__gte=one_year_ago,
+            dayOfIssue__lte=current_date
+           
+            )
+    else:
+        records_last_12_months = AssetFailure.objects.filter(
+            dayOfIssue__gte=one_year_ago,
+            dayOfIssue__lte=current_date,
+            asset_name__assetCategory=asset_type
+            )
+
     for record in records_last_12_months:
         jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
         jalali_month = jalali_date.strftime("%Y-%m")  # Format as 'Year-Month'
@@ -295,7 +312,9 @@ def get_jalali_monthly_production_sum(machine,asset_type):
 
     return labels, sums
 def jalali_monthly_duration_data(request):
-    labels, sums = get_jalali_monthly_duration_sum()
+    machine = request.GET.get('machine',False)
+    asset_type = request.GET.get('asset_type',False)
+    labels, sums = get_jalali_monthly_duration_sum(machine,asset_type)
     return JsonResponse({'labels': labels, 'sums': sums})
 def jalali_monthly_production_data(request):
     machine = request.GET.get('machine',False)
@@ -303,7 +322,7 @@ def jalali_monthly_production_data(request):
     labels, sums = get_jalali_monthly_production_sum(machine,asset_type)
     return JsonResponse({'labels': labels, 'sums': sums})
 ##############################
-def get_jalali_monthly_duration_sum_by_failure():
+def get_jalali_monthly_duration_sum_by_failure(machine,asset_type):
     # Determine the current Jalali year
     # current_jalali_year = jdatetime.date.today().year-1
 
@@ -315,10 +334,27 @@ def get_jalali_monthly_duration_sum_by_failure():
     jalali_months = set()
     current_date = timezone.now()
     one_year_ago = current_date - timedelta(days=365)
-    records_last_12_months = AssetFailure.objects.filter(
-    dayOfIssue__gte=one_year_ago,
-    dayOfIssue__lte=current_date
-    )
+    if(asset_type=="0"):
+        if(int(machine)>1):
+            records_last_12_months = AssetFailure.objects.filter(
+            dayOfIssue__gte=one_year_ago,
+            dayOfIssue__lte=current_date,
+            asset_name=machine
+            )
+        else:
+            records_last_12_months = AssetFailure.objects.filter(
+            dayOfIssue__gte=one_year_ago,
+            dayOfIssue__lte=current_date
+            )
+    else:
+        records_last_12_months = AssetFailure.objects.filter(
+            dayOfIssue__gte=one_year_ago,
+            dayOfIssue__lte=current_date,
+            asset_name__assetCategory=asset_type
+            )
+
+        
+
     for record in records_last_12_months:
         jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
         # jalali_month = jalali_date.strftime("%Y-%m")  # Format as 'Year-Month'
@@ -363,7 +399,9 @@ def get_jalali_monthly_duration_sum_by_failure():
 
     return series, sorted_jalali_months
 def jalali_monthly_duration_by_failure_data(request):
-    series, labels = get_jalali_monthly_duration_sum_by_failure()
+    machine = request.GET.get('machine',False)
+    asset_type = request.GET.get('asset_type',False)
+    series, labels = get_jalali_monthly_duration_sum_by_failure(machine,asset_type)
     return JsonResponse({'series': series, 'xaxis': {'categories': labels}})
 def get_daily_tolid_sums(start_date, end_date,machine=None):
     
@@ -417,25 +455,34 @@ def get_line_tolid_vazn_data(request):
 def production_chart(request):
     # Assume 'date' is passed as 'YYYY-MM-DD' format from the front end
     date_str=DailyProduction.objects.order_by('-dayOfIssue').first().dayOfIssue
+    production_data={}
+    data=[]
 
     # date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
     
     # Query to get sum of production_value for each machine for the given date
-    production_data = DailyProduction.objects.filter(dayOfIssue=date_str)\
-                      .values('machine__assetName')\
-                      .annotate(total_production=Sum('production_value'))\
-                      .order_by('machine')
-    kambood=[]
-    for i in production_data:
-        tolid_standard=ProductionStandard.objects.get(machine_name__assetName=i['machine__assetName'])
-        kambood.append(int(i['total_production']-tolid_standard.good_production_rate))
-
+    shifts=Shift.objects.all()
+    for i in shifts:
+        production_data1 = DailyProduction.objects.filter(dayOfIssue=date_str,shift=i)\
+                        .values('machine__assetName')\
+                        .annotate(total_production=Sum('production_value'))\
+                        .order_by('machine')
+        data.append(
+            {
+        'machines': [item['machine__assetName'] for item in production_data1],
+        'production_values': [int(item['total_production']) for item in production_data1],
+        'date':str(jdatetime.date.fromgregorian(date=date_str).strftime("%d-%m-%Y")),
+        'lable':f'شیفت {i.name}'
+        
+             }
+        )
+   
     
-    data = {
-        'machines': [item['machine__assetName'] for item in production_data],
-        'production_values': [int(item['total_production']) for item in production_data],
-        'date':str(jdatetime.date.fromgregorian(date=date_str)),
-        'production_kambood':kambood
-    }
+    # data = {
+    #     'machines': [item['machine__assetName'] for item in production_data],
+    #     'production_values': [int(item['total_production']) for item in production_data],
+    #     'date':str(jdatetime.date.fromgregorian(date=date_str)),
+        
+    # }
     
-    return JsonResponse(data)
+    return JsonResponse(data,safe=False)

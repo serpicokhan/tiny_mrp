@@ -103,7 +103,7 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
                     height: 400
                 },
                 stroke: {
-                    width: 10,  // Set the stroke width
+                    width: 1,  // Set the stroke width
                     // colors: ['#00FF00'],
                     curve: 'smooth'  // Red color in hex format
                 },
@@ -129,16 +129,20 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
          .then(response => response.json())
          .then(data => {
           console.log(data);
+          var elements=[];
+          for(var i in data){
+            console.log(data[i].lable);
+            elements.push({
+                name: data[i].lable,
+                data: data[i].production_values
+            });
+          }
             var options = {
                 chart: {
                     type: 'bar',
                     height:400
                 },
-                colors: [ // this array contains different color code for each data
-                "#33b2df",
-                "#546E7A",
                 
-            ],
                 plotOptions: {
                     bar: {
                         horizontal: false,
@@ -150,20 +154,13 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
                     
                     
                 },
-                series: [{
-                    name: 'مقدار تولید',
-                    data: data.production_values
-                },
-            {
-                name: 'کمبود تولید',
-                    data: data.production_kambood
-            }],
+                series: elements,
                 xaxis: {
-                    categories: data.machines
+                    categories: data[0].machines
                 }
             };
           $('#barAssetProductionChart').remove(); // this is my <canvas> element
-          $("#last_date").html(`تولید در ${data.date}`);
+          $("#last_date").html(`تولید در ${data[0].date}`);
           $('#barAssetProductionChartholder').append('<div id="barAssetProductionChart"><div>');
              var chart = new ApexCharts(document.querySelector("#barAssetProductionChart"), options);
              chart.render();
@@ -259,8 +256,8 @@ var stackzayeat=function(){
     })
     .catch(error => console.error('Error:', error));
 }
-var draw_monthly_assetFailure_line=function(){
-    fetch(`/Dashboard/AssetFailure/Monthly/`)  // Replace with the URL of your Django view
+var draw_monthly_assetFailure_bar=function(machine,asset_type){
+    fetch(`/Dashboard/AssetFailure/Monthly/?machine=${machine}&asset_type=${asset_type}`)  // Replace with the URL of your Django view
         .then(response => response.json())
         .then(data => {
             console.log(data);
@@ -313,8 +310,8 @@ var draw_monthly_production_bar=function(machine,asset_type){
         .catch(error => console.error('Error:', error));
 
 }
-var draw_asset_failure_stack_zayeat=function(){
-    fetch('/Dashboard/AssetFailure/StackedMonthly/')  // Replace with the URL of your Django view
+var draw_asset_failure_stack_zayeat=function(machine,asset_type){
+    fetch(`/Dashboard/AssetFailure/StackedMonthly/?machine=${machine}&asset_type=${asset_type}`)  // Replace with the URL of your Django view
     .then(response => response.json())
     .then(data => {
         var options = {
@@ -322,9 +319,22 @@ var draw_asset_failure_stack_zayeat=function(){
                 type: 'bar',
                 stacked: true
             },
+            plotOptions: {
+                bar: {
+                  horizontal: true,
+                  dataLabels: {
+                    show: true
+                  }
+                }
+              },
+              legend: {
+                show: false
+              },
             series: data.series,
             xaxis: {
-                categories: data.xaxis.categories
+                categories: data.xaxis.categories,
+                
+
             },
             // ... other chart options ...
         };
@@ -341,8 +351,8 @@ $("#button-addon1").click(function(){
 // draw_pie_zayeat($("#startdate").val(),$("#enddate").val());
 draw_line_asset_failure($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
 draw_pie_asset_failure($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
-draw_monthly_assetFailure_line();
-draw_asset_failure_stack_zayeat();
+draw_monthly_assetFailure_bar($("#machines").val(),$("#machines option:selected").data("type"));
+draw_asset_failure_stack_zayeat($("#machines").val(),$("#machines option:selected").data("type"));
 draw_line_asset_production($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
 draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_bar_daily_asset_production($("#enddate").val());
