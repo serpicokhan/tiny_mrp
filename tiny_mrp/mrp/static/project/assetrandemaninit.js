@@ -65,6 +65,74 @@ $(function () {
      loadForm(btn);
 
    }
+   var update_val=function(){
+    // $("#id_max_randeman")
+    $("#id_randeman_yek_dastgah").val($("#id_max_randeman").val()*$("#id_operator_count").val());
+    $("#id_randeman_mazrab_3").val($("#id_randeman_yek_dastgah").val()*3);
+
+   }
+   var tableDataToJSON=function(tableId){
+    var data = [];
+    
+        $('#' + tableId + ' tr').each(function() {
+          if($(this).attr('data-id')){
+            var row=$(this);
+            var id=$(row).attr('data-id');
+            var carding = $(row).find('td:eq(0)').text() || 0;
+            var operatorCount = $(row).find('td:eq(1)').text() || 0;
+            var maxRandeman = $(row).find('td:eq(2)').text() || 0;
+            var randemanYekDastgah = $(row).find('td:eq(3)').text() || 0;
+            var randemanMazrab3 = $(row).find('td:eq(4)').text() || 0;
+            var mablagheKoleRandeman = $(row).find('td:eq(5)').text() || 0;
+            var mablagheKoleRandemanRound = $(row).find('td:eq(6)').text() || 0;
+            var randemanTolid = $(row).find('td:eq(7)').text() || 0;
+  
+          data.push({id:id, carding: carding, operatorCount: operatorCount,maxRandeman: maxRandeman, randemanYekDastgah: randemanYekDastgah,randemanMazrab3: randemanMazrab3
+            , mablagheKoleRandeman: mablagheKoleRandeman,mablagheKoleRandemanRound: mablagheKoleRandemanRound,randemanTolid:randemanTolid
+             });
+           }
+        });
+  
+        return data;
+  
+  
+  }
+  $("#save_production").click(function(){
+    
+    var tbl1=tableDataToJSON('tbody_company');
+    var sendData = {
+      table1: tbl1      
+    };
+  console.log(JSON.stringify(sendData));
+    // AJAX request to send data to the server
+    $.ajax({
+      url: 'Asset/Randeman/InitRandeman/SaveTableInfo',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(sendData),
+      beforeSend:function(){
+        $(".preloader").show();
+      },
+      success: function(response) {
+        // Handle the success response from the server
+        if(response.error)
+        {
+          toastr.error(response.error);
+        }
+        else{
+          console.log('Data sent successfully:', response);
+          toastr.success("اطلاعات با موفقیت ذخیره شد");
+  
+        }
+        $(".preloader").hide();
+      },
+      error: function(xhr, status, error) {
+        // Handle any errors that occur during the AJAX request
+        console.error('Error sending data:', error);
+        toastr.error(error);
+        $(".preloader").hide();
+      }
+    });
 
 
    
@@ -81,6 +149,7 @@ $(function () {
   // // Update book
   $("#company-table").on("click", ".js-update-assetRandeman", myWoLoader);
   $("#modal-company").on("submit", ".js-assetRandemanInit-update-form", saveForm);
+  $("#modal-company").on("input", "#id_max_randeman", update_val);
   // $("#modal-company").on("submit", ".js-AssetFailure-delete-form", saveForm);
 
   // // Delete book js-assetFailure-delete
