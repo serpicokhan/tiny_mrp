@@ -1,7 +1,12 @@
+{% load humanize %}
+
 {% for profile in profiles %}
   <tr>
     <td>{{ profile.description }}</td>
     <td>{{ profile.get_jalali_time_created }}</td>
+    <td>{{profile.mablagh_kol_randeman|intcomma}}</td>
+    <td>{{profile.tolid_randeman_mazrab_3|intcomma}}</td>
+    <td>{{profile.tolid_randeman|intcomma}}</td>
     
     <td>
       <a target="_blank" class="btn btn-outline-light js-padash_tolid-profile" href="{% url 'list_tolid_padash' %}?profile={{profile.id}}">  <i class="ti-crown"></i></a>

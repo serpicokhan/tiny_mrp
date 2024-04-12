@@ -10,7 +10,10 @@
   <td contenteditable="true" class="editable-cell mablaghe_kole_randeman_round">{{c.mablaghe_kole_randeman_round|floatformat:0|intcomma}}</td>
   <td contenteditable="true"  class="editable-cell randeman_tolid">{{c.randeman_tolid|floatformat:0|intcomma}}</td>
 
-<td><button type="button" class="btn btn-outline-light js-update-assetRandeman" data-url="{% url 'assetrandemaninit_update' c.id %}">  <i class="ti-eye"></i></button></td>
+<td>
+  <button type="button" class="btn btn-outline-light js-update-assetRandeman" data-url="{% url 'assetrandemaninit_update' c.id %}">  <i class="ti-eye"></i></button>
+  <button type="button" class="btn btn-outline-light js-inline_save-assetRandeman d-none" data-url="{% url 'assetrandemaninit_partial_update' c.id %}">  <i class="ti-upload"></i></button>
+</td>
 
 </tr>
 {% endfor %}

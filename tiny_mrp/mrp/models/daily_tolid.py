@@ -247,6 +247,7 @@ class TolidPadash(models.Model):
     rank = models.IntegerField("رتبه")
     price_sarshift = models.DecimalField("پاداش سرشیفت",max_digits=10, decimal_places=0)
     price_personnel = models.DecimalField("پاداش پرسنل",max_digits=10, decimal_places=0)
+  
     profile = models.ForeignKey('FinancialProfile', on_delete=models.CASCADE,null=True,blank=True)
 
     class Meta:
@@ -258,6 +259,9 @@ class FinancialProfile(models.Model):
     def get_jalali_time_created(self):
         return jdatetime.date.fromgregorian(date=self.time_created)
     description = models.TextField("شرح")
+    mablagh_kol_randeman = models.DecimalField("مبلغ کل راندمان",max_digits=10, decimal_places=0)
+    tolid_randeman = models.DecimalField("راندمان تولید",max_digits=10, decimal_places=0)
+    tolid_randeman_mazrab_3 = models.DecimalField("مضرب 3 راندمان",max_digits=10, decimal_places=0)
     time_created = models.DateTimeField(auto_now_add=True)
     class Meta:
         db_table='financialprofile'

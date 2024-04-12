@@ -97,42 +97,109 @@ $(function () {
   
   
   }
-  $("#save_production").click(function(){
+  // $("#save_production").click(function(){
     
-    var tbl1=tableDataToJSON('tbody_company');
-    var sendData = {
-      table1: tbl1      
-    };
-  console.log(JSON.stringify(sendData));
-    // AJAX request to send data to the server
-    $.ajax({
-      url: 'Asset/Randeman/InitRandeman/SaveTableInfo',
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(sendData),
-      beforeSend:function(){
-        $(".preloader").show();
-      },
-      success: function(response) {
-        // Handle the success response from the server
-        if(response.error)
-        {
-          toastr.error(response.error);
-        }
-        else{
-          console.log('Data sent successfully:', response);
-          toastr.success("اطلاعات با موفقیت ذخیره شد");
+  //   var tbl1=tableDataToJSON('tbody_company');
+  //   var sendData = {
+  //     table1: tbl1      
+  //   };
+  // console.log(JSON.stringify(sendData));
+  //   // AJAX request to send data to the server
+  //   $.ajax({
+  //     url: 'Asset/Randeman/InitRandeman/SaveTableInfo',
+  //     type: 'POST',
+  //     contentType: 'application/json',
+  //     data: JSON.stringify(sendData),
+  //     beforeSend:function(){
+  //       $(".preloader").show();
+  //     },
+  //     success: function(response) {
+  //       // Handle the success response from the server
+  //       if(response.error)
+  //       {
+  //         toastr.error(response.error);
+  //       }
+  //       else{
+  //         console.log('Data sent successfully:', response);
+  //         toastr.success("اطلاعات با موفقیت ذخیره شد");
   
-        }
-        $(".preloader").hide();
+  //       }
+  //       $(".preloader").hide();
+  //     },
+  //     error: function(xhr, status, error) {
+  //       // Handle any errors that occur during the AJAX request
+  //       console.error('Error sending data:', error);
+  //       toastr.error(error);
+  //       $(".preloader").hide();
+  //     }
+  //   });
+  // }
+  $('td[contenteditable="true"]').on('blur', function() {
+    var number = $(this).text().replace(/,/g, ''); // Remove existing commas
+    var formattedNumber = parseInt(number, 10).toLocaleString('en-US');
+    $(this).text(formattedNumber);
+});
+  $('#company-table').on('input','td[contenteditable="true"].max_randeman', function() {
+    var row = $(this).closest('tr'); // Find the closest tr parent to get all related data
+  var operator_num = $(row).find('td:eq(1)').text() || 0;
+  var max_randeman = $(row).find('td:eq(2)').text() || 0;
+  var randeman_yek_dastgah = parseInt(operator_num)*parseInt(max_randeman);
+  var randemanMazrab3=randeman_yek_dastgah*3;
+  var randeman_vagheyee=randeman_kol_glob*(randemanMazrab3)/mazrab_3_glob;
+  var rounded = Math.round(randeman_vagheyee * 10000) / 10000;
+  var final_val=(80*rounded)/100;
+
+
+
+  $(row).find('td:eq(3)').text(parseInt(randeman_yek_dastgah,10).toLocaleString('en-US'));
+  $(row).find('td:eq(4)').text(parseInt(randemanMazrab3,10).toLocaleString('en-US'));
+  $(row).find('td:eq(5)').text(parseInt(randeman_vagheyee,10).toLocaleString('en-US'));
+  $(row).find('td:eq(5)').text(parseInt(rounded,10).toLocaleString('en-US'));
+  $(row).find('td:eq(6)').text(parseInt(final_val,10).toLocaleString('en-US'));
+
+    
+  });
+
+  $('#company-table').on('input','td[contenteditable="true"]', function() {
+   
+    $(this).closest('tr').find('.js-inline_save-assetRandeman').removeClass('d-none');
+    // $(this).text($(this).text().replace(/\D/g, ''));
+});
+$('#company-table').on('click','.js-inline_save-assetRandeman', function() {
+  var $button = $(this);
+  var $row = $button.closest('tr'); // Find the closest tr parent to get all related data
+
+  // Collect data from the row
+  var rowData = {
+      id: $row.attr('data-id'), // Get the data-id attribute
+      data: {}
+  };
+
+  // Iterate over each contenteditable cell to gather data
+  $row.find('td[contenteditable="true"]').each(function() {
+      var $cell = $(this);
+      var key = $cell.attr('class').split(' ')[1]; // Assuming second class name is the key
+      var value = $cell.text().trim().replaceAll(',','');
+      rowData.data[key] = value; // Add cell data to rowData object
+  });
+  console.log(rowData);
+  // AJAX request to server
+  $.ajax({
+      url: $button.data('url'), // URL from the button's data-url attribute
+      type: 'POST',
+      contentType: 'application/json', // Make sure the server expects JSON
+      data: JSON.stringify(rowData), // Convert data object to JSON string
+      success: function(response) {
+          // alert('Data updated successfully!');
+          toastr.success('اطلاعات با موفقیت ارسال شد.');
+          $button.hide();
+          // Optionally, you can add more UI feedback here
       },
       error: function(xhr, status, error) {
-        // Handle any errors that occur during the AJAX request
-        console.error('Error sending data:', error);
-        toastr.error(error);
-        $(".preloader").hide();
+          toastr.error('Error updating data: ' + error);
       }
-    });
+  });
+});
 
 
    
@@ -156,3 +223,4 @@ $(function () {
   // // $("#company-table").on("click", ".js-delete-assetFailure", loadForm);
   // $("#company-table").on("click", ".js-assetFailure-delete", myWoLoader);
   });
+

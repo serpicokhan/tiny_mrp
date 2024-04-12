@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from mrp.business.tolid_util import *
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_http_methods
 
 
 from mrp.forms import AssetRandemanInitForm,TolidPadashForm,NezafatPadashForm
@@ -21,10 +22,12 @@ def get_init_asset_randeman(request):
     profile_list=FinancialProfile.objects.all().order_by('-id')
     last_profile=FinancialProfile.objects.order_by('-id').first()
     profile=request.GET.get('profile',last_profile.id)
+    mablagh_kol=FinancialProfile.objects.get(id=profile).mablagh_kol_randeman
+    mazrzab_3=FinancialProfile.objects.get(id=profile).tolid_randeman_mazrab_3
 
 
     all_asset_randeman_init=AssetRandemanInit.objects.filter(profile__id=profile).order_by('asset_category__priority')
-    return render(request,'mrp/assetrandeman/assetrandemaninit/initRandemanList.html',{'formulas':all_asset_randeman_init,'selected_profile':int(profile),'profile_list':profile_list})
+    return render(request,'mrp/assetrandeman/assetrandemaninit/initRandemanList.html',{'formulas':all_asset_randeman_init,'selected_profile':int(profile),'profile_list':profile_list,'mablagh':mablagh_kol,'mazrab_3':mazrzab_3})
 
 def list_tolid_padash(request):
     profile_list=FinancialProfile.objects.all().order_by('-id')
@@ -120,6 +123,38 @@ def assetrandemaninit_update(request, id):
 
 
     return save_assetrandemaninit_form(request, form,"mrp/assetrandeman/assetrandemaninit/partialAssetRandemanInitUpdate.html")
+
+
+@csrf_exempt  # Use this decorator to exempt the view from CSRF verification
+@require_http_methods(["POST"])  # This view only accepts POST requests
+def assetrandemaninit_partial_update(request,id):
+    try:
+        # Parse the JSON data from request body
+            data = json.loads(request.body)
+
+            # Access data attributes
+            row_id = data['id']
+            row_data = data['data']
+
+
+            # Here you can process the data, e.g., update the database
+            # For example, assuming you have a model `Randeman`:
+            # Randeman.objects.filter(id=row_id).update(**row_data)
+            obj=AssetRandemanInit.objects.get(id=row_id)
+            obj.operator_count=row_data['operator_count']
+            obj.mablaghe_kole_randeman=row_data['mablaghe_kole_randeman']
+            obj.max_randeman=row_data['max_randeman']
+            obj.randeman_mazrab_3=row_data['randeman_mazrab_3']
+            obj.randeman_tolid=row_data['randeman_tolid']
+            obj.randeman_yek_dastgah=row_data['randeman_yek_dastgah']
+            obj.save()
+
+            return JsonResponse({'status': 'success', 'message': 'Data updated successfully!'})
+
+    except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
 
 def tolidPadash_update(request, id):
     company= get_object_or_404(TolidPadash, id=id)
