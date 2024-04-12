@@ -12,14 +12,15 @@ def profile_list(request):
     return render(request, 'mrp/financial_profile/profile_list.html', {'profiles': profile,'title':'پروفال مالی'})
 
 
-def save_profile_form(request, form, template_name):
+def save_profile_form(request, form, template_name,is_new=None):
     data = dict()
     if request.method == 'POST':
         if form.is_valid():
             instance=form.save()
-            create_related_tolid_padash(instance.id)
-            create_related_nezafat_padash(instance.id)
-            create_related_randemanInit_padash(instance.id)
+            if(is_new):
+                create_related_tolid_padash(instance.id)
+                create_related_nezafat_padash(instance.id)
+                create_related_randemanInit_padash(instance.id)
             # create_related_nezafat_padash(instance.id)
             # create_related_randeman_init_padash(instance.id)
 
@@ -40,7 +41,7 @@ def profile_create(request):
         form = FinancialProfileForm(request.POST)
     else:
         form = FinancialProfileForm()
-    return save_profile_form(request, form, 'mrp/financial_profile/partial_profile_create.html')
+    return save_profile_form(request, form, 'mrp/financial_profile/partial_profile_create.html',is_new=True)
 
 
 def profile_update(request, pk):
