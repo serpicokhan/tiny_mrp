@@ -242,16 +242,16 @@ def create_first_padash(AssetRandemanListId):
 
     print(sorted_footballers_by_goals)
     for i in shifts:
-        # TolidPadash.objects.create(asset_randeman_list=asset_randeman,rank=i.id,price_sarshift=0,price_personnel=0)
+        padash_tolid=TolidPadash.objects.create(profile=asset_randeman.profile,rank=i.id,price_sarshift=0,price_personnel=0)
         # print(tolid_rank.index(i.id),'!!!!!!!!!')
-        try:
+        # try:
       
-            padash_tolid=TolidPadash.objects.get(rank=sorted_footballers_by_goals.index(i.id)+1,profile=asset_randeman.profile) #tolid_rank.index(i.id)
-        except TolidPadash.DoesNotExist:
-             a=[9500000,7500000,5500000]
-             b=[95000000,75000000,55000000]
+        #     padash_tolid=TolidPadash.objects.get(rank=sorted_footballers_by_goals.index(i.id)+1,profile=asset_randeman.profile) #tolid_rank.index(i.id)
+        # except TolidPadash.DoesNotExist:
+        #      a=[9500000,7500000,5500000]
+        #      b=[95000000,75000000,55000000]
 
-             padash_tolid=TolidPadash.objects.create(rank=i.id+1,profile=asset_randeman.profile,price_sarshift=a[i.id],price_personnel=b[i.id],description=str(i.id))
+        #      padash_tolid=TolidPadash.objects.create(rank=i.id+1,profile=asset_randeman.profile,price_sarshift=a[i.id],price_personnel=b[i.id],description=str(i.id))
 
         rank=sorted_footballers_by_goals.index(i.id)+1
         TolidRanking.objects.create(asset_randeman_list=asset_randeman,shift=i,rank=rank,price_sarshift=padash_tolid.price_sarshift,price_personnel=padash_tolid.price_personnel)
