@@ -28,7 +28,7 @@ def asset_randeman_list(request):
 
 
 # ##########################################################
-def save_assetRandeman_form(request, form, template_name,id=None):
+def save_assetRandeman_form(request, form, template_name,id=None,is_new=None):
 
 
     data = dict()
@@ -37,8 +37,9 @@ def save_assetRandeman_form(request, form, template_name,id=None):
             if form.is_valid():
                 try:
                     bts=form.save()
-                    calc_assetrandeman(bts.mah,bts.sal)
-                    create_first_padash(bts.id)
+                    if(is_new):
+                        calc_assetrandeman(bts.mah,bts.sal)
+                        create_first_padash(bts.id)
                     data['form_is_valid'] = True
                     books = AssetRandemanList.objects.all()
                     wos=doPaging(request,books)
@@ -65,7 +66,7 @@ def save_assetRandeman_form(request, form, template_name,id=None):
 def assetRandeman_create(request):
     if (request.method == 'POST'):
         form = AssetRandemanForm(request.POST)
-        return save_assetRandeman_form(request, form, 'mrp/assetrandeman/partialAssetRandemanCreate.html')
+        return save_assetRandeman_form(request, form, 'mrp/assetrandeman/partialAssetRandemanCreate.html',is_new=True)
     else:
         mydt=request.GET.get("dt",False)
         form = AssetRandemanForm()

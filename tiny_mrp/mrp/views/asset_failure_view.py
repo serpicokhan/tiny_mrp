@@ -149,6 +149,7 @@ def assetFailure_create(request):
 
 def failure_create(request):
     if (request.method == 'POST'):
+        
         form = FailureForm(request.POST)
         return save_Failure_form(request, form, 'mrp/failures/partialFailureCreate.html')
     else:
