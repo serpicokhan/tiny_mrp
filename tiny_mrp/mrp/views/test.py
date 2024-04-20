@@ -19,7 +19,9 @@ import subprocess
 from django.http import HttpResponse
 from django.db import transaction
 from django.db.models import Max
-
+from django.contrib.auth.decorators import permission_required
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.db.models import Q
 from mrp.utils import utilMonth
 
@@ -97,6 +99,9 @@ def get_daily_amar(request):
 
 @login_required
 def index(request):
+    has_permission = request.user.has_perm('myapp.can_view_dashboard')
+    if(has_permission):
+       return HttpResponseRedirect(reverse('list_dashboard'))
     machines=Asset.objects.filter(assetTypes=2)
     date_object=datetime.datetime.now()
     next_day = date_object + timedelta(days=1)

@@ -242,14 +242,15 @@ def create_first_padash(AssetRandemanListId):
 
     print(sorted_footballers_by_goals)
     for i in shifts:
-        padash_tolid=TolidPadash.objects.create(profile=asset_randeman.profile,rank=i.id,price_sarshift=0,price_personnel=0)
+        # padash_tolid=TolidPadash.objects.create(profile=asset_randeman.profile,rank=i.id,price_sarshift=0,price_personnel=0)
         # print(tolid_rank.index(i.id),'!!!!!!!!!')
-        # try:
+        try:
       
-        #     padash_tolid=TolidPadash.objects.get(rank=sorted_footballers_by_goals.index(i.id)+1,profile=asset_randeman.profile) #tolid_rank.index(i.id)
-        # except TolidPadash.DoesNotExist:
-        #      a=[9500000,7500000,5500000]
-        #      b=[95000000,75000000,55000000]
+            padash_tolid=TolidPadash.objects.get(rank=sorted_footballers_by_goals.index(i.id)+1,profile=asset_randeman.profile) #tolid_rank.index(i.id)
+        except TolidPadash.DoesNotExist:
+            #  a=[9500000,7500000,5500000]
+            #  b=[95000000,75000000,55000000]
+            pass
 
         #      padash_tolid=TolidPadash.objects.create(rank=i.id+1,profile=asset_randeman.profile,price_sarshift=a[i.id],price_personnel=b[i.id],description=str(i.id))
 
@@ -317,18 +318,33 @@ def get_tolid_rank(sal,mah):
     return sum  # Adding 1 to start rank at 1 instead of 0
 def create_related_tolid_padash(id):
      tolid_padash=TolidPadash.objects.order_by('-id')[:3]
-     for i in tolid_padash:
-          new_padash=i
-          new_padash.pk=None
-          new_padash.profile=FinancialProfile.objects.get(id=id)
-          new_padash.save()
+     if(tolid_padash.count()<3):
+        profile=FinancialProfile.objects.get(id=id)
+        TolidPadash.objects.create(profile=profile,rank=1,price_sarshift=9500000,price_personnel=95000000)
+        TolidPadash.objects.create(profile=profile,rank=2,price_sarshift=7500000,price_personnel=75000000)
+        TolidPadash.objects.create(profile=profile,rank=3,price_sarshift=5500000,price_personnel=55000000)
+        
+     else:         
+
+        for i in tolid_padash:
+            new_padash=i
+            new_padash.pk=None
+            new_padash.profile=FinancialProfile.objects.get(id=id)
+            new_padash.save()
 def create_related_nezafat_padash(id):
      nezafat_padash=NezafatPadash.objects.order_by('-id')[:3]
-     for i in nezafat_padash:
-          new_padash=i
-          new_padash.pk=None
-          new_padash.profile=FinancialProfile.objects.get(id=id)
-          new_padash.save()
+     if(nezafat_padash.count()<3):
+        profile=FinancialProfile.objects.get(id=id)
+        NezafatPadash.objects.create(profile=profile,rank=1,price_sarshift=8000000,price_personnel=50000000)
+        NezafatPadash.objects.create(profile=profile,rank=2,price_sarshift=6000000,price_personnel=35000000)
+        NezafatPadash.objects.create(profile=profile,rank=3,price_sarshift=4000000,price_personnel=20000000)
+        
+     else:          
+        for i in nezafat_padash:
+            new_padash=i
+            new_padash.pk=None
+            new_padash.profile=FinancialProfile.objects.get(id=id)
+            new_padash.save()
 def create_related_randemanInit_padash(id):
      init_randeman=AssetRandemanInit.objects.order_by('-id')[:10]
      for i in init_randeman:

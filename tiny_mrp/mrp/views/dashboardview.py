@@ -22,6 +22,7 @@ def get_zayeat_pie_aggregate(start_date, end_date):
     labels = [entry['zayeat__name'] for entry in data]
     values = [entry['total'] for entry in data]
     return labels, values
+
 def list_dashboard(request):
     assets=Asset.objects.filter(Q(assetTypes=2)|Q(assetCategory__id=8))
     asset_list=[]

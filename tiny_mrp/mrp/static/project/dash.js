@@ -364,6 +364,10 @@ draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").
 });
 draw_bar_daily_asset_production($("#enddate").val());
 draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
+draw_monthly_assetFailure_bar($("#machines").val(),$("#machines option:selected").data("type"));
+draw_asset_failure_stack_zayeat($("#machines").val(),$("#machines option:selected").data("type"));
+
+
 
 
 // draw_zayeat();

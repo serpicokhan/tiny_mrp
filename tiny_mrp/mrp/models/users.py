@@ -58,3 +58,6 @@ class SysUser(models.Model):
     class Meta:
         db_table="sysusers"
         ordering = ['title']
+        permissions = [
+            ("can_view_dashboard", "can view dashboard"),
+        ]
