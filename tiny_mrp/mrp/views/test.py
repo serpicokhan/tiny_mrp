@@ -839,10 +839,10 @@ def get_monthly_sarshift_workbook(request):
             tolid_rank=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
             padashe_nezafat_personel=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).price_sarshift
             padashe_tolid_personel=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).price_sarshift
-            padashe_tolid_=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).price_sarshift
+            padashe_tolid_23=randeman_list.profile.tolid_randeman
             randeman_kol=get_sum_randeman_by_shift(mah,sal,i)
 
-            shift_randeman_tolid=(23000000*randeman_kol)/randeman_tolid
+            shift_randeman_tolid=(padashe_tolid_23*randeman_kol)/randeman_tolid
             sum_shift_randeman_tolid+=shift_randeman_tolid
             sum=padashe_nezafat_personel+padashe_tolid_personel+shift_randeman_tolid
             sum_padashe_tolid_personel+=padashe_tolid_personel
