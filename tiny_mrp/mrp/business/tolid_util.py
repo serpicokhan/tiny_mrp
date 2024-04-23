@@ -57,7 +57,7 @@ def get_sum_machine_failure_by_date_shift(assetCatregory,shift,target_date):
         filtered_failures = AssetFailure.objects.filter(
         dayOfIssue=target_date,
         shift=shift,
-        asset_name__assetCategory=assetCatregory
+        asset_name__assetCategory=assetCatregory,failure_name__is_it_count=True
         )
         assets_count = assetCatregory.asset_set.all().count()
 
@@ -80,7 +80,7 @@ def get_sum_machine_failure_monthly_shift(assetCatregory,shift,start,end):
         filtered_failures = AssetFailure.objects.filter(
         dayOfIssue__range=[start,end],
         shift=shift,
-        asset_name__assetCategory=assetCatregory
+        asset_name__assetCategory=assetCatregory,failure_name__is_it_count=True
         )
         assets_count = assetCatregory.asset_set.all().count()
 
@@ -102,7 +102,7 @@ def get_day_machine_failure_monthly_shift(assetCatregory,shift,start,end):
         filtered_failures = AssetFailure.objects.filter(
         dayOfIssue__range=[start,end],
         shift=shift,
-        asset_name__assetCategory=assetCatregory
+        asset_name__assetCategory=assetCatregory,failure_name__is_it_count=True
         )
         assets_count = assetCatregory.asset_set.all().count()
 
