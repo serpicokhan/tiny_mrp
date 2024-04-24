@@ -102,6 +102,12 @@ def index(request):
     has_permission = request.user.has_perm('myapp.can_view_dashboard')
     if(has_permission):
        return HttpResponseRedirect(reverse('list_dashboard'))
+    else:
+       return HttpResponseRedirect(reverse('register_daily_amar'))
+
+
+@login_required
+def register_daily_amar(request):
     machines=Asset.objects.filter(assetTypes=2)
     date_object=datetime.datetime.now()
     next_day = date_object + timedelta(days=1)

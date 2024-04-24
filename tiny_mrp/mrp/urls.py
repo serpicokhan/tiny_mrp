@@ -12,6 +12,7 @@ urlpatterns = [
 
 
     url(r'^$',index,name='index'),
+    url(r'^Register/$',register_daily_amar,name='register_daily_amar'),
     url(r'^Backup/$',backup_database,name='backup_database'),
     url(r'^Dashboard$',list_dashboard,name='list_dashboard'),
     url(r'^Tolid/Heatset$',tolid_heatset,name='tolid_heatset'),
