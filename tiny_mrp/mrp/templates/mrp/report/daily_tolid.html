@@ -1,0 +1,163 @@
+{% extends 'mrp/blank-page.html' %}
+{% load static %}
+{% block content %}
+
+<div class="row  app-block">
+      <div class="col-md-12 app-content">
+       
+        <div class="app-action">
+            <div class="action-left">
+                <ul class="list-inline">
+                    <li class="list-inline-item mb-0">
+                        <div class="input-group">
+                            <input type="text" class="form-control pdate" placeholder="تاریخ شروع" aria-describedby="button-addon1" id="startdate" >
+                            <div class="input-group-append">
+                                <span class="btn btn-outline-light" >
+                                    <i class="ti-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                 
+                </ul>
+            </div>
+            <div class="action-right">
+                <form class="d-flex mr-3">
+                    <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </a>
+                    <div class="input-group">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-light" type="button" id="button-addon1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card app-content-body">
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title " id='last_date'>میزان تولید</h6>
+                                <div>
+                                    <a href="#" class="mr-3">
+                                        <i class="fa fa-refresh"></i>
+                                    </a>
+                                    <span class="dropdown">
+                                        <a href="#" data-toggle="dropdown" aria-haspopup="true"
+                                           aria-expanded="false">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </a>
+                                        <span class="dropdown-menu dropdown-menu-left">
+                                            <a href="#" class="dropdown-item">گزارش</a>
+                                            <a href="#" class="dropdown-item">دانلود</a>
+                                            <a href="#" class="dropdown-item">بستن</a>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                                 <!-- <canvas id="hot-products"></canvas>
+                                 <div id="hot-products-legends"></div> -->
+            
+            
+            
+                                 <div id="barAssetProductionChartholder">
+            
+                                    <div id="barAssetProductionChart"></div>
+                                 </div>
+                            <!-- <div class="card">
+                                    <canvas id="countries"></canvas>
+                            </div> -->
+                        </div>
+                    </div>
+                    
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive" style="overflow: hidden; outline: none;" tabindex="1">
+                                <table class="table table-striped" id="productionTable">
+                                    <thead>
+                                    <tr id="machineNames">
+                                        
+                                       
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr id="productionValues"></tr>
+                                   
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+
+
+
+
+
+
+
+{% endblock %}
+{% block javascript %}
+<!-- Chartjs -->
+<script src="{% static 'vendors/charts/chartjs/chart.min.js' %}"></script>
+<!-- Apex chart -->
+<script src="{% static 'vendors/charts/apex/apexcharts.min.js' %}"></script>
+
+<!-- Circle progress -->
+<script src="{% static 'vendors/circle-progress/circle-progress.min.js' %}"></script>
+
+<!-- Peity -->
+<script src="{% static 'vendors/charts/peity/jquery.peity.min.js' %}"></script>
+<script src="{% static 'assets/js/examples/charts/peity.js' %}"></script>
+
+<!-- Datepicker -->
+<script src="{% static 'vendors/datepicker/daterangepicker.js' %}"></script>
+<script src="{% static 'assets/Datepiker/persian-datepicker.js' %}"></script>
+<script src="{% static 'vendors/datepicker/bootstrap-datepicker.fa.min.js' %}"></script>
+
+
+<!-- Slick -->
+<script src="{% static 'vendors/slick/slick.min.js' %}"></script>
+
+<!-- Vamp -->
+<script src="{% static 'vendors/vmap/jquery.vmap.min.js' %}"></script>
+<script src="{% static 'vendors/vmap/maps/jquery.vmap.usa.js' %}"></script>
+<script src="{% static 'assets/js/examples/vmap.js' %}"></script>
+
+
+<!-- a -->
+<script src="{% static 'assets/Cal/moment.js' %}"></script>
+<script src="{% static 'assets/Cal/moment-jalaali.js' %}"></script>
+<script src="{% static 'assets/Cal/fullcalendar.js' %}"></script>
+<script src="{% static 'assets/Cal/fa.js' %}"></script>
+
+
+<!-- Dashboard scripts -->
+
+<!-- App scripts -->
+<script src="{% static 'assets/js/app.min.js' %}"></script>
+<script src="{% static 'project/report.js' %}"></script>
+
+{% endblock %}

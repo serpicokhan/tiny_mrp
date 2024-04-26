@@ -77,6 +77,7 @@ urlpatterns = [
     url(r'^Dashboard/AssetFailure/Line/$', assetFailure_duration_data, name='assetFailure_duration_data'),
     url(r'^Dashboard/Asset/Production/Line/$', get_line_tolid_vazn_data, name='get_line_tolid_vazn_data'),
     url(r'^Dashboard/Asset/Production/Daily/Bar/$', production_chart, name='production_chart'),
+    url(r'^Dashboard/Asset/Production/Daily/Bar/List/$', production_chart_with_table, name='production_chart_with_table'),
     url(r'^Dashboard/AssetFailure/Pie/$', failure_pie_data, name='failure_pie_data'),
     url(r'^Dashboard/AssetFailure/Monthly/$', jalali_monthly_duration_data, name='jalali_monthly_duration_data'),
     url(r'^Dashboard/Production/Monthly/$', jalali_monthly_production_data, name='jalali_monthly_production_data'),
@@ -85,6 +86,7 @@ urlpatterns = [
     url(r'^profile/create/$', profile_create, name='profile_create'),
     url(r'^profile/(?P<pk>\d+)/update/$', profile_update, name='profile_update'),
     url(r'^profile/(?P<pk>\d+)/delete/$', profile_delete, name='profile_delete'),
+    url(r'^Report/$', daily_tolid_with_chart, name='daily_tolid_with_chart'),
 
 
 

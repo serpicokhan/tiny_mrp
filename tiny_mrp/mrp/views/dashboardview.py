@@ -487,3 +487,4 @@ def production_chart(request):
     # }
     
     return JsonResponse(data,safe=False)
+
