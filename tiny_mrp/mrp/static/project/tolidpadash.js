@@ -74,7 +74,18 @@ $(function () {
   $("#go_to_profile").click(function(){
     redirect_to_tolid_padash();
   });
+//   $('#modal-company').on('blur','#id_price_sarshift', function() {
+//     var input = $(this).val();
+//     var number = input.replace(/[^\d]/g, ''); // Strip non-numeric characters
 
+//     if (number) { // Check if number is not empty
+//         var formattedNumber = parseInt(number, 10).toLocaleString(); // Format number with commas
+//         $(this).val(formattedNumber); // Update the input with the formatted number
+//         // $("#id_price_sarshift").val(1);
+//     }
+
+    
+// });
 
 
   // $(".js-create-assetFailure").click(myWoLoader);
