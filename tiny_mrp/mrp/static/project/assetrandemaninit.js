@@ -154,8 +154,9 @@ $(function () {
   $(row).find('td:eq(3)').text(parseInt(randeman_yek_dastgah,10).toLocaleString('en-US'));
   $(row).find('td:eq(4)').text(parseInt(randemanMazrab3,10).toLocaleString('en-US'));
   $(row).find('td:eq(5)').text(parseInt(randeman_vagheyee,10).toLocaleString('en-US'));
-  $(row).find('td:eq(5)').text(parseInt(rounded,10).toLocaleString('en-US'));
-  $(row).find('td:eq(6)').text(parseInt(final_val,10).toLocaleString('en-US'));
+  $(row).find('td:eq(6)').text(parseInt(rounded,10).toLocaleString('en-US'));
+  
+  $(row).find('td:eq(7)').text(parseInt(final_val,10).toLocaleString('en-US'));
 
     
   });
