@@ -33,6 +33,8 @@ urlpatterns = [
     url(r'^Tolid/Randeman/GetInfo/$', get_randeman_calendar_info, name='get_randeman_calendar_info'),
     url(r'^Tolid/Tahlil/GetInfo/$', get_tahlil_calendar_info, name='get_tahlil_calendar_info'),
     url(r'^Shift/$', list_shifts, name='list_shifts'),
+    url(r'^Shift/(?P<id>\d+)/update/$', shift_update, name='shift_update'),
+
     url(r'^Formula/$', list_formula, name='list_formula'),
     url(r'^Tolid/Randeman/Init$', list_randeman_tolid, name='list_randeman_tolid'),
     url(r'^Tolid/Heatset/LoadInfo$', list_heatset_info, name='list_heatset_info'),

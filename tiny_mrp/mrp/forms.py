@@ -20,6 +20,10 @@ class FailureForm(forms.ModelForm):
     class Meta:
          model = Failure
          fields = '__all__'
+class ShiftForm(forms.ModelForm):
+    class Meta:
+         model = Shift
+         fields = '__all__'
 class TolidPadashForm(forms.ModelForm):
     class Meta:
          model = TolidPadash

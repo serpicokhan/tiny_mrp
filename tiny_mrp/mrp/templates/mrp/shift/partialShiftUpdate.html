@@ -1,0 +1,18 @@
+<form method="post" action="{% url 'shift_update' form.instance.id  %}" class="js-shift-update-form" autocomplete="off">
+    {% csrf_token %}
+    <div class="modal-header bg-primary" >
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <h4 class="modal-title">جدید</h4>
+    </div>
+    <div class="modal-body">
+     {% include 'mrp/shift/partialShiftForm.html' %}
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default" data-dismiss="modal">انصراف</button>
+      {% if perms.mrp.add_failure %}
+      <button type="submit" class="btn btn-primary" >بروزرسانی</button>
+      {% endif %}
+    </div>
+  </form>
