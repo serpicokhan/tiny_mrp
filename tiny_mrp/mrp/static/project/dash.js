@@ -102,12 +102,16 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
                     type: 'area',
                     height: 400,
                     
+                    
                 },
                 fill: {
                     colors: [ '#9C27B0']
                   },
                 dataLabels: {
                     enabled: true,
+                    offsetX: -20,
+                   
+                    hideOverflow: true,
                     style: {
                       fontSize: "22px",
                       fontFamily: "Helvetica, Arial, sans-serif",
