@@ -11,7 +11,7 @@ var draw_bar_daily_asset_production=function(start_dt){
     fetch(`/Dashboard/Asset/Production/Daily/Bar/List/?date=${start_dt}`)  // Replace with the URL of your Django view
          .then(response => response.json())
          .then(data => {
-          console.log(data);
+         
 
             // 
             // $.each(data, function(index, shift) {
@@ -25,8 +25,16 @@ var draw_bar_daily_asset_production=function(start_dt){
             //         $('#productionTable tbody').append(row);
             //     });
             // });
+            console.log(data);
             $("#productionTable thead").empty();
+            // $("#productionTable2 thead").empty();
             $("#productionTable tbody").empty();
+            $("#productionTable2").empty();
+            
+            const array2 = [];
+
+            // array2.push(...data[0].machines.slice(0, 8));
+            // console.log(array2);
 
 
             // $("#productionTable thead").prepend('<tr><th colspan="' + data[0].machines.length + '">' + data.lable + ' - ' + data.date + '</th></tr>');
@@ -69,6 +77,58 @@ var draw_bar_daily_asset_production=function(start_dt){
                 productionValuesRow2+='</tr>';
 
                 $('#productionTable tbody').append(productionValuesRow2);
+
+
+                var headers =data[0].asset_category;
+                var columnSums = new Array(headers.length).fill(0);
+                var values =data[0].production_values2;
+                var thead = '<tr>';
+                headers.forEach((header) => {
+                  thead += `<th>${header}</th>`;
+                });
+                thead += '</tr>';
+                $('#productionTable2').append(thead);
+          
+                // Create table row with values
+                var tbody = '<tr>';
+                values.forEach((value) => {
+                  tbody += `<td>${value}</td>`;
+                });
+
+                tbody += '</tr>';
+                $('#productionTable2').append(tbody);
+                values.forEach((value, i) => {
+                    columnSums[i] += value;
+                });
+                var values =data[1].production_values2;
+                var tbody = '<tr>';
+                values.forEach((value) => {
+                  tbody += `<td>${value}</td>`;
+                });
+                $('#productionTable2').append(tbody);
+                values.forEach((value, i) => {
+                    columnSums[i] += value;
+                });
+                var values =data[2].production_values2;
+                var tbody = '<tr>';
+                values.forEach((value) => {
+                  tbody += `<td>${value}</td>`;
+                });
+                $('#productionTable2').append(tbody);
+                values.forEach((value, i) => {
+                    columnSums[i] += value;
+                });
+                
+
+                sumRow = '<tr class="bg-info">';
+                columnSums.forEach((sum) => {
+                    sumRow += `<td>${sum}</td>`;
+                });
+                sumRow += '</tr>';
+                $('#productionTable2').append(sumRow);
+                $(".card-header").show();
+
+
 
         
             // 

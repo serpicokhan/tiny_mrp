@@ -430,6 +430,6 @@ $(".delete-info").click(function(){
   $("#modal-company").on("submit",'.js-zayeatVazn-create-form',save_zayeat);
    $("#tblrows").on('input','.editable-cell', handleCellValueChange);
   $("#new_amar").click(function(){
-    window.location='/';
+    window.location='/Register';
   });
 });

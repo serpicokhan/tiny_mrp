@@ -40,8 +40,15 @@ def production_chart_with_table(request):
                         .values('machine__assetName')\
                         .annotate(total_production=Sum('production_value'))\
                         .order_by('machine')
+        production_data2 = DailyProduction.objects.filter(dayOfIssue=date_str,shift=i)\
+                        .values('machine__assetCategory__name')\
+                        .annotate(total_production=Sum('production_value'))\
+                        
         data.append(
             {
+        'asset_category':[item['machine__assetCategory__name'] for item in production_data2],
+        'production_values2': [int(item['total_production']) for item in production_data2],
+
         'machines': [item['machine__assetName'] for item in production_data1],
         'production_values': [int(item['total_production']) for item in production_data1],
         'date':str(jdatetime.date.fromgregorian(date=date_str).strftime("%d-%m-%Y")),
