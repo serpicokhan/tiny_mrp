@@ -77,7 +77,7 @@ def get_assetFailure__duration_aggregate(start_date,end_date,machine=None,asset_
                     output_field=fields.IntegerField())
                 ).values('dayOfIssue').annotate(total_duration=Sum('duration_minutes')).order_by('dayOfIssue')
     else:
-        aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date],asset_name__assetCategory=asset_type).annotate(
+        aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date],asset_name__assetCategory=machine).annotate(
                 duration_minutes=ExpressionWrapper(
                     F('duration__hour') * 60 + F('duration__minute'),
                     output_field=fields.IntegerField())
@@ -111,7 +111,7 @@ def get_failure_pie_aggregate(start_date,end_date,machine=None,asset_type=None):
                     output_field=fields.IntegerField())
                 ).values('failure_name__name').annotate(total_duration=Sum('duration_minutes')).order_by('failure_name')
     else:
-        aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date],asset_name__assetCategory=asset_type).annotate(
+        aggregated_data = AssetFailure.objects.filter(dayOfIssue__range=[start_date, end_date],asset_name__assetCategory=machine).annotate(
                 duration_minutes=ExpressionWrapper(
                     F('duration__hour') * 60 + F('duration__minute'),
                     output_field=fields.IntegerField())
@@ -254,7 +254,7 @@ def get_jalali_monthly_duration_sum(machine,asset_type):
         records_last_12_months = AssetFailure.objects.filter(
             dayOfIssue__gte=one_year_ago,
             dayOfIssue__lte=current_date,
-            asset_name__assetCategory=asset_type
+            asset_name__assetCategory=machine
             )
 
     for record in records_last_12_months:
@@ -296,7 +296,7 @@ def get_jalali_monthly_production_sum(machine,asset_type):
     else:
         records_last_12_months = DailyProduction.objects.filter(
         dayOfIssue__gte=one_year_ago,
-        dayOfIssue__lte=current_date,machine__assetCategory=asset_type
+        dayOfIssue__lte=current_date,machine__assetCategory=machine
         )
     for record in records_last_12_months:
         jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
@@ -351,7 +351,7 @@ def get_jalali_monthly_duration_sum_by_failure(machine,asset_type):
         records_last_12_months = AssetFailure.objects.filter(
             dayOfIssue__gte=one_year_ago,
             dayOfIssue__lte=current_date,
-            asset_name__assetCategory=asset_type
+            asset_name__assetCategory=machine
             )
 
         
@@ -440,11 +440,15 @@ def get_line_tolid_vazn_data(request):
     asset_type = request.GET.get('asset_type',False)
     start_date=DateJob.getTaskDate(start_date)
     end_date=DateJob.getTaskDate(end_date)
+    print("%%%%%%%%%%%%%%%%%%%%%")
+    print(asset_type)
+    print("%%%%%%%%%%%%%%%%%%%%%")
+
     if(asset_type=='0'):
     
         dates, sums = get_daily_tolid_sums(start_date, end_date,machine)
     else:
-        dates, sums = get_daily_tolid_sums_by_cat(start_date, end_date,asset_type)
+        dates, sums = get_daily_tolid_sums_by_cat(start_date, end_date,machine)
 
 
     data = {
