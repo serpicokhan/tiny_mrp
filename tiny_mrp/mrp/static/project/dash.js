@@ -91,7 +91,14 @@ var draw_line_asset_failure=function(start_dt,end_dt,machine,category){
        })
        .catch(error => console.error(`Error:`, error));
 }
-
+function calculateAverage(array) {
+    if (Array.isArray(array) && array.length > 0) {
+      const sum = array.reduce((acc, value) => acc + value, 0);
+      return sum / array.length;
+    } else {
+      return 0;
+    }
+  }
 var draw_line_asset_production=function(start_dt,end_dt,machine,category){
     fetch(`/Dashboard/Asset/Production/Line/?start=${start_dt}&end=${end_dt}&machine=${machine}&asset_type=${category}`)  // Replace with the URL of your Django view
          .then(response => response.json())
@@ -125,7 +132,7 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
                     curve: 'smooth'  // Red color in hex format
                 },
                 series: [{
-                    name: 'Vazn Sum',
+                    name: 'وزن',
                     data: data.sums
                 }],
                 xaxis: {
@@ -134,6 +141,7 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
             
                  // ... other chart options ...
              };
+        $("#prolinetitle").html("میزان تولید "+ $("#machines").find("option:selected").text()+"(میانگین"+calculateAverage(data.sums).toFixed(0)+" کیلوگرم)");
           $('#lineAssetProductionChart').remove(); // this is my <canvas> element
           $('#lineAssetProductionChartholder').append('<div id="lineAssetProductionChart"><div>');
              var chart = new ApexCharts(document.querySelector("#lineAssetProductionChart"), options);
@@ -283,7 +291,7 @@ var draw_monthly_assetFailure_bar=function(machine,asset_type){
                     type: `bar`
                 },
                 series: [{
-                    name: `Total Duration`,
+                    name: `مجموع توقف`,
                     data: data.sums
                 }],
                 xaxis: {
