@@ -762,10 +762,12 @@ def list_randeman_tolid(request):
     return render(request,"mrp/tolid_randeman/randemanList.html",{'formulas':formulas,'title':'لیست راندمان'})
 
 def get_sum_randeman_by_shift(mah,sal,shift):
+    asset_randeman_list=AssetRandemanList.objects.get(sal=sal,mah=mah)
+
 
 
     filtered_production = AssetRandemanPerMonth.objects.filter(
-    mah=mah,sal=sal,  # Filter by date range
+    asset_randeman_list=asset_randeman_list,  # Filter by date range
 
     shift=shift  # Filter by asset category n
     )
@@ -779,10 +781,12 @@ def get_sum_randeman_by_shift(mah,sal,shift):
 
     return sum_production_value
 def get_sum_randeman(mah,sal):
+    asset_randeman_list=AssetRandemanList.objects.get(sal=sal,mah=mah)
+
 
 
     filtered_production = AssetRandemanPerMonth.objects.filter(
-    mah=mah,sal=sal  # Filter by date range
+    asset_randeman_list=asset_randeman_list  # Filter by date range
 
 
     )
@@ -805,7 +809,8 @@ def get_monthly_workbook(request):
     mah=request.GET.get("mah",False)
     sal=request.GET.get("sal",False)
     shift_list=Shift.objects.all()
-    randeman_list=AssetRandemanPerMonth.objects.filter(mah=mah,sal=sal).order_by('asset_category__priority')
+    asset_randeman_list=AssetRandemanList.objects.get(sal=sal,mah=mah)
+    randeman_list=AssetRandemanPerMonth.objects.filter(asset_randeman_list=asset_randeman_list).order_by('asset_category__priority')
     profile=AssetRandemanList.objects.get(sal=sal,mah=mah).profile
     d=[]
     for i in randeman_list:

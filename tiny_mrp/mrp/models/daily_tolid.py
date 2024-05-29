@@ -185,9 +185,9 @@ class AssetRandemanList(models.Model):
 class AssetRandemanPerMonth(models.Model):
     asset_category = models.ForeignKey('AssetCategory', on_delete=models.CASCADE)
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
-    tolid_value = models.DecimalField(max_digits=10, decimal_places=2)
-    mah = models.IntegerField()
-    sal = models.IntegerField()
+    tolid_value = models.DecimalField(max_digits=15, decimal_places=2)
+    asset_randeman_list = models.ForeignKey('AssetRandemanList', on_delete=models.CASCADE,null=True,blank=True)
+
     class Meta:
         db_table="assetrandemanpermonth"
 

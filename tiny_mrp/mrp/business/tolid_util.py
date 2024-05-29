@@ -212,7 +212,7 @@ def calc_assetrandeman(mah,sal):
     shift_list=Shift.objects.all()
     asset_randeman_list=AssetRandemanList.objects.get(mah=mah,sal=sal)
 
-    AssetRandemanPerMonth.objects.filter(mah=mah,sal=sal).delete()
+    AssetRandemanPerMonth.objects.filter(asset_randeman_list=asset_randeman_list).delete()
     for i in asset_cat_list:
         
         data_shift=[]
@@ -222,18 +222,22 @@ def calc_assetrandeman(mah,sal):
             tolid_shift=get_randeman_per_tolid_byshift(mah,sal,i,shift)           
            
 
-            kole_tolid=get_randeman_per_tolid(mah,sal,i)            
+            kole_tolid=get_randeman_per_tolid(mah,sal,i)        
+            print(f"kole_randeman:{0},tolid_shift:{1},kole_tolid",kole_randeman)
+
             result=0
             if(kole_tolid==0):
                 if(i.id==10):
                     result=math.ceil((float(kole_randeman)*2000)/float(6000))
-                    AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,mah=mah,sal=sal)
+                    AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,asset_randeman_list=asset_randeman_list)
             else:
                 # print(f"kole randeman {kole_randeman},tolid shift {tolid_shift} and  kole tolid={kole_tolid}")
                 result=math.ceil((float(kole_randeman)*tolid_shift)/float(kole_tolid))
-                if(i.id==10):
-                     print("!!!!!!!!!!")
-                AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,mah=mah,sal=sal)
+                if(i.id==4):
+                     print(result,'!!!!!!!!!!!!!!!!')
+                a=AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,asset_randeman_list=asset_randeman_list)
+                if(a.tolid_value==99999999.99):                     
+                    print(a.id,a.tolid_value,'$$$$$$$$$$$$$$$$$$')
 def create_first_padash(AssetRandemanListId):
     asset_randeman=AssetRandemanList.objects.get(id=AssetRandemanListId)
     shifts=Shift.objects.all()
