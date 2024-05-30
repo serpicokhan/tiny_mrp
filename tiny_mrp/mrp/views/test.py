@@ -535,7 +535,7 @@ def show_daily_analyse_tolid(request):
                             ,'bad':get_bad_standard_machine_by_date_category(m.assetCategory),'real':tolid,'kasre_tolid':tolid-good_tolid})
 
 
-                    
+
 
 
         return render(request,'mrp/tolid/daily_analyse_tolid.html',{'machines_with_amar':machines_with_amar,'title':'تحلیل روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
@@ -682,7 +682,7 @@ def monthly_detaild_report(request):
         mean_day_per_shift={}
         for sh in shift:
             mean_day_per_shift[sh.id]=product[sh.id]/total_day_per_shift[sh.id]
-        
+
         days.append({'cat':cats,'date':"",'day_of_week':'میانگین','product':mean_day_per_shift})
 
 
@@ -708,19 +708,19 @@ def monthly_brief_report(request):
 
 
     num_days = (first_day_of_next_month - jdatetime.timedelta(days=1)).day
-    
+
     totals=[]
     sum={}
     for sh in shifts:
         sum[sh.id]=0
-    
+
     for cats in asset_cats:
             product={}
             start=jdatetime.date(j_year,current_jalali_date.month,1)
             end=jdatetime.date(j_year,current_jalali_date.month,num_days)
             for sh in shifts:
                 product[sh.id]=get_monthly_machine_by_date_shift(cats,sh,start.togregorian(),end.togregorian())
-                
+
             # days.append({'cat':cats,'date':"",'day_of_week':'جمع','product':product})
             failure_days={}
             for sh in shifts:
@@ -728,7 +728,7 @@ def monthly_brief_report(request):
 
             total_day_per_shift={}
             for sh in shifts:
-                
+
                 total_day_per_shift[sh.id]=num_days-failure_days[sh.id]
             # days.append({'cat':cats,'date':"",'day_of_week':'روز کاری','product':total_day_per_shift})
             mean_day_per_shift={}
@@ -742,21 +742,21 @@ def monthly_brief_report(request):
                     mean_day_per_shift[sh.id]=product[sh.id]/total_day_per_shift[sh.id]
                     sum[sh.id]+=mean_day_per_shift[sh.id]
 
-            
+
             totals.append({'cat':cats,'date':"",'day_of_week':'میانگین','product':mean_day_per_shift})
-    
 
 
-    
+
+
     return render(request,'mrp/tolid/monthly_brief.html',{'cats':totals,'sum':sum,'shift':shifts,'title':'آمار ماهانه کلی','month':j_month,'year':j_year})
 
-            
-            
-    
 
 
-    
-    
+
+
+
+
+
 def list_randeman_tolid(request):
     formulas=AssetRandemanInit.objects.all()
     return render(request,"mrp/tolid_randeman/randemanList.html",{'formulas':formulas,'title':'لیست راندمان'})
@@ -816,6 +816,10 @@ def get_monthly_workbook(request):
     for i in randeman_list:
         d.append({'operator_num':AssetRandemanInit.objects.get(asset_category=i.asset_category,profile=profile).operator_count,'randeman':i})
     k=[]
+    sum_randeman_tolid_kol=0
+    sum_nezafat_kol=0
+    sum_padash_tolid_kol=0
+    sum_randeman_tolid_kol_majmu=0
     for i in shift_list:
         randeman_list=AssetRandemanList.objects.get(mah=mah,sal=sal)
         nezafat_rank=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
@@ -825,8 +829,15 @@ def get_monthly_workbook(request):
         randeman_kol=get_sum_randeman_by_shift(mah,sal,i)
         sum=randeman_kol+padashe_nezafat_personel+padashe_tolid_personel
         k.append({'randeman_kol':randeman_kol,'shift':i,'nezafat_rank':my_dict[nezafat_rank],'tolid_rank':my_dict[tolid_rank],'padashe_nezafat':padashe_nezafat_personel,'padashe_tolid':padashe_tolid_personel,'sum':sum})
+        sum_randeman_tolid_kol_majmu+=sum
+        sum_padash_tolid_kol+=padashe_tolid_personel
+        sum_nezafat_kol+=padashe_nezafat_personel
+        sum_randeman_tolid_kol+=randeman_kol
 
-    return render(request,'mrp/assetrandeman/finalRandemanList.html',{'shift_list':shift_list,'randeman_list':d,'randeman_kol':k,'mah':utilMonth[12-int(mah)],'sal':sal})
+    return render(request,'mrp/assetrandeman/finalRandemanList.html',{'shift_list':shift_list,'randeman_list':d,'randeman_kol':k,'mah':utilMonth[12-int(mah)],'sal':sal,
+                            'sum_randeman_tolid_kol_majmu':sum_randeman_tolid_kol_majmu,
+                            'sum_padash_tolid_kol':sum_padash_tolid_kol,'sum_nezafat_kol':sum_nezafat_kol,
+                            'sum_randeman_tolid_kol':sum_randeman_tolid_kol})
 def get_monthly_sarshift_workbook(request):
         my_dict = {
         1: 'اول',
