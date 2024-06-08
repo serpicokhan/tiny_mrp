@@ -29,12 +29,16 @@ class AssetFailure(models.Model):
 
         total_duration = timedelta()
         for failure in existing_failures:
-            # Convert TimeField to timedelta for addition
-            duration_timedelta = timedelta(hours=failure.duration.hour, minutes=failure.duration.minute)
-            total_duration += duration_timedelta
+            # Exclude the current instance from the total duration calculation
+            if failure.pk != self.pk:
+                # Convert TimeField to timedelta for addition
+                duration_timedelta = timedelta(hours=failure.duration.hour, minutes=failure.duration.minute)
+                total_duration += duration_timedelta
 
         # Add the duration of the current instance
         current_duration = timedelta(hours=self.duration.hour, minutes=self.duration.minute)
+        print(current_duration,'!!!!!!!!!!!!!!!!!!!')
+        print(total_duration,args,kwargs,'@@@@@@@@@@')
         total_duration += current_duration
 
         # Check if total duration exceeds 8 hours
