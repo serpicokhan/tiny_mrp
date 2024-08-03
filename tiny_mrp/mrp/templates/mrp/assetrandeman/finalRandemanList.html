@@ -13,7 +13,7 @@
                     <h5 class="card-title"></h5>
 
                     {% for i in shift_list %}
-                    <div class="row" style="margin-top:140px;">
+                    <div class="row" >
                       <div class="col text-center ">
                         <h3 style="font-family: 'iransans-bold'">
                         <img src="{% static 'assets/media/image/IMG_20180602_111455_515.jpg' %}" width="10%" alt="">
@@ -25,11 +25,11 @@
                           <thead class="bg-info-gradient">
                             <tr>
 
-                              <th>نام دستگاه</th>
+                              <th style="color: #03346E;">نام دستگاه</th>
                             {% for x in randeman_list %}
 
                             {% if i.id == x.randeman.shift.id %}
-                            <th><b>{{x.randeman.asset_category}}</b></th>
+                            <th style="color: #03346E;"><b>{{x.randeman.asset_category}}</b></th>
                             {% endif %}
                             {% endfor %}
 
@@ -38,10 +38,10 @@
 
                             </tr>
                           <tr>
-                            <th>تعداد اپراتور</th>
+                            <th style="color: #03346E;">تعداد اپراتور</th>
                             {% for x in randeman_list %}
                             {% if i.id == x.randeman.shift.id %}
-                            <th>{{x.operator_num}}</th>
+                            <th style="color: #03346E;">{{x.operator_num}}</th>
                             {% endif %}
                             {% endfor %}
                           </tr>
@@ -128,7 +128,7 @@
 
 
 
-                    <p>  <div class="row" style="margin-top:140px;">
+                    <p>  <div class="row" >
                       <div class="col text-center ">
                         <h3 style="font-family: 'iransans-bold'">
                         <img src="{% static 'assets/media/image/IMG_20180602_111455_515.jpg' %}" width="10%" alt="">
@@ -140,10 +140,10 @@
                             <thead class="bg-success-gradient">
                               <tr>
 
-                                <th>مجموع راندمان تولید</th>
-                                <th>مجموع پاداش تولید</th>
-                                <th>مجموع پاداش نظافت</th>
-                                <th>مجموع کل</th>
+                                <th style="color:#F3FEB8">مجموع راندمان تولید</th>
+                                <th style="color:#F3FEB8">مجموع پاداش تولید</th>
+                                <th style="color:#F3FEB8">مجموع پاداش نظافت</th>
+                                <th style="color:#F3FEB8">مجموع کل</th>
                               </tr>
                               </thead>
                               <tbody>
