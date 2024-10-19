@@ -78,8 +78,27 @@
 
                         <div class="card-body">
                           <h5 class="card-title">آمار روزانه</h5>
-                          <div class="row" id="tblrows">
-                            <!-- Column 1 -->
+                          <ul class="nav nav-pills mb-3" role="tablist">
+
+                            {% for c in cat_list %}
+        
+                            <li class="nav-item">
+                                <a class="nav-link {% if forloop.counter == 1 %}active
+                                {% endif %}" id="tab{{c.id}}" data-toggle="tab" href="#sub{{c.id}}"
+                                role="tab" aria-controls="sub{{c.id}}" aria-selected="{% if forloop.counter == 1 %}true
+                                {% else %}false{% endif %}">{{c.name}}</a>
+                            </li>
+                            {% endfor %}
+        
+                        </ul>
+
+                        <div class="tab-content">
+                          {% for cat_item in cat_list %}
+      
+                          <div class="tab-pane fade {% if forloop.counter == 1 %}active show {% endif %}"
+                          id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
+                          <div class="row tblrows">
+                            
                             
 
                            
@@ -87,7 +106,7 @@
 
                               
                               <div class="table-responsive">
-                                <table class="table table-bordered table-striped company-table" id="tbl1">
+                                <table class="table table-bordered table-striped company-table" >
                                   <thead class="thead-dark">
                                     <tr>
                                       <th>نام ماشین</th>
@@ -105,22 +124,26 @@
                                   </thead>
                                   <tbody>
                                     {% for c in machines %}
+                                    
+                                    
+                                    {% if c.machine.assetCategory.id == cat_item.id %}
                                     <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
                                       <td>{{c.machine.assetName}}</td>
                                       <td contenteditable="true" class="editable-cell btc vahed selectable1">{{c.vahed}}</td>
 
                                       <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.nomre}}</td>
-                                      <td contenteditable="true" class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
+                                      <td contenteditable="true" class="editable-cell editable-cell2 btc speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
 
 
                                       <td contenteditable="true" class="editable-cell btc counter1 selectable1"></td>
                                       <td contenteditable="true" class="editable-cell btc counter2 selectable1"></td>
-                                      <td contenteditable="true" class="editable-cell3 production selectable1" data-formula="{{c.speedformula}}">{{c.max}}</td>
+                                      <td contenteditable="true" class="editable-cell3 production_full selectable1" data-formula="{{c.speedformula}}">{{c.max}}</td>
 
 
                                       <td contenteditable="true" data-formula="{{c.formula}}" class='production'></td>
 
                                     </tr>
+                                    {% endif %}
                                     {% endfor %}
                                     <!-- Add more rows as needed -->
                                   </tbody>
@@ -133,6 +156,18 @@
 
 
                           </div>
+
+
+      
+      
+                              
+      
+      
+      
+      
+                          </div>
+                          {% endfor %}
+                         
 
                         </div>
                         <div class="modal fade" id="modal-company">

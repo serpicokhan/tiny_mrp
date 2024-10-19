@@ -124,20 +124,20 @@ $(function () {
       });
     }
   };
-  $("#tblrows").on("input",'.btc', function() {
+  $(".tblrows").on("input",'.btc', function() {
             var row = $(this).closest("tr");
-            var nomre = parseFloat(row.find(".nomre").text()) || parseFloat(row.find(".counter").attr('data-nomre'));
+            var nomre = parseFloat(row.find(".nomre").text()) || 0;
             var counter1 = parseFloat(row.find(".counter1").text()) || 0;
             var counter2 = parseFloat(row.find(".counter2").text()) || 0;
             var vahed = parseInt(row.find(".vahed").text()) || 0;
-            var formula = row.find("[data-formula]").data("formula");
-            console.log(row,nomre,counter1,counter2,vahed,formula);
-            // var result = evaluateFormula(formula, nomre, counter);
+            var formula = row.find(".production").data("formula");
+            console.log(nomre,counter2-counter1,vahed,formula);
+            var result = evaluateFormula(formula, nomre, counter2-counter1);
             row.find("[data-formula]").text(result);
         });
 
         function evaluateFormula(formula, P, Q) {
-            formula = formula.replace("P", P).replace("Q", Q);
+            formula = formula.replace("p", P).replace("Q", Q);
             try {
               // console.log(formula);
                 var result = eval(formula);

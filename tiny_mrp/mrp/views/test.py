@@ -111,6 +111,9 @@ def register_daily_amar(request):
     machines=Asset.objects.filter(assetTypes=3).order_by("id","assetVahed")
     date_object=datetime.datetime.now()
     next_day = date_object + timedelta(days=1)
+    asset_category = AssetCategory.objects.annotate(
+        min_priority=models.Min('asset__assetTavali')
+        ).order_by('min_priority')
 
 
 # Calculate previous day
@@ -146,17 +149,17 @@ def register_daily_amar(request):
             if(speed):
                 machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':speed.speed,'nomre':speed.nomre,'vahed':machine.assetVahed,'speedformula':speedformula.formula,'max':"{:.0f}".format(speed.eval_max_tolid())})
             else:
-                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'vahed':machine.assetVahed,'nomre':0,'speedformula':speedformula.formula})
+                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':1,'vahed':machine.assetVahed,'nomre':0,'speedformula':speedformula.formula})
 
 
         except Formula.DoesNotExist:
-            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'vahed':machine.assetVahed})
+            machines_with_formulas.append({'machine': machine,'formula': 0,'speed':0,'nomre':0,'vahed':machine.assetVahed})
         except SpeedFormula.DoesNotExist:
-            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'vahed':machine.assetVahed})
+            machines_with_formulas.append({'machine': machine,'formula': formula.formula,'speed':0,'nomre':0,'speedformula':0,'vahed':machine.assetVahed})
         except DailyProduction.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'vahed':machine.assetVahed})
 
-    return render(request,"mrp/tolid/details_aria.html",{'machines':machines_with_formulas,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d')})
+    return render(request,"mrp/tolid/details_aria.html",{'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d')})
 @login_required
 def tolid_heatset(request):
     machines=Asset.objects.filter(assetCategory__id=8)
