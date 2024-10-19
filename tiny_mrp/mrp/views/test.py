@@ -108,7 +108,7 @@ def index(request):
 
 @login_required
 def register_daily_amar(request):
-    machines=Asset.objects.filter(assetTypes=2)
+    machines=Asset.objects.filter(assetTypes=3).order_by("id","assetVahed")
     date_object=datetime.datetime.now()
     next_day = date_object + timedelta(days=1)
 
@@ -122,6 +122,9 @@ def register_daily_amar(request):
         try:
             speed=DailyProduction.objects.filter(machine=machine).last()
             nomre=DailyProduction.objects.filter(machine=machine).last()
+            vahed=DailyProduction.objects.filter(machine=machine).last()
+
+            
             formula = Formula.objects.get(machine=machine)
             speedformula = SpeedFormula.objects.get(machine=machine)
             mydict={}
@@ -135,21 +138,25 @@ def register_daily_amar(request):
                 mydict["nomre"]=nomre.nomre
             else:
                 mydict["nomre"]=0
+            if(vahed):
+                mydict["vahed"]=nomre.vahed
+            else:
+                mydict["vahed"]=machine.assetVahed
 
             if(speed):
-                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':speed.speed,'nomre':speed.nomre,'speedformula':speedformula.formula,'max':"{:.0f}".format(speed.eval_max_tolid())})
+                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':speed.speed,'nomre':speed.nomre,'vahed':machine.assetVahed,'speedformula':speedformula.formula,'max':"{:.0f}".format(speed.eval_max_tolid())})
             else:
-                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'vahed':machine.assetVahed,'nomre':0,'speedformula':speedformula.formula})
 
 
         except Formula.DoesNotExist:
-            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0})
+            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'vahed':machine.assetVahed})
         except SpeedFormula.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0})
         except DailyProduction.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
-    return render(request,"mrp/tolid/details.html",{'machines':machines_with_formulas,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d')})
+    return render(request,"mrp/tolid/details_aria.html",{'machines':machines_with_formulas,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d')})
 @login_required
 def tolid_heatset(request):
     machines=Asset.objects.filter(assetCategory__id=8)

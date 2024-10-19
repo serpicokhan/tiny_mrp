@@ -1,0 +1,161 @@
+{% extends 'mrp/blank-page.html' %}
+
+{% block content %}
+<div class="row app-block">
+
+                <div class="col-md-12 app-content">
+                    <div></div>
+                    <div class="app-action">
+                        <div class="action-left">
+                            
+                            <ul class="list-inline">
+                              <li class="list-inline-item mb-0">
+                                <button type="button" name="button" class="btn btn-outline-light" id="save_production">ذخیره</button>
+                              </li>
+                              <li class="list-inline-item mb-0">
+                                <button type="button" name="button" class="btn btn-outline-light" id="new_amar">جدید</button>
+                              </li>
+                                <li class="list-inline-item mb-0">
+                                    <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown">
+                                      عملیات
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item add-zayeat" href="#" data-url="{%url 'zayeatVazn_create' %}">ورود ضایعات</a>
+                                        <a class="dropdown-item delete-info" href="#" data-url="{%url 'delete_amar_info' %}">حذف</a>
+
+
+                                    </div>
+                                </li>
+
+                                <li class="list-inline-item mb-0">
+                                  <select class="form-control" aria-label="Default select example">
+                                    {% for i in shifts %}
+                                    <option value="{{i.id}}" >{{i.name}}</option>
+                                    {% endfor %}
+                               
+                                  </select>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="action-right">
+                            <form class="d-flex mr-3">
+                                <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu width-15 height-15"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                                </a>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="جستجو ایمیل" aria-describedby="button-addon1" id="search" >
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-light" type="button" id="button-addon1" data-url="{% url 'list_amar_daily_info' %}">
+                                            <i class="ti-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </form>
+                          
+
+                        </div>
+                        
+                        <div class="app-pager d-flex align-items-center">
+                                <div class="mr-3"></div>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination">
+                                        <li class="page-item">
+                                            <a class="page-link" href="#" data-url="/Tolid/Asset/LoadInfo?event={{prev_date}}" id='btn_prev_date' aria-label="Previous">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-left width-15 height-15"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="#" data-url="/Tolid/Asset/LoadInfo?event={{next_date}}" id='btn_next_date'  aria-label="Next">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right width-15 height-15"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                    </div>
+                    <div class="card card-body app-content-body">
+
+                        <div class="card-body">
+                          <h5 class="card-title">آمار روزانه</h5>
+                          <div class="row" id="tblrows">
+                            <!-- Column 1 -->
+                            
+
+                            <div class="col-md-4">
+                            </div>
+                            <div class="col-md-4">
+
+                              
+                              <div class="table-responsive">
+                                <table class="table table-bordered table-striped company-table" id="tbl1">
+                                  <thead class="thead-dark">
+                                    <tr>
+                                      <th>نام ماشین</th>
+                                      <th>نمره</th>
+                                      <th>واحد</th>
+                                      <th> کنتور ابتدای شیفت</th>
+                                      <th> کنتور انتهای شیفت</th>
+                                      <th>سرعت</th>
+                                      <th>100%</th>
+                                      <th>تولید</th>
+
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {% for c in machines %}
+                                    <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
+                                      <td>{{c.machine.assetName}}</td>
+                                      <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.nomre}}</td>
+                                      <td contenteditable="true" class="editable-cell btc vahed selectable1">{{c.vahed}}</td>
+
+                                      <td contenteditable="true" class="editable-cell btc counter1 selectable1"></td>
+                                      <td contenteditable="true" class="editable-cell btc counter2 selectable1"></td>
+                                      <td contenteditable="true" class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
+                                      <td contenteditable="true" class="editable-cell3 production selectable1" data-formula="{{c.speedformula}}">{{c.max}}</td>
+
+
+                                      <td contenteditable="true" data-formula="{{c.formula}}" class='production'></td>
+
+                                    </tr>
+                                    {% endfor %}
+                                    <!-- Add more rows as needed -->
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                       
+                           
+
+
+
+                          </div>
+
+                        </div>
+                        <div class="modal fade" id="modal-company">
+                         <div class="modal-dialog  modal-lg ">
+
+                           <div class="modal-content ">
+                           </div>
+                         </div>
+                        </div>
+                      </div>
+                        <!-- end::app-lists -->
+
+                        <!-- begin:app-detail -->
+
+
+            </div>
+
+
+          </div>
+
+
+{% endblock %}
+{% load static %}
+
+{% block javascript %}
+
+
+ <script src="{% static 'project/tolid.js' %}"></script>
+{% endblock %}

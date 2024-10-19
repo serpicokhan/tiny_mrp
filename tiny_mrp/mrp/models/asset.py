@@ -130,6 +130,7 @@ class Asset(models.Model):
     assetMachineCategory=models.ForeignKey(MachineCategory,on_delete=models.CASCADE,null=True,blank=True,verbose_name="نوع دستگاه")
     assetIsStock=models.BooleanField("انبار",default=False)
     assetTavali=models.IntegerField("شماره توالی",null=True,blank=True)
+    assetVahed=models.IntegerField("تعداد واحد",null=True,blank=True)
 
 
 
