@@ -152,9 +152,9 @@ def register_daily_amar(request):
         except Formula.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'vahed':machine.assetVahed})
         except SpeedFormula.DoesNotExist:
-            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0})
+            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'vahed':machine.assetVahed})
         except DailyProduction.DoesNotExist:
-            machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+            machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'vahed':machine.assetVahed})
 
     return render(request,"mrp/tolid/details_aria.html",{'machines':machines_with_formulas,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d')})
 @login_required

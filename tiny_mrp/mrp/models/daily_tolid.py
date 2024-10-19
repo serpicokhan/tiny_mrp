@@ -47,7 +47,8 @@ class DailyProduction(models.Model):
     register_user = models.CharField(max_length=100)
     speed=models.IntegerField(default=0)
     nomre = models.FloatField()
-    counter = models.FloatField()
+    counter1 = models.FloatField()
+    counter2 = models.FloatField()
     vahed = models.FloatField()
     production_value = models.FloatField(blank=True, null=True)  # Result of the formula
     daf_num = models.FloatField(null=True, blank=True)

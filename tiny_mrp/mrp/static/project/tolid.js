@@ -119,6 +119,7 @@ $(function () {
           // cellToUpdate.text(changedValue);
           // cellToUpdate.attr('data-nomre', changedValue);
           cellToUpdate.attr('data-nomre', changedValue);
+          console.log("change");
         }
       });
     }
@@ -126,10 +127,12 @@ $(function () {
   $("#tblrows").on("input",'.btc', function() {
             var row = $(this).closest("tr");
             var nomre = parseFloat(row.find(".nomre").text()) || parseFloat(row.find(".counter").attr('data-nomre'));
-            var counter = parseFloat(row.find(".counter").text()) || 0;
+            var counter1 = parseFloat(row.find(".counter1").text()) || 0;
+            var counter2 = parseFloat(row.find(".counter2").text()) || 0;
+            var vahed = parseInt(row.find(".vahed").text()) || 0;
             var formula = row.find("[data-formula]").data("formula");
-
-            var result = evaluateFormula(formula, nomre, counter);
+            console.log(row,nomre,counter1,counter2,vahed,formula);
+            // var result = evaluateFormula(formula, nomre, counter);
             row.find("[data-formula]").text(result);
         });
 
