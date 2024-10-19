@@ -233,7 +233,9 @@ def saveAmarTableInfo(request):
                     print('!!!!!!!!',i["speed"],i["id"],s.id)
                 x.speed=i["speed"]
                 x.nomre=i["nomre"]
-                x.counter=float(i["counter"])
+                x.counter1=float(i["counter1"])
+                x.counter2=float(i["counter2"])
+                x.vahed=int(i["vahed"])
                 x.production_value=float(i["production_value"])
                 try:
                     x.save()
@@ -252,12 +254,16 @@ def saveAmarTableInfo(request):
                 amar.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
                 amar.speed=i["speed"]
                 amar.nomre=i["nomre"]
-                amar.counter=float(i["counter"])
+                amar.counter1=float(i["counter1"])
+                amar.counter2=float(i["counter2"])
+                amar.vahed=float(i["vahed"])
+                
                 amar.production_value=float(i["production_value"])
                 try:
                     amar.save()
                     print("done!!!")
-                except IntegrityError:
+                except IntegrityError as ex:
+                    print(ex)
                     print("A MyModel instance with this field1 and field2 combination already exists.")
                     data["error"]="برای این تاریخ مقدار از قبل وجود دارد!"
 

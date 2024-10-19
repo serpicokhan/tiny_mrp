@@ -69,7 +69,7 @@ class DailyProduction(models.Model):
     metrajdaf8 = models.FloatField(null=True, blank=True)
     makhraj_metraj_daf = models.FloatField(null=True, blank=True)
     def __str__(self):
-        return f"{self.nomre} , {self.speed} ,{self.counter}"
+        return f"{self.nomre} , {self.speed} ,{self.counter}, {self.machine}"
     def eval_max_tolid(self):
         if self.machine:
                 formula_obj = SpeedFormula.objects.get(machine=self.machine)

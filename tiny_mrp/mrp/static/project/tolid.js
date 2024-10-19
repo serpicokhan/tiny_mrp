@@ -205,22 +205,23 @@ $(function () {
 
 //$("#company-table").on("click", ".js-update-wo", initxLoad);
 var tableDataToJSON=function(tableId){
+  var $table = $(tableId);
   var data = [];
-      $('#' + tableId + ' tr').each(function() {
+  $table.find('tr').each(function() {
         if($(this).attr('data-machine')){
         var machine=$(this).attr('data-machine');
         var amar_id=$(this).attr('data-id')||'0';
-        var shift = $(this).attr('data-shift');
+        var shift = $(select_shift).val();
         var dayOfIssue = $("#search").val();
-        var speed = $(this).attr('data-speed2')||0;
-        if(tableId=="tbl1")
-        console.log(speed,tableId);
+        var speed = $(this).attr('data-speed2')||0;        
         var nomre = $(this).find('td.nomre').text()||$(this).find('td:eq(0)').attr('data-nomre');
-        var counter = $(this).find('td.counter').text()||0;
+        var counter1 = $(this).find('td.counter1').text()||0;
+        var counter2 = $(this).find('td.counter2').text()||0;
+        var vahed = $(this).find('td.vahed').text()||0;
         var production_value =  $(this).find('td.production').text()||0;
 
         data.push({id:amar_id, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
-          , counter: counter,production_value: production_value
+          , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed
            });
          }
       });
@@ -230,14 +231,27 @@ var tableDataToJSON=function(tableId){
 
 }
 $("#save_production").click(function(){
-  var tbl1=tableDataToJSON('tbl1');
-  var tbl2=tableDataToJSON('tbl2');
-  var tbl3=tableDataToJSON('tbl3');
-  var sendData = {
-    table1: tbl1,
-    table2: tbl2,
-    table3: tbl3
+   var sendData = {
+    
   };
+  var i=1;
+  $("table.company-table").each(function() {
+    
+    // You can perform operations on each table here
+    console.log($(this)); // This logs each table with the class 'company-table'
+    
+    sendData[i]=tableDataToJSON($(this));
+    i++;
+});
+
+  // var tbl1=tableDataToJSON('tbl1');
+  // var tbl2=tableDataToJSON('tbl2');
+  // var tbl3=tableDataToJSON('tbl3');
+  // var sendData = {
+  //   table1: tbl1,
+  //   table2: tbl2,
+  //   table3: tbl3
+  // };
 console.log(JSON.stringify(sendData));
   // AJAX request to send data to the server
   $.ajax({
