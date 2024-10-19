@@ -82,9 +82,8 @@
                             <!-- Column 1 -->
                             
 
-                            <div class="col-md-4">
-                            </div>
-                            <div class="col-md-4">
+                           
+                            <div class="col-md-12">
 
                               
                               <div class="table-responsive">
@@ -92,11 +91,13 @@
                                   <thead class="thead-dark">
                                     <tr>
                                       <th>نام ماشین</th>
-                                      <th>نمره</th>
                                       <th>واحد</th>
+
+                                      <th>نمره</th>
+                                      <th>سرعت</th>
+
                                       <th> کنتور ابتدای شیفت</th>
                                       <th> کنتور انتهای شیفت</th>
-                                      <th>سرعت</th>
                                       <th>100%</th>
                                       <th>تولید</th>
 
@@ -106,12 +107,14 @@
                                     {% for c in machines %}
                                     <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
                                       <td>{{c.machine.assetName}}</td>
-                                      <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.nomre}}</td>
                                       <td contenteditable="true" class="editable-cell btc vahed selectable1">{{c.vahed}}</td>
+
+                                      <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.nomre}}</td>
+                                      <td contenteditable="true" class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
+
 
                                       <td contenteditable="true" class="editable-cell btc counter1 selectable1"></td>
                                       <td contenteditable="true" class="editable-cell btc counter2 selectable1"></td>
-                                      <td contenteditable="true" class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
                                       <td contenteditable="true" class="editable-cell3 production selectable1" data-formula="{{c.speedformula}}">{{c.max}}</td>
 
 
