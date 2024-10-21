@@ -24,7 +24,7 @@ def get_zayeat_pie_aggregate(start_date, end_date):
     return labels, values
 
 def list_dashboard(request):
-    assets=Asset.objects.filter(Q(assetTypes=2)|Q(assetCategory__id=8))
+    assets=Asset.objects.filter(assetTypes=3).order_by('assetCategory','assetTavali')
     asset_list=[]
     asset_list.append({'asset_name':'همه','asset_id':-1,'asset_type':0})
     for index,i in enumerate(assets):
@@ -471,7 +471,7 @@ def production_chart(request):
         production_data1 = DailyProduction.objects.filter(dayOfIssue=date_str,shift=i)\
                         .values('machine__assetName')\
                         .annotate(total_production=Sum('production_value'))\
-                        .order_by('machine')
+                        .order_by('machine__assetCategory','machine__assetTavali')
         data.append(
             {
         'machines': [item['machine__assetName'] for item in production_data1],

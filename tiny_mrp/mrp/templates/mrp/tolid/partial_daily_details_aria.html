@@ -1,1 +1,78 @@
-salam
+
+    {% for cat_item in cat_list %}
+
+    <div class="tab-pane fade {% if forloop.counter == 1 %}active show {% endif %}"
+    id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
+    <div class="row tblrows">
+      
+      
+
+     
+      <div class="col-md-12">
+
+        
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped company-table" >
+            <thead class="thead-dark">
+              <tr>
+                <th>نام ماشین</th>
+                <th>واحد</th>
+
+                <th>نمره</th>
+                <th>سرعت</th>
+
+                <th> کنتور ابتدای شیفت</th>
+                <th> کنتور انتهای شیفت</th>
+                <th>100%</th>
+                <th>تولید</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in machines %}
+              
+              
+              {% if c.machine.assetCategory.id == cat_item.id %}
+              <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
+                <td>{{c.machine.assetName}}</td>
+                <td  class="editable-cell btc vahed selectable1">{{c.amar.vahed}}</td>
+
+                <td  class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
+                <td  class="editable-cell editable-cell2  speed selectable1" data-nomre={{c.nomre}}>{{c.amar.speed}}</td>
+
+
+                <td  class="editable-cell btc counter1 selectable1">{{c.amar.counter1}}</td>
+                <td  class="editable-cell btc counter2 selectable1">{{c.amar.counter2}}</td>
+                <td  class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}" >{{c.amar.eval_max_tolid|floatformat:0}}</td>
+
+
+                <td  data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
+
+              </tr>
+              {% endif %}
+              {% endfor %}
+              <!-- Add more rows as needed -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+ 
+     
+
+
+
+    </div>
+
+
+
+
+        
+
+
+
+
+    </div>
+    {% endfor %}
+   
+
+  

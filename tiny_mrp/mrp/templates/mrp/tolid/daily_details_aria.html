@@ -53,8 +53,22 @@
 
                         <div class="card-body">
                           <h5 class="card-title">آمار روزانه</h5>
-                          {% include 'mrp/tolid/partial_daily_details_aria.html' %}
+                          <ul class="nav nav-pills mb-3" role="tablist">
 
+                            {% for c in cat_list %}
+        
+                            <li class="nav-item">
+                                <a class="nav-link {% if forloop.counter == 1 %}active
+                                {% endif %}" id="tab{{c.id}}" data-toggle="tab" href="#sub{{c.id}}"
+                                role="tab" aria-controls="sub{{c.id}}" aria-selected="{% if forloop.counter == 1 %}true
+                                {% else %}false{% endif %}">{{c.name}}</a>
+                            </li>
+                            {% endfor %}
+        
+                        </ul>
+                        <div class="tab-content">
+                          {% include 'mrp/tolid/partial_daily_details_aria.html' %}
+                        </div>
                         </div>
                       </div>
                         <!-- end::app-lists -->

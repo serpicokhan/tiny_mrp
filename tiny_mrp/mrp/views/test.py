@@ -53,6 +53,9 @@ def backup_database(request):
         return HttpResponse(f"Error: {str(e)}")
 @login_required
 def get_daily_amar(request):
+    asset_category = AssetCategory.objects.annotate(
+        min_priority=models.Min('asset__assetTavali')
+        ).order_by('min_priority')
     dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
     print(dayOfIssue,'!!!!!!!!!!!!!!!!!!')
     date_object = datetime.datetime.strptime(dayOfIssue, '%Y-%m-%d')
@@ -99,7 +102,7 @@ def get_daily_amar(request):
     #             print(ex)
 
 
-    return render(request,"mrp/tolid/daily_details_aria.html",{'heatsets':machines_with_formulas2,'machines':machines_with_formulas,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
+    return render(request,"mrp/tolid/daily_details_aria.html",{'heatsets':machines_with_formulas2,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
 
 @login_required
 def index(request):
