@@ -373,7 +373,7 @@ console.log(JSON.stringify(sendData));
 
     var btn=$(this);
     return $.ajax({
-      url: $(btn).attr("data-url")+'?event_id='+$("#search").val(),
+      url: $(btn).attr("data-url")+'?event_id='+$("#search").val()+'&shift_id='+$("#select_shift").val(),
       type: 'get',
       dataType: 'json',
       beforeSend: function () {
@@ -384,10 +384,13 @@ console.log(JSON.stringify(sendData));
       },
       success: function (data) {
 
-    $("#tblrows").empty();
-    $("#tblrows").html(data.html_heatset_result);
-    $("#btn_next_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.next_date}`);
-    $("#btn_prev_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.prev_date}`);
+    $(".tab-content").empty();
+    $(".tab-content").html(data.html_heatset_result);
+    $("#btn_next_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.next_date}&shift_id=${$("#select_shift").val()}`);
+    $("#btn_prev_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.prev_date}&shift_id=${$("#select_shift").val()}`);
+    $('.nav-link.active').removeClass('active').attr('aria-selected', false);
+    $a = $($(".nav-item a")[0]); // Wrap the first DOM element in a jQuery object
+    $a.addClass('active').attr('aria-selected', true).tab('show');
 
 
       }
@@ -416,7 +419,8 @@ $(".page-link").click(function(){
       $("#btn_prev_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.prev_date}&shift_id=${$("#select_shift").val()}`);
       $("#search").val(data.today_shamsi);
       $('.nav-link.active').removeClass('active').attr('aria-selected', false);
-      $("#sub1").addClass('active').attr('aria-selected', true).tab('show');
+      $a = $($(".nav-item a")[0]); // Wrap the first DOM element in a jQuery object
+      $a.addClass('active').attr('aria-selected', true).tab('show');
 
 
     }
