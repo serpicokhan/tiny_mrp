@@ -187,7 +187,7 @@ $(function () {
 
         function evaluateFormula2(formula, Z, P) {
           console.log(formula,Z,P);
-            formula = formula.replace("Z", Z).replace("P", P);
+            formula = formula.replace("Z", Z).replace("p", P);
             try {
                 var result = eval(formula);
                 return result.toFixed(2); // Adjust as needed

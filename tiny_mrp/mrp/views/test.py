@@ -434,7 +434,7 @@ def show_daily_amar_tolid(request):
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
     shifts=Shift.objects.all()
-    machines=Asset.objects.filter(Q(assetTypes=2)|Q(assetCategory__id=8))
+    machines=Asset.objects.filter(Q(assetTypes=3)|Q(assetCategory__id=8))
     machines_with_amar=[]
     m_count=1
 
