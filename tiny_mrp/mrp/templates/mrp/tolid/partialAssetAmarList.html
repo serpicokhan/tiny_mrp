@@ -1,118 +1,77 @@
-{% for i in shifts %}
 
-  {% if forloop.counter == 1 %}
-<div class="col-md-4">
+  {% for cat_item in cat_list %}
 
-  <h3>{{i.name}}</h3>
-  <div class="table-responsive">
-    <table class="table table-bordered table-striped company-table" id="tbl1">
-      <thead class="thead-dark">
-        <tr>
-          <th>نام ماشین</th>
-          <th>نمره</th>
-          <th> کنتور</th>
-          <th>تولید</th>
+  <div class="tab-pane fade {% if forloop.counter == 1 %}active show {% endif %}"
+  id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
+  <div class="row tblrows">
+        
+    
 
-        </tr>
-      </thead>
-      <tbody>
-        {% for c in machines %}
-        {% if c.shift.id == i.id %}
-        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.amar.speed}}" data-id="{{c.amar.id|default_if_none:'-1'}}">
-          <td>{{c.machine.assetName}}</td>
-          <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
-          <td contenteditable="true" class="editable-cell btc counter selectable1">{{c.amar.counter}}</td>
+   
+    <div class="col-md-12">
 
-          <td contenteditable="true" data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
+      
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped company-table" >
+          <thead class="thead-dark">
+            <tr>
+              <th>نام ماشین</th>
+              <th>واحد</th>
 
-        </tr>
+              <th>نمره</th>
+              <th>سرعت</th>
 
-        {% endif %}
-        {% endfor %}
+              <th> کنتور ابتدای شیفت</th>
+              <th> کنتور انتهای شیفت</th>
+              <th>100%</th>
+              <th>تولید</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in machines %}
+            
+            
+            {% if c.machine.assetCategory.id == cat_item.id %}
+            <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
+              <td>{{c.machine.assetName}}</td>
+              <td contenteditable="true" class="editable-cell btc vahed selectable1">{{c.amar.vahed}}</td>
+
+              <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
+              <td contenteditable="true" class="editable-cell editable-cell2  speed selectable1" data-nomre={{c.amar.nomre}}>{{c.amar.speed}}</td>
+
+
+              <td contenteditable="true" class="editable-cell btc counter1 selectable1">{{c.amar.counter1}}</td>
+              <td contenteditable="true" class="editable-cell btc counter2 selectable1">{{c.amar.counter2}}</td>
+              <td contenteditable="true" class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}" >{{c.amar.max}}</td>
+
+
+              <td contenteditable="true" data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
+
+            </tr>
+            {% endif %}
+            {% endfor %}
+            <!-- Add more rows as needed -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+   
 
 
 
-
-      </tbody>
-    </table>
   </div>
-</div>
-{% else %}
-<div class="col-md-3">
-
-  <h3>{{i.name}}</h3>
-  <div class="table-responsive">
-    <table class="table table-bordered table-striped company-table" id="tbl{{forloop.counter}}">
-      <thead class="thead-dark">
-        <tr>
-
-          <th>شماره کنتور</th>
-          <th>تولید</th>
-
-        </tr>
-      </thead>
-      <tbody>
-        {% for c in machines %}
-          {% if c.shift.id == i.id %}
 
 
-        <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.amar.speed}}" data-id="{{c.amar.id|default_if_none:'-1'}}">
-
-          <td contenteditable="true" class="editable-cell btc counter selectable1" data-nomre={{c.amar.nomre}}>{{c.amar.counter}}</td>
-
-          <td contenteditable="true" data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
-
-        </tr>
-        {% endif %}
-        {% endfor %}
-        {% for c in heatsets %}
-          {% if c.shift.id == i.id %}
-
-        {% include 'mrp/tolid/partialheatsettr2.html' %}
-          {% endif %}
-        {% endfor %}
-
-        <!-- Add more rows as needed -->
 
 
-      </tbody>
-    </table>
+      
+
+
+
+
   </div>
-</div>
-{% endif %}
-{% endfor %}
-<div class="col-md-2">
+  {% endfor %}
+ 
 
- <h3 >تولید 100</h3>
-
-  <div class="table-responsive">
-    <table class="table table-bordered table-striped company-table" >
-      <thead class="thead-dark">
-
-        <tr>
-
-          <th>سرعت</th>
-          <th>تولید 100%</th>
-
-
-        </tr>
-      </thead>
-      <tbody>
-        {% for c in machines %}
-        <tr >
-
-          {% if c.shift.id == 1 %}
-
-          <td contenteditable="true" class="editable-cell editable-cell2 speed selectable1" data-nomre={{c.amar.nomre}} data-id="{{c.amar.id}}">{{c.amar.speed}}</td>
-          <td contenteditable="true" class="editable-cell3 production selectable1"  data-formula="{{c.speedformula}}">{{c.amar.eval_max_tolid|floatformat:"2"}}</td>
-          {% endif %}
-
-
-        </tr>
-        {% endfor %}
-
-        <!-- Add more rows as needed -->
-      </tbody>
-    </table>
-  </div>
-</div>

@@ -124,14 +124,15 @@ $(function () {
       });
     }
   };
-  $(".tblrows").on("input",'.btc', function() {
+  $(".tab-content").on("input",'.btc', function() {
             var row = $(this).closest("tr");
             var nomre = parseFloat(row.find(".nomre").text()) || 0;
+            
             var counter1 = parseFloat(row.find(".counter1").text()) || 0;
             var counter2 = parseFloat(row.find(".counter2").text()) || 0;
             var vahed = parseInt(row.find(".vahed").text()) || 0;
             var formula = row.find(".production").data("formula");
-            console.log(nomre,counter2-counter1,vahed,formula);
+            console.log(nomre);
             var result = evaluateFormula(formula, nomre, counter2-counter1);
             row.find("[data-formula]").text(result);
         });
@@ -141,13 +142,14 @@ $(function () {
             try {
               // console.log(formula);
                 var result = eval(formula);
+                console.log(result)
                 return result.toFixed(2); // Adjust as needed
             } catch (error) {
                 console.error("Error evaluating formula:", error);
                 return "Error";
             }
         }
-  $("#tblrows").on("input",'.editable-cell2', function(event) {
+  $(".tab-content").on("input",'.editable-cell2', function(event) {
             var row = $(this).closest("tr");
             var z = parseFloat(row.find(".speed").text()) || 0;
             var p = parseFloat(row.find(".speed").data('nomre')) || 0;
@@ -162,7 +164,7 @@ $(function () {
               const correspondingCell = tables[i].querySelectorAll('.editable-cell.editable-cell')[rowIndex];
 
               if (correspondingCell && correspondingCell !== event.target) {
-                        console.log(correspondingCell);
+                        // console.log(correspondingCell);
                        // correspondingCell.innerText = newValue;
                        // console.log(correspondingCell);
                        // const correspondingRow = correspondingCell.closest('tr');
@@ -179,7 +181,7 @@ $(function () {
 
             ///
             var result = evaluateFormula2(formula, z, p);
-            row.find("[data-formula]").text(result);
+            row.find(".production_full").text(result);
 
         });
 
@@ -214,10 +216,12 @@ var tableDataToJSON=function(tableId){
         var shift = $(select_shift).val();
         var dayOfIssue = $("#search").val();
         var speed = $(this).attr('data-speed2')||0;        
-        var nomre = $(this).find('td.nomre').text()||$(this).find('td:eq(0)').attr('data-nomre');
+        var nomre = parseFloat($(this).find('td.nomre').text());
+        // var nomre=100;
+        // console.log($(this).find('td.nomre').text());
         var counter1 = $(this).find('td.counter1').text()||0;
         var counter2 = $(this).find('td.counter2').text()||0;
-        var vahed = $(this).find('td.vahed').text()||0;
+        var vahed = parseInt($(this).find('td.vahed').text()||0);
         var production_value =  $(this).find('td.production').text()||0;
 
         data.push({id:amar_id, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
@@ -238,7 +242,7 @@ $("#save_production").click(function(){
   $("table.company-table").each(function() {
     
     // You can perform operations on each table here
-    console.log($(this)); // This logs each table with the class 'company-table'
+    // console.log($(this)); // This logs each table with the class 'company-table'
     
     sendData[i]=tableDataToJSON($(this));
     i++;
@@ -405,12 +409,14 @@ $(".page-link").click(function(){
     },
     success: function (data) {
 
-      $("#tblrows").empty();
+      $(".tab-content").empty();
       // console.log(data.html_heatset_result);
-      $("#tblrows").html(data.html_heatset_result);
+      $(".tab-content").html(data.html_heatset_result);
       $("#btn_next_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.next_date}&shift_id=${$("#select_shift").val()}`);
-      $("#btn_prev_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.prev_date}`);
+      $("#btn_prev_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.prev_date}&shift_id=${$("#select_shift").val()}`);
       $("#search").val(data.today_shamsi);
+      $('.nav-link.active').removeClass('active').attr('aria-selected', false);
+      $("#sub1").addClass('active').attr('aria-selected', true).tab('show');
 
 
     }
@@ -446,7 +452,7 @@ $(".delete-info").click(function(){
   //       $(this).text(text.replace(/[^0-9]/g, ''));
   //   });
   $("#modal-company").on("submit",'.js-zayeatVazn-create-form',save_zayeat);
-   $("#tblrows").on('input','.editable-cell', handleCellValueChange);
+   $(".tblrows").on('input','.editable-cell', handleCellValueChange);
   $("#new_amar").click(function(){
     window.location='/Register';
   });
