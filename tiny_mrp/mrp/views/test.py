@@ -118,7 +118,9 @@ def register_daily_amar(request):
 
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
-
+    shift_id=request.GET.get('shift_id',None)
+    if(not shift_id):
+        shift_id=Shift.objects.first().id
     shift=Shift.objects.all()
     machines_with_formulas = []
     for machine in machines:
@@ -159,7 +161,7 @@ def register_daily_amar(request):
         except DailyProduction.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'vahed':machine.assetVahed})
 
-    return render(request,"mrp/tolid/details_aria.html",{'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d')})
+    return render(request,"mrp/tolid/details_aria.html",{'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d'),'shift_id':shift_id})
 @login_required
 def tolid_heatset(request):
     machines=Asset.objects.filter(assetCategory__id=8)
@@ -974,6 +976,8 @@ def list_amar_daily_info(request):
 
         data=dict()
         dayOfIssue=request.GET.get('event',False)
+        shift_id=request.GET.get('shift_id',False)
+        
         if(not dayOfIssue):
             dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
             date_object = DateJob.getTaskDate(dayOfIssue)
@@ -986,69 +990,70 @@ def list_amar_daily_info(request):
         previous_day = date_object - timedelta(days=1)
         machines=Asset.objects.filter(assetTypes=2)
 
-        shift=Shift.objects.all()
+        shift=Shift.objects.filter(id=shift_id)
         machines_with_formulas = []
-        for s in shift:
-            for machine in machines:
-                try:
+        # for s in shift:
+        s=shift
+        for machine in machines:
+            try:
 
+                formula = Formula.objects.get(machine=machine)
+                speedformula = SpeedFormula.objects.get(machine=machine)
+                amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
+
+                machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
+
+                # else:
+                #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+
+
+            except DailyProduction.DoesNotExist:
+                    # print("error",)
                     formula = Formula.objects.get(machine=machine)
                     speedformula = SpeedFormula.objects.get(machine=machine)
-                    amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
+                    max_nomre = DailyProduction.objects.filter(machine=machine).aggregate(Max('nomre'))
+                    print(max_nomre['nomre__max'],'!!!!!!!!!!!!!!!!')
 
-                    machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
+                    new_daily_production = DailyProduction(
+                    machine=machine,
+                    shift=s,
+                    dayOfIssue=dayOfIssue,
 
-                    # else:
-                    #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
-
-
-                except DailyProduction.DoesNotExist:
-                        # print("error",)
-                        formula = Formula.objects.get(machine=machine)
-                        speedformula = SpeedFormula.objects.get(machine=machine)
-                        max_nomre = DailyProduction.objects.filter(machine=machine).aggregate(Max('nomre'))
-                        print(max_nomre['nomre__max'],'!!!!!!!!!!!!!!!!')
-
-                        new_daily_production = DailyProduction(
-                        machine=machine,
-                        shift=s,
-                        dayOfIssue=dayOfIssue,
-
-                        speed=0,
-                        nomre=max_nomre['nomre__max'],
-                        counter=0,
-                        production_value=0,
-                        daf_num=0,
-                        dook_weight=0,
-                        weight1=0,
-                        weight2=0,
-                        weight3=0,
-                        weight4=0,
-                        weight5=0,
-                        net_weight=0,
-                        metrajdaf1=0,
-                        metrajdaf2=0,
-                        metrajdaf3=0,
-                        metrajdaf4=0,
-                        metrajdaf5=0,
-                        metrajdaf6=0,
-                        metrajdaf7=0,
-                        metrajdaf8=0,
-                        makhraj_metraj_daf=1,
-                        )
+                    speed=0,
+                    nomre=max_nomre['nomre__max'],
+                    counter=0,
+                    production_value=0,
+                    daf_num=0,
+                    dook_weight=0,
+                    weight1=0,
+                    weight2=0,
+                    weight3=0,
+                    weight4=0,
+                    weight5=0,
+                    net_weight=0,
+                    metrajdaf1=0,
+                    metrajdaf2=0,
+                    metrajdaf3=0,
+                    metrajdaf4=0,
+                    metrajdaf5=0,
+                    metrajdaf6=0,
+                    metrajdaf7=0,
+                    metrajdaf8=0,
+                    makhraj_metraj_daf=1,
+                    )
 
 
-                        # Save the object to the database
-                        # new_daily_production.save()
+                    # Save the object to the database
+                    # new_daily_production.save()
 
-                        machines_with_formulas.append({'machine': machine, 'formula': None,'formula': formula.formula,'speedformula':speedformula.formula,'nomre':max_nomre['nomre__max'],'amar':new_daily_production,'shift':s,'speedformula':speedformula.formula})
-                except Formula.DoesNotExist:
-                    machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0})
-                except SpeedFormula.DoesNotExist:
-                    machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'speedformula':speedformula.formula})
-                except DailyProduction.DoesNotExist:
+                    machines_with_formulas.append({'machine': machine, 'formula': None,'formula': formula.formula,'speedformula':speedformula.formula,'nomre':max_nomre['nomre__max'],'amar':new_daily_production,'shift':s,'speedformula':speedformula.formula})
+            except Formula.DoesNotExist:
+                machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0})
+            except SpeedFormula.DoesNotExist:
+                machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'speedformula':speedformula.formula})
+            except DailyProduction.DoesNotExist:
 
-                    machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
 
         data['html_heatset_result'] = render_to_string('mrp/tolid/partialAssetAmarList.html',{

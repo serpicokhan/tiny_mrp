@@ -406,8 +406,9 @@ $(".page-link").click(function(){
     success: function (data) {
 
       $("#tblrows").empty();
+      // console.log(data.html_heatset_result);
       $("#tblrows").html(data.html_heatset_result);
-      $("#btn_next_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.next_date}`);
+      $("#btn_next_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.next_date}&shift_id=${$("#select_shift").val()}`);
       $("#btn_prev_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.prev_date}`);
       $("#search").val(data.today_shamsi);
 
