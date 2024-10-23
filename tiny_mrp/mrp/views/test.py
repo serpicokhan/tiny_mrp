@@ -53,9 +53,7 @@ def backup_database(request):
         return HttpResponse(f"Error: {str(e)}")
 @login_required
 def get_daily_amar(request):
-    asset_category = AssetCategory.objects.annotate(
-        min_priority=models.Min('asset__assetTavali')
-        ).order_by('min_priority')
+    asset_category = AssetCategory.objects.all().order_by('priority')
     dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
     # print(dayOfIssue,'!!!!!!!!!!!!!!!!!!')
     date_object = datetime.datetime.strptime(dayOfIssue, '%Y-%m-%d')
@@ -121,9 +119,7 @@ def register_daily_amar(request):
     machines=Asset.objects.filter(assetTypes=3).order_by("id","assetVahed")
     date_object=datetime.datetime.now()
     next_day = date_object + timedelta(days=1)
-    asset_category = AssetCategory.objects.annotate(
-        min_priority=models.Min('asset__assetTavali')
-        ).order_by('min_priority')
+    asset_category = AssetCategory.objects.all().order_by('priority')
 
 
 # Calculate previous day
