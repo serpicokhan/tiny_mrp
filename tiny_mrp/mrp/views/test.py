@@ -67,7 +67,7 @@ def get_daily_amar(request):
     print(shift_id)
     if(not shift_id):
         shift_id=1
-    print(shift_id)
+    print("shiftid",shift_id)
     
     # heatsets=Asset.objects.filter(assetCategory__id=8)
     shift=Shift.objects.all()
@@ -103,7 +103,7 @@ def get_daily_amar(request):
     #             print(ex)
 
     # print("here")
-    return render(request,"mrp/tolid/daily_details_aria.html",{'heatsets':machines_with_formulas2,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
+    return render(request,"mrp/tolid/daily_details_aria.html",{'heatsets':machines_with_formulas2,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه','shift_id':int(s)})
 
 @login_required
 def index(request):

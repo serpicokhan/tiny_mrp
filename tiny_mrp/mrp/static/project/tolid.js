@@ -463,4 +463,11 @@ $(".delete-info").click(function(){
   $("#select_shift").change(function(){
     window.location='/Register?shift_id='+$(this).val();
   });
+  function getQueryParameter(name) {
+    let results = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);
+    return results ? decodeURIComponent(results[1]) : null;
+}
+  $("#select_shift2").change(function(){
+    window.location=`/Tolid/DailyDetails?event_id=${getQueryParameter('event_id')}&shift_id=${$(this).val()}`;
+  });
 });
