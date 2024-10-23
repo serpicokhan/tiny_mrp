@@ -137,7 +137,7 @@ $(function () {
             var formula2 = row.find("[data-maxformula]").data("maxformula");
             var formula = row.find(".production").data("formula");
             // console.log(nomre);
-            var result = evaluateFormula(formula, nomre, counter2-counter1);
+            var result = evaluateFormula(formula, nomre,q, counter2-counter1);
             row.find("[data-formula]").text(result);
             var result = evaluateFormula2(formula2, z, p,q);
             row.find(".production_full").text(result);
@@ -145,8 +145,9 @@ $(function () {
 
         });
 
-        function evaluateFormula(formula, P, Q) {
-            formula = formula.replace("p", P).replace("Q", Q);
+        function evaluateFormula(formula, P, Q,Z) {
+          console.log(formula,P,Q,Z);
+            formula = formula.replace("P", P).replace("Q", Q).replace("Z",Z);
             try {
               // console.log(formula);
                 var result = eval(formula);
@@ -224,7 +225,7 @@ var tableDataToJSON=function(tableId){
         var amar_id=$(this).attr('data-id')||'0';
         var shift = $("#select_shift").val();
         var dayOfIssue = $("#search").val();
-        var speed = $(this).attr('data-speed2')||0;        
+        var speed = $(this).find('td.speed').text()||0;        
         var nomre = parseFloat($(this).find('td.nomre').text());
         // var nomre=100;
         // console.log($(this).find('td.nomre').text());
