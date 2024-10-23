@@ -35,10 +35,10 @@
             {% if c.machine.assetCategory.id == cat_item.id %}
             <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
               <td>{{c.machine.assetName}}</td>
-              <td contenteditable="true" class="editable-cell btc vahed selectable1">{{c.amar.vahed}}</td>
+              <td contenteditable="true" class="editable-cell btc vahed selectable1 " data-vahed="{{c.machine.assetVahed}}">{{c.amar.vahed}}</td>
 
               <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
-              <td contenteditable="true" class="editable-cell editable-cell2  speed selectable1" data-nomre={{c.amar.nomre}}>{{c.amar.speed}}</td>
+              <td contenteditable="true" class=" editable-cell2 btc speed selectable1" data-nomre={{c.amar.nomre}}>{{c.amar.speed}}</td>
 
 
               <td contenteditable="true" class="editable-cell btc counter1 selectable1">{{c.amar.counter1}}</td>

@@ -130,11 +130,19 @@ $(function () {
             
             var counter1 = parseFloat(row.find(".counter1").text()) || 0;
             var counter2 = parseFloat(row.find(".counter2").text()) || 0;
-            var vahed = parseInt(row.find(".vahed").text()) || 0;
+            // var vahed = parseInt(row.find(".vahed").text()) || 0;
+            var z = parseFloat(row.find(".speed").text()) || 0;
+            var p = parseFloat(row.find(".nomre").text()) || 0;
+            var q = parseFloat(row.find(".vahed").text()) || 0;
+            var formula2 = row.find("[data-maxformula]").data("maxformula");
             var formula = row.find(".production").data("formula");
-            console.log(nomre);
+            // console.log(nomre);
             var result = evaluateFormula(formula, nomre, counter2-counter1);
             row.find("[data-formula]").text(result);
+            var result = evaluateFormula2(formula2, z, p,q);
+            row.find(".production_full").text(result);
+
+
         });
 
         function evaluateFormula(formula, P, Q) {
@@ -149,45 +157,46 @@ $(function () {
                 return "Error";
             }
         }
-  $(".tab-content").on("input",'.editable-cell2', function(event) {
-            var row = $(this).closest("tr");
-            var z = parseFloat(row.find(".speed").text()) || 0;
-            var p = parseFloat(row.find(".speed").data('nomre')) || 0;
-            var formula = row.find("[data-formula]").data("formula");
-            // console.log( Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement));
-            const rowIndex = Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement);
-            const tables = document.querySelectorAll('.company-table');
-            // console.log(tables);
-            console.log(rowIndex);
+  // $(".tab-content").on("input",'.editable-cell2', function(event) {
+  //           var row = $(this).closest("tr");
+  //           var z = parseFloat(row.find(".speed").text()) || 0;
+  //           var p = parseFloat(row.find(".nomre").text()) || 0;
+  //           var q = parseFloat(row.find(".vahed").text()) || 0;
+  //           var formula = row.find("[data-maxformula]").data("maxformula");
+  //           // console.log( Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement));
+  //           const rowIndex = Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement);
+  //           const tables = document.querySelectorAll('.company-table');
+  //           // console.log(tables);
+  //           console.log(rowIndex);
 
-            for (let i = 0; i < tables.length; i++) {
-              const correspondingCell = tables[i].querySelectorAll('.editable-cell.editable-cell')[rowIndex];
+  //           for (let i = 0; i < tables.length; i++) {
+  //             const correspondingCell = tables[i].querySelectorAll('.editable-cell.editable-cell')[rowIndex];
 
-              if (correspondingCell && correspondingCell !== event.target) {
-                        // console.log(correspondingCell);
-                       // correspondingCell.innerText = newValue;
-                       // console.log(correspondingCell);
-                       // const correspondingRow = correspondingCell.closest('tr');
-                       // console.log(correspondingRow);
-                       // correspondingRow.setAttribute('data-speed',z);
-                       tables[i].rows[rowIndex+1].setAttribute('data-speed2',z);
-
-
-
-                     }
-
-            }
+  //             if (correspondingCell && correspondingCell !== event.target) {
+  //                       // console.log(correspondingCell);
+  //                      // correspondingCell.innerText = newValue;
+  //                      // console.log(correspondingCell);
+  //                      // const correspondingRow = correspondingCell.closest('tr');
+  //                      // console.log(correspondingRow);
+  //                      // correspondingRow.setAttribute('data-speed',z);
+  //                      tables[i].rows[rowIndex+1].setAttribute('data-speed2',z);
 
 
-            ///
-            var result = evaluateFormula2(formula, z, p);
-            row.find(".production_full").text(result);
 
-        });
+  //                    }
 
-        function evaluateFormula2(formula, Z, P) {
+  //           }
+
+
+  //           ///
+  //           var result = evaluateFormula2(formula, z, p,q);
+  //           row.find(".production_full").text(result);
+
+  //       });
+
+        function evaluateFormula2(formula, Z, P,Q) {
           console.log(formula,Z,P);
-            formula = formula.replace("Z", Z).replace("p", P);
+            formula = formula.replace("Z", Z).replace("p", P).replace("Q",Q);
             try {
                 var result = eval(formula);
                 return result.toFixed(2); // Adjust as needed
@@ -222,7 +231,13 @@ var tableDataToJSON=function(tableId){
         var counter1 = $(this).find('td.counter1').text()||0;
         var counter2 = $(this).find('td.counter2').text()||0;
         var vahed = parseInt($(this).find('td.vahed').text()||0);
+        var actual_vahed = $(this).find('td.editable-cell').attr('data-vahed');
+        // if(vahed > actual_vahed){
+        //   toastr.error(`${vahed} ${actual_vahed}`);
+        //   return;
+        // }
         var production_value =  $(this).find('td.production').text()||0;
+
 
         data.push({id:amar_id, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
           , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed
@@ -248,14 +263,7 @@ $("#save_production").click(function(){
     i++;
 });
 
-  // var tbl1=tableDataToJSON('tbl1');
-  // var tbl2=tableDataToJSON('tbl2');
-  // var tbl3=tableDataToJSON('tbl3');
-  // var sendData = {
-  //   table1: tbl1,
-  //   table2: tbl2,
-  //   table3: tbl3
-  // };
+
 console.log(JSON.stringify(sendData));
   // AJAX request to send data to the server
   $.ajax({

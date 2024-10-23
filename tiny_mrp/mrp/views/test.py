@@ -983,9 +983,10 @@ def list_heatset_info(request):
 def list_amar_daily_info(request):
 
         data=dict()
-        asset_category = AssetCategory.objects.annotate(
-        min_priority=models.Min('asset__assetTavali')
-        ).order_by('min_priority')
+        asset_category = AssetCategory.objects.all().order_by('priority')
+        # annotate(
+        # min_priority=models.Min('asset__assetTavali')
+        # ).order_by('min_priority')
 
         dayOfIssue=request.GET.get('event',False)
         shift_id=request.GET.get('shift_id',False)

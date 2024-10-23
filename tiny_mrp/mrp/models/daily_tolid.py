@@ -78,7 +78,8 @@ class DailyProduction(models.Model):
                 # Parameters for the evaluation (counter and nomre)
                 parameters = {
                     'Z': self.speed,
-                    'P': self.nomre
+                    'P': self.nomre,
+                    'Q':self.vahed
                 }
 
                 # Replace parameters in the formula with actual values
