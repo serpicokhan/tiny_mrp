@@ -213,7 +213,7 @@ var tableDataToJSON=function(tableId){
         if($(this).attr('data-machine')){
         var machine=$(this).attr('data-machine');
         var amar_id=$(this).attr('data-id')||'0';
-        var shift = $(select_shift).val();
+        var shift = $("#select_shift").val();
         var dayOfIssue = $("#search").val();
         var speed = $(this).attr('data-speed2')||0;        
         var nomre = parseFloat($(this).find('td.nomre').text());
@@ -383,7 +383,7 @@ console.log(JSON.stringify(sendData));
 
       },
       success: function (data) {
-
+        console.log(data);
     $(".tab-content").empty();
     $(".tab-content").html(data.html_heatset_result);
     $("#btn_next_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.next_date}&shift_id=${$("#select_shift").val()}`);
@@ -459,5 +459,8 @@ $(".delete-info").click(function(){
    $(".tblrows").on('input','.editable-cell', handleCellValueChange);
   $("#new_amar").click(function(){
     window.location='/Register';
+  });
+  $("#select_shift").change(function(){
+    window.location='/Register?shift_id='+$(this).val();
   });
 });

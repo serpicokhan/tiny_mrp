@@ -57,7 +57,7 @@ def get_daily_amar(request):
         min_priority=models.Min('asset__assetTavali')
         ).order_by('min_priority')
     dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
-    print(dayOfIssue,'!!!!!!!!!!!!!!!!!!')
+    # print(dayOfIssue,'!!!!!!!!!!!!!!!!!!')
     date_object = datetime.datetime.strptime(dayOfIssue, '%Y-%m-%d')
 
     next_day = date_object + timedelta(days=1)
@@ -65,9 +65,12 @@ def get_daily_amar(request):
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
     machines=Asset.objects.filter(assetTypes=3)
-    shift_id=request.GET.get("shift_id",None)
+    shift_id=request.GET.get("shift_id",False)
+    print(shift_id)
     if(not shift_id):
         shift_id=1
+    print(shift_id)
+    
     # heatsets=Asset.objects.filter(assetCategory__id=8)
     shift=Shift.objects.all()
     machines_with_formulas = []
@@ -79,17 +82,17 @@ def get_daily_amar(request):
             formula = Formula.objects.get(machine=machine)
             speedformula = SpeedFormula.objects.get(machine=machine)
             amar=DailyProduction.objects.get(machine=machine,dayOfIssue=dayOfIssue,shift=s)
-            machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
+            machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'shift_id':s})
             # else:
             #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
 
         except Formula.DoesNotExist:
-            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0})
+            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'shift':s,'shift_id':s})
         except SpeedFormula.DoesNotExist:
-            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0})
+            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'shift':s,'shift_id':s})
         except DailyProduction.DoesNotExist:
-            machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+            machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'shift':s,'shift_id':s})
 
     # for s in shift:
     #     for machine in heatsets:
@@ -101,7 +104,7 @@ def get_daily_amar(request):
     #         except Exception as ex:
     #             print(ex)
 
-
+    # print("here")
     return render(request,"mrp/tolid/daily_details_aria.html",{'heatsets':machines_with_formulas2,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه'})
 
 @login_required
@@ -125,10 +128,12 @@ def register_daily_amar(request):
 
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
-    shift_id=request.GET.get('shift_id',None)
+    shift_id=request.GET.get('shift_id',False)
     if(not shift_id):
         shift_id=Shift.objects.first().id
+    print("shift:########",shift_id)
     shift=Shift.objects.all()
+
     machines_with_formulas = []
     for machine in machines:
         try:
@@ -168,7 +173,7 @@ def register_daily_amar(request):
         except DailyProduction.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'vahed':machine.assetVahed})
 
-    return render(request,"mrp/tolid/details_aria.html",{'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d'),'shift_id':shift_id})
+    return render(request,"mrp/tolid/details_aria.html",{'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d'),'shift_id':int(shift_id)})
 @login_required
 def tolid_heatset(request):
     machines=Asset.objects.filter(assetCategory__id=8)
@@ -1012,7 +1017,7 @@ def list_amar_daily_info(request):
                 speedformula = SpeedFormula.objects.get(machine=machine)
                 amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
 
-                machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
+                machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'shift_id':s})
 
                 # else:
                 #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
@@ -1059,15 +1064,15 @@ def list_amar_daily_info(request):
                     # Save the object to the database
                     # new_daily_production.save()
 
-                    machines_with_formulas.append({'machine': machine, 'formula': None,'formula': formula.formula,'speedformula':speedformula.formula,'nomre':max_nomre['nomre__max'],'amar':new_daily_production,'shift':s,'speedformula':speedformula.formula,'vahed':machine.assetVahed})
+                    machines_with_formulas.append({'machine': machine, 'formula': None,'formula': formula.formula,'speedformula':speedformula.formula,'nomre':max_nomre['nomre__max'],'amar':new_daily_production,'shift':s,'speedformula':speedformula.formula,'vahed':machine.assetVahed,'shift_id':s})
             except Formula.DoesNotExist:
-                machines_with_formulas.append({'machine': machine,'formula': 0,'speed':0,'nomre':0,'vahed':machine.assetVahed})
+                machines_with_formulas.append({'machine': machine,'formula': 0,'speed':0,'nomre':0,'vahed':machine.assetVahed,'shift_id':s})
             except SpeedFormula.DoesNotExist:
                 # amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
-                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':0 ,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'vahed':machine.assetVahed})
+                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':0 ,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'vahed':machine.assetVahed,'shift_id':s})
             except DailyProduction.DoesNotExist:
 
-                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'vahed':machine.assetVahed})
+                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'vahed':machine.assetVahed,'shift_id':s})
 
 
         data['html_heatset_result'] = render_to_string('mrp/tolid/partialAssetAmarList.html',{

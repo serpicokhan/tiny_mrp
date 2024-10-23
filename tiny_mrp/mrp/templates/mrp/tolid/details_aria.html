@@ -30,7 +30,8 @@
                                 <li class="list-inline-item mb-0">
                                   <select class="form-control" aria-label="Default select example" id="select_shift">
                                     {% for i in shifts %}
-                                    <option value="{{i.id}}" >{{i.name}}</option>
+                                    
+                                    <option x="{{shift_id}}" value="{{i.id}}" {% if i.id == shift_id %} selected {% endif %}>{{i.name}}</option>
                                     {% endfor %}
                                
                                   </select>
