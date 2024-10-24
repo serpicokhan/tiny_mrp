@@ -149,21 +149,24 @@ def get_bad_standard_machine_by_date_category(assetCatregory):
         return t2
 def get_sum__speed_machine_by_category(assetCatregory,target_date):
         sum=0
-        shift=Shift.objects.all()
+        shift=Shift.objects.all().count()
         t2 = DailyProduction.objects.filter(
         machine__assetCategory=assetCatregory,
         dayOfIssue=target_date
         )
+        print(t2.count(),assetCatregory)
 
         for i in t2:
             if(i.eval_max_tolid()>0):
-                sum+=i.production_value/i.eval_max_tolid()
+                sum+=(i.production_value / i.eval_max_tolid())
             else:
                 sum+=0
         # print(machine.id,target_date,production_sum)
         i=t2.count()
+        print(sum)
         if(i>0):
-            return sum*shift.count()/t2.count()
+            m_count=Asset.objects.filter(assetCategory=assetCatregory).count()
+            return sum/(shift*m_count)
         return 0
 def get_sum_vaz_zayeat_by_date(specific_date):
     sum_vazn = ZayeatVaz.objects.filter(dayOfIssue=specific_date).aggregate(total_vazn=Sum('vazn'))

@@ -138,7 +138,13 @@ $(function () {
             var formula2 = row.find("[data-maxformula]").data("maxformula");
             var formula = row.find(".production").data("formula");
             // console.log(nomre);
+            
+            
             var result = evaluateFormula(formula, nomre,counter2-counter1,q);
+
+           
+
+            // var result = evaluateFormula(formula, nomre,counter2-counter1,q);
             row.find("[data-formula]").text(result);
             var result = evaluateFormula2(formula2, p,z,q1);
             row.find(".production_full").text(result);
@@ -156,7 +162,7 @@ $(function () {
                 return result.toFixed(2); // Adjust as needed
             } catch (error) {
                 console.error("Error evaluating formula:", error);
-                return "Error";
+                return 0;
             }
         }
   // $(".tab-content").on("input",'.editable-cell2', function(event) {

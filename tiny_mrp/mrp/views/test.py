@@ -454,18 +454,24 @@ def show_daily_amar_tolid(request):
             sum_cat=0
             for i in shifts:
                 try:
-                    amar=DailyProduction.objects.filter(machine=m,shift=i,dayOfIssue=q)[0]
+                    amar=DailyProduction.objects.filter(machine=m,shift=i,dayOfIssue=q)
+                    if(amar.count()>0):
                     # total_production2 = amar.aggregate(Sum('production_value'))['production_value__sum'] or 0
-                    shift_val.append({'value':amar.production_value,'shift':i})
-                    sum+=amar.production_value
-                    max_speed=amar.eval_max_tolid()
+                        shift_val.append({'value':amar[0].production_value,'shift':i})
+                        sum+=amar[0].production_value
+                        max_speed=amar[0].eval_max_tolid()
+                    else:
+                        shift_val.append({'value':0,'shift':i})
+
+                    # print(max_speed)
 
 
                 except Exception as e:
                     shift_val.append({'value':0,'shift':i})
+                    print(e)
             mx_speed=0
             if(max_speed>0):
-                mx_speed=(sum/max_speed)*100
+                mx_speed=(sum/(max_speed*shifts.count()))*100
             if(m.id in (1,2,11)):
                  machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
 
@@ -536,6 +542,7 @@ def show_daily_amar_tolid_brief(request):
                     shift_val.append({'value':amar.production_value,'shift':i})
                     sum+=amar.production_value
                     max_speed=amar.eval_max_tolid()
+                    
 
 
                 except Exception as e:
@@ -561,7 +568,7 @@ def show_daily_amar_tolid_brief(request):
                     for i in shifts:
                         x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
 
-                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                    machines_with_amar.append({'machine':"{}".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
                     sum_randeman=0
             except:
 
@@ -570,7 +577,7 @@ def show_daily_amar_tolid_brief(request):
                     x=[]
                     for i in shifts:
                         x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
-                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                    machines_with_amar.append({'machine':"{}".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
                     sum_randeman=0
 
                 pass
@@ -580,7 +587,7 @@ def show_daily_amar_tolid_brief(request):
 
 
 
-    return render(request,'mrp/tolid/daily_amar_tolid.html',{'shift':shifts,'machines_with_amar':machines_with_amar,'title':'راندمان روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
+    return render(request,'mrp/tolid/daily_amar_tolid_brief.html',{'shift':shifts,'machines_with_amar':machines_with_amar,'title':'راندمان روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
 
 def show_daily_analyse_tolid(request):
         q=request.GET.get('date',datetime.datetime.now().date())
@@ -838,14 +845,14 @@ def monthly_brief_report(request):
             # days.append({'cat':cats,'date':"",'day_of_week':'روز کاری','product':total_day_per_shift})
             mean_day_per_shift={}
             for sh in shifts:
-                if(cats.id==9 or cats.id==10):
-                    mean_day_per_shift[sh.id]=2000
-                    sum[sh.id]+=2000
-                else:
+                # if(cats.id==9 or cats.id==10):
+                #     mean_day_per_shift[sh.id]=2000
+                #     sum[sh.id]+=2000
+                # else:
 
 
-                    mean_day_per_shift[sh.id]=product[sh.id]/total_day_per_shift[sh.id]
-                    sum[sh.id]+=mean_day_per_shift[sh.id]
+                mean_day_per_shift[sh.id]=product[sh.id]/total_day_per_shift[sh.id]
+                sum[sh.id]+=mean_day_per_shift[sh.id]
 
 
             totals.append({'cat':cats,'date':"",'day_of_week':'میانگین','product':mean_day_per_shift})
