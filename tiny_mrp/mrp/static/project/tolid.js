@@ -137,9 +137,9 @@ $(function () {
             var formula2 = row.find("[data-maxformula]").data("maxformula");
             var formula = row.find(".production").data("formula");
             // console.log(nomre);
-            var result = evaluateFormula(formula, nomre,q, counter2-counter1);
+            var result = evaluateFormula(formula, nomre,counter2-counter1,q);
             row.find("[data-formula]").text(result);
-            var result = evaluateFormula2(formula2, z, p,q);
+            var result = evaluateFormula2(formula2, p,z,q);
             row.find(".production_full").text(result);
 
 
@@ -195,7 +195,7 @@ $(function () {
 
   //       });
 
-        function evaluateFormula2(formula, Z, P,Q) {
+        function evaluateFormula2(formula, P,Q,Z) {
           console.log(formula,Z,P);
             formula = formula.replace("Z", Z).replace("p", P).replace("Q",Q);
             try {
