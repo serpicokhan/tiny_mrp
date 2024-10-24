@@ -471,6 +471,7 @@ def show_daily_amar_tolid(request):
                     print(e)
             mx_speed=0
             if(max_speed>0):
+                print(f"{sum}/{max_speed}*{shifts.count()}")
                 mx_speed=(sum/(max_speed*shifts.count()))*100
             if(m.id in (1,2,11)):
                  machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
