@@ -466,11 +466,88 @@ def show_daily_amar_tolid(request):
             mx_speed=0
             if(max_speed>0):
                 mx_speed=(sum/max_speed)*100
-            if(m.id in (16,5,4,3)):
+            if(m.id in (1,2,11)):
                  machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
 
             else:
                 machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
+
+            if(index<len(machines)):
+                sum_randeman+=mx_speed
+
+            # print(get_sum_machine_by_date_shift(m.assetCategory,q,i))
+
+            try:
+                if(machines[index].assetCategory !=machines[index+1].assetCategory and asset_types>1):
+
+                    x=[]
+                    for i in shifts:
+                        x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
+
+                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                    sum_randeman=0
+            except:
+
+                if(index==len(machines)-1 and asset_types>1):
+
+                    x=[]
+                    for i in shifts:
+                        x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
+                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                    sum_randeman=0
+
+                pass
+
+
+
+
+
+
+    return render(request,'mrp/tolid/daily_amar_tolid.html',{'shift':shifts,'machines_with_amar':machines_with_amar,'title':'راندمان روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
+
+def show_daily_amar_tolid_brief(request):
+    q=request.GET.get('date',datetime.datetime.now().date())
+    date_object = datetime.datetime.strptime(q, '%Y-%m-%d')
+
+    next_day = date_object + timedelta(days=1)
+
+
+# Calculate previous day
+    previous_day = date_object - timedelta(days=1)
+    shifts=Shift.objects.all()
+    machines=Asset.objects.filter(Q(assetTypes=3)).order_by('assetCategory__priority','assetTavali')
+    machines_with_amar=[]
+    m_count=1
+
+    if(q):
+        sum_randeman=0
+        for index,m in enumerate(machines):
+
+            asset_types=get_asset_count(m.assetCategory)
+            shift_val=[]
+            sum=0
+
+            max_speed=1
+            sum_cat=0
+            for i in shifts:
+                try:
+                    amar=DailyProduction.objects.filter(machine=m,shift=i,dayOfIssue=q)[0]
+                    # total_production2 = amar.aggregate(Sum('production_value'))['production_value__sum'] or 0
+                    shift_val.append({'value':amar.production_value,'shift':i})
+                    sum+=amar.production_value
+                    max_speed=amar.eval_max_tolid()
+
+
+                except Exception as e:
+                    shift_val.append({'value':0,'shift':i})
+            mx_speed=0
+            if(max_speed>0):
+                mx_speed=(sum/max_speed)*100
+            if(m.id in (1,2,11)):
+                 machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
+
+            # else:
+            #     machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
 
             if(index<len(machines)):
                 sum_randeman+=mx_speed
@@ -569,6 +646,8 @@ def calendar_main(request):
     return render(request,'mrp/tolid/calendar_main.html',{})
 def calendar_randeman(request):
     return render(request,'mrp/tolid/calendar_randeman.html',{'title':'راندمان روزانه'})
+def calendar_randeman_brief(request):
+    return render(request,'mrp/tolid/calendar_randeman_brief.html',{'title':'راندمان روزانه'})
 def calendar_tahlil(request):
     return render(request,'mrp/tolid/calendar_tahlil.html',{'title':'تحلیل روزانه'})
 def get_tolid_calendar_info(request):

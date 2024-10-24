@@ -29,7 +29,7 @@ def list_dashboard(request):
     asset_list.append({'asset_name':'همه','asset_id':-1,'asset_type':0})
     for index,i in enumerate(assets):
         asset_types=get_asset_count(i.assetCategory)
-        asset_list.append({'asset_name':i.assetName,'asset_id':i.id,'asset_type':0})
+        # asset_list.append({'asset_name':i.assetName,'asset_id':i.id,'asset_type':0})
         try:
             if(assets[index].assetCategory !=assets[index+1].assetCategory and asset_types>1):
                 asset_list.append({'asset_name':"جمع {} ها".format(i.assetCategory),'asset_id':i.assetCategory.id,'asset_type':1})
@@ -483,12 +483,53 @@ def production_chart(request):
         )
    
     
-    # data = {
-    #     'machines': [item['machine__assetName'] for item in production_data],
-    #     'production_values': [int(item['total_production']) for item in production_data],
-    #     'date':str(jdatetime.date.fromgregorian(date=date_str)),
-        
-    # }
+   
     
     return JsonResponse(data,safe=False)
 
+def production_chart2(request):
+    # Assume 'date' is passed as 'YYYY-MM-DD' format from the front end
+    date_str1=request.GET.get('stdate',False)
+    date_str2=request.GET.get('enddate',False)
+    
+    # if(not date_str1):
+    #     date_str=DailyProduction.objects.order_by('-dayOfIssue').first().dayOfIssue
+    production_data={}
+    data=[]
+
+    # date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+    
+    # Query to get sum of production_value for each machine for the given date
+    # shifts=Shift.objects.all()
+    date_str=''
+    if(date_str1):
+        en_date_str1=DateJob.getTaskDate(date_str1)
+        en_date_str2=DateJob.getTaskDate(date_str2)
+        production_data1 = DailyProduction.objects.filter(dayOfIssue__range=[en_date_str1,en_date_str2])\
+                    .values('machine__assetCategory__name')\
+                    .annotate(total_production=Sum('production_value'))\
+                    .order_by('machine__assetCategory__priority')
+    else:
+        date_str=DailyProduction.objects.order_by('-dayOfIssue').first().dayOfIssue
+
+
+    
+        production_data1 = DailyProduction.objects.filter(dayOfIssue=date_str)\
+                        .values('machine__assetCategory__name')\
+                        .annotate(total_production=Sum('production_value'))\
+                        .order_by('machine__assetCategory__priority')
+    data.append(
+        {
+    'machines': [item['machine__assetCategory__name'] for item in production_data1],
+    'production_values': [int(item['total_production']) for item in production_data1],
+    # 'date':str(jdatetime.date.fromgregorian(date=date_str).strftime("%d-%m-%Y")),
+    'date':''
+    # 'lable':f'شیفت {i.name}'
+    
+            }
+    )
+   
+    
+   
+    
+    return JsonResponse(data,safe=False)

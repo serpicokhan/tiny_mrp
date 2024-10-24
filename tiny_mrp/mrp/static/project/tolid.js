@@ -134,12 +134,13 @@ $(function () {
             var z = parseFloat(row.find(".speed").text()) || 0;
             var p = parseFloat(row.find(".nomre").text()) || 0;
             var q = parseFloat(row.find(".vahed").text()) || 0;
+            var q1 = parseFloat(row.find(".vahed").data("vahed")) || 0;
             var formula2 = row.find("[data-maxformula]").data("maxformula");
             var formula = row.find(".production").data("formula");
             // console.log(nomre);
             var result = evaluateFormula(formula, nomre,counter2-counter1,q);
             row.find("[data-formula]").text(result);
-            var result = evaluateFormula2(formula2, p,z,q);
+            var result = evaluateFormula2(formula2, p,z,q1);
             row.find(".production_full").text(result);
 
 
