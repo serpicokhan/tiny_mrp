@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'tiny_mrp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'aria_mrp',
+        'NAME': 'kth_mrp',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': '127.0.0.1',

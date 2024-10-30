@@ -116,7 +116,7 @@ def index(request):
 
 @login_required
 def register_daily_amar(request):
-    machines=Asset.objects.filter(assetTypes=3).order_by("id","assetVahed")
+    machines=Asset.objects.filter(assetTypes=3).order_by("assetTavali")
     date_object=datetime.datetime.now()
     next_day = date_object + timedelta(days=1)
     asset_category = AssetCategory.objects.all().order_by('priority')
@@ -668,7 +668,7 @@ def get_tolid_calendar_info(request):
                 'start': i[0],\
                  'color': '#53c797',\
                 'id':i[0]})
-        data.append({'title': "جمع ضایعات روز: {}".format(float(z)),\
+        data.append({'title': f"جمع ضایعات روز: {round(z,2)}",\
                 'start': i[0],\
                  'color': 'red',\
                 'id':i[0]})
@@ -711,7 +711,7 @@ def get_randeman_calendar_info(request):
                 'start': i[0],\
                  'color': '#fb3',\
                 'id':i[0]})
-        data.append({'title': "جمع ضایعات روز: {}".format(float(z)),\
+        data.append({'title': "جمع ضایعات روز: {}".format(round(z,2)),\
                 'start': i[0],\
                  'color': 'red',\
                 'id':i[0]})
@@ -1153,7 +1153,7 @@ def list_amar_daily_info(request):
                 machines_with_formulas.append({'machine': machine,'formula': 0,'speed':0,'nomre':0,'vahed':machine.assetVahed,'shift_id':s})
             except SpeedFormula.DoesNotExist:
                 # amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
-                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':0 ,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'vahed':machine.assetVahed,'shift_id':s})
+                machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':0 ,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'vahed':machine.assetVahed,'shift_id':s,'amar':new_daily_production})
             except DailyProduction.DoesNotExist:
 
                 machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'vahed':machine.assetVahed,'shift_id':s})
