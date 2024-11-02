@@ -100,17 +100,18 @@
                         </thead>
                         <tbody>
                             {% for i in machines_with_amar %}
-                        <tr>
-                            <td class="{{i.css}}">{{i.machine}}</td>
-                            {%for k in i.shift_amar %}
-                            <td class="{{i.css}}">{{k.value|floatformat:0}}</td>
-                            {% endfor %}
-                            <td class="{{i.css}}">{{i.sum|floatformat:0}}</td>
-                            <td class="{{i.css}}">{{i.max_speed}}</td>
-                        </tr>
+                                <tr>
+                                    <td class="{{i.css}}">{{i.machine}}</td>
+                                    
+                                    {%for k in i.shift_amar %}
+                                    <td class="{{i.css}}">{{k.value|floatformat:0}}</td>
+                                    {% endfor %}
+                                    <td class="{{i.css}}">{{i.sum|floatformat:0}}</td>
+                                    <td class="{{i.css}}">{{i.max_speed}}</td>
+                                </tr>
 
 
-                        {% endfor %}
+                              {% endfor %}
 
                         <tfoot>
                         <tr>

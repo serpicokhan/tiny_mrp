@@ -439,6 +439,7 @@ def show_daily_amar_tolid(request):
     previous_day = date_object - timedelta(days=1)
     shifts=Shift.objects.all()
     machines=Asset.objects.filter(Q(assetTypes=3)).order_by('assetCategory__priority','assetTavali')
+    print(machines)
     machines_with_amar=[]
     m_count=1
 
@@ -473,7 +474,7 @@ def show_daily_amar_tolid(request):
             if(max_speed>0):
                 print(f"{sum}/{max_speed}*{shifts.count()}")
                 mx_speed=(sum/(max_speed*shifts.count()))*100
-            if(m.id in (1,2,11)):
+            if(m.id in (7053,7052,7055)):
                  machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
 
             else:
@@ -551,7 +552,7 @@ def show_daily_amar_tolid_brief(request):
             mx_speed=0
             if(max_speed>0):
                 mx_speed=(sum/max_speed)*100
-            if(m.id in (1,2,11)):
+            if(m.id in (7053,7052,7055)):
                  machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
 
             # else:
@@ -707,7 +708,7 @@ def get_randeman_calendar_info(request):
     print(user_info)
     for i in user_info:
         z=get_sum_vaz_zayeat_by_date(i[0])
-        data.append({'title': "راندمان روزانه",\
+        data.append({'title': "راندمان روزانه{}".format(get_sum_machin_product_by_cat(Asset.objects.get(id=7084),i[0])),\
                 'start': i[0],\
                  'color': '#fb3',\
                 'id':i[0]})

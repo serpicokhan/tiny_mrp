@@ -5,6 +5,9 @@ register = template.Library()
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key, None)
+@register.filter
+def get_sum_item(dictionary):
+    return sum(dictionary.values())
 @register.filter(name='get_item_from_shift')
 def get_item_from_shift(value, shift_id):
     for item in value:

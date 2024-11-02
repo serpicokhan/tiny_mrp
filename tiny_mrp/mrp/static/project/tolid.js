@@ -85,7 +85,8 @@
 
 
 $(function () {
-  $('#tblrows').on('keydown','.editable-cell, .production',(function(e) {
+  $('.tblrows').on('keydown','.editable-cell, .production',(function(e) {
+    console.log("1");
         if (e.keyCode == 13) { // Enter key
             e.preventDefault(); // Prevent default Enter behavior
 

@@ -296,13 +296,14 @@ class DateJob:
 
         # Define a list of Persian names for days of the week
         persian_days = [
-            "دوشنبه",
+           
+            "شنبه",
+            "یک‌شنبه",
+             "دوشنبه",
             "سه‌شنبه",
             "چهارشنبه",
             "پنج‌شنبه",
             "جمعه",
-            "شنبه",
-            "یک‌شنبه"
         ]
 
         # Print the Persian name of the current day
