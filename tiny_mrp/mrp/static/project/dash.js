@@ -194,50 +194,56 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
   }
   var draw_line_current_month_tab_production=function(){
     fetch(`/Dashboard/Tab/CurrentMonth/Production/Daily/?asset_category=7`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Assume `data` is an array of objects with fields: `day` and `daily_total`
-                    const dates = data.map(item => item.day);             // Extract day numbers
-                    const productionTotals = data.map(item => item.daily_total);  // Extract daily production totals
-                    
-                    // Set up and render the ApexCharts line chart
-                    const options = {
-                        chart: {
-                            type: 'line',
-                            height: 350,
-                        },
-                        series: [
-                            {
-                                name: 'تولید روزانه',
-                                data: productionTotals
-                            }
-                        ],
-                        xaxis: {
-                            categories: dates,
-                            title: {
-                                text: 'تاریخ'
-                            }
-                        },
-                        title: {
-                            text: 'تولید در ماه جاری',
-                            align: 'right'
-                        },
-                        stroke: {
-                            curve: 'smooth'
-                        }
-                    };
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Prepare data for the chart
+        const dates = data.map(item => item.day);
+        const productionTotals = data.map(item => item.daily_production);
+        const wasteTotals = data.map(item => item.daily_waste);
 
-                    const chart = new ApexCharts(document.querySelector("#barTabProductionChart"), options);
-                    chart.render();
-                })
-                .catch(error => {
-                    console.error("Error fetching data:", error);
-                });
+        // Set up and render the ApexCharts line chart with two series
+        const options = {
+            chart: {
+                type: 'line',
+                height: 350,
+            },
+            series: [
+                {
+                    name: 'تولید روزانه',
+                    data: productionTotals
+                },
+                {
+                    name: 'ضایعات روزانه',
+                    data: wasteTotals
+                }
+            ],
+            colors: ['#008FFB', '#FF4560'], 
+            xaxis: {
+                categories: dates,
+                title: {
+                    text: ''
+                }
+            },
+            title: {
+                text: 'تولید روزانه',
+                align: 'right'
+            },
+            stroke: {
+                curve: 'smooth'
+            }
+        };
+
+        const chart = new ApexCharts(document.querySelector("#barTabProductionChart"), options);
+        chart.render();
+    })
+    .catch(error => {
+        console.error("Error fetching data:", error);
+    });
     
   }
 var draw_pie_asset_failure=function(start_dt,end_dt,machine,category){
