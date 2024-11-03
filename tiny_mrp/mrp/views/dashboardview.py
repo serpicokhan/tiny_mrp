@@ -547,7 +547,7 @@ def get_monthly_production_data(request):
         DailyProduction.objects
         .filter(
             machine__assetCategory=asset_category,
-            dayOfIssue__range=(start_of_month_gregorian, end_of_month_gregorian)
+            dayOfIssue__range=[start_of_month_gregorian, end_of_month_gregorian]
         )
         .values('dayOfIssue')
         .annotate(daily_production_total=Sum('production_value'))
@@ -557,7 +557,7 @@ def get_monthly_production_data(request):
     waste_data = (
         ZayeatVaz.objects
         .filter(
-            dayOfIssue__range=(start_of_month_gregorian, end_of_month_gregorian)
+            dayOfIssue__range=[start_of_month_gregorian, end_of_month_gregorian]
         )
         .values('dayOfIssue')
         .annotate(daily_waste_total=Sum('vazn'))
@@ -598,10 +598,12 @@ def get_monthly_production_data(request):
 
     return JsonResponse(data, safe=False)
 def get_dashboard_production_sum(request):
-    start_date_str = request.GET.get('start_date')
-    end_date_str = request.GET.get('end_date')
+    start_date_str = request.GET.get('stdate')
+    end_date_str = request.GET.get('enddate')
+    print("########",end_date_str)
     start_date=DateJob.getTaskDate(start_date_str)
     end_date=DateJob.getTaskDate(end_date_str)
+    print("!!!!!!!!!!!!!!!!!!!",start_date,end_date)
     # Parse the dates from the query parameters
     # try:
     #     start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
@@ -611,8 +613,12 @@ def get_dashboard_production_sum(request):
 
     # Calculate the sum of production_value within the date range
     total_production = DailyProduction.objects.filter(
+        dayOfIssue__range=[start_date, end_date]
+    ).filter(machine__assetCategory__id=7).aggregate(total=Sum('production_value'))['total'] or 0
+    # Calculate the sum of the `vazn` field within the date range
+    total_waste = ZayeatVaz.objects.filter(
         dayOfIssue__range=(start_date, end_date)
-    ).aggregate(total=Sum('production_value'))['total'] or 0
+    ).aggregate(total=Sum('vazn'))['total'] or 0
 
     # Return the result as JSON
-    return JsonResponse({'total_production': total_production})
+    return JsonResponse({'total_production': round(total_production/1000,0),'total_waste':round(total_waste,0),'waste_percentage':round((total_waste/total_production)*100,0)})

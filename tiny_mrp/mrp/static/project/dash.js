@@ -2,11 +2,23 @@ $(function () {
   $('.pdate').pDatepicker({
           format: 'YYYY-MM-DD',
           autoClose: true,
-          initialValueType: 'gregorian'
+          initialValueType: 'gregorian',
+          onSelect: function(unixDate) {
+            // const persianDate = new persianDate(unixDate);  // Convert Unix timestamp to Persian date
+            // const formattedDate = persianDate.format('YYYY-MM-DD'); // Format as desired
+            // console.log("Selected Persian Date:", unixDate.format('YYYY-MM-DD'));
+    
+            // Convert to Gregorian if needed
+            // const gregorianDate = persianDate.toGregorian();
+            // console.log("Converted Gregorian Date:", gregorianDate);
+        }
         });
         xxxDate1=new persianDate();
         dt1=xxxDate1.year().toString()+"-"+("0" + xxxDate1.month()).slice(-2)+"-01";
+        dt2=xxxDate1.year().toString()+"-"+("0" + xxxDate1.month()).slice(-2)+"-"+("0" + xxxDate1.date()).slice(-2);
         $("#startdate").val(dt1);
+        $("#enddate").val(dt2);
+
 function renderChart(dates, sums) {
             var options = {
                 chart: {
@@ -153,10 +165,10 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
     fetch(`/Dashboard/Asset/Production/Daily/Bar2/?stdate=${start_dt}&enddate=${end_dt}`)  // Replace with the URL of your Django view
          .then(response => response.json())
          .then(data => {
-          console.log(data);
+        //   console.log(data);
           var elements=[];
           for(var i in data){
-            console.log(data[i].lable);
+            // console.log(data[i].lable);
             elements.push({
                 name: data[i].lable,
                 data: data[i].production_values
@@ -185,7 +197,7 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
                 }
             };
           $('#barAssetProductionChart').remove(); // this is my <canvas> element
-          $("#last_date").html(`تولید در ${data[0].date}`);
+        //   $("#last_date").html(`تولید در ${data[0].date}`);
           $('#barAssetProductionChartholder').append('<div id="barAssetProductionChart"><div>');
              var chart = new ApexCharts(document.querySelector("#barAssetProductionChart"), options);
              chart.render();
@@ -197,6 +209,7 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
          .then(response => response.json())
          .then(data => {
             $('#tolid_card').text(`${data.total_production}`);
+            $('#waste_card').text(`${data.waste_percentage}%`);
           
          })
          .catch(error => console.error(`Error:`, error));
@@ -441,11 +454,12 @@ $("#button-addon1").click(function(){
 // draw_pie_asset_failure($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
 // draw_monthly_assetFailure_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_asset_failure_stack_zayeat($("#machines").val(),$("#machines option:selected").data("type"));
-draw_line_asset_production($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
+// draw_line_asset_production($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
 draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_bar_daily_asset_production($("#enddate").val());
 draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val());
 
+get_card_info($("#startdate").val(),$("#enddate").val());
 
 
 
@@ -454,6 +468,7 @@ draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val());
 });
 draw_line_current_month_tab_production();
 draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val());
+// console.log($("#startdate").val(),$("#enddate").val());
 get_card_info($("#startdate").val(),$("#enddate").val());
 draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_monthly_assetFailure_bar($("#machines").val(),$("#machines option:selected").data("type"));
