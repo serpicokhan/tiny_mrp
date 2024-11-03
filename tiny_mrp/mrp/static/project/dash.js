@@ -192,6 +192,54 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
          })
          .catch(error => console.error(`Error:`, error));
   }
+  var draw_line_current_month_tab_production=function(){
+    fetch(`/Dashboard/Tab/CurrentMonth/Production/Daily/?asset_category=7`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Assume `data` is an array of objects with fields: `day` and `daily_total`
+                    const dates = data.map(item => item.day);             // Extract day numbers
+                    const productionTotals = data.map(item => item.daily_total);  // Extract daily production totals
+                    
+                    // Set up and render the ApexCharts line chart
+                    const options = {
+                        chart: {
+                            type: 'line',
+                            height: 350,
+                        },
+                        series: [
+                            {
+                                name: 'تولید روزانه',
+                                data: productionTotals
+                            }
+                        ],
+                        xaxis: {
+                            categories: dates,
+                            title: {
+                                text: 'تاریخ'
+                            }
+                        },
+                        title: {
+                            text: 'تولید در ماه جاری',
+                            align: 'right'
+                        },
+                        stroke: {
+                            curve: 'smooth'
+                        }
+                    };
+
+                    const chart = new ApexCharts(document.querySelector("#barTabProductionChart"), options);
+                    chart.render();
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                });
+    
+  }
 var draw_pie_asset_failure=function(start_dt,end_dt,machine,category){
   fetch(`/Dashboard/AssetFailure/Pie/?start=${start_dt}&end=${end_dt}&machine=${machine}&asset_type=${category}`)  // Replace with the URL of your Django view
   .then(response => response.json())
@@ -374,10 +422,10 @@ var draw_asset_failure_stack_zayeat=function(machine,asset_type){
 $("#button-addon1").click(function(){
     // $(".app-content-body").show();
 // draw_pie_zayeat($("#startdate").val(),$("#enddate").val());
-draw_line_asset_failure($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
-draw_pie_asset_failure($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
-draw_monthly_assetFailure_bar($("#machines").val(),$("#machines option:selected").data("type"));
-draw_asset_failure_stack_zayeat($("#machines").val(),$("#machines option:selected").data("type"));
+// draw_line_asset_failure($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
+// draw_pie_asset_failure($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
+// draw_monthly_assetFailure_bar($("#machines").val(),$("#machines option:selected").data("type"));
+// draw_asset_failure_stack_zayeat($("#machines").val(),$("#machines option:selected").data("type"));
 draw_line_asset_production($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
 draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_bar_daily_asset_production($("#enddate").val());
@@ -389,10 +437,11 @@ draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val());
 
 
 });
+draw_line_current_month_tab_production();
 draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val());
 draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
-draw_monthly_assetFailure_bar($("#machines").val(),$("#machines option:selected").data("type"));
-draw_asset_failure_stack_zayeat($("#machines").val(),$("#machines option:selected").data("type"));
+// draw_monthly_assetFailure_bar($("#machines").val(),$("#machines option:selected").data("type"));
+// draw_asset_failure_stack_zayeat($("#machines").val(),$("#machines option:selected").data("type"));
 
 
 

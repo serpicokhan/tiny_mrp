@@ -1288,3 +1288,34 @@ def delete_amar_info(request):
         'shifts':shift,'next_date':'','prev_date':'','today':''}
     )
     return JsonResponse(data)
+def get_monthly_production_data(request):
+    asset_category = request.GET.get('asset_category')  # Retrieve asset category from the request
+
+    jalali_today = jdatetime.date.today()
+    jalali_year = jalali_today.year
+    jalali_month = jalali_today.month
+
+    start_of_month_gregorian = jdatetime.date(jalali_year, jalali_month, 1).togregorian()
+    end_of_month_gregorian = jalali_today.togregorian()  # up to the current day in the month
+
+    daily_production_data = (
+        DailyProduction.objects
+        .filter(
+            machine__assetCategory=asset_category,
+            dayOfIssue__range=(start_of_month_gregorian, end_of_month_gregorian)
+        )
+        .values('dayOfIssue')
+        .annotate(daily_total=Sum('production_value'))
+        .order_by('dayOfIssue')
+    )
+
+    data = []
+    for record in daily_production_data:
+        gregorian_date = record['dayOfIssue']
+        jalali_date = jdatetime.date.fromgregorian(date=gregorian_date)
+        data.append({
+            'day': jalali_date.day,  # Only the day of the month
+            'daily_total': record['daily_total']
+        })
+
+    return JsonResponse(data, safe=False)

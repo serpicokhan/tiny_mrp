@@ -87,6 +87,7 @@ urlpatterns = [
     url(r'^Dashboard/AssetFailure/Monthly/$', jalali_monthly_duration_data, name='jalali_monthly_duration_data'),
     url(r'^Dashboard/Production/Monthly/$', jalali_monthly_production_data, name='jalali_monthly_production_data'),
     url(r'^Dashboard/AssetFailure/StackedMonthly/$', jalali_monthly_duration_by_failure_data, name='jalali_monthly_duration_by_failure_data'),
+    url(r'^Dashboard/Tab/CurrentMonth/Production/Daily/$', get_monthly_production_data, name='get_monthly_production_data'),
     url(r'^profile/$', profile_list, name='profile_list'),
     url(r'^profile/create/$', profile_create, name='profile_create'),
     url(r'^profile/(?P<pk>\d+)/update/$', profile_update, name='profile_update'),
