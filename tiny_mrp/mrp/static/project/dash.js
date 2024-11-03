@@ -192,6 +192,15 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
          })
          .catch(error => console.error(`Error:`, error));
   }
+  var get_card_info=function(start_dt,end_dt){
+    fetch(`/Dashboard/Card/Info/?stdate=${start_dt}&enddate=${end_dt}`)  // Replace with the URL of your Django view
+         .then(response => response.json())
+         .then(data => {
+            $('#tolid_card').text(`${data.total_production}`);
+          
+         })
+         .catch(error => console.error(`Error:`, error));
+  }
   var draw_line_current_month_tab_production=function(){
     fetch(`/Dashboard/Tab/CurrentMonth/Production/Daily/?asset_category=7`)
     .then(response => {
@@ -445,6 +454,7 @@ draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val());
 });
 draw_line_current_month_tab_production();
 draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val());
+get_card_info($("#startdate").val(),$("#enddate").val());
 draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_monthly_assetFailure_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_asset_failure_stack_zayeat($("#machines").val(),$("#machines option:selected").data("type"));

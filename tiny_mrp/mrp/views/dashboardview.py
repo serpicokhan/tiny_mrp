@@ -533,3 +533,86 @@ def production_chart2(request):
    
     
     return JsonResponse(data,safe=False)
+def get_monthly_production_data(request):
+    asset_category = request.GET.get('asset_category')  # Retrieve asset category from the request
+
+    jalali_today = jdatetime.date.today()
+    jalali_year = jalali_today.year
+    jalali_month = jalali_today.month
+
+    start_of_month_gregorian = jdatetime.date(jalali_year, jalali_month, 1).togregorian()
+    end_of_month_gregorian = jalali_today.togregorian()  # up to the current day in the month
+
+    production_data  = (
+        DailyProduction.objects
+        .filter(
+            machine__assetCategory=asset_category,
+            dayOfIssue__range=(start_of_month_gregorian, end_of_month_gregorian)
+        )
+        .values('dayOfIssue')
+        .annotate(daily_production_total=Sum('production_value'))
+        .order_by('dayOfIssue')
+    )
+    # Get daily waste data
+    waste_data = (
+        ZayeatVaz.objects
+        .filter(
+            dayOfIssue__range=(start_of_month_gregorian, end_of_month_gregorian)
+        )
+        .values('dayOfIssue')
+        .annotate(daily_waste_total=Sum('vazn'))
+    )
+
+    result_data = {}
+
+    # Add production data to the result dictionary
+    for record in production_data:
+        gregorian_date = record['dayOfIssue']
+        jalali_day = jdatetime.date.fromgregorian(date=gregorian_date).day
+        result_data[jalali_day] = {
+            'daily_production': round(record['daily_production_total'],2),
+            'daily_waste': 0  # Default waste to 0
+        }
+
+    # Add waste data to the result dictionary, updating existing dates or adding new ones
+    for record in waste_data:
+        gregorian_date = record['dayOfIssue']
+        jalali_day = jdatetime.date.fromgregorian(date=gregorian_date).day
+        if jalali_day in result_data:
+            result_data[jalali_day]['daily_waste'] = round(record['daily_waste_total'],2)
+        else:
+            result_data[jalali_day] = {
+                'daily_production': 0,  # Default production to 0 if not found
+                'daily_waste': record['daily_waste_total']
+            }
+
+    # Format result data for JSON response
+    data = [
+        {
+            'day': day,
+            'daily_production': result_data[day]['daily_production'],
+            'daily_waste': result_data[day]['daily_waste']
+        }
+        for day in sorted(result_data.keys())
+    ]
+
+    return JsonResponse(data, safe=False)
+def get_dashboard_production_sum(request):
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    start_date=DateJob.getTaskDate(start_date_str)
+    end_date=DateJob.getTaskDate(end_date_str)
+    # Parse the dates from the query parameters
+    # try:
+    #     start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+    #     end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+    # except (ValueError, TypeError):
+    #     return JsonResponse({'error': 'Invalid date format'}, status=400)
+
+    # Calculate the sum of production_value within the date range
+    total_production = DailyProduction.objects.filter(
+        dayOfIssue__range=(start_date, end_date)
+    ).aggregate(total=Sum('production_value'))['total'] or 0
+
+    # Return the result as JSON
+    return JsonResponse({'total_production': total_production})
