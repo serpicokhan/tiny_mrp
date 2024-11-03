@@ -28,7 +28,7 @@ from mrp.utils import utilMonth
 def backup_database(request):
     # Define your database credentials and output file's path
    # Define your database credentials and output file's path
-    db_name = 'aria_mrp'
+    db_name = 'kth_mrp'
     db_user = 'root'  # Default XAMPP MySQL user
     output_file = 'file102.sql'  # Ensure you use double backslashes on Windows or raw string
 
@@ -120,13 +120,17 @@ def register_daily_amar(request):
     date_object=datetime.datetime.now()
     next_day = date_object + timedelta(days=1)
     asset_category = AssetCategory.objects.all().order_by('priority')
+    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True,assetTypes=1)
 
 
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
     shift_id=request.GET.get('shift_id',False)
+    makan_id=request.GET.get('makan_id',False)
     if(not shift_id):
         shift_id=Shift.objects.first().id
+    if(not makan_id):
+        makan_id=Asset.objects.filter(assetIsLocatedAt__isnull=True).first().id
     print("shift:########",shift_id)
     shift=Shift.objects.all()
 
@@ -169,7 +173,7 @@ def register_daily_amar(request):
         except DailyProduction.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'vahed':machine.assetVahed})
 
-    return render(request,"mrp/tolid/details_aria.html",{'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d'),'shift_id':int(shift_id)})
+    return render(request,"mrp/tolid/details_aria.html",{'makan':makan,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d'),'shift_id':int(shift_id),'makan_id':int(makan_id)})
 @login_required
 def tolid_heatset(request):
     machines=Asset.objects.filter(assetCategory__id=8)
@@ -754,11 +758,6 @@ def monthly_detaild_report(request):
     j_year=int(request.GET.get('year',current_year))
     current_date_time = jdatetime.date(j_year, int(j_month), 1)
     current_jalali_date = current_date_time
-
-
-
-
-
     if current_jalali_date.month == 12:
         first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=j_year + 1)
     else:
