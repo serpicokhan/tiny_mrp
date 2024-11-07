@@ -83,11 +83,11 @@ WSGI_APPLICATION = 'tiny_mrp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'aria_mrp',
+        'NAME': 'mrp775_betty',
         'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'PASSWORD': 'uSr8TfhHq0j7',
+        'HOST': 'services.irn6.chabokan.net',
+        'PORT': '28001',
     }
 }
 LOGIN_REDIRECT_URL = 'calendar_main'
