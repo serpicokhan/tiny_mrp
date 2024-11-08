@@ -564,6 +564,37 @@ def get_monthly_production_data(request):
     )
 
     result_data = {}
+    for record in production_data:
+        gregorian_date = record['dayOfIssue']
+        jalali_day = jdatetime.date.fromgregorian(date=gregorian_date).day
+        result_data[jalali_day] = {
+            'daily_production': round(record['daily_production_total'],2),
+            'daily_waste': 0  # Default waste to 0
+        }
+
+    # Add waste data to the result dictionary, updating existing dates or adding new ones
+    for record in waste_data:
+        gregorian_date = record['dayOfIssue']
+        jalali_day = jdatetime.date.fromgregorian(date=gregorian_date).day
+        if jalali_day in result_data:
+            result_data[jalali_day]['daily_waste'] = round(record['daily_waste_total'],2)
+        else:
+            result_data[jalali_day] = {
+                'daily_production': 0,  # Default production to 0 if not found
+                'daily_waste': record['daily_waste_total']
+            }
+
+    # Format result data for JSON response
+    data = [
+        {
+            'day': day,
+            'daily_production': result_data[day]['daily_production'],
+            'daily_waste': result_data[day]['daily_waste']
+        }
+        for day in sorted(result_data.keys())
+    ]
+
+    return JsonResponse(data, safe=False)
 def get_dashboard_production_sum(request):
     start_date_str = request.GET.get('stdate')
     end_date_str = request.GET.get('enddate')
