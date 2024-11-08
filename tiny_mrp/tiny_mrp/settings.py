@@ -83,9 +83,9 @@ WSGI_APPLICATION = 'tiny_mrp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mrp699_danielle',
-        'USER': 'root',
-        'PASSWORD': 'rvcyco7fEy55',
+        'NAME': 'mrp758_lois',
+        'USER': 'mrp758_lois',
+        'PASSWORD': 'UdjtL1EOV6zQ',
         'HOST': 'services.irn6.chabokan.net',
         'PORT': '28001',
     }
