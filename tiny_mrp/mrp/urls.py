@@ -92,6 +92,9 @@ urlpatterns = [
     url(r'^profile/(?P<pk>\d+)/update/$', profile_update, name='profile_update'),
     url(r'^profile/(?P<pk>\d+)/delete/$', profile_delete, name='profile_delete'),
     url(r'^Report/$', daily_tolid_with_chart, name='daily_tolid_with_chart'),
+    url(r'^Dashboard/Tab/CurrentMonth/Production/Daily/$', get_monthly_production_data, name='get_monthly_production_data'),
+    url(r'^Dashboard/Card/Info/$', get_dashboard_production_sum, name='get_dashboard_production_sum'),
+
 
 
 

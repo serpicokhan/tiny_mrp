@@ -533,3 +533,62 @@ def production_chart2(request):
    
     
     return JsonResponse(data,safe=False)
+def get_monthly_production_data(request):
+    asset_category = request.GET.get('asset_category')  # Retrieve asset category from the request
+
+    jalali_today = jdatetime.date.today()
+    jalali_year = jalali_today.year
+    jalali_month = jalali_today.month
+
+    start_of_month_gregorian = jdatetime.date(jalali_year, jalali_month, 1).togregorian()
+    end_of_month_gregorian = jalali_today.togregorian()  # up to the current day in the month
+
+    production_data  = (
+        DailyProduction.objects
+        .filter(
+            machine__assetCategory=asset_category,
+            dayOfIssue__range=[start_of_month_gregorian, end_of_month_gregorian]
+        )
+        .values('dayOfIssue')
+        .annotate(daily_production_total=Sum('production_value'))
+        .order_by('dayOfIssue')
+    )
+    # Get daily waste data
+    waste_data = (
+        ZayeatVaz.objects
+        .filter(
+            dayOfIssue__range=[start_of_month_gregorian, end_of_month_gregorian]
+        )
+        .values('dayOfIssue')
+        .annotate(daily_waste_total=Sum('vazn'))
+    )
+
+    result_data = {}
+def get_dashboard_production_sum(request):
+    start_date_str = request.GET.get('stdate')
+    end_date_str = request.GET.get('enddate')
+    print("########",end_date_str)
+    start_date=DateJob.getTaskDate(start_date_str)
+    end_date=DateJob.getTaskDate(end_date_str)
+    print("!!!!!!!!!!!!!!!!!!!",start_date,end_date)
+    # Parse the dates from the query parameters
+    # try:
+    #     start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+    #     end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+    # except (ValueError, TypeError):
+    #     return JsonResponse({'error': 'Invalid date format'}, status=400)
+
+    # Calculate the sum of production_value within the date range
+    total_production = DailyProduction.objects.filter(
+        dayOfIssue__range=[start_date, end_date]
+    ).filter(machine__assetCategory__id=7).aggregate(total=Sum('production_value'))['total'] or 0
+    # Calculate the sum of the `vazn` field within the date range
+    total_waste = ZayeatVaz.objects.filter(
+        dayOfIssue__range=(start_date, end_date)
+    ).aggregate(total=Sum('vazn'))['total'] or 0
+
+    # Return the result as JSON
+    try:
+        return JsonResponse({'total_production': round(total_production/1000,0),'total_waste':round(total_waste,0),'waste_percentage':round((total_waste/total_production)*100,0)})
+    except:
+        return JsonResponse({'total_production': round(total_production/1000,0),'total_waste':round(total_waste,0),'waste_percentage':0})
