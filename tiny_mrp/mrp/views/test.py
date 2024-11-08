@@ -28,8 +28,8 @@ from mrp.utils import utilMonth
 def backup_database(request):
     # Define your database credentials and output file's path
    # Define your database credentials and output file's path
-    db_name = 'aria_mrp'
-    db_user = 'root'  # Default XAMPP MySQL user
+    db_name = 'mrp758_lois'
+    db_user = 'mrp758_lois'  # Default XAMPP MySQL user
     output_file = 'file102.sql'  # Ensure you use double backslashes on Windows or raw string
 
     # Full path to the mysqldump executable in the XAMPP installation
