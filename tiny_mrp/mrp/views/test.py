@@ -116,7 +116,12 @@ def index(request):
 
 @login_required
 def register_daily_amar(request):
-    machines=Asset.objects.filter(assetTypes=3).order_by("assetTavali")
+    shift_id=request.GET.get('shift_id',False)
+    makan_id=request.GET.get('makan_id',False)
+    if(not makan_id):
+        makan_id=Asset.objects.filter(assetIsLocatedAt__isnull=True).first().id
+    
+    machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id).order_by("assetTavali")
     date_object=datetime.datetime.now()
     next_day = date_object + timedelta(days=1)
     asset_category = AssetCategory.objects.all().order_by('priority')
@@ -125,13 +130,11 @@ def register_daily_amar(request):
 
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
-    shift_id=request.GET.get('shift_id',False)
-    makan_id=request.GET.get('makan_id',False)
+
     if(not shift_id):
         shift_id=Shift.objects.first().id
-    if(not makan_id):
-        makan_id=Asset.objects.filter(assetIsLocatedAt__isnull=True).first().id
-    print("shift:########",shift_id)
+    
+    
     shift=Shift.objects.all()
 
     machines_with_formulas = []
@@ -656,19 +659,25 @@ def show_daily_analyse_tolid(request):
 
         return render(request,'mrp/tolid/daily_analyse_tolid.html',{'machines_with_amar':machines_with_amar,'title':'تحلیل روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
 def calendar_main(request):
-    return render(request,'mrp/tolid/calendar_main.html',{})
+    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    print(makan,"$$$$$$$$$$$$$$$$$$$")
+    return render(request,'mrp/tolid/calendar_main.html',{'title':'تولید روزانه','makan':makan})
 def calendar_randeman(request):
-    return render(request,'mrp/tolid/calendar_randeman.html',{'title':'راندمان روزانه'})
+    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    print(makan,"$$$$$$$$$$$$$$$$$$$")
+    return render(request,'mrp/tolid/calendar_randeman.html',{'title':'راندمان روزانه','makan':makan})
 def calendar_randeman_brief(request):
     return render(request,'mrp/tolid/calendar_randeman_brief.html',{'title':'راندمان روزانه'})
 def calendar_tahlil(request):
     return render(request,'mrp/tolid/calendar_tahlil.html',{'title':'تحلیل روزانه'})
 def get_tolid_calendar_info(request):
+    # print(request.GET.get("makan"),'!!!!!!!!!!!!!!!!!!')
+    makan=request.GET.get("makan",False)
     data=[]
-    user_info=DailyProduction.objects.values_list('dayOfIssue').distinct()
-    print(user_info)
+    user_info=DailyProduction.objects.filter(machine__assetIsLocatedAt=makan).values_list('dayOfIssue').distinct()
+    # print(user_info)
     for i in user_info:
-        z=get_sum_vaz_zayeat_by_date(i[0])
+        z=get_sum_vaz_zayeat_by_date_per_line(i[0],makan)
         data.append({'title': "آمار روزانه",\
                 'start': i[0],\
                  'color': '#53c797',\
@@ -1077,6 +1086,7 @@ def list_amar_daily_info(request):
 
         dayOfIssue=request.GET.get('event',False)
         shift_id=request.GET.get('shift_id',False)
+        makan_id=request.GET.get('makan_id',False)
         
         if(not dayOfIssue):
             dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
@@ -1088,7 +1098,7 @@ def list_amar_daily_info(request):
 
     # Calculate previous day
         previous_day = date_object - timedelta(days=1)
-        machines=Asset.objects.filter(assetTypes=3)
+        machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id)
 
         shift=Shift.objects.get(id=shift_id)
         machines_with_formulas = []

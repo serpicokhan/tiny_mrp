@@ -31,7 +31,7 @@ def zayeatVazn_create(request):
 
                     for row in table:
                         
-                        ff=ZayeatVaz.objects.filter(zayeat=Zayeat.objects.get(id=row['id']),shift=Shift.objects.get(id=row['shift']),dayOfIssue=row['date'])
+                        ff=ZayeatVaz.objects.filter(zayeat=Zayeat.objects.get(id=row['id']),shift=Shift.objects.get(id=row['shift']),dayOfIssue=row['date'],makan=Asset.objects.get(id=row['makan']))
                         if(ff.count()>0):
                             z=ff[0]
                             z.vazn=float(row['vazn'])
@@ -46,6 +46,7 @@ def zayeatVazn_create(request):
                             z.zayeat=Zayeat.objects.get(id=row['id'])
                             z.dayOfIssue=row['date']
                             z.shift=Shift.objects.get(id=row['shift'])
+                            z.makan=Asset.objects.get(id=row['makan'])
                             z.save()
 
             # For demonstration purposes, just returning the received data as JSON response
@@ -58,12 +59,13 @@ def zayeatVazn_create(request):
         date_of_issue=None
 
         current_date=request.GET.get("data",False)
+        current_makan=request.GET.get("makan",False)
         if(current_date):
             date_of_issue=DateJob.getTaskDate(current_date)
         else:
             date_of_issue=datetime.now().date()
         za=Zayeat.objects.all()
-        date_zayeat=ZayeatVaz.objects.filter(dayOfIssue=date_of_issue)
+        date_zayeat=ZayeatVaz.objects.filter(dayOfIssue=date_of_issue,makan__id=current_makan)
         shift=Shift.objects.all()
         zayeat_vazn_dict = defaultdict(list)
         for zv in date_zayeat:
@@ -72,6 +74,7 @@ def zayeatVazn_create(request):
             {   'shifts':shift,
                 'zayeat':za,
                 'zayeat_vazn':zayeat_vazn_dict,
+                'makan':current_makan,
                 'date':date_of_issue.strftime('%Y-%m-%d')
             },request
         )

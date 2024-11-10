@@ -232,6 +232,7 @@ var tableDataToJSON=function(tableId){
         var machine=$(this).attr('data-machine');
         var amar_id=$(this).attr('data-id')||'0';
         var shift = $("#select_shift").val();
+        // var makan = $("#select_makan").val();
         var dayOfIssue = $("#search").val();
         var speed = $(this).find('td.speed').text()||0;        
         var nomre = parseFloat($(this).find('td.nomre').text());
@@ -325,8 +326,10 @@ console.log(JSON.stringify(sendData));
               const cellContent = $(this).text().trim()||0;
               const datadate = $(this).attr('data-date');
               const shiftdata=$(this).attr('data-shift');
+              const makan=$("#makan_zayeat").val();
 
-              tableData.push({'id':dataId,'vazn':cellContent,'date':datadate,'shift':shiftdata});
+
+              tableData.push({'id':dataId,'vazn':cellContent,'date':datadate,'shift':shiftdata,'makan':makan});
             });
 
             // Push rowData object to the tableData array
@@ -369,7 +372,7 @@ console.log(JSON.stringify(sendData));
   $(".add-zayeat").click(function(){
     var btn=$(this);
     return $.ajax({
-      url: $(btn).attr("data-url")+'?data='+$("#search").val(),
+      url: $(btn).attr("data-url")+'?data='+$("#search").val()+'&makan='+$("#select_makan").val(),
       type: 'get',
       dataType: 'json',
       beforeSend: function () {
@@ -390,7 +393,7 @@ console.log(JSON.stringify(sendData));
 
     var btn=$(this);
     return $.ajax({
-      url: $(btn).attr("data-url")+'?event_id='+$("#search").val()+'&shift_id='+$("#select_shift").val(),
+      url: $(btn).attr("data-url")+'?event_id='+$("#search").val()+'&shift_id='+$("#select_shift").val()+'&makan_id='+$("#select_makan").val(),
       type: 'get',
       dataType: 'json',
       beforeSend: function () {
@@ -478,7 +481,10 @@ $(".delete-info").click(function(){
     window.location='/Register';
   });
   $("#select_shift").change(function(){
-    window.location='/Register?shift_id='+$(this).val();
+    window.location=`/Register?makan_id=${$("#select_makan").val()}&shift_id=${$("#select_shift").val()}`;
+  });
+  $("#select_makan").change(function(){
+    window.location=`/Register?makan_id=${$(this).val()}&shift_id=${$("#select_shift").val()}`;
   });
   function getQueryParameter(name) {
     let results = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);

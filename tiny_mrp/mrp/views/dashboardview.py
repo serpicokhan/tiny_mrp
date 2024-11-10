@@ -24,19 +24,20 @@ def get_zayeat_pie_aggregate(start_date, end_date):
     return labels, values
 
 def list_dashboard(request):
-    assets=Asset.objects.filter(assetTypes=3).order_by('assetCategory','assetTavali')
-    asset_list=[]
-    asset_list.append({'asset_name':'همه','asset_id':-1,'asset_type':0})
-    for index,i in enumerate(assets):
-        asset_types=get_asset_count(i.assetCategory)
-        # asset_list.append({'asset_name':i.assetName,'asset_id':i.id,'asset_type':0})
-        try:
-            if(assets[index].assetCategory !=assets[index+1].assetCategory and asset_types>1):
-                asset_list.append({'asset_name':"جمع {} ها".format(i.assetCategory),'asset_id':i.assetCategory.id,'asset_type':1})
+    # assets=Asset.objects.filter(assetTypes=3).order_by('assetCategory','assetTavali')
+    # asset_list=[]
+    # asset_list.append({'asset_name':'همه','asset_id':-1,'asset_type':0})
+    # for index,i in enumerate(assets):
+    #     asset_types=get_asset_count(i.assetCategory)
+    #     # asset_list.append({'asset_name':i.assetName,'asset_id':i.id,'asset_type':0})
+    #     try:
+    #         if(assets[index].assetCategory !=assets[index+1].assetCategory and asset_types>1):
+    #             asset_list.append({'asset_name':"جمع {} ها".format(i.assetCategory),'asset_id':i.assetCategory.id,'asset_type':1})
 
-        except:
-            if(index==len(assets)-1 and asset_types>1):
-                asset_list.append({'asset_name':"جمع {} ها".format(i.assetCategory),'asset_id':i.assetCategory.id,'asset_type':1})
+    #     except:
+    #         if(index==len(assets)-1 and asset_types>1):
+    #             asset_list.append({'asset_name':"جمع {} ها".format(i.assetCategory),'asset_id':i.assetCategory.id,'asset_type':1})
+    asset_list=Asset.objects.filter(assetIsLocatedAt__isnull=True)
 
 
     return render(request,'mrp/dashboard/main_dashboard.html',{'title':'داشبورد مدیریتی','assets':asset_list})

@@ -152,6 +152,7 @@ class ZayeatVaz(models.Model):
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
     vazn = models.FloatField()
     dayOfIssue = models.DateField()
+    makan=models.ForeignKey(Asset, on_delete=models.CASCADE,related_name="zayeat_makan",null=True,blank=True)
 
 
 

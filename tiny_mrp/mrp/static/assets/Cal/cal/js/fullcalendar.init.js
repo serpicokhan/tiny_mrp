@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
         editable: true,
         locale: 'fa',
         events: {
-         url: '/Tolid/GetInfo', // Replace with your server-side script to fetch events
+         url: `/Tolid/GetInfo?makan=${$("#makan_select").val()}`, // Replace with your server-side script to fetch events
          method: 'GET',
          failure: function() {
            // Handle failure to fetch events

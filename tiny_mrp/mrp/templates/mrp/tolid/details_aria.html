@@ -27,7 +27,7 @@
                                     </div>
                                 </li>
 
-                                <li class="list-inline-item mb-0">
+                                <li class="list-inline-item mb-0" style="width:90pt">
                                   <select class="form-control" aria-label="Default select example" id="select_shift">
                                     {% for i in shifts %}
                                     
@@ -36,8 +36,8 @@
                                
                                   </select>
                                 </li>
-                                <li class="list-inline-item mb-0">
-                                  <select class="form-control" aria-label="Default select example" id="select_shift">
+                                <li class="list-inline-item mb-0" style="width:90pt">
+                                  <select class="form-control" aria-label="Default select example" id="select_makan">
                                     {% for i in makan %}
                                     
                                     <option  value="{{i.id}}" {% if i.id == makan_id %} selected {% endif %}>{{i.assetName}}</option>

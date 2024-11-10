@@ -15,6 +15,27 @@
 
 {% block content %}
 <div class="row app-block">
+    <div class="col-md-3 app-sidebar">
+        <div class="card">
+           
+            <div>
+                <div class="card-body">
+                   <select class="form-control" id="makan_select">
+                    {% for i in makan %}
+                    <option value={{i.id}} {% if i.id == makan_id %} selected {% endif %}>{{i.assetName}}</option>
+                    {% endfor %}
+                    
+                   </select>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-secondary btn-block" >
+                        فیلتر
+                    </button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
 
                    <div class="col-md-9 app-content">
                        <div class="app-content-overlay"></div>
