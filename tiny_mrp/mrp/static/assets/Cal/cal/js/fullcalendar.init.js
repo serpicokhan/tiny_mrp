@@ -94,10 +94,10 @@ document.addEventListener('DOMContentLoaded', function () {
        eventClick: function(info) {
          if(info.event.backgroundColor!="red"){
      // Open a new window when an event is clicked
-     window.open('/Tolid/DailyDetails?event_id=' + info.event.id, '_blank');
+     window.open(`/Tolid/DailyDetails?event_id=${info.event.id}&makan_id=${$("#makan_select").val()}`, '_blank');
    }
    else{
-     window.open('/Tolid/DailyZayeat?event_id=' + info.event.id, '_blank');
+     window.open(`/Tolid/DailyZayeat?event_id=${info.event.id}&makan_id=${$("#makan_select").val()}`, '_blank');
    }
    },
 

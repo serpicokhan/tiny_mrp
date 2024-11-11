@@ -55,6 +55,7 @@ def backup_database(request):
 def get_daily_amar(request):
     asset_category = AssetCategory.objects.all().order_by('priority')
     dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
+    makan_id=request.GET.get('makan_id',False)
     # print(dayOfIssue,'!!!!!!!!!!!!!!!!!!')
     date_object = datetime.datetime.strptime(dayOfIssue, '%Y-%m-%d')
 
@@ -62,7 +63,7 @@ def get_daily_amar(request):
 
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
-    machines=Asset.objects.filter(assetTypes=3)
+    machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id)
     shift_id=request.GET.get("shift_id",False)
     print(shift_id)
     if(not shift_id):
@@ -659,9 +660,10 @@ def show_daily_analyse_tolid(request):
 
         return render(request,'mrp/tolid/daily_analyse_tolid.html',{'machines_with_amar':machines_with_amar,'title':'تحلیل روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
 def calendar_main(request):
+    makan_id=request.GET.get("makan_id",False)
     makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
-    print(makan,"$$$$$$$$$$$$$$$$$$$")
-    return render(request,'mrp/tolid/calendar_main.html',{'title':'تولید روزانه','makan':makan})
+    
+    return render(request,'mrp/tolid/calendar_main.html',{'title':'تولید روزانه','makan':makan,'makan_id':int(makan_id)})
 def calendar_randeman(request):
     makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
     print(makan,"$$$$$$$$$$$$$$$$$$$")
@@ -754,6 +756,8 @@ def list_speed_formula(request):
     return render(request,"mrp/speed_formula/formulaList.html",{'formulas':formulas,'title':'لیست فرمولهای سرعت'})
 
 def monthly_detaild_report(request):
+    makan_id=request.GET.get("makan_id",False)
+    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
     days=[]
     shift=Shift.objects.all()
     asset_category=asset_categories = AssetCategory.objects.annotate(
@@ -784,18 +788,18 @@ def monthly_detaild_report(request):
             j_date=jdatetime.date(j_year,current_jalali_date.month,day)
             # print(j_date,'!!!!!!!!!!!!!')
             for sh in shift:
-                product[sh.id]=get_sum_machine_by_date_shift(cats,sh,j_date.togregorian())
+                product[sh.id]=get_sum_machine_by_date_shift_makan(cats,makan_id,sh,j_date.togregorian())
                 print(product[sh.id])
             days.append({'cat':cats,'date':"{0}/{1}/{2}".format(j_year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
         product={}
         start=jdatetime.date(j_year,current_jalali_date.month,1)
         end=jdatetime.date(j_year,current_jalali_date.month,num_days)
         for sh in shift:
-            product[sh.id]=get_monthly_machine_by_date_shift(cats,sh,start.togregorian(),end.togregorian())
+            product[sh.id]=get_monthly_machine_by_date_shift_makan(cats,makan_id,sh,start.togregorian(),end.togregorian())
         days.append({'cat':cats,'date':"",'day_of_week':'جمع','product':product})
         failure_days={}
         for sh in shift:
-            failure_days[sh.id]=get_day_machine_failure_monthly_shift(cats,sh,start.togregorian(),end.togregorian())
+            failure_days[sh.id]=get_day_machine_failure_monthly_shift_makan(cats,makan_id,sh,start.togregorian(),end.togregorian())
 
         total_day_per_shift={}
         for sh in shift:
@@ -811,7 +815,7 @@ def monthly_detaild_report(request):
         cat_list.append({'cat':cats,'shift_val':days})
         # print(cat_list)
 
-    return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
+    return render(request,'mrp/tolid/monthly_detailed.html',{'makan_id':int(makan_id),'makan':makan,'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
 def monthly_brief_report(request):
     shifts=Shift.objects.all()
     asset_cats=AssetCategory.objects.all().order_by('priority')

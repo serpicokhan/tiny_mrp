@@ -56,4 +56,15 @@
 {% block javascript %}
 <script src="{% static 'assets/Cal/cal/js/fullcalendar.min.js' %}"></script>
 <script src="{% static 'assets/Cal/cal/js/fullcalendar.init.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        $('#makan_select').change(function() {
+            var selectedValue = $(this).val();
+            if (selectedValue) { // check if the value is not empty
+                window.location.href = `/Tolid/Calendar?makan_id=${$("#makan_select").val()}`;
+            }
+        });
+    });
+    
+</script>
 {% endblock %}
