@@ -125,6 +125,7 @@ def register_daily_amar(request):
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
     shift_id=request.GET.get('shift_id',False)
+    selected_date=request.GET.get('selected_date',False)
     if(not shift_id):
         shift_id=Shift.objects.first().id
     print("shift:########",shift_id)
@@ -169,7 +170,7 @@ def register_daily_amar(request):
         except DailyProduction.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'vahed':machine.assetVahed})
 
-    return render(request,"mrp/tolid/details_aria.html",{'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d'),'shift_id':int(shift_id)})
+    return render(request,"mrp/tolid/details_aria.html",{'selected_date':selected_date,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d'),'shift_id':int(shift_id)})
 @login_required
 def tolid_heatset(request):
     machines=Asset.objects.filter(assetCategory__id=8)

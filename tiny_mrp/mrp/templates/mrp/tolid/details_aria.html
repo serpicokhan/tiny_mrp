@@ -43,7 +43,7 @@
                             <form class="d-flex mr-3">
                                
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="جستجو ایمیل" aria-describedby="button-addon1" id="search" >
+                                    <input type="text" class="form-control" placeholder="جستجو ایمیل" aria-describedby="button-addon1" id="search" value="{{selected_date}}">
                                     <div class="input-group-append">
                                         <button class="btn btn-outline-light" type="button" id="button-addon1" data-url="{% url 'list_amar_daily_info' %}">
                                             <i class="ti-search"></i>
@@ -196,4 +196,13 @@
 
 
  <script src="{% static 'project/tolid.js' %}"></script>
+ <script>
+  $(document).ready(function() {
+    var myVar = "{{ selected_date|escapejs }}";
+    if(myVar!="False"){
+    $("#search").val(myVar);
+    }
+    // console.log(myVar);
+  });
+</script>
 {% endblock %}

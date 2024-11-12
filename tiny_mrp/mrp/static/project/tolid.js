@@ -85,26 +85,7 @@
 
 
 $(function () {
-  $('#tblrows').on('keydown','.editable-cell, .production',(function(e) {
-        if (e.keyCode == 13) { // Enter key
-            e.preventDefault(); // Prevent default Enter behavior
-
-            var $currentCell = $(this);
-            var $nextRow = $currentCell.closest('tr').next('tr');
-
-            if ($nextRow.length) {
-                // Find the same index cell in the next row and focus it
-                var cellIndex = $currentCell.index();
-                var $nextCell = $nextRow.find('td').eq(cellIndex);
-
-                if ($nextCell.length && $nextCell.is('[contenteditable=true]')) {
-                    $nextCell.focus();
-                }
-            }
-        }
-    }));
-
-
+  
   var handleCellValueChange = function(event) {
      const tables = $('.company-table');
 
@@ -506,7 +487,7 @@ $(".tab-content").on("keydown", ".editable-cell, .editable-cell2", function(e) {
     }
 });
   $("#select_shift").change(function(){
-    window.location='/Register?shift_id='+$(this).val();
+    window.location=`/Register?shift_id=${$(this).val()}&selected_date=${$("#search").val()}`;
   });
   function getQueryParameter(name) {
     let results = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);
