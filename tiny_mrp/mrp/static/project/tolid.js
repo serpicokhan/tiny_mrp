@@ -480,6 +480,35 @@ $(".delete-info").click(function(){
   $("#new_amar").click(function(){
     window.location='/Register';
   });
+  $(".tab-content").on("focus", ".editable-cell, .editable-cell2", function() {
+    var element = $(this);
+    setTimeout(function() {
+        var range = document.createRange();
+        range.selectNodeContents(element[0]);
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }, 0);
+});
+
+// Use event delegation for keydown event to move focus on Enter key
+$(".tab-content").on("keydown", ".editable-cell, .editable-cell2", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault(); // Prevent newline in contenteditable cell
+
+        var currentCell = $(this);
+        var columnIndex = currentCell.index();
+        var nextRow = currentCell.closest("tr").next("tr");
+
+        if (nextRow.length > 0) {
+            // Find the cell in the same column in the next row and focus it
+            var nextCell = nextRow.children().eq(columnIndex);
+            if (nextCell.hasClass("editable-cell") || nextCell.hasClass("editable-cell2")) {
+                nextCell.focus();
+            }
+        }
+    }
+});
   $("#select_shift").change(function(){
     window.location=`/Register?makan_id=${$("#select_makan").val()}&shift_id=${$("#select_shift").val()}`;
   });
