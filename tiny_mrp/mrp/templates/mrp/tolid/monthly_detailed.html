@@ -23,10 +23,7 @@
                 <ul class="list-inline">
 
 
-                    <li class="list-inline-item mb-0">
-
-
-                    </li>
+                   
 
                 </ul>
             </div>
@@ -105,6 +102,7 @@
                                         {% for sh in shift %}
                                             <th>{{ sh.name }}</th>
                                         {% endfor %}
+                                        <th>جمع</th>
                                         <!-- Add more headers if needed -->
                                     </tr>
                                 </thead>
@@ -119,6 +117,7 @@
                                                 <td>{{ day.product|get_item:shifts.id|floatformat:2 }}</td>
                                                 {% endif %}
                                             {% endfor %}
+                                            <td>{{ day.product|get_sum_item|floatformat:2 }}</td>
                                             <!-- Add more columns for other data -->
                                         </tr>
 
@@ -149,6 +148,7 @@
 {% endblock%}
 {% block javascript %}
 <script type="text/javascript">
+$(document).ready(function() {
   $("#button-addon1").click(function(){
     if($("#jalaliMonths").val()>0 && $("#year").val()>0){
     window.location.href=`/Monthly?month=${$("#jalaliMonths").val()}&year=${$("#year").val()}`;
@@ -157,6 +157,13 @@
     toastr.error("یک مقدار انتخاب نمایید");
   }
   });
+  $('#select_makan').change(function() {
+    var selectedValue = $(this).val();
+    if (selectedValue) { // check if the value is not empty
+        window.location.href = `/Monthly/?makan_id=${selectedValue}`;
+    }
+});
+});
 
 </script>
 {% endblock %}
