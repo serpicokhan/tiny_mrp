@@ -119,6 +119,7 @@ def index(request):
 def register_daily_amar(request):
     shift_id=request.GET.get('shift_id',False)
     makan_id=request.GET.get('makan_id',False)
+    selected_date=request.GET.get('selected_date',False)
     if(not makan_id):
         makan_id=Asset.objects.filter(assetIsLocatedAt__isnull=True).first().id
     
@@ -177,7 +178,7 @@ def register_daily_amar(request):
         except DailyProduction.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'vahed':machine.assetVahed})
 
-    return render(request,"mrp/tolid/details_aria.html",{'makan':makan,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d'),'shift_id':int(shift_id),'makan_id':int(makan_id)})
+    return render(request,"mrp/tolid/details_aria.html",{'selected_date':selected_date,'makan':makan,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d'),'shift_id':int(shift_id),'makan_id':int(makan_id)})
 @login_required
 def tolid_heatset(request):
     machines=Asset.objects.filter(assetCategory__id=8)

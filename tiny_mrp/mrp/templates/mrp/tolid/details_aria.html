@@ -205,4 +205,13 @@
 
 
  <script src="{% static 'project/tolid.js' %}"></script>
+ <script>
+  $(document).ready(function() {
+    var myVar = "{{ selected_date|escapejs }}";
+    if(myVar!="False"){
+    $("#search").val(myVar);
+    }
+    // console.log(myVar);
+  });
+</script>
 {% endblock %}

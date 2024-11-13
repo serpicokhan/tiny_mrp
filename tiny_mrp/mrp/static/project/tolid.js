@@ -510,10 +510,11 @@ $(".tab-content").on("keydown", ".editable-cell, .editable-cell2", function(e) {
     }
 });
   $("#select_shift").change(function(){
-    window.location=`/Register?makan_id=${$("#select_makan").val()}&shift_id=${$("#select_shift").val()}`;
+    window.location=`/Register?makan_id=${$("#select_makan").val()}&shift_id=${$("#select_shift").val()}&selected_date=${$("#search").val()}`;
+    // window.location=`/Register?shift_id=${$(this).val()}&selected_date=${$("#search").val()}`;
   });
   $("#select_makan").change(function(){
-    window.location=`/Register?makan_id=${$(this).val()}&shift_id=${$("#select_shift").val()}`;
+    window.location=`/Register?makan_id=${$(this).val()}&shift_id=${$("#select_shift").val()}&selected_date=${$("#search").val()}`;
   });
   function getQueryParameter(name) {
     let results = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);
