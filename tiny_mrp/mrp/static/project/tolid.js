@@ -480,7 +480,7 @@ $(".delete-info").click(function(){
   $("#new_amar").click(function(){
     window.location='/Register';
   });
-  $(".tab-content").on("focus", ".editable-cell, .editable-cell2", function() {
+  $(".tab-content").on("focus", ".editable-cell, .editable-cell2,.production", function() {
     var element = $(this);
     setTimeout(function() {
         var range = document.createRange();
@@ -492,7 +492,7 @@ $(".delete-info").click(function(){
 });
 
 // Use event delegation for keydown event to move focus on Enter key
-$(".tab-content").on("keydown", ".editable-cell, .editable-cell2", function(e) {
+$(".tab-content").on("keydown", ".editable-cell, .editable-cell2,.production", function(e) {
     if (e.key === "Enter") {
         e.preventDefault(); // Prevent newline in contenteditable cell
 
