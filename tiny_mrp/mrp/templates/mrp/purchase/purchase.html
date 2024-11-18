@@ -1,0 +1,47 @@
+{% extends 'mrp/blank-page.html' %}
+{% load static %}
+{% block content %}
+
+<div class="row">
+    
+    <div class="col-md-9">
+
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">{{title}}</h6>
+                <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
+                    <table class="table table-striped">
+                        <thead class="table-light">
+                            <tr>
+                                <th>نام کالا</th>
+                                <th>تعداد</th>
+                                <th>قسمت مورد مصرف</th>
+                                <th>شرح</th>
+                                <th> عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            
+                        </tbody>
+                        <tfoot>
+                            <tr class="add-row" id="add-row">
+                                <td colspan="5">+ کالای جدید</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+
+{% endblock %}
+{% block javascript %}
+<script src="{% static 'project/purchase.js' %}"></script>
+
+{% endblock %}
