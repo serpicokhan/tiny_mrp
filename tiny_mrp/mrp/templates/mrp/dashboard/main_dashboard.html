@@ -27,10 +27,14 @@
                                     <i class="ti-calendar"></i>
                                 </span>
                             </div>
+                        </div>
                     </li>
                     <li class="list-inline-item mb-0" style="width:90pt">
                         <select name="" id="machines" class="form-control">
+                            <option value="-1" data-type="-1">همه</option>
                             {% for i in assets %}
+                          
+
                             <option value="{{i.id}}" data-type={{i.assetTypes}}>{{i.assetName}}</option>
                             {% endfor %}
                         </select>

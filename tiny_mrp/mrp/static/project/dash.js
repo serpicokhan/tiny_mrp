@@ -161,8 +161,8 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
          })
          .catch(error => console.error(`Error:`, error));
   }
-  var draw_bar_daily_asset_production=function(start_dt,end_dt){
-    fetch(`/Dashboard/Asset/Production/Daily/Bar2/?stdate=${start_dt}&enddate=${end_dt}`)  // Replace with the URL of your Django view
+  var draw_bar_daily_asset_production=function(start_dt,end_dt,makan){
+    fetch(`/Dashboard/Asset/Production/Daily/Bar2/?stdate=${start_dt}&enddate=${end_dt}&makan=${makan}`)  // Replace with the URL of your Django view
          .then(response => response.json())
          .then(data => {
         //   console.log(data);
@@ -204,8 +204,8 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
          })
          .catch(error => console.error(`Error:`, error));
   }
-  var get_card_info=function(start_dt,end_dt){
-    fetch(`/Dashboard/Card/Info/?stdate=${start_dt}&enddate=${end_dt}`)  // Replace with the URL of your Django view
+  var get_card_info=function(start_dt,end_dt,makan){
+    fetch(`/Dashboard/Card/Info/?stdate=${start_dt}&enddate=${end_dt}&makan=${makan}`)  // Replace with the URL of your Django view
          .then(response => response.json())
          .then(data => {
             $('#tolid_card').text(`${data.total_production}`);
@@ -214,8 +214,8 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
          })
          .catch(error => console.error(`Error:`, error));
   }
-  var draw_line_current_month_tab_production=function(){
-    fetch(`/Dashboard/Tab/CurrentMonth/Production/Daily/?asset_category=7`)
+  var draw_line_current_month_tab_production=function(makan){
+    fetch(`/Dashboard/Tab/CurrentMonth/Production/Daily/?asset_category=7&makan=${makan}`)
     .then(response => {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -259,6 +259,8 @@ var draw_line_asset_production=function(start_dt,end_dt,machine,category){
                 curve: 'smooth'
             }
         };
+        $('#barTabProductionChart').remove(); // this is my <canvas> element
+       $('#barTabProductionChartholder').append('<div id="barTabProductionChart"><div>');
 
         const chart = new ApexCharts(document.querySelector("#barTabProductionChart"), options);
         chart.render();
@@ -457,19 +459,21 @@ $("#button-addon1").click(function(){
 // draw_line_asset_production($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
 draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_bar_daily_asset_production($("#enddate").val());
-draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val());
+draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val(),$("#machines").val());
 
-get_card_info($("#startdate").val(),$("#enddate").val());
+get_card_info($("#startdate").val(),$("#enddate").val(),$("#machines").val());
+draw_line_current_month_tab_production($("#machines").val());
+
 
 
 
 
 
 });
-draw_line_current_month_tab_production();
-draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val());
+draw_line_current_month_tab_production("-1");
+draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val(),"-1");
 // console.log($("#startdate").val(),$("#enddate").val());
-get_card_info($("#startdate").val(),$("#enddate").val());
+get_card_info($("#startdate").val(),$("#enddate").val(),"-1");
 draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_monthly_assetFailure_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_asset_failure_stack_zayeat($("#machines").val(),$("#machines option:selected").data("type"));
