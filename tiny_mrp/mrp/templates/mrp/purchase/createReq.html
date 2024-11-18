@@ -1,0 +1,67 @@
+<div class="card-header">
+    <div class="app-detail-action-left">
+        <a class="app-detail-close-button" href="#">
+            <i data-feather="arrow-left" class="mr-3"></i>
+        </a>
+        <h5 class="mb-0">
+            درخواست
+            <span class="badge bg-success badge-pill ml-1">پیش نویس</span>
+        </h5>
+    </div>
+    <div class="app-detail-action-right">
+        <div>
+            <a href="#" class="btn btn-outline-light" data-toggle="tooltip" title="پاسخ">
+                <i data-feather="corner-up-left"></i>
+            </a>
+            <a href="#" class="btn btn-outline-light ml-2" data-toggle="tooltip"
+            title="اسپم">
+             <i data-feather="info"></i>
+         </a>
+            <a href="#" class="btn btn-outline-light ml-2" data-toggle="tooltip"
+               title="رد کردن">
+                <i data-feather="trash"></i>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="app-detail-article">
+    <div class="card-body">
+     {% include 'mrp/purchase/purchase.html' %}
+    </div>
+    <hr class="m-0">
+    <div class="card-body">
+        <h6 class="mb-3 font-size-11 text-uppercase">فایلهای پیوست شده</h6>
+        <ul class="list-unstyled mb-0">
+            <li class="small">
+                <a href="#">
+                    <i data-feather="paperclip" class="mr-1 width-15 height-15"></i>
+                    uikit-design.psd
+                </a>
+            </li>
+            <li class="small">
+                <a href="#">
+                    <i data-feather="paperclip" class="mr-1 width-15 height-15"></i>
+                    uikit-design.sketch
+                </a>
+            </li>
+        </ul>
+    </div>
+    <hr class="m-0">
+    <div class="card-body">
+        <h6 class="mb-3 font-size-11 text-uppercase">پاسخ</h6>
+        <div class="reply-email-quill-editor mb-3"></div>
+        <div class="d-flex justify-content-between">
+            <div class="reply-email-quill-toolbar">
+            <span class="ql-formats mr-0">
+              <button class="ql-bold"></button>
+              <button class="ql-italic"></button>
+              <button class="ql-underline"></button>
+              <button class="ql-link"></button>
+              <button class="ql-image"></button>
+            </span>
+            </div>
+            <button class="btn btn-primary">
+                <i data-feather="send" class="mr-2"></i>ارسال</button>
+        </div>
+    </div>
+</div>

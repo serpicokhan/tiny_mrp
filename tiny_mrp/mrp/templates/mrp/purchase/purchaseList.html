@@ -1,0 +1,618 @@
+{% extends 'mrp/temp2.html' %}
+{% load static %}
+{% block stylesheet %}
+ 
+{% endblock %}
+{% block content %}
+
+<div class="container-fluid h-100">
+
+    <div class="row app-block">
+        <div class="col-md-3 app-sidebar">
+            <div class="card">
+                <div class="card-body">
+                    <button class="btn btn-secondary btn-block" data-toggle="modal" data-target="#compose">
+                        درخواست جدید                   </button>
+                </div>
+                {% comment %} <div class="app-sidebar-menu">
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item active d-flex align-items-center">
+                            <i data-feather="mail" class="mr-2 width-15 height-15"></i>
+                            صندوق ورودی
+                            <span class="small ml-auto">14</span>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <i data-feather="send" class="mr-2 width-15 height-15"></i>
+                            ارسال شده
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <i data-feather="edit-3" class="mr-2 width-15 height-15"></i>
+                            ذخیره
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <i data-feather="star" class="mr-2 width-15 height-15"></i>
+                            شروع شده
+                            <span class="small ml-auto">10</span>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <i data-feather="info" class="mr-2 width-15 height-15"></i>
+                            اسپم
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <i data-feather="trash" class="mr-2 width-15 height-15"></i>
+                           سطل آشغال 
+                            <span class="small ml-auto">2</span>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="mb-0">برچسب‌ها</h6>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <span class="text-warning fa fa-circle mr-2"></span>
+                            پشتیبانی
+                            <span class="small ml-auto">5</span>
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <span class="text-success fa fa-circle mr-2"></span>
+                          آزاد
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <span class="text-danger fa fa-circle mr-2"></span>
+                            اجتماعی
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <span class="text-info fa fa-circle mr-2"></span>
+                            دوستان
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <span class="text-secondary fa fa-circle mr-2"></span>
+                            کدزدن
+                        </a>
+                    </div>
+                </div> {% endcomment %}
+            </div>
+        </div>
+        <div class="col-md-9 app-content">
+            <div class="app-content-overlay"></div>
+            <div class="app-action">
+                <div class="action-left">
+                    <div class="custom-control custom-checkbox mr-3">
+                        <input type="checkbox" class="custom-control-input" id="customCheckAll">
+                        <label class="custom-control-label" for="customCheckAll"></label>
+                    </div>
+                    <ul class="list-inline">
+                        <li class="list-inline-item mb-0">
+                            <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown">
+                                انتخاب بر اساس
+                            </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#">خوانده شده</a>
+                                <a class="dropdown-item" href="#">خوانده نشده</a>
+                                <a class="dropdown-item" href="#">اسپم</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger" href="#">حذف</a>
+                            </div>
+                        </li>
+                        <li class="list-inline-item mb-0">
+                            <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown">
+                                چینش</a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="#">تاریخ</a>
+                                <a class="dropdown-item" href="#">از</a>
+                                <a class="dropdown-item" href="#">موضوغ</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">اندازه</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="action-right">
+                    <form class="d-flex mr-3">
+                        <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                            <i data-feather="menu" class="width-15 height-15"></i>
+                        </a>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="جستجوی درخواست"
+                                   aria-describedby="button-addon1">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-light" type="button" id="button-addon1">
+                                    <i class="ti-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="app-pager d-flex align-items-center">
+                        <div class="mr-3">1-50 از 253</div>
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                                <li class="page-item">
+                                    <a class="page-link" href="#" aria-label="Previous">
+                                        <i data-feather="chevron-left" class="width-15 height-15"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#" aria-label="Next">
+                                        <i data-feather="chevron-right" class="width-15 height-15"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div class="card card-body app-content-body">
+                <div class="app-lists">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <div>
+                                <div class="custom-control custom-checkbox mr-2">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck1">
+                                    <label class="custom-control-label" for="customCheck1"></label>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="#" class="add-star mr-3" title="محبوب کردن">
+                                    <i class="fa fa-star-o font-size-16"></i>
+                                </a>
+                            </div>
+                            <div>
+                                <figure class="avatar avatar-sm mr-3">
+                                    <img src="assets/media/image/user/man_avatar5.jpg" class="rounded-circle" alt="image">
+                                </figure>
+                            </div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="mb-1 d-flex justify-content-between align-items-center">
+                                    <div class="text-truncate app-list-title">لینا از توییتر</div>
+                                    <div class="pl-3 d-flex">
+                                        <span class="text-nowrap text-muted">15 فروردین</span>
+                                        <div class="dropdown ml-3">
+                                            <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
+                                                <i class="fa fa-ellipsis-v"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#">پاسخ</a>
+                                                <a class="dropdown-item" href="#">محبوب</a>
+                                                <a class="dropdown-item" href="#">برچسب</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="#">حذف</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-muted d-flex justify-content-between">
+                                    <div class="text-truncate small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است؟</div>
+                                    <div class="text-nowrap pl-3">
+                                        <ul class="list-inline">
+                                            <li class="list-inline-item mb-0">
+                                                <i class="fa fa-circle text-danger"></i>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item active">
+                            <div>
+                                <div class="custom-control custom-checkbox mr-2">
+                                    <input type="checkbox" class="custom-control-input" checked id="customCheck2">
+                                    <label class="custom-control-label" for="customCheck2"></label>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="#" class="add-star mr-3" title="محبوب کردن">
+                                    <i class="fa fa-star font-size-16 text-warning"></i>
+                                </a>
+                            </div>
+                            <div>
+                                <figure class="avatar avatar-sm mr-3">
+                                    <span class="avatar-title bg-info-bright text-info rounded-circle">ز</span>
+                                </figure>
+                            </div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="mb-1 d-flex justify-content-between align-items-center">
+                                    <div class="text-truncate app-list-title">ایکامرس همراه تخفیف 😃</div>
+                                    <div class="pl-3 d-flex">
+                                        <span class="text-nowrap text-muted">15 فروردین</span>
+                                        <div class="dropdown ml-3">
+                                            <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
+                                                <i class="fa fa-ellipsis-v"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#">پاسخ</a>
+                                                <a class="dropdown-item" href="#">محبوب</a>
+                                                <a class="dropdown-item" href="#">برچسب</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="#">حذف</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-muted d-flex justify-content-between">
+                                    <div class="text-truncate small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است</div>
+                                    <div class="text-nowrap pl-3">
+                                        <ul class="list-inline">
+                                            <li class="list-inline-item mb-0">
+                                                <a href="#" data-toggle="tooltip" title="Attachment">
+                                                    <i class="fa fa-paperclip"></i>
+                                                </a>
+                                            </li>
+                                            <li class="list-inline-item mb-0">
+                                                <i class="fa fa-circle text-success"></i>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <div class="custom-control custom-checkbox mr-2">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck3">
+                                    <label class="custom-control-label" for="customCheck3"></label>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="#" class="add-star mr-3" title="محبوب کردن">
+                                    <i class="fa fa-star-o font-size-16"></i>
+                                </a>
+                            </div>
+                            <div>
+                                <figure class="avatar avatar-sm mr-3">
+                                    <span class="avatar-title bg-danger-bright text-danger rounded-circle">س</span>
+                                </figure>
+                            </div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="mb-1 d-flex justify-content-between align-items-center">
+                                    <div class="text-truncate app-list-title">سیما,من(5)</div>
+                                    <div class="pl-3 d-flex">
+                                        <span class="text-nowrap text-muted">15 فروردین</span>
+                                        <div class="dropdown ml-3">
+                                            <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
+                                                <i class="fa fa-ellipsis-v"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#">پاسخ</a>
+                                                <a class="dropdown-item" href="#">محبوب</a>
+                                                <a class="dropdown-item" href="#">برچسب</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="#">حذف</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-muted d-flex justify-content-between">
+                                    <div class="text-truncate small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است Corporis cumque dicta eligendi, in quasi recusandae.</div>
+                                    <div class="text-nowrap pl-3">
+                                        <ul class="list-inline">
+                                            <li class="list-inline-item mb-0">
+                                                <a href="#" data-toggle="tooltip" title="Attachment">
+                                                    <i class="fa fa-paperclip"></i>
+                                                </a>
+                                            </li>
+                                            <li class="list-inline-item mb-0">
+                                                <i class="fa fa-circle text-info"></i>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <div class="custom-control custom-checkbox mr-2">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck4">
+                                    <label class="custom-control-label" for="customCheck4"></label>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="#" class="add-star mr-3" title="محبوب کردن">
+                                    <i class="fa fa-star-o font-size-16"></i>
+                                </a>
+                            </div>
+                            <div>
+                                <figure class="avatar avatar-sm mr-3">
+                                    <img src="assets/media/image/user/women_avatar3.jpg" class="rounded-circle" alt="image">
+                                </figure>
+                            </div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="mb-1 d-flex justify-content-between align-items-center">
+                                    <div class="text-truncate app-list-title">حمید احمدی ❤❤</div>
+                                    <div class="pl-3 d-flex">
+                                        <span class="text-nowrap text-muted">15 فروردین</span>
+                                        <div class="dropdown ml-3">
+                                            <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
+                                                <i class="fa fa-ellipsis-v"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#">پاسخ</a>
+                                                <a class="dropdown-item" href="#">محبوب</a>
+                                                <a class="dropdown-item" href="#">برچسب</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="#">حذف</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-muted d-flex justify-content-between">
+                                    <div class="text-truncate small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.</div>
+                                    <div class="text-nowrap pl-3">
+                                        <ul class="list-inline">
+                                            <li class="list-inline-item mb-0">
+                                                <i class="fa fa-circle text-secondary"></i>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <div class="custom-control custom-checkbox mr-2">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck5">
+                                    <label class="custom-control-label" for="customCheck5"></label>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="#" class="add-star mr-3" title="محبوب کردن">
+                                    <i class="fa fa-star font-size-16 text-warning"></i>
+                                </a>
+                            </div>
+                            <div>
+                                <figure class="avatar avatar-sm mr-3">
+                                    <span class="avatar-title bg-info-bright text-info rounded-circle">ز</span>
+                                </figure>
+                            </div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="mb-1 d-flex justify-content-between align-items-center">
+                                    <div class="text-truncate app-list-title">علی,من(7)</div>
+                                    <div class="pl-3 d-flex">
+                                        <span class="text-nowrap text-muted">15 فروردین</span>
+                                        <div class="dropdown ml-3">
+                                            <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
+                                                <i class="fa fa-ellipsis-v"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#">پاسخ</a>
+                                                <a class="dropdown-item" href="#">محبوب</a>
+                                                <a class="dropdown-item" href="#">برچسب</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="#">حذف</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-muted d-flex justify-content-between">
+                                    <div class="text-truncate small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است Asperiores esse et hic nesciunt quas ratione rem reprehenderit similique temporibus totam!</div>
+                                    <div class="text-nowrap pl-3">
+                                        <ul class="list-inline">
+                                            <li class="list-inline-item mb-0">
+                                                <i class="fa fa-circle text-primary"></i>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <div class="custom-control custom-checkbox mr-2">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck6">
+                                    <label class="custom-control-label" for="customCheck6"></label>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="#" class="add-star mr-3" title="محبوب کردن">
+                                    <i class="fa fa-star-o font-size-16"></i>
+                                </a>
+                            </div>
+                            <div>
+                                <figure class="avatar avatar-sm mr-3">
+                                    <span class="avatar-title bg-danger-bright text-danger rounded-circle">س</span>
+                                </figure>
+                            </div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="mb-1 d-flex justify-content-between align-items-center">
+                                    <div class="text-truncate app-list-title">تغییر رمز عبور</div>
+                                    <div class="pl-3 d-flex">
+                                        <span class="text-nowrap text-muted">15 فروردین</span>
+                                        <div class="dropdown ml-3">
+                                            <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
+                                                <i class="fa fa-ellipsis-v"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#">پاسخ</a>
+                                                <a class="dropdown-item" href="#">محبوب</a>
+                                                <a class="dropdown-item" href="#">برچسب</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="#">حذف</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-muted d-flex justify-content-between">
+                                    <div class="text-truncate small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ</div>
+                                    <div class="text-nowrap pl-3">
+                                        <ul class="list-inline">
+                                            <li class="list-inline-item mb-0">
+                                                <i class="fa fa-circle text-warning"></i>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <div class="custom-control custom-checkbox mr-2">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck7">
+                                    <label class="custom-control-label" for="customCheck7"></label>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="#" class="add-star mr-3" title="محبوب کردن">
+                                    <i class="fa fa-star-o font-size-16"></i>
+                                </a>
+                            </div>
+                            <div>
+                                <figure class="avatar avatar-sm mr-3">
+                                    <span class="avatar-title bg-success-bright text-success rounded-circle">ک</span>
+                                </figure>
+                            </div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="mb-1 d-flex justify-content-between align-items-center">
+                                    <div class="text-truncate app-list-title">ثبت نام انجام شد 👍</div>
+                                    <div class="pl-3 d-flex">
+                                        <span class="text-nowrap text-muted">15 فروردین</span>
+                                        <div class="dropdown ml-3">
+                                            <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
+                                                <i class="fa fa-ellipsis-v"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#">پاسخ</a>
+                                                <a class="dropdown-item" href="#">محبوب</a>
+                                                <a class="dropdown-item" href="#">برچسب</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="#">حذف</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-muted d-flex justify-content-between">
+                                    <div class="text-truncate small">جواد, لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است Assumenda, esse.
+                                    </div>
+                                    <div class="text-nowrap pl-3">
+                                        <ul class="list-inline">
+                                            <li class="list-inline-item mb-0">
+                                                <i class="fa fa-circle text-success"></i>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <div class="custom-control custom-checkbox mr-2">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck8">
+                                    <label class="custom-control-label" for="customCheck8"></label>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="#" class="add-star mr-3" title="محبوب کردن">
+                                    <i class="fa fa-star font-size-16 text-warning"></i>
+                                </a>
+                            </div>
+                            <div>
+                                <figure class="avatar avatar-sm mr-3">
+                                    <span class="avatar-title bg-info-bright text-info rounded-circle">ز</span>
+                                </figure>
+                            </div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="mb-1 d-flex justify-content-between align-items-center">
+                                    <div class="text-truncate app-list-title">پیمان,من(3)</div>
+                                    <div class="pl-3 d-flex">
+                                        <span class="text-nowrap text-muted">15 فروردین</span>
+                                        <div class="dropdown ml-3">
+                                            <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
+                                                <i class="fa fa-ellipsis-v"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#">پاسخ</a>
+                                                <a class="dropdown-item" href="#">محبوب</a>
+                                                <a class="dropdown-item" href="#">برچسب</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="#">حذف</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-muted d-flex justify-content-between">
+                                    <div class="text-truncate small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ?</div>
+                                    <div class="text-nowrap pl-3">
+                                        <ul class="list-inline">
+                                            <li class="list-inline-item mb-0">
+                                                <a href="#" data-toggle="tooltip" title="Attachment">
+                                                    <i class="fa fa-paperclip"></i>
+                                                </a>
+                                            </li>
+                                            <li class="list-inline-item mb-0">
+                                                <i class="fa fa-circle text-info"></i>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <div class="custom-control custom-checkbox mr-2">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck9">
+                                    <label class="custom-control-label" for="customCheck9"></label>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="#" class="add-star mr-3" title="محبوب کردن">
+                                    <i class="fa fa-star-o font-size-16"></i>
+                                </a>
+                            </div>
+                            <div>
+                                <figure class="avatar avatar-sm mr-3">
+                                    <span class="avatar-title bg-danger-bright text-danger rounded-circle">س</span>
+                                </figure>
+                            </div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="mb-1 d-flex justify-content-between align-items-center">
+                                    <div class="text-truncate app-list-title"> ایپسوم متن ساختگی با تولید سادگی نامفهوم </div>
+                                    <div class="pl-3 d-flex">
+                                        <span class="text-nowrap text-muted">15 فروردین</span>
+                                        <div class="dropdown ml-3">
+                                            <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
+                                                <i class="fa fa-ellipsis-v"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#">پاسخ</a>
+                                                <a class="dropdown-item" href="#">محبوب</a>
+                                                <a class="dropdown-item" href="#">برچسب</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="#">حذف</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-muted d-flex justify-content-between">
+                                    <div class="text-truncate small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ
+                                    </div>
+                                    <div class="text-nowrap pl-3">
+                                        <ul class="list-inline">
+                                            <li class="list-inline-item mb-0">
+                                                <i class="fa fa-circle text-danger"></i>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- end::app-lists -->
+
+                <!-- begin:app-detail -->
+                <div class="card app-detail">
+                    {% include 'mrp/purchase/createReq.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}
+{% block javascript %}
+
+<script src="{% static 'project/purchase.js' %}"></script>
+
+<script src="{% static 'project/purchaselist.js' %}"></script>
+
+{% endblock %}
