@@ -40,6 +40,14 @@ $(function () {
             });
         }
     });
+    $(document).on('click', '.btn-block', function (e) {
+        if (!$(e.target).is('.custom-control, .custom-control *, a, a *')) {
+            $('.app-detail').addClass('show').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function () {
+                $('.app-block .app-content .app-content-body .app-detail .app-detail-article').niceScroll().resize();
+               
+            });
+        }
+    });
 
     $(document).on('click', 'a.app-detail-close-button', function () {
         $('.app-detail').removeClass('show');
