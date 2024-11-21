@@ -296,7 +296,7 @@ def get_jalali_monthly_production_sum(machine,asset_type):
     else:
         records_last_12_months = DailyProduction.objects.filter(
         dayOfIssue__gte=one_year_ago,
-        dayOfIssue__lte=current_date,machine__assetCategory=machine
+        dayOfIssue__lte=current_date,machine__assetCategory=asset_type
         )
     for record in records_last_12_months:
         jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
