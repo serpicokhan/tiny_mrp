@@ -356,7 +356,10 @@ console.log(JSON.stringify(sendData));
         //alert(btn.attr("data-url"));
         //alert("321321");
         // /$("#modal-maintenanceType").modal("hide");
-        $("#modal-company").modal("show");
+        $("#modal-company").modal({
+          backdrop: 'static',
+          keyboard: false
+        });
       },
       success: function (data) {
         console.log(data);
