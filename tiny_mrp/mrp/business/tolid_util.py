@@ -53,6 +53,14 @@ def get_monthly_machine_by_date_shift(assetCatregory,shift,start,end):
             ).aggregate(Sum('production_value'))['production_value__sum'] or 0
             # print(machine.id,target_date,production_sum)
             return t2
+def get_monthly_machine_by_date_shift_v2(machineCatregory,shift,start,end):
+       #این نسخه بر اسا محاسبه جدید کهمقدمات تک لا و سه لا تقسیم می شود
+            t2 = DailyProduction.objects.filter(
+            machine__assetCategory__assetMachineCategory=machineCatregory,
+            dayOfIssue__range=[start,end],shift=shift
+            ).aggregate(Sum('production_value'))['production_value__sum'] or 0
+            # print(machine.id,target_date,production_sum)
+            return t2
 def get_sum_machine_failure_by_date_shift(assetCatregory,shift,target_date):
         filtered_failures = AssetFailure.objects.filter(
         dayOfIssue=target_date,
@@ -123,6 +131,33 @@ def get_day_machine_failure_monthly_shift(assetCatregory,shift,start,end):
             return (hours/8)+(minutes/800)
         else:
             return 0
+def get_day_machine_failure_monthly_shift_v2(machineCatregory,shift,start,end):
+        filtered_failures = AssetFailure.objects.filter(
+        dayOfIssue__range=[start,end],
+        shift=shift,
+        asset_name__assetCategory__assetMachineCategory=machineCatregory,failure_name__is_it_count=True
+        )
+        assets_count = Asset.objects.filter(assetCategory__assetMachineCategory=machineCatregory).count()
+
+
+        # Retrieve durations of the filtered failures and calculate the sum
+        # total_failure_duration = filtered_failures.aggregate(total_duration=Sum('duration'))['total_duration']
+        total_failure_duration = sum(
+            failure.duration.hour * 60 + failure.duration.minute for failure in filtered_failures
+        )
+        if total_failure_duration:
+            total_failure_duration=int(total_failure_duration / assets_count)
+
+            hours = total_failure_duration // 60
+            minutes = total_failure_duration % 60
+            formatted_duration = f"{hours:02d}:{minutes:02d}"
+
+
+            return (hours/8)+(minutes/800)
+        else:
+            return 0
+
+
 def get_good_standard_machine_by_date_category(assetCatregory):
         t2 = ProductionStandard.objects.filter(
         machine_name__assetCategory=assetCatregory,
