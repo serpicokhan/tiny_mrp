@@ -1,0 +1,21 @@
+
+{% load widget_tweaks %}
+<div class="mb-3">
+    <label>{{form.description.label}}</label>
+    {% render_field form.description  class='form-control' %}
+  </div>
+  <div class="mb-3">
+    <label>{{form.rank.label}}</label>
+    {% render_field form.rank  class='form-control' %}
+  </div>
+  <div class="mb-3">
+    <label>{{form.assetMachineCategory.label}}</label>
+    {% render_field form.assetMachineCategory  class='form-control' %}
+  </div> 
+  <div class="mb-3">
+    <label>{{form.price_personnel.label}}</label>
+    {% render_field form.price_personnel  class='form-control' %}
+  </div>
+  
+  
+

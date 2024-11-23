@@ -370,6 +370,26 @@ def create_related_tolid_padash(id):
             new_padash.pk=None
             new_padash.profile=FinancialProfile.objects.get(id=id)
             new_padash.save()
+
+
+def create_related_tolid_padash_v2(id):
+     tolid_padash=TolidPadash_V2.objects.order_by('-id')[:3]
+     if(tolid_padash.count()<3):
+        profile=FinancialProfile.objects.get(id=id)
+        mc=MachineCategory.objects.all()
+        for m in mc:
+            TolidPadash_V2.objects.create(profile=profile,assetMachineCategory=m,rank=1,price_personnel=95000000)
+            TolidPadash_V2.objects.create(profile=profile,rank=2,assetMachineCategory=m,price_personnel=75000000)
+            TolidPadash_V2.objects.create(profile=profile,rank=3,assetMachineCategory=m,price_personnel=55000000)
+        
+     else:         
+
+        for i in tolid_padash:
+            new_padash=i
+            new_padash.pk=None
+            new_padash.profile=FinancialProfile.objects.get(id=id)
+            new_padash.save()
+#################################
 def create_related_nezafat_padash(id):
      nezafat_padash=NezafatPadash.objects.order_by('-id')[:3]
      if(nezafat_padash.count()<3):

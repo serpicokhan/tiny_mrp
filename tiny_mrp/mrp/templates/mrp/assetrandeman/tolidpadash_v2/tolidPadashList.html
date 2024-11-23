@@ -1,0 +1,76 @@
+{% extends 'mrp/blank-page.html' %}
+{% load static %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title">انتخاب پروفایل مالی</div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <select name="" id="profile_year" class="form-control">
+
+                            {% for i in profile_list %}
+                            <option value="{{i.id}}" {% if i.id == selected_profile %} selected {% endif%}> {{i.description}}</option>
+         
+                            {% endfor %}
+                         </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-light" id="go_to_profile">برو به این پروفایل</button>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">{{title}}</h6>
+                <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;" >
+                    <table class="table table-striped table-bordered" id="company-table">
+                        <thead>
+                        <tr class="bg-info">
+                        <th>عنوان</th>
+                        <th>رتبه</th>
+                        <th>پرسنل</th>
+                        <th>عملیات</th>
+
+                        </tr>
+                        </thead>
+                        <tbody id="tbody_company">
+                          {% include 'mrp/assetrandeman/tolidpadash_v2/partialTolidPadashList.html' %}
+
+                          </tbody>
+                    </table>
+                    <div class="modal fade" id="modal-company">
+                        <div class="modal-dialog  modal-lg ">
+     
+                          <div class="modal-content ">
+                          </div>
+                        </div>
+                       </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+{% endblock %}
+{% load static %}
+
+{% block javascript %}
+
+
+ <script src="{% static 'project/tolidpadash_v2.js' %}"></script>
+ 
+
+{% endblock %}

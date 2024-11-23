@@ -255,6 +255,21 @@ class TolidPadash(models.Model):
         ordering=('rank',)
     def __str__(self):
         return f"Rank: {self.rank}, Price: {self.price_sarshift}"
+
+class TolidPadash_V2(models.Model):
+
+    description = models.TextField("شرح")
+    rank = models.IntegerField("رتبه")
+    price_personnel = models.DecimalField("پاداش پرسنل",max_digits=10, decimal_places=0)
+  
+    profile = models.ForeignKey('FinancialProfile', on_delete=models.CASCADE,null=True,blank=True)
+    assetMachineCategory = models.ForeignKey('MachineCategory', on_delete=models.CASCADE,null=True,blank=True)
+
+    class Meta:
+        db_table='tolidpadash_v2'
+        ordering=('rank',)
+    def __str__(self):
+        return f"Rank: {self.rank}, Price: {self.price_sarshift}"
 class FinancialProfile(models.Model):
     def get_jalali_time_created(self):
         return jdatetime.date.fromgregorian(date=self.time_created)

@@ -69,10 +69,12 @@ urlpatterns = [
     url(r'^Asset/Randeman/(?P<id>\d+)/TolidRanking/$', assetRandeman_padash_ranking, name='assetRandeman_padash_ranking'),
     url(r'^Asset/Randeman/NezafatPadash/$', list_nezafat_padash, name='list_nezafat_padash'),
     url(r'^Asset/Randeman/TolidPadash/$', list_tolid_padash, name='list_tolid_padash'),
+    url(r'^Asset/Randeman/V2/TolidPadash/$', list_tolid_padash_v2, name='list_tolid_padash_v2'),
     url(r'^Asset/Randeman/InitRandeman/$', get_init_asset_randeman, name='get_init_asset_randeman'),
     url(r'^Asset/Randeman/InitRandeman/(?P<id>\d+)/update$', assetrandemaninit_update, name='assetrandemaninit_update'),
     url(r'^Asset/Randeman/InitRandeman/(?P<id>\d+)/Partial/update$', assetrandemaninit_partial_update, name='assetrandemaninit_partial_update'),
     url(r'^Asset/Randeman/TolidPadash/(?P<id>\d+)/update$', tolidPadash_update, name='tolidPadash_update'),
+    url(r'^Asset/Randeman/V2/TolidPadash/(?P<id>\d+)/update$', tolidPadash_update_v2, name='tolidPadash_update_v2'),
     url(r'^Asset/Randeman/NezafatPadash/(?P<id>\d+)/update$', nezafatPadash_update, name='nezafatPadash_update'),
 
     url(r'^Dashboard/Zayeat/Line/$', get_line_zayeat_vazn_data, name='get_line_zayeat_vazn_data'),
