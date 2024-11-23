@@ -69,7 +69,7 @@ $(document).ready(function() {
                     // Add "Create New Item" option
                     dropdownHtml += `
                         <button class="dropdown-item create-new" data-typed="${inputValue}">
-                            + Create New ${type}: "${inputValue}"
+                            +جدید "${inputValue}"
                         </button>
                     </div>`;
 
