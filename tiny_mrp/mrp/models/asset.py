@@ -6,6 +6,8 @@ class AssetCategory(models.Model):
     description=models.CharField("توضیحات",max_length = 50)
     priority=models.IntegerField("اولویت", null=True)
     isPartOf = models.ForeignKey('self',on_delete=models.CASCADE,verbose_name="زیر مجموعه",null=True,blank=True)
+    assetMachineCategory=models.ForeignKey("MachineCategory",on_delete=models.CASCADE,null=True,blank=True,verbose_name="نوع دستگاه")
+
     def __str__(self):
         return self.name
     def get_all_child_categories(self):
@@ -25,6 +27,7 @@ class AssetCategory(models.Model):
 class MachineCategory(models.Model):
     name=models.CharField("نام",max_length = 50)
     description=models.CharField("توضیحات",max_length = 50)
+
 
     isPartOf = models.ForeignKey('self',on_delete=models.CASCADE,verbose_name="زیر مجموعه",null=True,blank=True)
     def __str__(self):
