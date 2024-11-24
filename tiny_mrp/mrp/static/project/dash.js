@@ -386,6 +386,7 @@ var draw_monthly_assetFailure_bar=function(machine,asset_type){
         .catch(error => console.error('Error:', error));
     }
 var draw_monthly_production_bar=function(machine,asset_type){
+    console.log(`/Dashboard/Production/Monthly/?machine=${machine}&asset_type=${asset_type}`);
     fetch(`/Dashboard/Production/Monthly/?machine=${machine}&asset_type=${asset_type}`)  // Replace with the URL of your Django view
         .then(response => response.json())
         .then(data => {
@@ -457,7 +458,7 @@ $("#button-addon1").click(function(){
 // draw_monthly_assetFailure_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_asset_failure_stack_zayeat($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_line_asset_production($("#startdate").val(),$("#enddate").val(),$("#machines").val(),$("#machines option:selected").data("type"));
-draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
+// draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_bar_daily_asset_production($("#enddate").val());
 draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val(),$("#machines").val());
 
@@ -474,7 +475,7 @@ draw_line_current_month_tab_production("-1");
 draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val(),"-1");
 // console.log($("#startdate").val(),$("#enddate").val());
 get_card_info($("#startdate").val(),$("#enddate").val(),"-1");
-draw_monthly_production_bar($("#machines").val(),$("#machines option:selected").data("type"));
+draw_monthly_production_bar($("#machines").val(),"7");
 // draw_monthly_assetFailure_bar($("#machines").val(),$("#machines option:selected").data("type"));
 // draw_asset_failure_stack_zayeat($("#machines").val(),$("#machines option:selected").data("type"));
 

@@ -297,7 +297,7 @@ def get_jalali_monthly_production_sum(machine,asset_type):
     else:
         records_last_12_months = DailyProduction.objects.filter(
         dayOfIssue__gte=one_year_ago,
-        dayOfIssue__lte=current_date,machine__assetCategory=machine
+        dayOfIssue__lte=current_date,machine__assetCategory__id=asset_type
         )
     for record in records_last_12_months:
         jalali_date = jdatetime.date.fromgregorian(date=record.dayOfIssue)
@@ -352,7 +352,7 @@ def get_jalali_monthly_duration_sum_by_failure(machine,asset_type):
         records_last_12_months = AssetFailure.objects.filter(
             dayOfIssue__gte=one_year_ago,
             dayOfIssue__lte=current_date,
-            asset_name__assetCategory=machine
+            asset_name__assetCategory__id=7
             )
 
         
@@ -667,4 +667,13 @@ def get_dashboard_production_sum(request):
         ).aggregate(total=Sum('vazn'))['total'] or 0
         
     # Return the result as JSON
-    return JsonResponse({'total_production': round(total_production/1000,0),'total_waste':round(total_waste,0),'waste_percentage':round((total_waste/total_production)*100,0)})
+    try:
+        waste_percentage = round((total_waste / total_production) * 100, 0)
+    except ZeroDivisionError:
+        waste_percentage = 0  # Or any other default value you prefer
+
+    return JsonResponse({
+        'total_production': round(total_production / 1000, 0),
+        'total_waste': round(total_waste, 0),
+        'waste_percentage': waste_percentage
+    })
