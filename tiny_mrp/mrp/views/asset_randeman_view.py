@@ -40,6 +40,7 @@ def save_assetRandeman_form(request, form, template_name,id=None,is_new=None):
                     if(is_new):
                         calc_assetrandeman(bts.mah,bts.sal)
                         create_first_padash(bts.id)
+                        create_first_padash_v2(bts.id)
                     data['form_is_valid'] = True
                     books = AssetRandemanList.objects.all()
                     wos=doPaging(request,books)

@@ -223,6 +223,26 @@ class TolidRanking(models.Model):
         db_table='tolidranking'
     def __str__(self):
         return self.description
+class TolidRanking_V2(models.Model):
+    # Your model fields go here
+    # For example:
+    RANK_CHOICES = (
+        (1, 'رتبه اول'),
+        (2, 'رتبه دوم'),
+        (3, 'رتبه سوم'),
+    )
+    rank = models.IntegerField(choices=RANK_CHOICES)
+    asset_randeman_list = models.ForeignKey(AssetRandemanList, on_delete=models.CASCADE)
+    shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
+    price_sarshift = models.DecimalField(max_digits=10, decimal_places=0)
+    price_personnel = models.DecimalField(max_digits=10, decimal_places=0)
+    assetMachineCategory=models.ForeignKey("MachineCategory",on_delete=models.CASCADE,null=True,blank=True,verbose_name="نوع دستگاه")
+    
+    class Meta:
+        db_table='tolidranking_v2'
+    def __str__(self):
+        return self.description
+
 class NezafatPadash(models.Model):
     RANK_CHOICES = (
         (1, 'رتبه اول'),
