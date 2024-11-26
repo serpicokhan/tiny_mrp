@@ -629,9 +629,7 @@ def list_speed_formula(request):
 def monthly_detaild_report(request):
     days=[]
     shift=Shift.objects.all()
-    asset_category=asset_categories = AssetCategory.objects.annotate(
-        min_priority=models.Min('asset__assetTavali')
-        ).order_by('min_priority')
+    asset_category = AssetCategory.objects.all().order_by('priority')
 
     current_date_time2 = jdatetime.datetime.now()
     current_year=current_date_time2.year
@@ -780,26 +778,43 @@ def monthly_brief_report_v2(request):
             product={}
             start=jdatetime.date(j_year,current_jalali_date.month,1)
             end=jdatetime.date(j_year,current_jalali_date.month,num_days)
+            failure_days={}
+            total_day_per_shift={}
+            mean_day_per_shift={}
+
+
             for sh in shifts:
-                product[sh.id]=get_monthly_machine_by_date_shift_v2(cats,sh,start.togregorian(),end.togregorian())
+                mean_day_per_shift_t=0
+
+                asset_cat=AssetCategory.objects.filter(assetMachineCategory=cats)
+                for ac in asset_cat:
+                    p=get_monthly_machine_by_date_shift(ac,sh,start.togregorian(),end.togregorian())
+                    q=get_day_machine_failure_monthly_shift(ac,sh,start.togregorian(),end.togregorian())
+                    total_day_per_shift_t=num_days-q
+                    mean_day_per_shift_t+=p/total_day_per_shift_t
+                    # sum+=mean_day_per_shift[sh.id]
+                    
+
+
+                # product[sh.id]=get_monthly_machine_by_date_shift_v2(cats,sh,start.togregorian(),end.togregorian())
+                # failure_days[sh.id]=get_day_machine_failure_monthly_shift_v2(cats,sh,start.togregorian(),end.togregorian())
+                # total_day_per_shift[sh.id]=num_days-failure_days[sh.id]
+                mean_day_per_shift[sh.id]=mean_day_per_shift_t
+                sum[sh.id]+=mean_day_per_shift[sh.id]
+
+
 
             # days.append({'cat':cats,'date':"",'day_of_week':'جمع','product':product})
-            failure_days={}
-            for sh in shifts:
-                failure_days[sh.id]=get_day_machine_failure_monthly_shift_v2(cats,sh,start.togregorian(),end.togregorian())
+            # for sh in shifts:
 
-            total_day_per_shift={}
-            for sh in shifts:
+            # for sh in shifts:
 
-                total_day_per_shift[sh.id]=num_days-failure_days[sh.id]
-            # days.append({'cat':cats,'date':"",'day_of_week':'روز کاری','product':total_day_per_shift})
-            mean_day_per_shift={}
-            for sh in shifts:
+            # # days.append({'cat':cats,'date':"",'day_of_week':'روز کاری','product':total_day_per_shift})
+            # for sh in shifts:
                
 
 
-                    mean_day_per_shift[sh.id]=product[sh.id]/total_day_per_shift[sh.id]
-                    sum[sh.id]+=mean_day_per_shift[sh.id]
+                   
 
 
             totals.append({'cat':cats,'date':"",'day_of_week':'میانگین','product':mean_day_per_shift})

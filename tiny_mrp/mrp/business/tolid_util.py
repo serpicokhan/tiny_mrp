@@ -60,6 +60,7 @@ def get_monthly_machine_by_date_shift_v2(machineCatregory,shift,start,end):
             dayOfIssue__range=[start,end],shift=shift
             ).aggregate(Sum('production_value'))['production_value__sum'] or 0
             # print(machine.id,target_date,production_sum)
+
             return t2
 def get_sum_machine_failure_by_date_shift(assetCatregory,shift,target_date):
         filtered_failures = AssetFailure.objects.filter(
@@ -282,17 +283,14 @@ def create_first_padash_v2(AssetRandemanListId):
         tolid_rank=get_tolid_rank_v2(asset_randeman.sal,asset_randeman.mah,m)
         sorted_footballers_by_goals = sorted(tolid_rank, key=tolid_rank.get,reverse=True)
         for i in shifts:
-        # padash_tolid=TolidPadash.objects.create(profile=asset_randeman.profile,rank=i.id,price_sarshift=0,price_personnel=0)
-        # print(tolid_rank.index(i.id),'!!!!!!!!!')
+        
             try:
         
                 padash_tolid=TolidPadash_V2.objects.get(assetMachineCategory=m,rank=sorted_footballers_by_goals.index(i.id)+1,profile=asset_randeman.profile) #tolid_rank.index(i.id)
             except TolidPadash_V2.DoesNotExist:
-                #  a=[9500000,7500000,5500000]
-                #  b=[95000000,75000000,55000000]
+              
                 pass
 
-            #      padash_tolid=TolidPadash.objects.create(rank=i.id+1,profile=asset_randeman.profile,price_sarshift=a[i.id],price_personnel=b[i.id],description=str(i.id))
 
             rank=sorted_footballers_by_goals.index(i.id)+1
             TolidRanking_V2.objects.create(assetMachineCategory=m,asset_randeman_list=asset_randeman,shift=i,rank=rank,price_sarshift=0,price_personnel=padash_tolid.price_personnel)
