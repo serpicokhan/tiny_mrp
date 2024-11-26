@@ -743,9 +743,7 @@ def list_speed_formula(request):
 def monthly_detaild_report(request):
     days=[]
     shift=Shift.objects.all()
-    asset_category=asset_categories = AssetCategory.objects.annotate(
-        min_priority=models.Min('asset__assetTavali')
-        ).order_by('min_priority')
+    asset_category = AssetCategory.objects.all().order_by('priority')
 
     current_date_time2 = jdatetime.datetime.now()
     current_year=current_date_time2.year
