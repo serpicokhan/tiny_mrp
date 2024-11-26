@@ -44,9 +44,7 @@ def get_sum_machine_by_date_range_shift(assetCatregory,shift,start_date,end_date
         # print(machine.id,target_date,production_sum)
         return t2
 def get_monthly_machine_by_date_shift(assetCatregory,shift,start,end):
-        if(assetCatregory.id==10 or assetCatregory.id==9):
-             return 2000
-        else:
+        
             t2 = DailyProduction.objects.filter(
             machine__assetCategory=assetCatregory,
             dayOfIssue__range=[start,end],shift=shift
@@ -311,10 +309,7 @@ def get_tolid_rank(sal,mah):
             # days.append({'cat':cats,'date':"",'day_of_week':'روز کاری','product':total_day_per_shift})
             mean_day_per_shift={}
             for sh in shifts:
-                if(cats.id==9 or cats.id==10):
-                    mean_day_per_shift[sh.id]=2000
-                    sum[sh.id]+=2000
-                else:
+               
 
 
                     mean_day_per_shift[sh.id]=product[sh.id]/total_day_per_shift[sh.id]
