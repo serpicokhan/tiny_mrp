@@ -1,5 +1,9 @@
 {% extends 'mrp/blank-page.html' %}
+{% block stylesheet %}
+<style>
 
+</style>
+{% endblock %}
 {% block content %}
 {% load static %}
 {% load custom_filters %}
@@ -78,20 +82,7 @@
                 <h6 class="card-title">{{title}}</h6>
 
 
-                <ul class="nav nav-pills mb-3" role="tablist">
-
-                    {% for c in cat_list %}
-
-                    <li class="nav-item">
-                        <a class="nav-link {% if forloop.counter == 1 %}active
-                        {% endif %}" id="tab{{c.cat.id}}" data-toggle="tab" href="#sub{{c.cat.id}}"
-                        role="tab" aria-controls="sub{{c.cat.id}}" aria-selected="{% if forloop.counter == 1 %}true
-                        {% else %}false{% endif %}">{{c.cat.name}}</a>
-                    </li>
-                    {% endfor %}
-
-                </ul>
-                <hr/>
+               
                 <div class="tab-content">
                     {% for cat_item in cat_list %}
 
@@ -102,30 +93,42 @@
 
                         <h3>{{ shift_val.shift.name }}</h3>
                         <div class="table-responsive">
-                            <table class="table table-striped" border="1">
+                            <table class="table table-striped print-table" border="1">
                                 <thead>
                                     <tr class="bg-dark">
-                                        <th>روز هفته</th>
                                         <th>تاریخ</th>
-                                        {% for sh in shift %}
+                                        <th>روز هفته</th>
+
+                                        <th>تولید</th>
+                                        {% for sh in z_name %}
                                             <th>{{ sh.name }}</th>
                                         {% endfor %}
-                                        <th>جمع</th>
-                                        <!-- Add more headers if needed -->
+                                       <th>جمع</th>
+                                       <th>درصد</th>
+                                        <th>فینیشر</th>
+                                        <th>رینگ </th>
+                                        <th>حاضر</th>
+                                        <th>سرانه</th>
+                                        
+                                      
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for day in cat_item.shift_val %}
+                                    {% for day in cat_list%}
                                         <tr >
-                                            <td>{{ day.day_of_week }}</td>
-                                            <td>{{ day.date }}</td>
-                                            {% for shifts in shift %}
-                                            {% if cat_item.cat == day.cat %}
+                                           <td>{{day.date}}</td>
+                                           <td>{{day.day_of_week}}</td>
+                                           <td>{{day.tolid.0.tab|floatformat:2}}</td>
+                                           {% for i in day.types %}
+                                          <td>{{i.waste|floatformat:2}}</td>
+                                          {% endfor %}
+                                          <td>{{day.sum_waste|floatformat:2}}</td>
+                                          <td>{{day.percentage|floatformat:2}}%</td>
+                                          <td>{{day.tolid.0.finisher|floatformat:2}}</td>
+                                          <td>{{day.tolid.0.ring|floatformat:2}}</td>
+                                          <td>{{day.hozur}}</td>
+                                          <td>{{day.sarane|floatformat:2}}</td>
 
-                                                <td>{{ day.product|get_item:shifts.id|floatformat:2 }}</td>
-                                                {% endif %}
-                                            {% endfor %}
-                                            <td>{{ day.product|get_sum_item|floatformat:2 }}</td>
                                             <!-- Add more columns for other data -->
                                         </tr>
 
@@ -159,7 +162,7 @@
 $(document).ready(function() {
   $("#button-addon1").click(function(){
     if($("#jalaliMonths").val()>0 && $("#year").val()>0){
-    window.location.href=`/Monthly?month=${$("#jalaliMonths").val()}&year=${$("#year").val()}&makan_id=${$("#select_makan").val()}`;
+    window.location.href=`/Monthly/Ezami?month=${$("#jalaliMonths").val()}&year=${$("#year").val()}&makan_id=${$("#select_makan").val()}`;
   }
   else {
     toastr.error("یک مقدار انتخاب نمایید");
@@ -168,10 +171,12 @@ $(document).ready(function() {
   $('#select_makan').change(function() {
     var selectedValue = $(this).val();
     if (selectedValue) { // check if the value is not empty
-        window.location.href = `/Monthly/?makan_id=${selectedValue}`;
+        window.location.href = `/Monthly/Ezami?makan_id=${selectedValue}`;
     }
 });
+
 });
 
 </script>
+
 {% endblock %}

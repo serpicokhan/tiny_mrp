@@ -24,7 +24,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.db.models import Q
 from mrp.utils import utilMonth
-
+from mrp.client_call import get_hozur_count
 def backup_database(request):
     # Define your database credentials and output file's path
    # Define your database credentials and output file's path
@@ -761,9 +761,7 @@ def monthly_detaild_report(request):
     makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
     days=[]
     shift=Shift.objects.all()
-    asset_category=asset_categories = AssetCategory.objects.annotate(
-        min_priority=models.Min('asset__assetTavali')
-        ).order_by('min_priority')
+    asset_category = AssetCategory.objects.all().order_by('priority')
 
     current_date_time2 = jdatetime.datetime.now()
     current_year=current_date_time2.year
@@ -790,7 +788,7 @@ def monthly_detaild_report(request):
             # print(j_date,'!!!!!!!!!!!!!')
             for sh in shift:
                 product[sh.id]=get_sum_machine_by_date_shift_makan(cats,makan_id,sh,j_date.togregorian())
-                print(product[sh.id])
+                print("!!!!!!!!!",cats,product[sh.id])
             days.append({'cat':cats,'date':"{0}/{1}/{2}".format(j_year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
         product={}
         start=jdatetime.date(j_year,current_jalali_date.month,1)
@@ -817,6 +815,97 @@ def monthly_detaild_report(request):
         # print(cat_list)
 
     return render(request,'mrp/tolid/monthly_detailed.html',{'makan_id':int(makan_id),'makan':makan,'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
+
+
+def monthly_detaild_report_ezami(request):
+    my_dict = {
+    '6961':3 ,
+    '6942': 2,
+    '6936':1
+    # Add more key-value pairs as needed
+}
+    makan_id=request.GET.get("makan_id",'6961')
+    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    
+    shift=Shift.objects.all()
+    asset_category = AssetCategory.objects.all().order_by('priority')
+
+    current_date_time2 = jdatetime.datetime.now()
+    current_year=current_date_time2.year
+    j_month=request.GET.get('month',current_date_time2.month)
+
+    j_year=int(request.GET.get('year',current_year))
+    current_date_time = jdatetime.date(j_year, int(j_month), 1)
+    current_jalali_date = current_date_time
+    z_name=Zayeat.objects.all()
+    if current_jalali_date.month == 12:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=j_year + 1)
+    else:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=current_jalali_date.month + 1)
+
+
+    num_days = (first_day_of_next_month - jdatetime.timedelta(days=1)).day
+    api_url = "https://jobie.ir/api/hozur-count/"
+    # next_day.strftime('%Y-%m-%d')
+    start_date = jdatetime.date(j_year,current_jalali_date.month,1).togregorian().strftime('%Y-%m-%d')
+    end_date = jdatetime.date(j_year,current_jalali_date.month,num_days).togregorian().strftime('%Y-%m-%d')
+    
+    # Call the API
+    result_api = get_hozur_count(api_url, start_date, end_date,my_dict[makan_id])
+    # print(result_api["2024-11-17"])
+    
+    result = []
+    for day in range(1,num_days+1):
+        current_date=jdatetime.date(j_year,current_jalali_date.month,day)
+        day_data = {"date": current_date,'day_of_week':DateJob.get_day_of_week(current_date), "types": [],"tolid":[]}
+        waste_data = ZayeatVaz.objects.filter(dayOfIssue=current_date.togregorian(),makan__id=makan_id)\
+                        .values('zayeat').annotate(total_waste=Sum('vazn'))
+        product_data_finisher = DailyProduction.objects.filter(dayOfIssue=current_date.togregorian(),machine__assetCategory__id=3,machine__assetIsLocatedAt__id=makan_id).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
+        product_data_ring = DailyProduction.objects.filter(dayOfIssue=current_date.togregorian(),machine__assetCategory__id=4,machine__assetIsLocatedAt__id=makan_id).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
+        product_data_tab = DailyProduction.objects.filter(dayOfIssue=current_date.togregorian(),machine__assetCategory__id=7,machine__assetIsLocatedAt__id=makan_id).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
+        sum_waste=0
+        if(waste_data.count()==0):
+            for i in z_name:
+                waste_type = i.id
+                waste_name=i.name
+                waste_value = 0
+                day_data["types"].append({
+                    "type": waste_type,
+                    "waste": waste_value,
+                    "waste_name":waste_name
+                    
+                })
+        else:
+
+            for waste in waste_data:
+                waste_type = waste['zayeat']
+                waste_name=z_name.get(id=waste_type).name
+                waste_value = waste['total_waste']
+                day_data["types"].append({
+                    "type": waste_type,
+                    "waste": waste_value,
+                    "waste_name":waste_name
+                    
+                })
+                sum_waste+=waste_value
+        day_data["tolid"].append({
+                "tab": product_data_tab[0]["total_product"] if product_data_tab else 0,
+                "finisher":product_data_finisher[0]["total_product"] if product_data_finisher else 0,
+                "ring":product_data_ring[0]["total_product"] if product_data_ring else 0
+                
+                
+            })
+        day_data["hozur"]=result_api[current_date.togregorian().strftime('%Y-%m-%d')] if current_date.togregorian().strftime('%Y-%m-%d') in result_api else 0
+
+        day_data["sarane"]= day_data["tolid"][0]["tab"]/day_data["hozur"] if day_data["hozur"] else 0
+        day_data["sum_waste"]=sum_waste
+        day_data["percentage"]=(sum_waste/day_data["tolid"][0]["tab"])*100 if day_data["tolid"][0]["tab"] else 0
+        result.append(day_data)
+
+
+
+
+    return render(request,'mrp/tolid/monthly_detailed_ezami.html',{'z_name':z_name,'makan_id':int(makan_id),'makan':makan,'cats':asset_category,'title':'آمار ماهانه','cat_list':result,'shift':shift,'month':j_month,'year':j_year})
 def monthly_brief_report(request):
     shifts=Shift.objects.all()
     asset_cats=AssetCategory.objects.all().order_by('priority')
