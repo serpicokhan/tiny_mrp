@@ -171,7 +171,13 @@ $(document).ready(function() {
   $('#select_makan').change(function() {
     var selectedValue = $(this).val();
     if (selectedValue) { // check if the value is not empty
-        window.location.href = `/Monthly/Ezami?makan_id=${selectedValue}`;
+        window.location.href = `/Monthly/Ezami?makan_id=${selectedValue}&month=${$("#jalaliMonths").val()}&year=${$("#year").val()}`;
+    }
+});
+$('#jalaliMonths').change(function() {
+    var selectedValue = $("#select_makan").val();
+    if (selectedValue) { // check if the value is not empty
+        window.location.href = `/Monthly/Ezami?makan_id=${selectedValue}&month=${$("#jalaliMonths").val()}&year=${$("#year").val()}`;
     }
 });
 

@@ -16,3 +16,33 @@
 
   </div>
 </form>
+<script>
+  $(document).ready(function () {
+    const $cells = $('.editable-cell');
+
+    // Highlight content on focus
+    $cells.on('focus', function () {
+      const $this = $(this);
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents($this[0]);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    });
+
+    // Enable Tab navigation
+    $cells.on('keydown', function (e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const currentIndex = $cells.index(this);
+        let nextIndex = e.shiftKey ? currentIndex - 1 : currentIndex + 1;
+
+        // Handle circular navigation
+        if (nextIndex < 0) nextIndex = $cells.length - 1;
+        if (nextIndex >= $cells.length) nextIndex = 0;
+
+        $cells.eq(nextIndex).focus();
+      }
+    });
+  });
+</script>
