@@ -97,6 +97,13 @@ urlpatterns = [
     url(r'^Report/$', daily_tolid_with_chart, name='daily_tolid_with_chart'),
     url(r'^Purchase/$', list_purchase, name='list_purchase'),
     url(r'^Purchases/$', list_purchase_req, name='list_purchase_req'),
+    url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
+    url(r'^Asset/GetAssets$', asset_getAssets, name='asset_getAssets'),
+    url(r'^api/create-part/$', create_part, name="create_part"),
+    url(r'^api/create-asset/$', create_asset, name="create_asset"),
+    url(r'^api/save-purchase-request/', views.save_purchase_request, name='save-purchase-request'),
+    
+
 
 
 

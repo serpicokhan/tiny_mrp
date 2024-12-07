@@ -19,10 +19,10 @@ $(document).ready(function() {
     });
 
     // API URLs
-    const fetchPartsApiUrl = "http://192.168.2.111:8000/WoPart/GetParts"; // Replace with your API endpoint for fetching parts
-    const createPartsApiUrl = "https://example.com/api/create-part"; // Replace with your API endpoint for creating parts
-    const fetchMachinesApiUrl = "http://192.168.2.111:8000/Asset/GetAssets"; // Replace with your API endpoint for fetching machines
-    const createMachinesApiUrl = "https://example.com/api/create-machine"; // Replace with your API endpoint for creating machines
+    const fetchPartsApiUrl = "/WoPart/GetParts"; // Replace with your API endpoint for fetching parts
+    const createPartsApiUrl = "http://127.0.0.1:8000/api/create-part/"; // Replace with your API endpoint for creating parts
+    const fetchMachinesApiUrl = "/Asset/GetAssets"; // Replace with your API endpoint for fetching machines
+    const createMachinesApiUrl = "http://127.0.0.1:8000/api/create-asset/"; // Replace with your API endpoint for creating machines
 
     // Generic function to handle dropdown and search
     function handleSuggestions($cell, apiUrl, createApiUrl, type) {
@@ -105,11 +105,12 @@ $(document).ready(function() {
                     // Handle "Create New Item" click
                     $dropdown.on('click', '.create-new', function() {
                         const newName = $(this).data('typed');
+                       
 
                         // Call API to create new item
                         $.ajax({
                             url: createApiUrl,
-                            method: "POST",
+                            method: "post",
                             contentType: "application/json",
                             data: JSON.stringify({ name: newName }),
                             success: function(response) {
@@ -141,6 +142,9 @@ $(document).ready(function() {
             });
         });
     }
+    // $(document).on('click', '.create-new-item', function() {
+    //     alert("123");
+    // });
 
     $(document).on('click', '.delete-row', function() {
         const $row = $(this).closest('tr'); // Find the closest <tr> (the row)
@@ -155,6 +159,102 @@ $(document).ready(function() {
     // Attach event for machine-name
     $(document).on('focus', '.machine-name', function() {
         handleSuggestions($(this), fetchMachinesApiUrl, createMachinesApiUrl, "Machine");
+    });
+    $(document).on('focus','.editable-cell', function() {
+        var cell = this;
+        
+        // Highlight the text inside the cell
+        $(cell).css('background-color', '#ffffcc'); // Light yellow background
+        
+        // Create a range and select the text
+        var range = document.createRange();
+        var selection = window.getSelection();
+        range.selectNodeContents(cell); // Selects all text content of the cell
+        selection.removeAllRanges(); // Removes any previous selection
+        selection.addRange(range); // Adds the new range (selection)
+    });
+
+    $(document).on('blur','.editable-cell', function() {
+        // Reset background color
+        $(this).css('background-color', '');
+    });
+    $("#saveButton").on("click", function () {
+        let requestData = [];
+        let valid = true;  // Flag to check if all fields are valid
+        let errorMessage = '';
+
+        // Iterate through each table row
+        $("tbody tr").each(function () {
+            let partNameCell = $(this).find(".part-name");
+            let partCodeCell = partNameCell.data("id");
+            let quantityCell = $(this).find("td:nth-child(2)");
+            let machineNameCell = $(this).find(".machine-name");
+            let descriptionCell = $(this).find(".description");
+            let machineCodeCell = machineNameCell.data("id");
+
+            // Validate fields
+            if (!partNameCell.text().trim()) {
+                valid = false;
+                errorMessage += "Part name is required.\n";
+            }
+            if (!partCodeCell) {
+                valid = false;
+                errorMessage += "Part code is required.\n";
+            }
+
+            if (!quantityCell.text().trim() || isNaN(quantityCell.text().trim()) || parseInt(quantityCell.text().trim()) <= 0) {
+                valid = false;
+                errorMessage += "Quantity must be a positive number.\n";
+            }
+
+            if (!machineNameCell.text().trim()) {
+                valid = false;
+                errorMessage += "Machine name is required.\n";
+            }
+
+            if (!descriptionCell.text().trim()) {
+                valid = false;
+                errorMessage += "Description is required.\n";
+            }
+            if (!machineCodeCell) {
+                valid = false;
+                errorMessage += "MachineCode is required.\n";
+            }
+            console.log(partNameCell,quantityCell,machineNameCell,machineCodeCell,descriptionCell);
+
+            // If all fields are valid, push the data
+            if (valid) {
+                requestData.push({
+                    part_name: partNameCell.text().trim(),
+                    part_code: partNameCell.data("id") || "",
+                    quantity: parseInt(quantityCell.text().trim()) || 0,
+                    machine_name: machineNameCell.text().trim(),
+                    machine_code: machineNameCell.data("id") || "",
+                    description: descriptionCell.text().trim(),
+                });
+            }
+        });
+
+        // If any invalid field, show error and prevent sending
+        if (!valid) {
+            alert("Please fill out all fields correctly:\n\n" + errorMessage);
+            return;  // Stop the form submission
+        }
+
+        // Send the data to the backend via AJAX
+        $.ajax({
+            url: "/api/save-purchase-request/",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ items: requestData }),
+            success: function (response) {
+                toastr.success("Purchase request saved successfully!");
+            },
+            error: function (error) {
+                toastr.error("Error saving purchase request!");
+                console.log(error);
+            }
+        });
     });
 });
 
