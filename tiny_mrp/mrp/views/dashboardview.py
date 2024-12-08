@@ -618,7 +618,7 @@ def get_monthly_production_data(request):
         else:
             result_data[jalali_day] = {
                 'daily_production': 0,  # Default production to 0 if not found
-                'daily_waste': record['daily_waste_total']
+                'daily_waste': round(record['daily_waste_total'],2)
             }
 
     # Format result data for JSON response
