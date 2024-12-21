@@ -21,3 +21,20 @@ def get_rank(dictionary, current_key):
 @register.filter
 def get_sum_item(dictionary):
     return sum(dictionary.values())
+@register.filter
+def sum_item_for_key(zayeat_vazn_dict):
+    total_vazn = 0
+    for zayeat_id, entries in zayeat_vazn_dict.items():
+        for entry in entries:
+            
+                total_vazn += entry['vazn']
+    return round(total_vazn,0)
+    
+@register.filter
+def sum_vazn_for_shift(zayeat_vazn_dict, shift_id):
+    total_vazn = 0
+    for zayeat_id, entries in zayeat_vazn_dict.items():
+        for entry in entries:
+            if entry['shift'] == shift_id:
+                total_vazn += entry['vazn']
+    return round(total_vazn,2)
