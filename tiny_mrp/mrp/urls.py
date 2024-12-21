@@ -8,7 +8,7 @@ from django.contrib.auth.views import LoginView,LogoutView
 from django.conf.urls.static import static
 urlpatterns = [
     path(        'login/',        LoginView.as_view(            template_name="mrp/registration/login.html",            ),        name='login'),
-    path(        'logout/',        LoginView.as_view(            template_name="mrp/registration/logout.html",            ),        name='logout'),
+    path(        'logout/',        LogoutView.as_view(            template_name="mrp/registration/logout.html",            ),        name='logout'),
 
 
     url(r'^$',index,name='index'),
