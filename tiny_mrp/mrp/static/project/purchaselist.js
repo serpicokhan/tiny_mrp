@@ -24,21 +24,21 @@ $(function () {
             //alert("3123@!");
             $(".ajax-content").html(data.parchase_req_html);
             feather.replace();
-            // new Quill('.compose-quill-editor', {
-            //     modules: {
-            //         toolbar: ".compose-quill-toolbar"
-            //     },
-            //     placeholder: "اینجا بنویسید...",
-            //     theme: "snow"
-            // });
+            new Quill('.compose-quill-editor', {
+                modules: {
+                    toolbar: ".compose-quill-toolbar"
+                },
+                placeholder: "اینجا بنویسید...",
+                theme: "snow"
+            });
             
-            // new Quill('.reply-email-quill-editor', {
-            //     modules: {
-            //         toolbar: ".reply-email-quill-toolbar"
-            //     },
-            //     placeholder: "اینجا بنویسید...",
-            //     theme: "snow"
-            // });
+            new Quill('.reply-email-quill-editor', {
+                modules: {
+                    toolbar: ".reply-email-quill-toolbar"
+                },
+                placeholder: "اینجا بنویسید...",
+                theme: "snow"
+            });
             
             
 
