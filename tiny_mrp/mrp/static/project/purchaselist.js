@@ -67,10 +67,12 @@ $(function () {
     });
 
     $(document).on('click', '.app-block .app-content .app-content-body .app-lists ul.list-group li.list-group-item', function (e) {
+        btn=$(this);
         if (!$(e.target).is('.custom-control, .custom-control *, a, a *')) {
             $('.app-detail').addClass('show').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function () {
                 $('.app-block .app-content .app-content-body .app-detail .app-detail-article').niceScroll().resize();
-                console.log(1);
+                console.log($(this));
+                loadForm(btn.attr("data-url"));
                
             });
         }

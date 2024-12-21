@@ -60,8 +60,9 @@ def update_purchase(request,id):
     req_items=RequestItem.objects.filter(purchase_request=company)
     if(request.method=="GET"):
         data=dict()
-        data["parchase_req_html"]=render_to_string('mrp/purchase/createReq.html', {
-                'maintenanceType': [],
+        data["parchase_req_html"]=render_to_string('mrp/purchase/updateReq.html', {
+                'company': company,
+                'items':req_items
                 
             })
         return JsonResponse(data)
