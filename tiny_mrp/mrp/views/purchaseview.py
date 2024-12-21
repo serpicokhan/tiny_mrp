@@ -10,7 +10,8 @@ import json
 def list_purchase(request):
     return render(request,"mrp/purchase/purchase.html",{})
 def list_purchase_req(request):
-    return render(request,"mrp/purchase/purchaseList.html",{})
+    requests=PurchaseRequest.objects.filter(user__userId=request.user)
+    return render(request,"mrp/purchase/purchaseList.html",{"req":requests})
 
 @csrf_exempt
 def save_purchase_request(request):

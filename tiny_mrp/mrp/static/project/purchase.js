@@ -23,13 +23,14 @@ $(document).ready(function() {
     const createPartsApiUrl = "/api/create-part/"; // Replace with your API endpoint for creating parts
     const fetchMachinesApiUrl = "/Asset/GetAssets"; // Replace with your API endpoint for fetching machines
     const createMachinesApiUrl = "/api/create-asset/"; // Replace with your API endpoint for creating machines
+    var createApiUrl='';
     $(document).on('click', '.dropdown-item:not(.create-new)', function() {
         // alert("123");
         const $dropdown = $(this).closest('.dropdown-menu');
         const $cell = $('[data-active="true"]'); // Assuming you mark the active cell
         
         if ($cell.length) {
-            alert("!");
+            
         const selectedName = $(this).data('name');
 
         const selectedId = $(this).data('id');
@@ -48,6 +49,10 @@ $(document).ready(function() {
     });
     $(document).on('click', '.create-new', function() {
         const newName = $(this).data('typed');
+        const $dropdown = $(this).closest('.dropdown-menu');
+
+        const $cell = $('[data-active="true"]'); // Assuming you mark the active cell
+
 
         // Call API to create new item
         $.ajax({
@@ -74,7 +79,8 @@ $(document).ready(function() {
     });
 
     // Generic function to handle dropdown and search
-    function handleSuggestions($cell, apiUrl, createApiUrl, type) {
+    function handleSuggestions($cell, apiUrl, createApiUrl2, type) {
+        createApiUrl=createApiUrl2;
         $cell.on('input', function() {
             const inputValue = $cell.text().trim();
 
@@ -91,11 +97,12 @@ $(document).ready(function() {
                 method: "GET",
                 data: { qry: inputValue },
                 success: function(data) {
-                    console.log(data);
+                    // console.log(data);
                     // Create dropdown
                     let dropdownHtml = '<div class="dropdown-menu show">';
                     data.forEach(item => {
                         if(type=="Part"){
+                            console.log(item);
                             dropdownHtml += `
                                 <button class="dropdown-item" 
                                         data-id="${item.id}" 
@@ -271,6 +278,8 @@ $(document).ready(function() {
             data: JSON.stringify({ items: requestData }),
             success: function (response) {
                 toastr.success("Purchase request saved successfully!");
+                $('.app-detail').removeClass('show');
+                return false;
             },
             error: function (error) {
                 toastr.error("Error saving purchase request!");
