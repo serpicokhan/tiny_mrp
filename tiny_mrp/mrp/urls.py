@@ -96,6 +96,7 @@ urlpatterns = [
     url(r'^profile/(?P<pk>\d+)/delete/$', profile_delete, name='profile_delete'),
     url(r'^Report/$', daily_tolid_with_chart, name='daily_tolid_with_chart'),
     url(r'^Purchase/$', list_purchase, name='list_purchase'),
+    url(r'^Purchase/Create$', create_purchase, name='create_purchase'),
     url(r'^Purchases/$', list_purchase_req, name='list_purchase_req'),
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
     url(r'^Asset/GetAssets$', asset_getAssets, name='asset_getAssets'),

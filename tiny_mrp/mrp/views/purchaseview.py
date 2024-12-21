@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset
+from django.template.loader import render_to_string
+
 import json
 
 def list_purchase(request):
@@ -44,3 +46,11 @@ def save_purchase_request(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
+def create_purchase(request):
+    if(request.method=="GET"):
+        data=dict()
+        data["parchase_req_html"]=render_to_string('mrp/purchase/createReq.html', {
+                'maintenanceType': [],
+                
+            })
+        return JsonResponse(data)

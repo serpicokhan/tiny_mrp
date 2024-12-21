@@ -1,7 +1,7 @@
 
 $(document).ready(function() {
     // Add New Row
-    $('#add-row').on('click', function() {
+    $(document).on('click','#add-row', function() {
         const newRow = `
             <tr>
                 <td contenteditable="true" class="editable-cell part-name" data-id="" data-partcode="">کالای جدید</td>
@@ -20,9 +20,58 @@ $(document).ready(function() {
 
     // API URLs
     const fetchPartsApiUrl = "/WoPart/GetParts"; // Replace with your API endpoint for fetching parts
-    const createPartsApiUrl = "http://127.0.0.1:8000/api/create-part/"; // Replace with your API endpoint for creating parts
+    const createPartsApiUrl = "/api/create-part/"; // Replace with your API endpoint for creating parts
     const fetchMachinesApiUrl = "/Asset/GetAssets"; // Replace with your API endpoint for fetching machines
-    const createMachinesApiUrl = "http://127.0.0.1:8000/api/create-asset/"; // Replace with your API endpoint for creating machines
+    const createMachinesApiUrl = "/api/create-asset/"; // Replace with your API endpoint for creating machines
+    $(document).on('click', '.dropdown-item:not(.create-new)', function() {
+        // alert("123");
+        const $dropdown = $(this).closest('.dropdown-menu');
+        const $cell = $('[data-active="true"]'); // Assuming you mark the active cell
+        
+        if ($cell.length) {
+            alert("!");
+        const selectedName = $(this).data('name');
+
+        const selectedId = $(this).data('id');
+
+        const selectedCode = $(this).data('code');
+
+        // Update the cell content and data attributes
+        $cell.text(selectedName);
+        $cell.attr('data-id', selectedId);
+        $cell.attr('data-code', selectedCode);
+
+        // Remove dropdown
+        $dropdown.remove();
+        $cell.removeAttr('data-active');
+        }
+    });
+    $(document).on('click', '.create-new', function() {
+        const newName = $(this).data('typed');
+
+        // Call API to create new item
+        $.ajax({
+            url: createApiUrl,
+            method: "post",
+            contentType: "application/json",
+            data: JSON.stringify({ name: newName }),
+            success: function(response) {
+                // Assume the response contains the newly created item's details
+                const newItem = response; // Example: { id: 100, code: "new_machine_code", name: "New Machine" }
+
+                // Update the cell content and data attributes
+                $cell.text(newItem.name);
+                $cell.attr('data-id', newItem.id);
+                $cell.attr('data-code', newItem.code);
+
+                // Remove dropdown
+                $dropdown.remove();
+            },
+            error: function() {
+                alert(`Error creating new ${type}. Please try again.`);
+            }
+        });
+    });
 
     // Generic function to handle dropdown and search
     function handleSuggestions($cell, apiUrl, createApiUrl, type) {
@@ -31,6 +80,7 @@ $(document).ready(function() {
 
             if (inputValue.length < 2) {
                 // Hide dropdown if input is too short
+                // $cell.removeAttr('data-active'); // Clear active state
                 $('.dropdown-menu').remove();
                 return;
             }
@@ -88,52 +138,14 @@ $(document).ready(function() {
                     $('body').append($dropdown);
 
                     // Select item from dropdown
-                    $dropdown.on('click', '.dropdown-item:not(.create-new)', function() {
-                        const selectedName = $(this).data('name');
-                        const selectedId = $(this).data('id');
-                        const selectedCode = $(this).data('code');
-
-                        // Update the cell content and data attributes
-                        $cell.text(selectedName);
-                        $cell.attr('data-id', selectedId);
-                        $cell.attr('data-code', selectedCode);
-
-                        // Remove dropdown
-                        $dropdown.remove();
-                    });
-
+                    
                     // Handle "Create New Item" click
-                    $dropdown.on('click', '.create-new', function() {
-                        const newName = $(this).data('typed');
-                       
-
-                        // Call API to create new item
-                        $.ajax({
-                            url: createApiUrl,
-                            method: "post",
-                            contentType: "application/json",
-                            data: JSON.stringify({ name: newName }),
-                            success: function(response) {
-                                // Assume the response contains the newly created item's details
-                                const newItem = response; // Example: { id: 100, code: "new_machine_code", name: "New Machine" }
-
-                                // Update the cell content and data attributes
-                                $cell.text(newItem.name);
-                                $cell.attr('data-id', newItem.id);
-                                $cell.attr('data-code', newItem.code);
-
-                                // Remove dropdown
-                                $dropdown.remove();
-                            },
-                            error: function() {
-                                alert(`Error creating new ${type}. Please try again.`);
-                            }
-                        });
-                    });
+                  
 
                     // Remove dropdown on blur
                     $cell.on('blur', function() {
-                        setTimeout(() => $dropdown.remove(), 200); // Allow time for click
+                        // $cell.removeAttr('data-active');
+                        setTimeout(() => $dropdown.remove(), 400); // Allow time for click
                     });
                 },
                 error: function() {
@@ -153,12 +165,22 @@ $(document).ready(function() {
 
     // Attach event for part-name
     $(document).on('focus', '.part-name', function() {
-        handleSuggestions($(this), fetchPartsApiUrl, createPartsApiUrl, "Part");
+        const $cell = $(this);
+        $('[data-active="true"]').removeAttr('data-active');
+
+        // Mark the current cell as active
+        $cell.attr('data-active', 'true');
+        handleSuggestions($cell, fetchPartsApiUrl, createPartsApiUrl, "Part");
     });
 
     // Attach event for machine-name
     $(document).on('focus', '.machine-name', function() {
-        handleSuggestions($(this), fetchMachinesApiUrl, createMachinesApiUrl, "Machine");
+        const $cell = $(this);
+        $('[data-active="true"]').removeAttr('data-active');
+
+        // Mark the current cell as active
+        $cell.attr('data-active', 'true');
+        handleSuggestions($cell, fetchMachinesApiUrl, createMachinesApiUrl, "Machine");
     });
     $(document).on('focus','.editable-cell', function() {
         var cell = this;
@@ -178,7 +200,7 @@ $(document).ready(function() {
         // Reset background color
         $(this).css('background-color', '');
     });
-    $("#saveButton").on("click", function () {
+    $(document).on("click",'#saveButton', function () {
         let requestData = [];
         let valid = true;  // Flag to check if all fields are valid
         let errorMessage = '';
