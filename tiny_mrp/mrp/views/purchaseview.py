@@ -55,3 +55,15 @@ def create_purchase(request):
                 
             })
         return JsonResponse(data)
+def update_purchase(request,id):
+    company=PurchaseRequest.objects.get(id=id)
+    req_items=RequestItem.objects.filter(purchase_request=company)
+    if(request.method=="GET"):
+        data=dict()
+        data["parchase_req_html"]=render_to_string('mrp/purchase/createReq.html', {
+                'maintenanceType': [],
+                
+            })
+        return JsonResponse(data)
+
+
