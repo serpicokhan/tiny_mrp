@@ -518,10 +518,18 @@ def production_chart2(request):
                         .values('machine__assetCategory__name')\
                         .annotate(total_production=Sum('production_value'))\
                         .order_by('machine__assetCategory__priority')
+    result = []
+    for item in production_data1:
+        if  item['machine__assetCategory__name']=="پاساژ":# Check if the key exists
+            result.append(round(int(item['total_production'])/3,0))
+        else:
+            result.append(round(int(item['total_production']),0))
+    
+    
     data.append(
         {
     'machines': [item['machine__assetCategory__name'] for item in production_data1],
-    'production_values': [int(item['total_production']) for item in production_data1],
+    'production_values': result,
     # 'date':str(jdatetime.date.fromgregorian(date=date_str).strftime("%d-%m-%Y")),
     'date':''
     # 'lable':f'شیفت {i.name}'
