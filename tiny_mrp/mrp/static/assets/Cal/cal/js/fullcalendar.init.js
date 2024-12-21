@@ -59,8 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Open a new window when an event is clicked
             confirm_it=confirm("اطلاعات به تاریخ جدید کپی شود؟");
             if(confirm_it){
-                console.log(info.oldEvent.start,info.event.start);
-                console.log(new Date(info.event.start).toLocaleDateString());
+                
                 $.ajax({
                     url: '/Tolid/Move/', // Your endpoint to update the event
                     type: 'POST',

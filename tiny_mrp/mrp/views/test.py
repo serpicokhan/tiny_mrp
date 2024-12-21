@@ -669,7 +669,7 @@ def get_tolid_calendar_info(request):
                 'start': i[0],\
                  'color': '#53c797',\
                 'id':i[0]})
-        data.append({'title': "جمع ضایعات روز: {}".format(float(z)),\
+        data.append({'title': "جمع ضایعات : {}".format(round(z,0)),\
                 'start': i[0],\
                  'color': 'red',\
                 'id':i[0]})
@@ -705,14 +705,14 @@ def move_tolid_calendar_info(request):
 def get_randeman_calendar_info(request):
     data=[]
     user_info=DailyProduction.objects.values_list('dayOfIssue').distinct()
-    print(user_info)
+    
     for i in user_info:
         z=get_sum_vaz_zayeat_by_date(i[0])
         data.append({'title': "راندمان روزانه",\
                 'start': i[0],\
                  'color': '#fb3',\
                 'id':i[0]})
-        data.append({'title': "جمع ضایعات روز: {}".format(float(z)),\
+        data.append({'title': "جمع ضایعات : {}".format(round(z,0)),\
                 'start': i[0],\
                  'color': 'red',\
                 'id':i[0]})
@@ -728,7 +728,7 @@ def get_tahlil_calendar_info(request):
                 'start': i[0],\
                  'color': '#a6c',\
                 'id':i[0]})
-        data.append({'title': "جمع ضایعات روز: {}".format(float(z)),\
+        data.append({'title': "جمع ضایعات : {}".format(float(z)),\
                 'start': i[0],\
                  'color': 'red',\
                 'id':i[0]})
