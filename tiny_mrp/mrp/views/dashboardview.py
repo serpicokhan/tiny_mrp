@@ -536,65 +536,86 @@ def production_chart2(request):
 def get_monthly_production_data(request):
     asset_category = request.GET.get('asset_category')  # Retrieve asset category from the request
 
-    jalali_today = jdatetime.date.today()
-    jalali_year = jalali_today.year
-    jalali_month = jalali_today.month
+    # Parse date range from request
+    start_date_str = request.GET.get('dt1', False)
+    end_date_str = request.GET.get('dt2', False)
 
-    start_of_month_gregorian = jdatetime.date(jalali_year, jalali_month, 1).togregorian()
-    end_of_month_gregorian = jalali_today.togregorian()  # up to the current day in the month
+    if start_date_str and end_date_str:
+        start_of_range_gregorian = DateJob.getTaskDate(start_date_str)
+        end_of_range_gregorian = DateJob.getTaskDate(end_date_str)
+    else:
+        jalali_today = jdatetime.date.today()
+        jalali_year = jalali_today.year
+        jalali_month = jalali_today.month
+        start_of_range_gregorian = jdatetime.date(jalali_year, jalali_month, 1).togregorian()
+        end_of_range_gregorian = jalali_today.togregorian()
 
-    production_data  = (
+    # Get production data
+    production_data = (
         DailyProduction.objects
         .filter(
             machine__assetCategory=asset_category,
-            dayOfIssue__range=[start_of_month_gregorian, end_of_month_gregorian]
+            dayOfIssue__range=[start_of_range_gregorian, end_of_range_gregorian]
         )
         .values('dayOfIssue')
         .annotate(daily_production_total=Sum('production_value'))
         .order_by('dayOfIssue')
     )
-    # Get daily waste data
+
+    # Get waste data
     waste_data = (
         ZayeatVaz.objects
         .filter(
-            dayOfIssue__range=[start_of_month_gregorian, end_of_month_gregorian]
+            dayOfIssue__range=[start_of_range_gregorian, end_of_range_gregorian]
         )
         .values('dayOfIssue')
         .annotate(daily_waste_total=Sum('vazn'))
     )
 
+    # Prepare result dictionary with full Jalali dates
     result_data = {}
     for record in production_data:
         gregorian_date = record['dayOfIssue']
-        jalali_day = jdatetime.date.fromgregorian(date=gregorian_date).day
-        result_data[jalali_day] = {
-            'daily_production': round(record['daily_production_total'],2),
+        jalali_date = jdatetime.date.fromgregorian(date=gregorian_date)
+        result_data[jalali_date] = {
+            'daily_production': round(record['daily_production_total'], 2),
             'daily_waste': 0  # Default waste to 0
         }
 
-    # Add waste data to the result dictionary, updating existing dates or adding new ones
     for record in waste_data:
         gregorian_date = record['dayOfIssue']
-        jalali_day = jdatetime.date.fromgregorian(date=gregorian_date).day
-        if jalali_day in result_data:
-            result_data[jalali_day]['daily_waste'] = round(record['daily_waste_total'],2)
+        jalali_date = jdatetime.date.fromgregorian(date=gregorian_date)
+        if jalali_date in result_data:
+            result_data[jalali_date]['daily_waste'] = round(record['daily_waste_total'], 2)
         else:
-            result_data[jalali_day] = {
+            result_data[jalali_date] = {
                 'daily_production': 0,  # Default production to 0 if not found
-                'daily_waste': record['daily_waste_total']
+                'daily_waste': round(record['daily_waste_total'], 2),
             }
+
+    # Include all dates in the range
+    current_date = start_of_range_gregorian
+    while current_date <= end_of_range_gregorian:
+        jalali_date = jdatetime.date.fromgregorian(date=current_date)
+        if jalali_date not in result_data:
+            result_data[jalali_date] = {
+                'daily_production': 0,
+                'daily_waste': 0,
+            }
+        current_date += timedelta(days=1)
 
     # Format result data for JSON response
     data = [
         {
-            'day': day,
-            'daily_production': result_data[day]['daily_production'],
-            'daily_waste': result_data[day]['daily_waste']
+            'date': jalali_date.strftime('%Y-%m-%d'),  # Include full Jalali date
+            'daily_production': result_data[jalali_date]['daily_production'],
+            'daily_waste': result_data[jalali_date]['daily_waste']
         }
-        for day in sorted(result_data.keys())
+        for jalali_date in sorted(result_data.keys())
     ]
 
     return JsonResponse(data, safe=False)
+
 def get_dashboard_production_sum(request):
     start_date_str = request.GET.get('stdate')
     end_date_str = request.GET.get('enddate')

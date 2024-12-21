@@ -214,8 +214,8 @@ $(function () {
            })
            .catch(error => console.error(`Error:`, error));
     }
-    var draw_line_current_month_tab_production=function(){
-      fetch(`/Dashboard/Tab/CurrentMonth/Production/Daily/?asset_category=7`)
+    var draw_line_current_month_tab_production=function(date1,date2){
+      fetch(`/Dashboard/Tab/CurrentMonth/Production/Daily/?asset_category=7&dt1=${date1}&dt2=${date2}`)
       .then(response => {
           if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
@@ -224,7 +224,8 @@ $(function () {
       })
       .then(data => {
           // Prepare data for the chart
-          const dates = data.map(item => item.day);
+          
+          const dates = data.map(item => item.date);
           const productionTotals = data.map(item => item.daily_production);
           const wasteTotals = data.map(item => item.daily_waste);
   
@@ -259,6 +260,9 @@ $(function () {
                   curve: 'smooth'
               }
           };
+          $('#barTabProductionChart').remove(); // this is my <canvas> element
+          $('#barTabProductionChartholder').append('<div id="barTabProductionChart"><div>');
+   
   
           const chart = new ApexCharts(document.querySelector("#barTabProductionChart"), options);
           chart.render();
@@ -337,7 +341,7 @@ $(function () {
       fetch('/Dashboard/Zayeat/StackedMonthly/')  // Replace with the URL of your Django view
       .then(response => response.json())
       .then(data => {
-          console.log(data);
+        //   console.log(data);
           var options = {
               chart: {
                   type: 'bar',
@@ -361,7 +365,7 @@ $(function () {
       fetch(`/Dashboard/AssetFailure/Monthly/?machine=${machine}&asset_type=${asset_type}`)  // Replace with the URL of your Django view
           .then(response => response.json())
           .then(data => {
-              console.log(data);
+            //   console.log(data);
               var options = {
                   chart: {
                       type: `bar`
@@ -387,7 +391,7 @@ $(function () {
       fetch(`/Dashboard/Production/Monthly/?machine=${machine}&asset_type=${asset_type}`)  // Replace with the URL of your Django view
           .then(response => response.json())
           .then(data => {
-              console.log(data);
+            //   console.log(data);
               var options = {
                   chart: {
                       type: `bar`,
@@ -460,6 +464,8 @@ $(function () {
   draw_bar_daily_asset_production($("#startdate").val(),$("#enddate").val());
   
   get_card_info($("#startdate").val(),$("#enddate").val());
+  draw_line_current_month_tab_production($("#startdate").val(),$("#enddate").val());
+  
   
   
   
