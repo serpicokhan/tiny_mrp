@@ -24,6 +24,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.db.models import Q
 from mrp.utils import utilMonth
+import csv
+from openpyxl import Workbook
 
 def backup_database(request):
     # Define your database credentials and output file's path
@@ -472,7 +474,7 @@ def show_daily_amar_tolid(request):
                     print(e)
             mx_speed=0
             if(max_speed>0):
-                print(f"{sum}/{max_speed}*{shifts.count()}")
+                # print(f"{sum}/{max_speed}*{shifts.count()}")
                 mx_speed=(sum/(max_speed*shifts.count()))*100
             if(m.id in (1,2,11)):
                  machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
@@ -511,9 +513,188 @@ def show_daily_amar_tolid(request):
 
 
 
-    return render(request,'mrp/tolid/daily_amar_tolid.html',{'shift':shifts,'machines_with_amar':machines_with_amar,'title':'راندمان روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
+    return render(request,'mrp/tolid/daily_amar_tolid.html',{'shift':shifts,'machines_with_amar':machines_with_amar,'title':'راندمان روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'q':q})
+
+def export_daily_amar_tolid(request):
+    q=request.GET.get('date',datetime.datetime.now().date())
+    date_object = datetime.datetime.strptime(q, '%Y-%m-%d')
+
+    next_day = date_object + timedelta(days=1)
+
+
+# Calculate previous day
+    previous_day = date_object - timedelta(days=1)
+    shifts=Shift.objects.all()
+    machines=Asset.objects.filter(Q(assetTypes=3)).order_by('assetCategory__priority','assetTavali')
+    machines_with_amar=[]
+    m_count=1
+
+    if(q):
+        sum_randeman=0
+        for index,m in enumerate(machines):
+
+            asset_types=get_asset_count(m.assetCategory)
+            shift_val=[]
+            sum=0
+
+            max_speed=1
+            sum_cat=0
+            for i in shifts:
+                try:
+                    amar=DailyProduction.objects.filter(machine=m,shift=i,dayOfIssue=q)
+                    if(amar.count()>0):
+                    # total_production2 = amar.aggregate(Sum('production_value'))['production_value__sum'] or 0
+                        shift_val.append({'value':amar[0].production_value,'shift':i})
+                        sum+=amar[0].production_value
+                        max_speed=amar[0].eval_max_tolid()
+                    else:
+                        shift_val.append({'value':0,'shift':i})
+
+                    # print(max_speed)
+
+
+                except Exception as e:
+                    shift_val.append({'value':0,'shift':i})
+                    print(e)
+            mx_speed=0
+            if(max_speed>0):
+                # print(f"{sum}/{max_speed}*{shifts.count()}")
+                mx_speed=(sum/(max_speed*shifts.count()))*100
+            if(m.id in (1,2,11)):
+                 machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
+
+            else:
+                machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
+
+            if(index<len(machines)):
+                sum_randeman+=mx_speed
+
+            # print(get_sum_machine_by_date_shift(m.assetCategory,q,i))
+
+            try:
+                if(machines[index].assetCategory !=machines[index+1].assetCategory and asset_types>1):
+
+                    x=[]
+                    for i in shifts:
+                        x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
+
+                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                    sum_randeman=0
+            except:
+
+                if(index==len(machines)-1 and asset_types>1):
+
+                    x=[]
+                    for i in shifts:
+                        x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
+                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                    sum_randeman=0
+
+                pass
+
+
+
+
+
+
+    # return render(request,'mrp/tolid/daily_amar_tolid.html',{'shift':shifts,'machines_with_amar':machines_with_amar,'title':'راندمان روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Exported Data"
+    shift_names = [shift.name for shift in shifts]
+
+    # Write headers
+    headers = ["نام دستگاه"] + shift_names + ["جمع"]  # Dynamic header
+    sheet.append(headers)
+
+    # Write data rows
+    queryset = machines_with_amar
+    for obj in queryset:
+        shift_values = [k["value"] for k in obj["shift_amar"]]
+        # for k in obj["shift_amar"]:
+        sheet.append([obj["machine"]]+shift_values+ [obj["sum"]])
+
+    # Create response
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="exported_data.xlsx"'
+    workbook.save(response)
+    return response
+
 
 def show_daily_amar_tolid_brief(request):
+    q=request.GET.get('date',datetime.datetime.now().date())
+    date_object = datetime.datetime.strptime(q, '%Y-%m-%d')
+
+    next_day = date_object + timedelta(days=1)
+
+
+# Calculate previous day
+    previous_day = date_object - timedelta(days=1)
+    shifts=Shift.objects.all()
+    machines=Asset.objects.filter(Q(assetTypes=3)).order_by('assetCategory__priority','assetTavali')
+    machines_with_amar=[]
+    m_count=1
+
+    if(q):
+        sum_randeman=0
+        for index,m in enumerate(machines):
+
+            asset_types=get_asset_count(m.assetCategory)
+            shift_val=[]
+            sum=0
+
+            max_speed=1
+            sum_cat=0
+            for i in shifts:
+                try:
+                    amar=DailyProduction.objects.filter(machine=m,shift=i,dayOfIssue=q)[0]
+                    # total_production2 = amar.aggregate(Sum('production_value'))['production_value__sum'] or 0
+                    shift_val.append({'value':amar.production_value,'shift':i})
+                    sum+=amar.production_value
+                    max_speed=amar.eval_max_tolid()
+                    
+
+
+                except Exception as e:
+                    shift_val.append({'value':0,'shift':i})
+            mx_speed=0
+            if(max_speed>0):
+                mx_speed=(sum/max_speed)*100
+            if(m.id in (1,2,11)):
+                 machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
+
+            # else:
+            #     machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
+
+            if(index<len(machines)):
+                sum_randeman+=mx_speed
+
+            # print(get_sum_machine_by_date_shift(m.assetCategory,q,i))
+
+            try:
+                if(machines[index].assetCategory !=machines[index+1].assetCategory and asset_types>1):
+
+                    x=[]
+                    for i in shifts:
+                        x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
+
+                    machines_with_amar.append({'machine':"{}".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                    sum_randeman=0
+            except:
+
+                if(index==len(machines)-1 and asset_types>1):
+
+                    x=[]
+                    for i in shifts:
+                        x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
+                    machines_with_amar.append({'machine':"{}".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                    sum_randeman=0
+
+                pass
+    return render(request,'mrp/tolid/daily_amar_tolid_brief.html',{'shift':shifts,'machines_with_amar':machines_with_amar,'title':'راندمان روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'q':q})
+        
+###############Export to Excel #############3
+def export_daily_amar_tolid_brief(request):
     q=request.GET.get('date',datetime.datetime.now().date())
     date_object = datetime.datetime.strptime(q, '%Y-%m-%d')
 
@@ -588,8 +769,25 @@ def show_daily_amar_tolid_brief(request):
 
 
 
+    # return render(request,'mrp/tolid/daily_amar_tolid_brief.html',{'shift':shifts,'machines_with_amar':machines_with_amar,'title':'راندمان روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Exported Data"
 
-    return render(request,'mrp/tolid/daily_amar_tolid_brief.html',{'shift':shifts,'machines_with_amar':machines_with_amar,'title':'راندمان روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
+    # Write headers
+    sheet.append(["نام دستگاه", "جمع"])  # Adjust fields
+
+    # Write data rows
+    queryset = machines_with_amar
+    for obj in queryset:
+        sheet.append([obj["machine"], obj["sum"]])
+
+    # Create response
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="exported_data.xlsx"'
+    workbook.save(response)
+    return response
+
 
 def show_daily_analyse_tolid(request):
         q=request.GET.get('date',datetime.datetime.now().date())
@@ -802,6 +1000,105 @@ def monthly_detaild_report(request):
         # print(cat_list)
 
     return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
+
+def monthly_detaild_export(request):
+    days=[]
+    shift=Shift.objects.all()
+    asset_category = AssetCategory.objects.all().order_by('priority')
+
+    current_date_time2 = jdatetime.datetime.now()
+    current_year=current_date_time2.year
+    j_month=request.GET.get('month',current_date_time2.month)
+
+    j_year=int(request.GET.get('year',current_year))
+    current_date_time = jdatetime.date(j_year, int(j_month), 1)
+    current_jalali_date = current_date_time
+
+
+
+
+
+    if current_jalali_date.month == 12:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=j_year + 1)
+    else:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=current_jalali_date.month + 1)
+
+
+    num_days = (first_day_of_next_month - jdatetime.timedelta(days=1)).day
+    cat_list=[]
+    for cats in asset_category:
+        sh_list=[]
+
+        days=[]
+        for day in range(1,num_days+1):
+            product={}
+            j_date=jdatetime.date(j_year,current_jalali_date.month,day)
+            # print(j_date,'!!!!!!!!!!!!!')
+            for sh in shift:
+                product[sh.id]=get_sum_machine_by_date_shift(cats,sh,j_date.togregorian())
+                # print(product[sh.id])
+            days.append({'cat':cats,'date':"{0}/{1}/{2}".format(j_year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
+        product={}
+        start=jdatetime.date(j_year,current_jalali_date.month,1)
+        end=jdatetime.date(j_year,current_jalali_date.month,num_days)
+        for sh in shift:
+            product[sh.id]=get_monthly_machine_by_date_shift(cats,sh,start.togregorian(),end.togregorian())
+        days.append({'cat':cats,'date':"",'day_of_week':'جمع','product':product})
+        failure_days={}
+        for sh in shift:
+            failure_days[sh.id]=get_day_machine_failure_monthly_shift(cats,sh,start.togregorian(),end.togregorian())
+
+        total_day_per_shift={}
+        for sh in shift:
+            total_day_per_shift[sh.id]=num_days-failure_days[sh.id]
+        days.append({'cat':cats,'date':"",'day_of_week':'روز کاری','product':total_day_per_shift})
+        mean_day_per_shift={}
+        for sh in shift:
+            mean_day_per_shift[sh.id]=product[sh.id]/total_day_per_shift[sh.id]
+
+        days.append({'cat':cats,'date':"",'day_of_week':'میانگین','product':mean_day_per_shift})
+
+
+        cat_list.append({'cat':cats,'shift_val':days})
+        # print(cat_list)
+
+    # return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
+    workbook = Workbook()
+    sheet = workbook.active
+    # sheet.title = "Exported Data"
+    shift_names = [shif.name for shif in shift]
+
+    # # Write headers
+    # headers = ["نام دستگاه"] + shift_names + ["جمع"]  # Dynamic header
+    # sheet.append(headers)
+    for sheet_name in cat_list:
+        # Create a new sheet for each dataset
+        sheet = workbook.create_sheet(title=sheet_name["cat"].name)
+
+        # Add headers (you can customize these per dataset if needed)
+        headers = ["روز هفته", "تاریخ"]+shift_names+ ["جمع"]  # Adjust fields as per your models
+        sheet.append(headers)
+        for day in sheet_name["shift_val"]:
+            if sheet_name["cat"] == day["cat"]:
+                print(day["product"])
+                sheet.append([day["day_of_week"],day["date"],day["product"][1],day["product"][2],day["product"][3],(day["product"][2]+day["product"][2]+day["product"][3])])#,day["product"][shift[0].id]])#+shift_values+ [obj["sum"]])
+
+
+
+    # Write data rows
+    # queryset = machines_with_amar
+    # for obj in queryset:
+    #     shift_values = [k["value"] for k in obj["shift_amar"]]
+    #     # for k in obj["shift_amar"]:
+    #     sheet.append([obj["machine"]]+shift_values+ [obj["sum"]])
+
+    # # Create response
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="exported_data.xlsx"'
+    workbook.save(response)
+    return response
+
+
 def monthly_brief_report(request):
     shifts=Shift.objects.all()
     asset_cats=AssetCategory.objects.all().order_by('priority')
@@ -861,6 +1158,94 @@ def monthly_brief_report(request):
 
 
     return render(request,'mrp/tolid/monthly_brief.html',{'cats':totals,'sum':sum,'shift':shifts,'title':'آمار ماهانه کلی','month':j_month,'year':j_year})
+
+
+def monthly_brief_export(request):
+    shifts=Shift.objects.all()
+    asset_cats=AssetCategory.objects.all().order_by('priority')
+    current_date_time2 = jdatetime.datetime.now()
+
+    current_year=current_date_time2.year
+    j_month=request.GET.get('month',current_date_time2.month)
+
+    j_year=int(request.GET.get('year',current_year))
+    current_date_time = jdatetime.date(j_year, int(j_month), 1)
+    current_jalali_date = current_date_time
+    if current_jalali_date.month == 12:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=j_year + 1)
+    else:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=current_jalali_date.month + 1)
+
+
+    num_days = (first_day_of_next_month - jdatetime.timedelta(days=1)).day
+
+    totals=[]
+    sum={}
+    for sh in shifts:
+        sum[sh.id]=0
+
+    for cats in asset_cats:
+            product={}
+            start=jdatetime.date(j_year,current_jalali_date.month,1)
+            end=jdatetime.date(j_year,current_jalali_date.month,num_days)
+            for sh in shifts:
+                product[sh.id]=get_monthly_machine_by_date_shift(cats,sh,start.togregorian(),end.togregorian())
+
+            # days.append({'cat':cats,'date':"",'day_of_week':'جمع','product':product})
+            failure_days={}
+            for sh in shifts:
+                failure_days[sh.id]=get_day_machine_failure_monthly_shift(cats,sh,start.togregorian(),end.togregorian())
+
+            total_day_per_shift={}
+            for sh in shifts:
+
+                total_day_per_shift[sh.id]=num_days-failure_days[sh.id]
+            # days.append({'cat':cats,'date':"",'day_of_week':'روز کاری','product':total_day_per_shift})
+            mean_day_per_shift={}
+            for sh in shifts:
+                # if(cats.id==9 or cats.id==10):
+                #     mean_day_per_shift[sh.id]=2000
+                #     sum[sh.id]+=2000
+                # else:
+
+
+                mean_day_per_shift[sh.id]=product[sh.id]/total_day_per_shift[sh.id]
+                sum[sh.id]+=mean_day_per_shift[sh.id]
+
+
+            totals.append({'cat':cats,'date':"",'day_of_week':'میانگین','product':mean_day_per_shift})
+
+
+
+
+    # return render(request,'mrp/tolid/monthly_brief.html',{'cats':totals,'sum':sum,'shift':shifts,'title':'آمار ماهانه کلی','month':j_month,'year':j_year})
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Exported Data"
+    shift_names = [shift.name for shift in shifts]
+
+    # Write headers
+    headers = ["نام دستگاه"] + shift_names + ["جمع"]  # Dynamic header
+    sheet.append(headers)
+
+    # Write data rows
+    queryset = totals
+    for obj in queryset:
+        # shift_values = [k["product"] for k in obj["product"]]
+        # for k in obj["shift_amar"]:
+        sheet.append([obj["cat"].name,obj["product"][1],obj["product"][2],obj["product"][3],obj["product"][1]+obj["product"][2]+obj["product"][3]])
+    sum_sum=0
+    for val in sum.items():
+        sum_sum+=val[1]
+
+    sheet.append(["جمع"]+[value for key, value in sum.items()]+[sum_sum])
+    # Create response
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="exported_data.xlsx"'
+    workbook.save(response)
+    return response
+
+
 
 
 

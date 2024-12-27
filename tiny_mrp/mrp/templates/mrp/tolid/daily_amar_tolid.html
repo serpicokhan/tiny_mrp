@@ -15,28 +15,13 @@
                                 <!-- <button type="button" name="button" class="btn btn-outline-light" id="save_production">ذخیره</button> -->
                               </li>
                                 <li class="list-inline-item mb-0">
-                                    <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown">
-                                        انتخاب بر اساس
-                                    </a>
-                                    <div class="dropdown-menu">
-                                        <!-- <a class="dropdown-item" href="#">خوانده شده</a>
-                                        <a class="dropdown-item" href="#">خوانده نشده</a>
-                                        <a class="dropdown-item" href="#">اسپم</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="#">حذف</a> -->
-                                    </div>
-                                </li>
+                                    
 
                                 <li class="list-inline-item mb-0">
-                                    <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown">
-چینش                                     </a>
-                                    <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item" href="#">تاریخ</a>
-                                        <a class="dropdown-item" href="#">از</a>
-                                        <a class="dropdown-item" href="#">موضوغ</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#">اندازه</a>
-                                    </div>
+                                    <a href="{% url 'export_daily_amar_tolid' %}?date={{q}}" class="btn btn-outline-light" >
+
+اکسپورت                                     </a>
+                                   
                                 </li>
                             </ul>
                         </div>

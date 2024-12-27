@@ -10,6 +10,7 @@
         <div class="app-action">
             <div class="action-left">
                 <div class="custom-control custom-checkbox mr-3">
+                   
             
 
                     <select class="form-control" id="year">
@@ -29,6 +30,8 @@
             </div>
             <div class="action-right">
                 <form class="d-flex mr-3">
+                    <a href="{% url 'monthly_detaild_export' %}?month={{month}}&year={{year}}" class="btn btn-outline-light " >اکسپورت
+                    </a>
                     <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu width-15 height-15"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                     </a>

@@ -152,7 +152,7 @@ def get_sum__speed_machine_by_category(assetCatregory,target_date):
         machine__assetCategory=assetCatregory,
         dayOfIssue=target_date
         )
-        print(t2.count(),assetCatregory)
+        # print(t2.count(),assetCatregory)
 
         for i in t2:
             if(i.eval_max_tolid()>0):
@@ -161,7 +161,7 @@ def get_sum__speed_machine_by_category(assetCatregory,target_date):
                 sum+=0
         # print(machine.id,target_date,production_sum)
         i=t2.count()
-        print(sum)
+        # print(sum)
         if(i>0):
             m_count=Asset.objects.filter(assetCategory=assetCatregory).count()
             return sum/(shift*m_count)
@@ -171,7 +171,7 @@ def get_sum_vaz_zayeat_by_date(specific_date):
 
     # Access the sum value
     total_vazn_for_specific_date = sum_vazn['total_vazn'] or 0  # Default to 0 if there's no sum
-    print(total_vazn_for_specific_date)
+    # print(total_vazn_for_specific_date)
     return total_vazn_for_specific_date
 
 def get_randeman_per_tolid_byshift(mah,sal,asset_cat,shift):
@@ -224,7 +224,7 @@ def calc_assetrandeman(mah,sal):
            
 
             kole_tolid=get_randeman_per_tolid(mah,sal,i)        
-            print(f"kole_randeman:{0},tolid_shift:{1},kole_tolid",kole_randeman)
+            # print(f"kole_randeman:{0},tolid_shift:{1},kole_tolid",kole_randeman)
 
             result=0
             if(kole_tolid==0):
@@ -245,7 +245,7 @@ def create_first_padash(AssetRandemanListId):
     tolid_rank=get_tolid_rank(asset_randeman.sal,asset_randeman.mah)
     sorted_footballers_by_goals = sorted(tolid_rank, key=tolid_rank.get,reverse=True)
 
-    print(sorted_footballers_by_goals)
+    # print(sorted_footballers_by_goals)
     for i in shifts:
         # padash_tolid=TolidPadash.objects.create(profile=asset_randeman.profile,rank=i.id,price_sarshift=0,price_personnel=0)
         # print(tolid_rank.index(i.id),'!!!!!!!!!')
