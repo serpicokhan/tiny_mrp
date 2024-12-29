@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import modelformset_factory
 from mrp.models import *
 class ZayeatVaznForm(forms.ModelForm):
     class Meta:
@@ -6,7 +7,7 @@ class ZayeatVaznForm(forms.ModelForm):
          fields = '__all__'
 
 class AssetFailureForm(forms.ModelForm):
-    asset_name= forms.ModelChoiceField(label="نام مکان",queryset=Asset.objects.filter(assetIsLocatedAt__isnull=False),empty_label=None,
+    asset_name= forms.ModelChoiceField(label="نام مکان",queryset=Asset.objects.filter(assetTypes=3),empty_label=None,
     widget=forms.Select(attrs={'class':'selectpicker','data-live-search':'true'}),required=False)
     class Meta:
          model = AssetFailure
@@ -34,7 +35,7 @@ class NezafatPadashForm(forms.ModelForm):
          exclude = ('profile',)
 class AssetFailureForm2(forms.Form):
     asset_name = forms.ModelMultipleChoiceField(
-        queryset=Asset.objects.filter(assetIsLocatedAt__isnull=False),
+        queryset=Asset.objects.filter(assetTypes=3).order_by('assetCategory__priority','assetTavali'),
         widget=forms.SelectMultiple,
         label="نام تجهیز",
         required=True
@@ -97,3 +98,19 @@ class AssetRandemanForm(forms.ModelForm):
     class Meta:
          model = AssetRandemanList
          fields = '__all__'
+
+class EntryFormForm(forms.ModelForm):
+    class Meta:
+        model = EntryForm
+        fields = ['color', 'name', 'tool', 'la']
+class AssetDetailForm(forms.ModelForm):
+    class Meta:
+        model = AssetDetail
+        fields = ['asset_category', 'nomre', 'speed']
+# Create a formset for AssetDetail
+AssetDetailFormSet = modelformset_factory(
+    AssetDetail,
+    form=AssetDetailForm,
+    extra=0,  # No extra blank forms; we populate dynamically
+    can_delete=False
+)

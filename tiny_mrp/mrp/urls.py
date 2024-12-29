@@ -98,6 +98,9 @@ urlpatterns = [
     url(r'^Report/$', daily_tolid_with_chart, name='daily_tolid_with_chart'),
     url(r'^Dashboard/Tab/CurrentMonth/Production/Daily/$', get_monthly_production_data, name='get_monthly_production_data'),
     url(r'^Dashboard/Card/Info/$', get_dashboard_production_sum, name='get_dashboard_production_sum'),
+    url(r'^Tolid/Moshakhase/Create/$', create_entry_form, name='create_entry_form'),
+    url(r'^Tolid/Moshakhase/(?P<entry_id>\d+)/Update/$', update_entry_form, name='update_entry_form'),
+    url(r'^Tolid/Moshakhase$', list_entry_form, name='list_entry_form'),
 
 
 

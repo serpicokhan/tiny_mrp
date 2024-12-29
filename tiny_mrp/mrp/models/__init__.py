@@ -5,5 +5,5 @@ from mrp.models.users import *
 from mrp.models.failure import *
 from mrp.models.assetfailure import *
 
-
+from mrp.models.moshakhasat import *
 

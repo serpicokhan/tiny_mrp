@@ -1,0 +1,13 @@
+{% for c in list  %}
+<tr>
+  <td>{{c.color}}</td>
+  <td>{{c.name}}</td>
+  <td>{{c.tool}}</td>
+  <td>{{c.la}}</td>
+  <td>
+    <button type="button" class="btn btn-outline-light js-update-button" data-url="{% url 'update_entry_form' c.id %}">  <i class="ti-eye"></i></button>
+
+    <button type="button" class="btn btn-outline-light js-failure-delete" data-url="/Failures/12/delete">  <i class="ti-close"></i></button>
+  </td>
+</tr>
+{% endfor %}
