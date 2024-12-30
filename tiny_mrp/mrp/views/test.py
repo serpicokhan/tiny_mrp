@@ -127,9 +127,11 @@ def register_daily_amar(request):
 
     # Create a list of dictionaries in the desired format
     moshakhasat = []
-
+    # entry_data=None
+    # asset_details=None
     for entry in entry_forms:
         entry_data = entry
+        
         asset_details = [
             {
                 "id": asset.id,
@@ -140,10 +142,13 @@ def register_daily_amar(request):
             }
             for asset in entry.asset_details.all()
         ]
-    moshakhasat.append({
-        "entry": entry_data,
-        "assetdetail": json.dumps(asset_details),
-    })
+    try:
+        moshakhasat.append({
+            "entry": entry_data,
+            "assetdetail": json.dumps(asset_details),
+        })
+    except:
+        pass
     # Calculate previous day
     previous_day = date_object - timedelta(days=1)
     shift_id=request.GET.get('shift_id',False)
