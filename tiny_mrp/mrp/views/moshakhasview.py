@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect,get_object_or_404
-from mrp.models import EntryForm, AssetCategory, AssetDetail,Color
+from mrp.models import EntryForm, AssetCategory2, AssetDetail,Color
 from mrp.forms import EntryFormForm
 def create_entry_form(request):
     if request.method == "POST":
@@ -18,7 +18,7 @@ def create_entry_form(request):
         )
 
         # Extract and save asset details
-        asset_categories = AssetCategory.objects.all()
+        asset_categories = AssetCategory2.objects.all()
         for category in asset_categories:
             nomre = request.POST.get(f'nomre_{category.id}')
             speed = request.POST.get(f'speed_{category.id}')
@@ -36,7 +36,8 @@ def create_entry_form(request):
 
     else:
         # Render the form with all asset categories
-        asset_categories = AssetCategory.objects.all()
+        asset_categories = AssetCategory2.objects.all()
+        
         form=EntryFormForm()
         return render(request, 'mrp/moshakhase/create_entry_form.html', {
             'asset_categories': asset_categories,'form':form
@@ -52,7 +53,7 @@ def update_entry_form(request, entry_id):
 
         # Handle AssetDetails
         updated_details = []
-        for category in AssetCategory.objects.all():
+        for category in AssetCategory2.objects.all():
             nomre = request.POST.get(f'nomre_{category.id}')
             speed = request.POST.get(f'speed_{category.id}')
             if nomre is not None and speed is not None:
@@ -83,7 +84,7 @@ def update_entry_form(request, entry_id):
         entry_form = EntryFormForm(instance=entry_form_instance)
 
         # Prepare data for the AssetDetails table
-        asset_categories = AssetCategory.objects.all()
+        asset_categories = AssetCategory2.objects.all()
         asset_data = []
         for category in asset_categories:
             asset_detail = asset_details.filter(asset_category=category).first()

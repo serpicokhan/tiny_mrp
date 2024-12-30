@@ -140,7 +140,7 @@ $(function () {
               // console.log(formula);
                 var result = eval(formula);
                 console.log(result)
-                return result.toFixed(2); // Adjust as needed
+                return result.toFixed(0); // Adjust as needed
             } catch (error) {
                 console.error("Error evaluating formula:", error);
                 return 0;
@@ -188,7 +188,7 @@ $(function () {
             formula = formula.replace("Z", Z).replace("p", P).replace("Q",Q);
             try {
                 var result = eval(formula);
-                return result.toFixed(2); // Adjust as needed
+                return result.toFixed(0); // Adjust as needed
             } catch (error) {
                 console.error("Error evaluating formula:", error);
                 return "Error";
@@ -219,8 +219,12 @@ var tableDataToJSON=function(tableId){
         // console.log($(this).find('td.nomre').text());
         var counter1 = $(this).find('td.counter1').text()||0;
         var counter2 = $(this).find('td.counter2').text()||0;
+        var wastage = $(this).find('td.waste').text()||0;
         var vahed = parseInt($(this).find('td.vahed').text()||0);
         var actual_vahed = $(this).find('td.editable-cell').attr('data-vahed');
+        var moshakhase = $(this).find('select.moshakhase').val()||-1;
+        console.log("1",wastage);
+
         // if(vahed > actual_vahed){
         //   toastr.error(`${vahed} ${actual_vahed}`);
         //   return;
@@ -229,7 +233,7 @@ var tableDataToJSON=function(tableId){
 
 
         data.push({id:amar_id, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
-          , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed
+          , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed,moshakhase:moshakhase,waste:wastage
            });
          }
       });
@@ -253,7 +257,7 @@ $("#save_production").click(function(){
 });
 
 
-console.log(JSON.stringify(sendData));
+// console.log(JSON.stringify(sendData));
   // AJAX request to send data to the server
   $.ajax({
     url: '/Tolid/SaveTableInfo',
@@ -383,7 +387,7 @@ console.log(JSON.stringify(sendData));
 
       },
       success: function (data) {
-        console.log(data);
+        // console.log(data);
     $(".tab-content").empty();
     $(".tab-content").html(data.html_heatset_result);
     $("#btn_next_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.next_date}&shift_id=${$("#select_shift").val()}`);
@@ -499,4 +503,56 @@ $(".tab-content").on("keydown", ".editable-cell, .editable-cell2", function(e) {
   $("#select_shift2").change(function(){
     window.location=`/Tolid/DailyDetails?event_id=${getQueryParameter('event_id')}&shift_id=${$(this).val()}`;
   });
+  
+    $(".tab-content").on("change",".moshakhase",function () {
+        const selectedOption = $(this).find(":selected");
+        const assetDetails = selectedOption.data("assetdetails"); // Fetch the JSON data
+
+        if (assetDetails) {
+          
+          const assetCategoryId = $(this)  // Select the <select> element
+          .closest("td")          // Find the closest parent <td>
+          .prev("td").attr('data-assetCategory2')           // Find the previous sibling <td>
+          // .data('assetCategory2');  
+          console.log(assetCategoryId);
+
+          const matchingDetail = assetDetails.find(detail => detail.asset_category_id == assetCategoryId);
+          // console.log(matchingDetail);
+          $(this)  // Select the <select> element
+          .closest("tr")          // Find the closest parent <td>
+          .find('td.nomre').text(matchingDetail.nomre)
+          $(this)  // Select the <select> element
+          .closest("tr")          // Find the closest parent <td>
+          .find('td.speed').text(matchingDetail.speed)
+
+          var row = $(this).closest("tr");
+            var nomre = parseFloat(row.find(".nomre").text()) || 0;
+            
+            var counter1 = parseFloat(row.find(".counter1").text()) || 0;
+            var counter2 = parseFloat(row.find(".counter2").text()) || 0;
+            // var vahed = parseInt(row.find(".vahed").text()) || 0;
+            var z = parseFloat(row.find(".speed").text()) || 0;
+            var p = parseFloat(row.find(".nomre").text()) || 0;
+            var q = parseFloat(row.find(".vahed").text()) || 0;
+            var q1 = parseFloat(row.find(".vahed").data("vahed")) || 0;
+            var formula2 = row.find("[data-maxformula]").data("maxformula");
+            var formula = row.find(".production").data("formula");
+            // console.log(nomre);
+            
+            
+            var result = evaluateFormula(formula, nomre,counter2-counter1,q);
+
+           
+
+            // var result = evaluateFormula(formula, nomre,counter2-counter1,q);
+            row.find("[data-formula]").text(result);
+            var result = evaluateFormula2(formula2, p,z,q1);
+            row.find(".production_full").text(result);
+
+
+          }
+        // }
+    });
+
+
 });

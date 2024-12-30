@@ -42,6 +42,7 @@ class ProductionStandard(models.Model):
 class DailyProduction(models.Model):
     machine = models.ForeignKey(Asset, on_delete=models.CASCADE,related_name="dailyproduction_machine")
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE,related_name="dailyproduction_shift")
+    moshakhase = models.ForeignKey("EntryForm", on_delete=models.SET_NULL,related_name="dailyproduction_shift",blank=True,null=True)
     dayOfIssue = models.DateField()
     timestamp = models.DateTimeField(auto_now_add=True)
     register_user = models.CharField(max_length=100)
@@ -50,6 +51,7 @@ class DailyProduction(models.Model):
     counter1 = models.FloatField()
     counter2 = models.FloatField()
     vahed = models.FloatField()
+    zayeat = models.FloatField(default=0)
     production_value = models.FloatField(blank=True, null=True)  # Result of the formula
     daf_num = models.FloatField(null=True, blank=True)
     dook_weight = models.FloatField(null=True, blank=True)
@@ -69,7 +71,7 @@ class DailyProduction(models.Model):
     metrajdaf8 = models.FloatField(null=True, blank=True)
     makhraj_metraj_daf = models.FloatField(null=True, blank=True)
     def __str__(self):
-        return f"{self.nomre} , {self.speed} ,{self.counter2}, {self.machine}"
+        return f"{self.zayeat} , {self.speed} ,{self.counter2}, {self.machine}"
     def eval_max_tolid(self):
         if self.machine:
                 formula_obj = SpeedFormula.objects.get(machine=self.machine)

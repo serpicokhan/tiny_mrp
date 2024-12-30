@@ -16,6 +16,7 @@
           <thead class="thead-dark">
             <tr>
               <th>نام ماشین</th>
+              <th>مشخصات</th>
               <th>واحد</th>
 
               <th>نمره</th>
@@ -25,6 +26,7 @@
               <th> کنتور انتهای شیفت</th>
               <th>100%</th>
               <th>تولید</th>
+              <th>ضایعات</th>
 
             </tr>
           </thead>
@@ -34,7 +36,15 @@
             
             {% if c.machine.assetCategory.id == cat_item.id %}
             <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
-              <td>{{c.machine.assetName}}</td>
+              <td data-assetcategory2="{{c.machine.assetCategory2.id}}">{{c.machine.assetName}}</td>
+              <td><select name="moshakhase" class="form-control select moshakhase" required="">
+                <option value="-1" {% if not c.moshakhase %} selected {% endif %}>---------</option>
+                {% for moshakhase in moshakhasat %}
+              
+                <option value="{{moshakhase.entry.id}}" data-assetdetails='{{moshakhase.assetdetail}}' {% if c.amar.moshakhase.id == moshakhase.entry.id %} selected {% endif %}>{{moshakhase.entry}}</option>
+              
+                {% endfor %}
+              </select></td>
               <td contenteditable="true" class="editable-cell btc vahed selectable1 " data-vahed="{{c.machine.assetVahed}}">{{c.amar.vahed}}</td>
 
               <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
@@ -43,10 +53,11 @@
 
               <td contenteditable="true" class="editable-cell btc counter1 selectable1">{{c.amar.counter1}}</td>
               <td contenteditable="true" class="editable-cell btc counter2 selectable1">{{c.amar.counter2}}</td>
-              <td contenteditable="true" class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}" >{{c.amar.eval_max_tolid}}</td>
+              <td contenteditable="true" class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}" >{{c.amar.eval_max_tolid|floatformat:0}}</td>
 
 
               <td contenteditable="true" data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
+              <td contenteditable="true"  class='waste'>{{c.amar.zayeat}}</td>
 
             </tr>
             {% endif %}

@@ -122,9 +122,29 @@ def register_daily_amar(request):
     date_object=datetime.datetime.now()
     next_day = date_object + timedelta(days=1)
     asset_category = AssetCategory.objects.all().order_by('priority')
+    # moshakhasat=EntryForm.objects.all()
+    entry_forms = EntryForm.objects.prefetch_related('asset_details__asset_category')
 
+    # Create a list of dictionaries in the desired format
+    moshakhasat = []
 
-# Calculate previous day
+    for entry in entry_forms:
+        entry_data = entry
+        asset_details = [
+            {
+                "id": asset.id,
+                "asset_category": asset.asset_category.name,  # Assuming AssetCategory2 has a `name` field
+                "asset_category_id": asset.asset_category.id,  
+                "nomre": asset.nomre,
+                "speed": asset.speed,
+            }
+            for asset in entry.asset_details.all()
+        ]
+    moshakhasat.append({
+        "entry": entry_data,
+        "assetdetail": json.dumps(asset_details),
+    })
+    # Calculate previous day
     previous_day = date_object - timedelta(days=1)
     shift_id=request.GET.get('shift_id',False)
     selected_date=request.GET.get('selected_date',False)
@@ -172,7 +192,7 @@ def register_daily_amar(request):
         except DailyProduction.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'vahed':machine.assetVahed})
 
-    return render(request,"mrp/tolid/details_aria.html",{'selected_date':selected_date,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d'),'shift_id':int(shift_id)})
+    return render(request,"mrp/tolid/details_aria.html",{'selected_date':selected_date,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d'),'shift_id':int(shift_id),'moshakhastat':moshakhasat})
 @login_required
 def tolid_heatset(request):
     machines=Asset.objects.filter(assetCategory__id=8)
@@ -241,15 +261,19 @@ def saveAmarTableInfo(request):
                 x.machine=m
                 x.shift=s
                 x.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
-                if(s.id==1):
-                    print(i)
-                    print('!!!!!!!!',i["speed"],i["id"],s.id)
+                # if(s.id==1):
+                #     print(i)
+                #     print('!!!!!!!!',i["speed"],i["id"],s.id)
                 x.speed=i["speed"]
                 x.nomre=i["nomre"]
                 x.counter1=float(i["counter1"])
                 x.counter2=float(i["counter2"])
                 x.vahed=int(i["vahed"])
                 x.production_value=float(i["production_value"])
+                if(i["moshakhase"]!="-1"):
+                    x.moshakhase=EntryForm.objects.get(id=i["moshakhase"]) #if i["production_value"]!="-1" else None
+                x.zayeat=float(i["waste"])
+
                 try:
                     x.save()
                 except IntegrityError:
@@ -272,6 +296,9 @@ def saveAmarTableInfo(request):
                 amar.vahed=float(i["vahed"])
                 
                 amar.production_value=float(i["production_value"])
+                amar.zayeat=float(i["waste"])
+                if(i["moshakhase"]!="-1"):
+                    amar.moshakhase=EntryForm.objects.get(id=i["moshakhase"]) 
                 try:
                     amar.save()
                     print("done!!!")
@@ -1455,6 +1482,27 @@ def list_amar_daily_info(request):
 
         data=dict()
         asset_category = AssetCategory.objects.all().order_by('priority')
+        entry_forms = EntryForm.objects.prefetch_related('asset_details__asset_category')
+
+    # Create a list of dictionaries in the desired format
+        moshakhasat = []
+
+        for entry in entry_forms:
+            entry_data = entry
+            asset_details = [
+                {
+                    "id": asset.id,
+                    "asset_category": asset.asset_category.name,  # Assuming AssetCategory2 has a `name` field
+                    "asset_category_id": asset.asset_category.id,  
+                    "nomre": asset.nomre,
+                    "speed": asset.speed,
+                }
+                for asset in entry.asset_details.all()
+            ]
+        moshakhasat.append({
+            "entry": entry_data,
+            "assetdetail": json.dumps(asset_details),
+        })
         # annotate(
         # min_priority=models.Min('asset__assetTavali')
         # ).order_by('min_priority')
@@ -1496,10 +1544,10 @@ def list_amar_daily_info(request):
                     formula = Formula.objects.get(machine=machine)
                     speedformula = SpeedFormula.objects.get(machine=machine)
                     max_nomre = DailyProduction.objects.filter(machine=machine).aggregate(Max('nomre'))
-                    print(max_nomre['nomre__max'],'!!!!!!!!!!!!!!!!')
 
                     new_daily_production = DailyProduction(
                     machine=machine,
+                    zayeat=0,
                     shift=s,
                     dayOfIssue=dayOfIssue,
                     vahed=machine.assetVahed,
@@ -1544,7 +1592,7 @@ def list_amar_daily_info(request):
 
 
         data['html_heatset_result'] = render_to_string('mrp/tolid/partialAssetAmarList.html',{
-            'machines':machines_with_formulas,'cat_list':asset_category,'shift_id':s.id,
+            'machines':machines_with_formulas,'cat_list':asset_category,'shift_id':s.id,'moshakhasat':moshakhasat,
             'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)}
         )
         data['prev_date']=previous_day.strftime('%Y-%m-%d')
