@@ -28,7 +28,7 @@ def create_entry_form(request):
                 AssetDetail.objects.create(
                     entry=entry_form,
                     asset_category=category,
-                    nomre=int(nomre),
+                    nomre=float(nomre),
                     speed=float(speed)
                 )
 

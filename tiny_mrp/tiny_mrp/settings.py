@@ -83,11 +83,11 @@ WSGI_APPLICATION = 'tiny_mrp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mrp758_lois',
-        'USER': 'mrp758_lois',
-        'PASSWORD': 'UdjtL1EOV6zQ',
-        'HOST': 'services.irn6.chabokan.net',
-        'PORT': '28001',
+        'NAME': 'mrp_t',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
 LOGIN_REDIRECT_URL = 'calendar_main'

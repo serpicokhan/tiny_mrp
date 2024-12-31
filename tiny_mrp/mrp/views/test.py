@@ -129,8 +129,10 @@ def register_daily_amar(request):
     moshakhasat = []
     # entry_data=None
     # asset_details=None
+    print(entry_forms.count())
     for entry in entry_forms:
         entry_data = entry
+        
         
         asset_details = [
             {
@@ -142,13 +144,17 @@ def register_daily_amar(request):
             }
             for asset in entry.asset_details.all()
         ]
-    try:
-        moshakhasat.append({
-            "entry": entry_data,
-            "assetdetail": json.dumps(asset_details),
-        })
-    except:
-        pass
+        try:
+            moshakhasat.append({
+                    "entry": entry_data,
+                    "assetdetail": json.dumps(asset_details),
+                })
+        except:
+            pass
+        # print("!",len(moshakhasat))
+        # except Exception as ex:
+        #     print(ex)
+        # print(moshakhasat)
     # Calculate previous day
     previous_day = date_object - timedelta(days=1)
     shift_id=request.GET.get('shift_id',False)
@@ -1504,10 +1510,14 @@ def list_amar_daily_info(request):
                 }
                 for asset in entry.asset_details.all()
             ]
-        moshakhasat.append({
-            "entry": entry_data,
-            "assetdetail": json.dumps(asset_details),
-        })
+            try:
+        
+                moshakhasat.append({
+                    "entry": entry_data,
+                    "assetdetail": json.dumps(asset_details),
+                })
+            except:
+                pass
         # annotate(
         # min_priority=models.Min('asset__assetTavali')
         # ).order_by('min_priority')

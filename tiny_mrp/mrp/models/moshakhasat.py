@@ -19,6 +19,6 @@ class EntryForm(models.Model):
 class AssetDetail(models.Model):
     entry = models.ForeignKey(EntryForm, on_delete=models.CASCADE, related_name="asset_details")
     asset_category = models.ForeignKey(AssetCategory2, on_delete=models.CASCADE)
-    nomre = models.IntegerField()
+    nomre = models.FloatField()
     speed = models.FloatField()
     

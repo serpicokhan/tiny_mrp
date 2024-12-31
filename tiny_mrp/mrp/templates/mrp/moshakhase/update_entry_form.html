@@ -45,10 +45,10 @@
                 <tr>
                     <td>{{ row.category.name }}</td>
                     <td>
-                        <input type="number" class="form-control" name="nomre_{{ row.category.id }}" value="{{ row.nomre }}" placeholder="نمره">
+                        <input type="number" class="form-control" name="nomre_{{ row.category.id }}" value="{{ row.nomre }}" step="0.01" placeholder="نمره">
                     </td>
                     <td>
-                        <input type="number" class="form-control" name="speed_{{ row.category.id }}" value="{{ row.speed }}" step="any" placeholder="سرعت">
+                        <input type="number" class="form-control" name="speed_{{ row.category.id }}" value="{{ row.speed }}" step="0.01" placeholder="سرعت">
                     </td>
                 </tr>
             {% endfor %}

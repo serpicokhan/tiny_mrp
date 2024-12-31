@@ -1,4 +1,4 @@
-
+var a;
 // document.addEventListener('DOMContentLoaded', function() {
 //   const tables = document.querySelectorAll('.company-table');
 //
@@ -512,12 +512,12 @@ $(".tab-content").on("keydown", ".editable-cell, .editable-cell2", function(e) {
           
           const assetCategoryId = $(this)  // Select the <select> element
           .closest("td")          // Find the closest parent <td>
-          .prev("td").attr('data-assetCategory2')           // Find the previous sibling <td>
+          .prev("td").attr('data-assetCategory2');           // Find the previous sibling <td>
           // .data('assetCategory2');  
-          console.log(assetCategoryId);
+          a= $(this);
 
           const matchingDetail = assetDetails.find(detail => detail.asset_category_id == assetCategoryId);
-          // console.log(matchingDetail);
+          console.log(matchingDetail);
           $(this)  // Select the <select> element
           .closest("tr")          // Find the closest parent <td>
           .find('td.nomre').text(matchingDetail.nomre)

@@ -132,7 +132,9 @@
                                     {% if c.machine.assetCategory.id == cat_item.id %}
                                     <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
                                       <td data-assetcategory2="{{c.machine.assetCategory2.id}}">{{c.machine.assetName}}</td>
-                                      <td><select name="moshakhase" class="form-control select moshakhase" required="">
+                                      <td>
+                                        <select name="moshakhase" class="form-control select moshakhase" required="">
+                                        
                                         <option value="-1" selected="">---------</option>
                                         {% for moshakhase in moshakhastat %}
                                       
