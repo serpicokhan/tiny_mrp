@@ -16,7 +16,6 @@ from django.views.decorators import csrf
 from mrp.business.tolid_util import *
 from django.http import HttpResponse
 from openpyxl import Workbook
-import pickle
 from collections import defaultdict
 
 @login_required
