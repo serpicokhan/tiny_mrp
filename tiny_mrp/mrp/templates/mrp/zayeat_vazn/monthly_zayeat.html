@@ -1,5 +1,24 @@
 {% extends 'mrp/blank-page.html' %}
-
+{% block stylesheet %}
+<style>
+    @media print {
+        .table-responsive {
+          margin: 10px;
+          page-break-inside: auto;
+        }
+      
+        table {
+          page-break-inside: avoid;
+          border-collapse: collapse;
+        }
+      
+        th, td {
+          border: 1px solid black !important;
+          padding: 5px;
+        }
+      }
+  </style>
+{% endblock %}
 {% block content %}
 {% load static %}
 {% load custom_filters %}

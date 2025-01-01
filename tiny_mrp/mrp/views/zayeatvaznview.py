@@ -17,6 +17,7 @@ from mrp.business.tolid_util import *
 from django.http import HttpResponse
 from openpyxl import Workbook
 from collections import defaultdict
+from openpyxl.styles import Font, Alignment, PatternFill
 
 @login_required
 @csrf_exempt
@@ -181,35 +182,48 @@ def export_monthly_zayeat(request):
     # Create an in-memory workbook
     workbook = Workbook()
     sheet = workbook.active
-    sheet.title = "Data Export"
-    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
-    days=[]
-    shift=Shift.objects.all()
-    saloons=Asset.objects.filter(assetIsLocatedAt__isnull=True)
-    salooon_shifts=[]
-    # Add two rows of headers
-    makan_names = [m.assetName for m in makan]
-    print(makan_names)
-    sheet.append(["ID"] + makan_names) 
-    sheet.append(["", "A", "B", "C", "A", "B", "C", "A", "B", "C"])
+    sheet.title = "Styled Report"
 
-    # Merge cells for grouped headers
-    # sheet.merge_cells("A1:C1")  # Merge for "Header Group 1"
-    # sheet.merge_cells("D1:E1")  # Merge for "Header Group 2"
+    # Define the header styles
+    header_font = Font(name="B nazanin", bold=True, color="FFFFFF", size=12)
+    header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+    header_alignment = Alignment(horizontal="center", vertical="center")
 
-    # Add your data
+    # Add and style the headers
+    headers = ["ID", "Name", "Email", "Created At", "Status"]
+    for col_num, header in enumerate(headers, start=1):
+        cell = sheet.cell(row=1, column=col_num)
+        cell.value = header
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+
+    # Add data rows
     data = [
-        [1, "Asset 1"] + ["Available"] * len(makan_names),
-        [2, "Asset 2"] + ["Not Available"] * len(makan_names),
+        [1, "John Doe", "john@example.com", "2023-12-31", "Active"],
+        [2, "Jane Smith", "jane@example.com", "2024-01-01", "Inactive"],
     ]
-    for row in data:
-        sheet.append(row)
+    for row_num, row_data in enumerate(data, start=2):
+        for col_num, value in enumerate(row_data, start=1):
+            sheet.cell(row=row_num, column=col_num).value = value
+
+    # Adjust column widths
+    for col in sheet.columns:
+        max_length = 0
+        col_letter = col[0].column_letter  # Get the column letter
+        for cell in col:
+            try:  # Ignore empty cells
+                max_length = max(max_length, len(str(cell.value)))
+            except:
+                pass
+        adjusted_width = max_length + 2  # Add some padding
+        sheet.column_dimensions[col_letter].width = adjusted_width
 
     # Prepare the HTTP response
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = "attachment; filename=data_export.xlsx"
+    response["Content-Disposition"] = "attachment; filename=styled_report.xlsx"
 
     # Save the workbook to the response
     workbook.save(response)
