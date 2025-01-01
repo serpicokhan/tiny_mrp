@@ -44,6 +44,14 @@ def get_sum_machine_by_date_shift_makan(assetCatregory,makan_id,shift,target_dat
         ).aggregate(Sum('production_value'))['production_value__sum'] or 0
         # print(machine.id,target_date,production_sum)
         return t2
+def get_sum_zayeat_by_date_shift_makan(makan_id,shift,target_date):
+    result = ZayeatVaz.objects.filter(
+    dayOfIssue=target_date,
+    makan__id=makan_id,
+    shift=shift
+    ).aggregate(total_vazn=Sum('vazn'))
+    return result
+    
 def get_sum_machine_by_date_range_shift(assetCatregory,shift,start_date,end_date):
         t2 = DailyProduction.objects.filter(
         machine__assetCategory=assetCatregory,
