@@ -40,7 +40,7 @@
 
                             </tr>
                           <tr>
-                            <th style="color: #03346E;">تعداد اپراتور</th>
+                            <th style="color: #03346E;">اپراتور</th>
                             {% for x in randeman_list %}
                             {% if i.id == x.randeman.shift.id %}
                             <th style="color: #03346E;">{{x.operator_num}}</th>
@@ -68,13 +68,13 @@
                                  <b> {{x.randeman_kol|floatformat:0|intcomma}}</b>
                                   {% endif %}
                                   {% endfor %}</td>
-                              <td><b>جمع راندمان نظافت</b></td>
+                              <td colspan="2"><b>جمع راندمان نظافت</b></td>
                               <td>  {% for x in randeman_kol %}
                                   {% if i.id == x.shift.id %}
                                  <b> {{x.nezafat_rank}}</b>
                                   {% endif %}
                                   {% endfor %}</td>
-                              <td colspan="3" class="text-center">  {% for x in randeman_kol %}
+                              <td colspan="2" class="text-center">  {% for x in randeman_kol %}
                                   {% if i.id == x.shift.id %}
                                   <b>
                                   {{x.padashe_nezafat|floatformat:0|intcomma}}
@@ -92,7 +92,7 @@
                               {% for mc in x.tolid_rank %}
                               <td >
                                
-                               <b> رتبه شیفت در تولید {{mc.mc}}</b>
+                               <b> رتبه   {{mc.mc}}</b>
 
                               </td>
                               
@@ -118,7 +118,7 @@
                               {% endfor %}
                               <td >
 
-                              <b>جمع کل (ریال ) مبلغ قابل پرداخت</b>
+                              <b>مبلغ قابل پرداخت</b>
                             </td>
                               <td> {% for x in randeman_kol %}
                                 {% if i.id == x.shift.id %}
