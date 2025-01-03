@@ -16,6 +16,7 @@
         {% for i in zayeat %}
         <th>{{i.name}}</th>
         {% endfor %}
+        <th>کد نخ</th>
         <th>جمع شیفت</th>
       </tr>
       
@@ -30,7 +31,13 @@
         0
         {% endif %}
       </td>
+      {% if forloop.last %}
+      <td style="  width: 100px; /* Set the width of the editable cell */   min-width: 100px; /* Ensure a minimum width */    max-width: 100px; /* Ensure a maximum width */    outline: none; /* Remove the default focus outline */    border: 1px solid #ccc; /* Add a border for better visibility */    padding: 5px; /* Add padding for better appearance */    /* Other styles as needed */">
+        {{zayeat_vazn|get_item:i.id|get_code_from_shift:c.id}}
+      </td>
+      {% endif %}
       {% endfor %}
+      
       <td style="  width: 100px; /* Set the width of the editable cell */   min-width: 100px; /* Ensure a minimum width */    max-width: 100px; /* Ensure a maximum width */    outline: none; /* Remove the default focus outline */    border: 1px solid #ccc; /* Add a border for better visibility */    padding: 5px; /* Add padding for better appearance */    /* Other styles as needed */">
         {{ zayeat_vazn|sum_vazn_for_shift:c.id }}
       </td>

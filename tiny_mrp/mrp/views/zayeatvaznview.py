@@ -84,7 +84,7 @@ def get_daily_zaye(request):
     shift=Shift.objects.all()
     zayeat_vazn_dict = defaultdict(list)
     for zv in date_zayeat:
-        zayeat_vazn_dict[zv.zayeat.id].append({'vazn':zv.vazn,'shift':zv.shift.id})
+        zayeat_vazn_dict[zv.zayeat.id].append({'vazn':zv.vazn,'shift':zv.shift.id,'moshakhase':zv.moshakhase})
     return render(request,'mrp/zayeat_vazn/zayeatVaznList.html',
         {   'shifts':shift,
             'zayeat':za,
