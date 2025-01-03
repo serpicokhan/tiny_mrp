@@ -129,7 +129,6 @@ def register_daily_amar(request):
     moshakhasat = []
     # entry_data=None
     # asset_details=None
-    print(entry_forms.count())
     for entry in entry_forms:
         entry_data = entry
         
@@ -161,7 +160,6 @@ def register_daily_amar(request):
     selected_date=request.GET.get('selected_date',False)
     if(not shift_id):
         shift_id=Shift.objects.first().id
-    print("shift:########",shift_id)
     shift=Shift.objects.all()
 
     machines_with_formulas = []
@@ -254,12 +252,17 @@ def saveAmarTableInfo(request):
     # print(request.POST)
     data2 = json.loads(request.body)
     data=dict()
+    mydate=""#DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
+    m_zaye=None
+    # persian_date=""
     # print("********")
     for table_name, table_data in data2.items():
         for i in table_data:
             m=Asset.objects.get(id=int(i["machine"]))
             s=Shift.objects.get(id=int(i["shift"]))
             d=None
+            mydate=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
+
 
             if(i["id"]!="0"):
 
@@ -283,6 +286,7 @@ def saveAmarTableInfo(request):
                 x.production_value=float(i["production_value"])
                 if(i["moshakhase"]!="-1"):
                     x.moshakhase=EntryForm.objects.get(id=i["moshakhase"]) #if i["production_value"]!="-1" else None
+                    m_zaye=x.moshakhase
                 x.zayeat=float(i["waste"])
 
                 try:
@@ -310,6 +314,7 @@ def saveAmarTableInfo(request):
                 amar.zayeat=float(i["waste"])
                 if(i["moshakhase"]!="-1"):
                     amar.moshakhase=EntryForm.objects.get(id=i["moshakhase"]) 
+                    m_zaye=amar.moshakhase
                 try:
                     amar.save()
                     print("done!!!")
@@ -321,6 +326,7 @@ def saveAmarTableInfo(request):
 
             # print("done",amar.id)
     data=dict()
+    create_zayeat_on_date(mydate,m_zaye.id)
     return JsonResponse(data)
 
 @csrf_exempt

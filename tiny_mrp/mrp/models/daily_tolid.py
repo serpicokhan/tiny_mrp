@@ -151,6 +151,8 @@ class Zayeat(models.Model):
 
 class ZayeatVaz(models.Model):
     zayeat = models.ForeignKey(Zayeat, on_delete=models.CASCADE)
+    moshakhase = models.ForeignKey("EntryForm", on_delete=models.SET_NULL,related_name="moshakhase_zayeat",blank=True,null=True)
+
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
     vazn = models.FloatField()
     dayOfIssue = models.DateField()

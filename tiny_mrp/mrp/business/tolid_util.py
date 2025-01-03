@@ -365,3 +365,61 @@ def find_who_take_2_padash(my_list):
 def find_who_take_3_padash(my_list):
     obj_with_ranking_3 = [obj for obj in my_list if int(obj.rank) ==3]
     return obj_with_ranking_3
+def create_zayeat_on_date(mydate,codenakh_id):
+    shifts=Shift.objects.all()
+    ZayeatVaz.objects.filter(dayOfIssue=mydate).delete()
+    for sh in shifts:
+        # Query to sum `zayeat`
+        total_zayeat = DailyProduction.objects.filter(
+            dayOfIssue=mydate,
+            machine__assetCategory__id__in=(1,2,4,9),
+            shift=sh
+        ).aggregate(total_zayeat=Sum('zayeat'))['total_zayeat']
+        total_zayeat = total_zayeat or 0
+
+        ZayeatVaz.objects.create(
+            zayeat=Zayeat.objects.get(id=5),
+            shift=sh,
+            vazn=total_zayeat,
+            dayOfIssue=mydate,
+            moshakhase=EntryForm.objects.get(id=codenakh_id)
+
+        )
+        total_zayeat2 = DailyProduction.objects.filter(
+            dayOfIssue=mydate,
+            machine__assetCategory__id=3,
+            shift=sh
+        ).aggregate(total_zayeat=Sum('zayeat'))['total_zayeat']
+        total_zayeat2 = total_zayeat2 or 0
+
+        ZayeatVaz.objects.create(
+            zayeat=Zayeat.objects.get(id=4),
+            shift=sh,
+            vazn=total_zayeat2,
+            dayOfIssue=mydate,
+            moshakhase=EntryForm.objects.get(id=codenakh_id)
+
+        )
+        total_zayeat3 = DailyProduction.objects.filter(
+            dayOfIssue=mydate,
+            machine__assetCategory__id__in=(5,6,7),
+            shift=sh
+        ).aggregate(total_zayeat=Sum('zayeat'))['total_zayeat']
+        total_zayeat3 = total_zayeat3 or 0
+
+        ZayeatVaz.objects.create(
+            zayeat=Zayeat.objects.get(id=2),
+            shift=sh,
+            vazn=total_zayeat3,
+            dayOfIssue=mydate,
+            moshakhase=EntryForm.objects.get(id=codenakh_id)
+
+        )
+        ZayeatVaz.objects.create(
+            zayeat=Zayeat.objects.get(id=1),
+            shift=sh,
+            vazn=0,
+            dayOfIssue=mydate,
+            moshakhase=EntryForm.objects.get(id=codenakh_id)
+
+        )
