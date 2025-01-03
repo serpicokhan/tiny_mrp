@@ -382,7 +382,7 @@ def create_zayeat_on_date(mydate,codenakh_id):
             shift=sh,
             vazn=total_zayeat,
             dayOfIssue=mydate,
-            moshakhase=EntryForm.objects.get(id=codenakh_id)
+            moshakhase=EntryForm.objects.get(id=codenakh_id) if codenakh_id else None
 
         )
         total_zayeat2 = DailyProduction.objects.filter(
@@ -397,7 +397,7 @@ def create_zayeat_on_date(mydate,codenakh_id):
             shift=sh,
             vazn=total_zayeat2,
             dayOfIssue=mydate,
-            moshakhase=EntryForm.objects.get(id=codenakh_id)
+            moshakhase=EntryForm.objects.get(id=codenakh_id) if codenakh_id else None
 
         )
         total_zayeat3 = DailyProduction.objects.filter(
@@ -412,7 +412,7 @@ def create_zayeat_on_date(mydate,codenakh_id):
             shift=sh,
             vazn=total_zayeat3,
             dayOfIssue=mydate,
-            moshakhase=EntryForm.objects.get(id=codenakh_id)
+            moshakhase=EntryForm.objects.get(id=codenakh_id) if codenakh_id else None
 
         )
         ZayeatVaz.objects.create(
@@ -420,6 +420,6 @@ def create_zayeat_on_date(mydate,codenakh_id):
             shift=sh,
             vazn=0,
             dayOfIssue=mydate,
-            moshakhase=EntryForm.objects.get(id=codenakh_id)
+            moshakhase=EntryForm.objects.get(id=codenakh_id) if codenakh_id else None
 
         )

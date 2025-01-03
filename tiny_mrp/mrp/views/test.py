@@ -326,7 +326,8 @@ def saveAmarTableInfo(request):
 
             # print("done",amar.id)
     data=dict()
-    create_zayeat_on_date(mydate,m_zaye.id)
+    zayeat_id=m_zaye.id if m_zaye else None
+    create_zayeat_on_date(mydate,zayeat_id)
     return JsonResponse(data)
 
 @csrf_exempt
