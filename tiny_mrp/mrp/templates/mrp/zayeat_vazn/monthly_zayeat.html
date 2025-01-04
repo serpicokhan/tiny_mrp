@@ -1,28 +1,11 @@
 {% extends 'mrp/blank-page.html' %}
 {% block stylesheet %}
-<style>
-    @media print {
-        .table-responsive {
-          margin: 10px;
-          page-break-inside: auto;
-        }
-      
-        table {
-          page-break-inside: avoid;
-          border-collapse: collapse;
-        }
-      
-        th, td {
-          border: 1px solid black !important;
-          padding: 5px;
-        }
-      }
-  </style>
+
 {% endblock %}
 {% block content %}
 {% load static %}
 {% load custom_filters %}
-<div class="row app-block">
+<div class="row app-block d-print-none">
 
     <div class="col-md-12 app-content">
         <div class="app-content-overlay"></div>
@@ -81,7 +64,7 @@
         <div class="card">
             <div class="card-body">
 
-                <h6 class="card-title">{{title}}</h6>
+                <h6 class="card-title d-print-none">{{title}}</h6>
 
 
                
@@ -89,26 +72,26 @@
                 <div class="table-responsive">
                     <table class="table table-striped" border="1">
                         <thead>
-                            <tr class="bg-dark text-center">
-                                <th colspan='2' >نام سالن</th>
+                            <tr class=" text-center">
+                                <th colspan='2' class="font-weight-bold">نام سالن</th>
                                 {% for i in saloon %}
-                                <th colspan='3' >{{i.assetName}}</th>
+                                <th colspan='3' class="font-weight-bold">{{i.assetName}}</th>
                                 {% endfor %}
                                 <th></th>
                             </tr>
-                            <tr class="bg-dark">
-                                <th>روز هفته</th>
-                                <th>تاریخ</th>
+                            <tr >
+                                <th class="font-weight-bold">روز هفته</th>
+                                <th class="font-weight-bold">تاریخ</th>
                                 {% for sh in shift %}
-                                    <th>{{ sh.shift_name }}</th>
+                                    <th class="font-weight-bold">{{ sh.shift_name }}</th>
                                 {% endfor %}
-                                <th>جمع</th>
+                                <th class="font-weight-bold">جمع</th>
                                 <!-- Add more headers if needed -->
                             </tr>
                         </thead>
                         <tbody>
                             {% for day in cats %}
-                                <tr >
+                                <tr class="text-center">
                                     <td>{{ day.day_of_week }}</td>
                                     <td>{{ day.date }}</td>
                                     {% for x in day.product %}
@@ -141,8 +124,13 @@
                         </tbody>
                     </table>
                 </div>
-                <div data-label="کد نمونه" class="demo-code-preview">
-
+             
+                <div class="text-left d-print-none">
+                    <hr class="mb-5 mt-5">
+                    
+                    <a href="javascript:window.print()" class="btn btn-success m-l-5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-printer mr-2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> پرینت
+                    </a>
                 </div>
             </div>
         </div>
