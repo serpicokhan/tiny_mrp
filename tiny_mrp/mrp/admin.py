@@ -10,3 +10,7 @@ admin.site.register(AssetCategory2)
 admin.site.register(EntryForm)
 
 # Register your models here.
+
+admin.site.site_header = "سیستم مدیریت تولید شرکت آرایا ریس مهستان قم"
+admin.site.site_title = "مدیریت تولید دایانا"
+admin.site.index_title = "خوش آمدید"

@@ -169,4 +169,4 @@ def monthly_zayeat_detaild_report(request):
             
             
     # print(sum_dic)
-    return render(request,'mrp\zayeat_vazn\monthly_zayeat.html',{'zayeat':z_types,'sum_s':ts,'sum_shif':tt,'sum':sum_kol,'makan':{},'cats':days,'title':'آمار ماهانه ضایعات','cat_list':cat_list,'shift':salooon_shifts,'month':j_month,'year':j_year,'saloon':{}}) 
+    return render(request,'mrp/zayeat_vazn/monthly_zayeat.html',{'zayeat':z_types,'sum_s':ts,'sum_shif':tt,'sum':sum_kol,'makan':{},'cats':days,'title':'آمار ماهانه ضایعات','cat_list':cat_list,'shift':salooon_shifts,'month':j_month,'year':j_year,'saloon':{}}) 
