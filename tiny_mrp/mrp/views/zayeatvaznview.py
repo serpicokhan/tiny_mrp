@@ -13,7 +13,7 @@ from django.contrib.auth.context_processors import PermWrapper
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from django.views.decorators import csrf
-
+from mrp.business.tolid_util import *
 from collections import defaultdict
 
 @login_required
@@ -93,15 +93,16 @@ def get_daily_zaye(request):
         }
     )
 def monthly_zayeat_detaild_report(request):
-    makan_id=request.GET.get("makan_id",False)
-    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    # makan_id=request.GET.get("makan_id",False)
+    # makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
     days=[]
     shift=Shift.objects.all()
-    saloons=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    z_types=Zayeat.objects.all()
+    # saloons=Asset.objects.filter(assetIsLocatedAt__isnull=True)
     salooon_shifts=[]
-    for saloon in saloons:
-        for sh in shift:
-            salooon_shifts.append({'saloon_id':saloon.id,'saloon_name':saloon.assetName,'shift_name':sh.name,'shift_id':sh.id})
+    
+    for sh in shift:
+            salooon_shifts.append({'shift_name':sh.name,'shift_id':sh.id})
 
 
     # asset_category = AssetCategory.objects.all().order_by('priority')
@@ -125,32 +126,34 @@ def monthly_zayeat_detaild_report(request):
     counter=0
     sum_kol=0
     sum_dic={}
-    for saloon in saloons:
-            sum_dic[str(saloon.id)]={}
-            for sh in shift:
-                sum_dic[str(saloon.id)][str(sh.id)]=0
+    
+    for sh in z_types:
+        sum_dic[str(sh.id)]=0
 
     for day in range(1,num_days+1):
         product=[]
         sum=0
 
-        for saloon in saloons:         
+          
           
 
         
-            j_date=jdatetime.date(j_year,current_jalali_date.month,day)
+        j_date=jdatetime.date(j_year,current_jalali_date.month,day)
             # print(j_date,'!!!!!!!!!!!!!')
-            for sh in shift:
-                z_val=get_sum_zayeat_by_date_shift_makan(saloon.id,sh,j_date.togregorian())
+        code_nakh=None
+        for sh in z_types:
+                z_val=get_sum_zayeat_by_date_ztype_makan(sh,j_date.togregorian())
+                code_nakh=ZayeatVaz.objects.filter(dayOfIssue=j_date.togregorian()).last()
+                code_nakh=code_nakh.moshakhase if code_nakh else '--'
                 sum+=z_val["total_vazn"] if z_val["total_vazn"]  else 0
                 tmp=z_val["total_vazn"] if z_val["total_vazn"]  else 0
-                sum_dic[str(saloon.id)][str(sh.id)]+=tmp
+                sum_dic[str(sh.id)]+=tmp
                 # a_tmp=sum_dic[str(saloon.id)][str(sh.id)]
                 # print("tmp",tmp)
-                product.append({'shift':sh,'value':z_val})#get_sum_machine_by_date_shift_makan(cats,makan_id,sh,j_date.togregorian())
+                product.append({'shift':sh,'value':z_val,'code_nakh':code_nakh})#get_sum_machine_by_date_shift_makan(cats,makan_id,sh,j_date.togregorian())
                 counter+=1
                 # print("!!!!!!!!!",cats,product[sh.id])
-        days.append({'saloon':saloon,'sum':sum,'date':"{0}/{1}/{2}".format(j_year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
+        days.append({'code_nakh':code_nakh,'sum':sum,'date':"{0}/{1}/{2}".format(j_year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
         sum_kol+=sum
         # product={}
         start=jdatetime.date(j_year,current_jalali_date.month,1)
@@ -158,12 +161,12 @@ def monthly_zayeat_detaild_report(request):
     tt=[]
     ts=[]
     for i,l in sum_dic.items():
-            sum_s=0
-            for m,n in l.items():
-                sum_s+=n
-                tt.append({"saloon":i,"shift":m,"val":n})
-            ts.append({"saloon":i,"sum_saloon":sum_s})
+            # sum_s=0
+            # for m,n in l.items():
+                # sum_s+=n
+            tt.append({"shift":i,"val":l})
+            # ts.append({"saloon":i,"sum_saloon":sum_s})
             
             
-    print(sum_dic)
-    return render(request,'mrp\zayeat_vazn\monthly_zayeat.html',{'sum_s':ts,'sum_shif':tt,'sum':sum_kol,'makan':makan,'cats':days,'title':'آمار ماهانه ضایعات','cat_list':cat_list,'shift':salooon_shifts,'month':j_month,'year':j_year,'saloon':saloons})
+    # print(sum_dic)
+    return render(request,'mrp\zayeat_vazn\monthly_zayeat.html',{'zayeat':z_types,'sum_s':ts,'sum_shif':tt,'sum':sum_kol,'makan':{},'cats':days,'title':'آمار ماهانه ضایعات','cat_list':cat_list,'shift':salooon_shifts,'month':j_month,'year':j_year,'saloon':{}}) 

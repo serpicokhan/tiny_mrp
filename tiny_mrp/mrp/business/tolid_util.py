@@ -423,3 +423,10 @@ def create_zayeat_on_date(mydate,codenakh_id):
             moshakhase=EntryForm.objects.get(id=codenakh_id) if codenakh_id else None
 
         )
+def get_sum_zayeat_by_date_ztype_makan(z_type,target_date):
+    result = ZayeatVaz.objects.filter(
+    dayOfIssue=target_date,   
+    zayeat=z_type 
+    
+    ).aggregate(total_vazn=Sum('vazn'))
+    return result

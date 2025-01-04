@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^Tolid/Daily/Brief/Export$',export_daily_amar_tolid_brief,name='export_daily_amar_tolid_brief'),
     url(r'^Tolid/DailyDetails$',get_daily_amar,name='get_daily_amar'),
     url(r'^Tolid/DailyZayeat$',get_daily_zaye,name='get_daily_zaye'),
+    url(r'^Tolid/Zayeat/Monthly$',monthly_zayeat_detaild_report,name='monthly_zayeat_detaild_report'),
     url(r'^Tolid/Calendar$',calendar_main,name='calendar_main'),
     url(r'^Tolid/Randeman/Calendar$',calendar_randeman,name='calendar_randeman'),
     url(r'^Tolid/Randeman/Brief/Calendar$',calendar_randeman_brief,name='calendar_randeman_brief'),
