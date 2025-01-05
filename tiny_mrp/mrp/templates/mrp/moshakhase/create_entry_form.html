@@ -1,0 +1,37 @@
+{% extends 'mrp/blank-page.html' %}
+{% block content %}
+{% load static %}
+{% load widget_tweaks %}
+
+<h2 class="mb-4">ایجاد فرم</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Entry Form -->
+        <div class="mb-3">
+            <label for="color" class="form-label">رنگ</label>
+            {% render_field form.color  class='form-control' %}
+
+        </div>
+
+        <div class="mb-3">
+            <label for="name" class="form-label">کد محصول</label>
+            <input type="text" class="form-control" name="name" id="name">
+        </div>
+
+        <div class="mb-3">
+            <label for="tool" class="form-label">نمره</label>
+            <input type="text" class="form-control" name="tool" id="tool">
+        </div>
+
+        <div class="mb-3">
+            <label for="la" class="form-label">تاب</label>
+            <input type="number" class="form-control" name="la" id="la" step="any">
+        </div>
+
+       
+
+        <button type="submit" class="btn btn-primary mt-3">ایجاد</button>
+    </form>
+    {% endblock%}

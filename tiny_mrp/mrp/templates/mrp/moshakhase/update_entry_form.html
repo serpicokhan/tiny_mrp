@@ -1,0 +1,36 @@
+{% extends 'mrp/blank-page.html' %}
+{% block content %}
+{% load static %}
+{% load widget_tweaks %}
+<h2 class="mb-4">بروز رسانی</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Entry Form -->
+    <div class="mb-3">
+        <label for="color" class="form-label">رنگ</label>
+        {% render_field entry_form.color  class='form-control' %}
+        
+    </div>
+
+    <div class="mb-3">
+        <label for="name" class="form-label">کد</label>
+        <input type="text" class="form-control" name="name" id="name" value="{{ entry_form.name.value }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="tool" class="form-label">نمره</label>
+        <input type="text" class="form-control" name="tool" id="tool" value="{{ entry_form.tool.value }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="la" class="form-label">تاب</label>
+        <input type="number" class="form-control" name="la" id="la" step="any" value="{{ entry_form.la.value }}">
+    </div>
+
+  
+
+    <button type="submit" class="btn btn-primary mt-3">بروز رسانی</button>
+</form>
+{% endblock%}
