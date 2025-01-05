@@ -281,14 +281,36 @@ console.log(JSON.stringify(sendData));
 
             // Find cells in the current row
             const cells = $(this).find('td');
+            let lastCellSelectedValue = null;
 
-            cells.each(function(index) {
+            // First, get the selected value from the last cell
+            const lastCell = cells.last();
+            if (lastCell.length) {
+                lastCellSelectedValue = lastCell.find('select').val(); // Read the <select> value
+            }
+
+              cells.each(function(index) {
+              if (index === cells.length - 1) {
+                // const datadate = $(this).attr('data-date');
+                // const shiftdata = $(this).attr('data-shift');
+                // const selectedValue = $(this).find('select').val(); // Get the selected value
+                // tableData.push({
+                    
+                //     'date': datadate,
+                //     'shift': shiftdata,
+                //     'selectedValue': selectedValue // Store the selected value
+                // });
+              }
+              else{
               const dataId = $(this).attr('data-id');
               const cellContent = $(this).text().trim()||0;
               const datadate = $(this).attr('data-date');
               const shiftdata=$(this).attr('data-shift');
+              const moshakhase=lastCellSelectedValue?lastCellSelectedValue:null;
 
-              tableData.push({'id':dataId,'vazn':cellContent,'date':datadate,'shift':shiftdata});
+
+              tableData.push({'moshakhase':moshakhase,'id':dataId,'vazn':cellContent,'date':datadate,'shift':shiftdata});
+              }
             });
 
             // Push rowData object to the tableData array

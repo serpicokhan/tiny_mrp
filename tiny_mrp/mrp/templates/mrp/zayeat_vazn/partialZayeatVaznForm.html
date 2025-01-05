@@ -3,8 +3,10 @@
 <div class="row">
 <div class="col-sm-12 b-r">
   <input type="hidden" id="js_data"/>
+  
 {% for c in shifts %}
-<h3>{{c.name}}</h3>
+        
+        <h3>{{c.name}} </h3>
 <div class=""> <!-- Required for Responsive -->
   <table class="table table-striped table-bordered tbl-zayeat-vazn">
     <thead>
@@ -12,6 +14,7 @@
         {% for i in zayeat %}
         <th>{{i.name}}</th>
         {% endfor %}
+        <td>مشخصه</td>
       </tr>
     </thead>
     <tbody>
@@ -22,7 +25,18 @@
         {{zayeat_vazn|get_item:i.id|get_item_from_shift:c.id}}
         {% endif %}
       </td>
+     
       {% endfor %}
+      <td data-shift={{c.id}} data-date={{date}} style="width: 100px; /* Set the width of the editable cell */   min-width: 100px; /* Ensure a minimum width */    max-width: 100px; /* Ensure a maximum width */    outline: none; /* Remove the default focus outline */    border: 1px solid #ccc; /* Add a border for better visibility */    padding: 5px; /* Add padding for better appearance */    /* Other styles as needed */">
+
+        <select name="dsd" id="dsds" class="form-control">
+          <option value="">--</option>
+        {% for i in moshakhasat %}
+        <option value="{{i.id}}" {% if c.moshakhase == i %} selected {% endif %}>{{i}}</option>
+        {% endfor %}
+      </select>
+
+      </td>
 
     </tbody>
 

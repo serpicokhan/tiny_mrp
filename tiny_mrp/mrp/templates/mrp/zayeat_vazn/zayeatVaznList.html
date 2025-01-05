@@ -1,3 +1,4 @@
+
 {% extends 'mrp/blank-page.html' %}
 {5 load static %}
 {% block content %}
@@ -16,6 +17,7 @@
         {% for i in zayeat %}
         <th>{{i.name}}</th>
         {% endfor %}
+        <td>مشخصه</td>
       </tr>
     </thead>
     <tbody>
@@ -29,6 +31,9 @@
         {% endif %}
       </td>
       {% endfor %}
+      <td  class="editable-cell" data-shift={{c.id}} data-date={{date}} data-id="{{i.id}}" style="  width: 100px; /* Set the width of the editable cell */   min-width: 100px; /* Ensure a minimum width */    max-width: 100px; /* Ensure a maximum width */    outline: none; /* Remove the default focus outline */    border: 1px solid #ccc; /* Add a border for better visibility */    padding: 5px; /* Add padding for better appearance */    /* Other styles as needed */">
+        {{c.moshakhase}}
+      </td>
 
     </tbody>
 

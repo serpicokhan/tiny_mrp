@@ -101,3 +101,7 @@ class AssetRandemanForm(forms.ModelForm):
     class Meta:
          model = AssetRandemanList
          fields = '__all__'
+class EntryFormForm(forms.ModelForm):
+    class Meta:
+        model = EntryForm
+        fields = ['color', 'name', 'tool', 'la']

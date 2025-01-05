@@ -32,7 +32,7 @@ def create_entry_form(request):
 def update_entry_form(request, entry_id):
     # Fetch the EntryForm instance to update
     entry_form_instance = get_object_or_404(EntryForm, id=entry_id)
-    asset_details = AssetDetail.objects.filter(entry=entry_form_instance)
+    # asset_details = AssetDetail.objects.filter(entry=entry_form_instance)
 
     if request.method == "POST":
         # Update EntryForm
