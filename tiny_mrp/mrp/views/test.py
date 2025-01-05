@@ -938,10 +938,13 @@ def get_monthly_workbook_v2(request):
         nezafat_rank=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
         # tolid_rank=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).rank
         tolid_rank_v2=[]
+        sum_tolid_v2=0
         for m in mc:
             # ******
             tolid_rank=TolidRanking_V2.objects.get(asset_randeman_list=randeman_list,shift=i,assetMachineCategory=m)
-            tolid_rank_v2.append({'mc':m.name,'rank_l':my_dict[tolid_rank.rank],'rank':tolid_rank.rank,'mablagh':tolid_rank.price_personnel})
+            tolid_rank_v2.append({'mc':m.name,'rank_l':my_dict[tolid_rank.rank],'rank':tolid_rank.rank,
+            'mablagh':tolid_rank.price_personnel})
+            sum_tolid_v2+=tolid_rank.price_personnel
         padashe_nezafat_personel=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).price_personnel
         # padashe_tolid_personel=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).price_personnel
         # padashe_tolid_personel=TolidRanking_V2.objects.filter(shift=i) \
@@ -952,15 +955,17 @@ def get_monthly_workbook_v2(request):
         # Access the sum value
         padashe_tolid_personel = result['total_price_personnel']
         randeman_kol=get_sum_randeman_by_shift(mah,sal,i)
-        sum=randeman_kol+padashe_nezafat_personel+padashe_tolid_personel
+        print("randeman kol:",randeman_kol,"\npadashe_nezafat_personel:",padashe_nezafat_personel,"\npadashe_tolid_personel",padashe_tolid_personel)
+        sum=randeman_kol+padashe_nezafat_personel+sum_tolid_v2
         k.append({'randeman_kol':randeman_kol,'shift':i,'nezafat_rank':my_dict[nezafat_rank],'tolid_rank':tolid_rank_v2,'padashe_nezafat':padashe_nezafat_personel,'padashe_tolid':padashe_tolid_personel,'sum':sum})
         sum_randeman_tolid_kol_majmu+=sum
         sum_padash_tolid_kol+=padashe_tolid_personel
         sum_nezafat_kol+=padashe_nezafat_personel
         sum_randeman_tolid_kol+=randeman_kol
-    print(k)
+    
 
-    return render(request,'mrp/assetrandeman/finalRandemanList_v2.html',{'shift_list':shift_list,'randeman_list':d,'randeman_kol':k,'mah':utilMonth[12-int(mah)],'sal':sal,
+    return render(request,'mrp/assetrandeman/finalRandemanList_v2.html',{'shift_list':shift_list,
+                            'randeman_list':d,'randeman_kol':k,'mah':utilMonth[12-int(mah)],'sal':sal,
                             'sum_randeman_tolid_kol_majmu':sum_randeman_tolid_kol_majmu,
                             'sum_padash_tolid_kol':sum_padash_tolid_kol,'sum_nezafat_kol':sum_nezafat_kol,
                             'sum_randeman_tolid_kol':sum_randeman_tolid_kol})
