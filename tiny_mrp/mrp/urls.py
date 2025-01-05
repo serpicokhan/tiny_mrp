@@ -93,6 +93,10 @@ urlpatterns = [
     url(r'^profile/(?P<pk>\d+)/update/$', profile_update, name='profile_update'),
     url(r'^profile/(?P<pk>\d+)/delete/$', profile_delete, name='profile_delete'),
     url(r'^Report/$', daily_tolid_with_chart, name='daily_tolid_with_chart'),
+    url(r'^Tolid/Moshakhase/Create/$', create_entry_form, name='create_entry_form'),
+    url(r'^Tolid/Moshakhase/(?P<entry_id>\d+)/Update/$', update_entry_form, name='update_entry_form'),
+    url(r'^Tolid/Moshakhase$', list_entry_form, name='list_entry_form'),
+
 
 
 
