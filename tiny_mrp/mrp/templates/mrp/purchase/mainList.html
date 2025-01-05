@@ -1,0 +1,150 @@
+{% extends 'mrp/blank-page.html' %}
+{% load static %}
+{%block content %}
+<div class="row">
+    <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="font-weight-bold mb-2">3.605</h2>
+                        <div>خرید های 7 روز گذشته</div>
+                    </div>
+                    <div>
+                        <span class="dashboard-pie-1" style="display: none;">2/5</span><svg class="peity" height="60" width="60"><path d="M 30.000000000000004 0 A 30 30 0 0 1 47.633557568774194 54.270509831248425 L 30 30" data-value="2" fill="rgba(21, 101, 192, 0.3)"></path><path d="M 47.633557568774194 54.270509831248425 A 30 30 0 1 1 29.999999999999993 0 L 30 30" data-value="3" fill="rgb(21, 101, 192)"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="font-weight-bold mb-2">3.137</h2>
+                        <div>میانگین قیمت سفارشات</div>
+                    </div>
+                    <div>
+                        <span class="dashboard-pie-2" style="display: none;">4/5</span><svg class="peity" height="60" width="60"><path d="M 30.000000000000004 0 A 30 30 0 1 1 1.4683045111453907 20.729490168751582 L 30 30" data-value="4" fill="rgba(0, 200, 81, 0.3)"></path><path d="M 1.4683045111453907 20.729490168751582 A 30 30 0 0 1 29.999999999999993 0 L 30 30" data-value="1" fill="rgb(0, 200, 81)"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="font-weight-bold mb-2">8.765</h2>
+                        <div>زمان سررسی برای خرید</div>
+                    </div>
+                    <div>
+                        <span class="dashboard-pie-3" style="display: none;">1/5</span><svg class="peity" height="60" width="60"><path d="M 30.000000000000004 0 A 30 30 0 0 1 58.53169548885461 20.72949016875158 L 30 30" data-value="1" fill="rgba(255, 187, 51, 0.3)"></path><path d="M 58.53169548885461 20.72949016875158 A 30 30 0 1 1 29.999999999999993 0 L 30 30" data-value="4" fill="rgb(255, 187, 51)"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="font-weight-bold mb-2">68%</h2>
+                        <div>ئرخواست اتعلام قیمت در 7 روز گدشته</div>
+                    </div>
+                    <div>
+                        <span class="dashboard-pie-4" style="display: none;">2/5</span><svg class="peity" height="60" width="60"><path d="M 30.000000000000004 0 A 30 30 0 0 1 47.633557568774194 54.270509831248425 L 30 30" data-value="2" fill="rgba(51, 181, 229, 0.3)"></path><path d="M 47.633557568774194 54.270509831248425 A 30 30 0 1 1 29.999999999999993 0 L 30 30" data-value="3" fill="rgb(51, 181, 229)"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h6 class="card-title">سفارشات اخیر</h6>
+                    <div>
+                        <a href="#" class="mr-3">
+                            <i class="fa fa-refresh"></i>
+                        </a>
+                        <div class="dropdown">
+                            <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a href="#" class="dropdown-item">گزارش</a>
+                                <a href="#" class="dropdown-item">دانلود</a>
+                                <a href="#" class="dropdown-item">بستن</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
+                            <table class="table table-striped mb-0">
+                                <thead>
+                                <tr>
+                                    <th class="text-right">شناسه سفارش</th>
+                                    <th>محصول</th>
+                                    <th>سفارش دهنده</th>
+                                    
+                                    <th>تاریخ</th>
+                                    <th>قیمت</th>
+                                    <th>وضعیت</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                             
+                            {% for i in items %}
+                            <tr>
+                            <td>#{{i.id}}</td>
+                            <td>{{i}}</td>
+                            <td>{{i.user}}</td>
+                            
+                            <td>{{i.get_dateCreated_jalali}}</td>
+                            <td>{{i.get_price}}</td>
+                            <td><span class="badge badge-success">{{i.status}}</span></td>
+                            <td class="text-right">
+                                <div class="dropdown">
+                                    <a href="#" data-toggle="dropdown">
+                                        <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a href="#" class="dropdown-item">جزییات</a>
+                                        <a href="#" class="dropdown-item text-danger">حذف</a>
+                                    </div>
+                                </div>
+                            </td>
+                            </tr>
+                            {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <nav class="mt-3">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">قبلی</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">بعدی</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

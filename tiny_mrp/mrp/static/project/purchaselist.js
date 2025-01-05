@@ -49,6 +49,55 @@ $(function () {
     
     
     };
+    var confirm_request=function(url){
+        return $.ajax({
+            url: url,
+            type: 'get',
+            dataType: 'json',
+            beforeSend: function () {
+             
+            },
+            success: function (data) {
+              
+              if(data.http_status=="ok"){
+                $(".badge_status").html(data.status);
+                $("#main_ul").html(data.parchase_req_html);
+
+              }
+              
+              
+              
+  
+      
+            }
+          });
+
+    }
+    var reject_request=function(url){
+        return $.ajax({
+            url: url,
+            type: 'get',
+            dataType: 'json',
+            beforeSend: function () {
+             
+            },
+            success: function (data) {
+              
+              if(data.http_status=="ok"){
+                $(".badge_status").html(data.status);
+                $("#main_ul").html(data.parchase_req_html);
+              }
+            //   feather.replace();
+              
+              
+              
+  
+      
+            }
+          });
+
+    }
+    
     $(document).on('click', '.app-block .app-content .app-action .action-left input[type="checkbox"]', function () {
         $('.app-lists ul li input[type="checkbox"]').prop('checked', $(this).prop('checked'));
         if ($(this).prop('checked')) {
@@ -71,7 +120,6 @@ $(function () {
         if (!$(e.target).is('.custom-control, .custom-control *, a, a *')) {
             $('.app-detail').addClass('show').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function () {
                 $('.app-block .app-content .app-content-body .app-detail .app-detail-article').niceScroll().resize();
-                console.log($(this));
                 loadForm(btn.attr("data-url"));
                
             });
@@ -89,6 +137,7 @@ $(function () {
 
     $(document).on('click', 'a.app-detail-close-button', function () {
         $('.app-detail').removeClass('show');
+        // لود کردن اطلاعات بروز شده
         return false;
     });
 
@@ -100,6 +149,19 @@ $(function () {
 
     $(document).on('click', '.app-content-overlay', function () {
         $('.app-block .app-sidebar, .app-content-overlay').removeClass('show');
+        
+        return false;
+    });
+    $(document).on('click', '.aproved', function () {
+        url=$(this).attr("data-url");
+        confirm_request(url);     
+        $(this).hide();
+        return false;
+    });
+    $(document).on('click', '.rejected', function () {
+        url=$(this).attr("data-url");
+        reject_request(url);     
+        $(this).hide();
         return false;
     });
 });
