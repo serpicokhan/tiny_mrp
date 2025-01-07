@@ -172,17 +172,24 @@ def list_purchaseRequeset():
 def delete_purchase_request(request,id):
     company=  get_object_or_404(PurchaseRequest, id=id)
     if(request.method=="POST"):
-        company.delete()
-        list_item=list_purchaseRequeset()
         data=dict()
-        data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
-                    
-                    'req':list_item,
 
-                    
-                })
-        data["http_status"]="ok"
-        data["status"]=company.status
+        if(company.status=="Pending"):
+            company.delete()
+            list_item=list_purchaseRequeset()
+            data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
+                        
+                        'req':list_item,
+
+                        
+                    })
+            data["http_status"]="ok"
+            data["status"]=company.status
+        else:
+            data["http_status"]="ok"
+            data["status"]=company.status
+            data["message"]="حدف درخواست به خاطر تغییر وضعیت امکان پذیر نمی باشد"
+
 
 
         return JsonResponse(data)

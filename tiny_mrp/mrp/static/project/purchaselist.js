@@ -99,9 +99,19 @@ $(function () {
               if(data.http_status=="ok"){
                 // $(".badge_status").html(data.status);
                 $("#main_ul").html(data.parchase_req_html);
-                swal("با موفقیت حدف شد", {
-                    icon: "success",
-                });
+                if(data.message){
+                    swal(data.message, {
+                        icon: "warning",
+                    });
+                    
+                }
+                else{
+                    swal("با موفقیت حدف شد", {
+                        icon: "success",
+                    });
+                    
+                }
+               
               }
             //   feather.replace();
               
