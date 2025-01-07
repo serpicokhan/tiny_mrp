@@ -2,7 +2,8 @@
 {% for i in req %}
                         <li class="list-group-item" data-url="{% url 'update_purchase' i.id %}">
                             <div>
-                                <div class="custom-control custom-checkbox mr-2">
+                                <div class="custom-control  mr-2">
+                                   
                                     <input type="checkbox" class="custom-control-input" id="customCheck{{i.id}}">
                                     <label class="custom-control-label" for="customCheck{{i.id}}"></label>
                                 </div>

@@ -212,6 +212,10 @@ $(document).ready(function() {
         let requestData = [];
         let valid = true;  // Flag to check if all fields are valid
         let errorMessage = '';
+        let main_data=[];
+        let companyId=$("#companyId").val()||null;
+        let user_name=$("#requested_user").val()||null;
+        
 
         // Iterate through each table row
         $("tbody tr").each(function () {
@@ -264,6 +268,7 @@ $(document).ready(function() {
                 });
             }
         });
+        main_data.push({id:companyId,user_name:user_name,items:requestData})
 
         // If any invalid field, show error and prevent sending
         if (!valid) {
@@ -276,7 +281,11 @@ $(document).ready(function() {
             url: "/api/save-purchase-request/",
             method: "POST",
             contentType: "application/json",
-            data: JSON.stringify({ items: requestData }),
+            data: JSON.stringify({id:companyId,user_name:user_name,items:requestData}),
+            beforeSend:function(x){
+                console.log( JSON.stringify({id:companyId,user_name:user_name,items:requestData}));
+                // x.abort();
+            },
             success: function (response) {
                 toastr.success("Purchase request saved successfully!");
                 $('.app-detail').removeClass('show');

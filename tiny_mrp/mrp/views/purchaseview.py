@@ -22,9 +22,11 @@ def save_purchase_request(request):
         try:
             data = json.loads(request.body)
             items = data.get('items', [])
+            req_id=data.get('id', False)
+
 
             # Create a new PurchaseRequest
-            r_user=request.POST.get("requested_user",False)
+            r_user=data.get('id', False)
             if(r_user):
                 r_user=SysUser.objects.get(userId=r_user)
             else:
