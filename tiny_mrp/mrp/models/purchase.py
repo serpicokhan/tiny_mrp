@@ -1,7 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
+import jdatetime
 from mrp.models import SysUser,Asset,Part
 class PurchaseRequest(models.Model):
+    def get_dateCreated_jalali(self):
+        return jdatetime.date.fromgregorian(date=self.created_at)
+    def get_purchase_status_color(self):
+        if(self.status=="Rejected"):
+            return "danger"
+        elif(self.status=="Approved"):
+            return "success"
     """Represents a purchase request submitted by an employee."""
     user = models.ForeignKey(SysUser, on_delete=models.CASCADE, related_name='purchase_requests')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -13,7 +21,7 @@ class PurchaseRequest(models.Model):
     
 
     def __str__(self):
-        return f"Request {self.id} by {self.user.username}"
+        return f"درخواست {self.id} توسط {self.user}"
 
 
 class RequestItem(models.Model):
@@ -23,7 +31,7 @@ class RequestItem(models.Model):
     consume_place =models.ForeignKey(Asset, on_delete=models.CASCADE, related_name='consume_place')
 
     description = models.TextField(blank=True, null=True)
-
+    price=models.FloatField(default=0)
     quantity = models.PositiveIntegerField()
     supplier_assigned = models.ForeignKey(
         'Supplier', 

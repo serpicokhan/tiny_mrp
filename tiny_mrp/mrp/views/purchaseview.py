@@ -12,6 +12,9 @@ def list_purchase(request):
 def list_purchase_req(request):
     requests=PurchaseRequest.objects.filter(user__userId=request.user)
     return render(request,"mrp/purchase/purchaseList.html",{"req":requests})
+def list_purchase_req_detail(request):
+    requests=list_purchaseRequeset()
+    return render(request,"mrp/purchase/purchaseList2.html",{"req":requests})
 
 @csrf_exempt
 def save_purchase_request(request):
@@ -66,5 +69,61 @@ def update_purchase(request,id):
                 
             })
         return JsonResponse(data)
+
+def update_purchase_v2(request,id):
+    company=PurchaseRequest.objects.get(id=id)
+    req_items=RequestItem.objects.filter(purchase_request=company)
+    if(request.method=="GET"):
+        data=dict()
+        data["parchase_req_html"]=render_to_string('mrp/purchase/updateReq_v2.html', {
+                'company': company,
+                'items':req_items
+                
+            })
+        return JsonResponse(data)
+
+def purchase_dash(request):
+    list_items=PurchaseRequest.objects.filter(status='Pending')
+    print(list_items)
+    return render(request,"mrp/purchase/mainList.html",{'items':list_items})
+def confirm_request(request,id):
+    company=PurchaseRequest.objects.get(id=id)
+    company.status="Approved"
+    company.save()
+    list_item=list_purchaseRequeset()
+    data=dict()
+    data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
+                
+                'req':list_item,
+
+                
+            })
+    data["http_status"]="ok"
+    data["status"]=company.status
+
+
+    return JsonResponse(data)
+    # return JsonResponse({"status":"ok",'status':company.status})
+def reject_request(request,id):
+    company=PurchaseRequest.objects.get(id=id)
+    company.status="Rejected"
+    company.save()
+    list_item=list_purchaseRequeset()
+    data=dict()
+    data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
+                
+                'req':list_item,
+
+                
+            })
+    data["http_status"]="ok"
+    data["status"]=company.status
+
+
+    return JsonResponse(data)
+
+def list_purchaseRequeset():
+    list_items=PurchaseRequest.objects.all().order_by('-id')
+    return list_items
 
 
