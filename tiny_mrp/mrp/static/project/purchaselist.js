@@ -1,24 +1,13 @@
 $(function () {
     var loadForm =function (btn1) {
         var btn=0;
-        //console.log(btn1);
-        // if($(btn1).attr("type")=="click")
-        //  btn=$(this);
-        // else {
-        //   btn=btn1;
-        // }
         btn=btn1;
-        //console.log($(btn).attr("type"));
-        console.log(btn);
         return $.ajax({
           url: btn1,
           type: 'get',
           dataType: 'json',
           beforeSend: function () {
-            //alert(btn.attr("data-url"));
-            //alert("321321");
-            // /$("#modal-maintenanceType").modal("hide");
-            // $("#modal-company").modal("show");
+            
           },
           success: function (data) {
             //alert("3123@!");
@@ -97,6 +86,33 @@ $(function () {
           });
 
     }
+    var delete_request=function(url){
+        return $.ajax({
+            url: url,
+            type: 'POST',
+            dataType: 'json',
+            beforeSend: function () {
+             
+            },
+            success: function (data) {
+              
+              if(data.http_status=="ok"){
+                // $(".badge_status").html(data.status);
+                $("#main_ul").html(data.parchase_req_html);
+                swal("با موفقیت حدف شد", {
+                    icon: "success",
+                });
+              }
+            //   feather.replace();
+              
+              
+              
+  
+      
+            }
+          });
+
+    }
     
     $(document).on('click', '.app-block .app-content .app-action .action-left input[type="checkbox"]', function () {
         $('.app-lists ul li input[type="checkbox"]').prop('checked', $(this).prop('checked'));
@@ -164,5 +180,34 @@ $(function () {
         $(this).hide();
         return false;
     });
+    $(document).on('click', '.delete-purchase-request', function () {
+        url=$(this).attr("data-url");
+        // reject_request(url);     
+        // $(this).hide();
+        // return false;
+        swal({
+            title: "مطمئن هستید؟",
+            text: "در صورت حدف درخواست عملیات بازگردانی مقدور نخواهد بود!",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+            .then((willDelete) => {
+            if (willDelete) {
+                delete_request(url);
+                $('.app-detail').removeClass('show');
+
+
+                
+            } 
+            else {
+               
+        }
+            });
+    
+        
+    });
+
    
 });
+

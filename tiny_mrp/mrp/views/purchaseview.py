@@ -19,7 +19,7 @@ def list_purchase_req_detail(request):
 @csrf_exempt
 def save_purchase_request(request):
     if request.method == 'POST':
-        try:
+        # try:
             data = json.loads(request.body)
             items = data.get('items', [])
             req_id=data.get('id', False)
@@ -32,22 +32,45 @@ def save_purchase_request(request):
                 r_user=SysUser.objects.get(userId=r_user)
             else:
                 r_user=SysUser.objects.get(userId=request.user)
-            purchase_request = PurchaseRequest.objects.create(
+            
+            if(req_id):
+                #update
+                purchase_request = get_object_or_404(PurchaseRequest, id=req_id)
+                # existing_item_ids = [item.get('id') for item in items if 'id' in item]
+                for item in items:
+                    if ('id' in item) and (item['id']):  # Update existing item
+                        request_item = get_object_or_404(RequestItem, id=item['id'], purchase_request=purchase_request)
+                        request_item.item_name = Part.objects.get(id=item['part_code'])
+                        request_item.quantity = item['quantity']
+                        request_item.consume_place = Asset2.objects.get(id=item['machine_code'])
+                        request_item.description = item['description']
+                        request_item.save()
+                    else:  # Create new item
+                        RequestItem.objects.create(
+                            purchase_request=purchase_request,
+                            item_name=Part.objects.get(id=item['part_code']),
+                            quantity=item['quantity'],
+                            consume_place=Asset2.objects.get(id=item['machine_code']),
+                            description=item['description']
+                        )
+                # print(existing_item_ids)
+            else:
+                purchase_request = PurchaseRequest.objects.create(
                 user=r_user,  # Assuming user is logged in
                 # consume_place="General",  # Default or get from frontend if applicable
                 # description="Auto-generated request"
-            )
+                )               
 
             # Add items to the PurchaseRequest
-            for item in items:
-                RequestItem.objects.create(
-                    purchase_request=purchase_request,
-                    item_name=Part.objects.get(id=item['part_code']),
-                    quantity=item['quantity'],
-                    consume_place=Asset2.objects.get(id=item['machine_code']),
-                    description=item['description']
+                for item in items:
+                    RequestItem.objects.create(
+                        purchase_request=purchase_request,
+                        item_name=Part.objects.get(id=item['part_code']),
+                        quantity=item['quantity'],
+                        consume_place=Asset2.objects.get(id=item['machine_code']),
+                        description=item['description']
 
-                )
+                    )
             list_item=list_purchaseRequeset()
             data=dict()
             data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
@@ -60,9 +83,9 @@ def save_purchase_request(request):
 
             return JsonResponse(data)
 
-        except Exception as e:
-            print('!!!!!!',e)
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        # except Exception as e:
+        #     print('!!!!!!',e)
+        #     return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
@@ -143,4 +166,25 @@ def list_purchaseRequeset():
     list_items=PurchaseRequest.objects.all().order_by('-id')
     return list_items
 
+@csrf_exempt
 
+def delete_purchase_request(request,id):
+    company=  get_object_or_404(PurchaseRequest, id=id)
+    if(request.method=="POST"):
+        company.delete()
+        list_item=list_purchaseRequeset()
+        data=dict()
+        data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
+                    
+                    'req':list_item,
+
+                    
+                })
+        data["http_status"]="ok"
+        data["status"]=company.status
+
+
+        return JsonResponse(data)
+    return JsonResponse({'stats':'BAD!','message':'Bad Data'})
+
+   

@@ -110,6 +110,7 @@ urlpatterns = [
     url(r'^Purchases/$', list_purchase_req, name='list_purchase_req'),
     url(r'^Purchases/All$', list_purchase_req_detail, name='list_purchase_req_detail'),
     url(r'^Purchases/(?P<id>\d+)/Confirm$', confirm_request, name='confirm_request'),
+    url(r'^Purchases/(?P<id>\d+)/delete$', delete_purchase_request, name='delete_purchase_request'),
     url(r'^Purchases/(?P<id>\d+)/Reject$', reject_request, name='reject_request'),
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
     url(r'^Asset/GetAssets$', asset_getAssets2, name='asset_getAssets2'),

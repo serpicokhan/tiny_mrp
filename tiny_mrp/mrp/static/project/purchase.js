@@ -225,6 +225,7 @@ $(document).ready(function() {
             let machineNameCell = $(this).find(".machine-name");
             let descriptionCell = $(this).find(".description");
             let machineCodeCell = machineNameCell.data("id");
+            let item_id=$(this).attr("data-id")||null;
 
             // Validate fields
             if (!partNameCell.text().trim()) {
@@ -259,6 +260,7 @@ $(document).ready(function() {
             // If all fields are valid, push the data
             if (valid) {
                 requestData.push({
+                    id:item_id,
                     part_name: partNameCell.text().trim(),
                     part_code: partNameCell.data("id") || "",
                     quantity: parseInt(quantityCell.text().trim()) || 0,
