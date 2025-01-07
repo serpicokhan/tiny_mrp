@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
-from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset
+from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2
 from django.template.loader import render_to_string
 
 import json
@@ -24,9 +24,13 @@ def save_purchase_request(request):
             items = data.get('items', [])
 
             # Create a new PurchaseRequest
-            print("user",request.user)
+            r_user=request.POST.get("requested_user",False)
+            if(r_user):
+                r_user=SysUser.objects.get(userId=r_user)
+            else:
+                r_user=SysUser.objects.get(userId=request.user)
             purchase_request = PurchaseRequest.objects.create(
-                user=SysUser.objects.get(userId=request.user),  # Assuming user is logged in
+                user=r_user,  # Assuming user is logged in
                 # consume_place="General",  # Default or get from frontend if applicable
                 # description="Auto-generated request"
             )
@@ -37,12 +41,21 @@ def save_purchase_request(request):
                     purchase_request=purchase_request,
                     item_name=Part.objects.get(id=item['part_code']),
                     quantity=item['quantity'],
-                    consume_place=Asset.objects.get(id=item['machine_code']),
+                    consume_place=Asset2.objects.get(id=item['machine_code']),
                     description=item['description']
 
                 )
+            list_item=list_purchaseRequeset()
+            data=dict()
+            data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
+                        
+                        'req':list_item,
 
-            return JsonResponse({'status': 'success', 'message': 'Purchase request saved successfully.'})
+                        
+                    })
+            data["http_status"]="ok"
+
+            return JsonResponse(data)
 
         except Exception as e:
             print('!!!!!!',e)
@@ -53,8 +66,9 @@ def save_purchase_request(request):
 def create_purchase(request):
     if(request.method=="GET"):
         data=dict()
+        sysusers=SysUser.objects.all()
         data["parchase_req_html"]=render_to_string('mrp/purchase/createReq.html', {
-                'maintenanceType': [],
+                'users': sysusers,
                 
             })
         return JsonResponse(data)

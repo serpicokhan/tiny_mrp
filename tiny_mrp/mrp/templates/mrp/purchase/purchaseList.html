@@ -146,57 +146,9 @@
             </div>
             <div class="card card-body app-content-body">
                 <div class="app-lists">
-                    <ul class="list-group list-group-flush">
-                        {% for i in req %}
-                        <li class="list-group-item" data-url="{% url 'update_purchase' i.id %}">
-                            <div>
-                                <div class="custom-control custom-checkbox mr-2">
-                                    <input type="checkbox" class="custom-control-input" id="customCheck{{i.id}}">
-                                    <label class="custom-control-label" for="customCheck{{i.id}}"></label>
-                                </div>
-                            </div>
-                            <div>
-                                <a href="#" class="add-star mr-3" title="محبوب کردن">
-                                   {{i.status}}
-                                </a>
-                            </div>
-                            <div>
-                                <figure class="avatar avatar-sm mr-3">
-                                    <img src="{% static 'assets/media/image/user/man_avatar5.jpg' %}" class="rounded-circle" alt="image">
-                                </figure>
-                            </div>
-                            <div class="flex-grow-1 min-width-0">
-                                <div class="mb-1 d-flex justify-content-between align-items-center">
-                                    <div class="text-truncate app-list-title"> </div>
-                                    <div class="pl-3 d-flex">
-                                        <span class="text-nowrap text-muted">{{i.get_dateCreated_jalali}}:{{i.created_at|time:"HH"}}</span>
-                                        <div class="dropdown ml-3">
-                                            <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
-                                                <i class="fa fa-ellipsis-v"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-right">
-                                                <a class="dropdown-item" href="#">پاسخ</a>
-                                                <a class="dropdown-item" href="#">محبوب</a>
-                                                <a class="dropdown-item" href="#">برچسب</a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="#">حذف</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="text-muted d-flex justify-content-between">
-                                    <div class="text-truncate small">{{user}}</div>
-                                    <div class="text-nowrap pl-3">
-                                        <ul class="list-inline">
-                                            <li class="list-inline-item mb-0">
-                                                <i class="fa fa-circle text-danger"></i>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        {% endfor %}
+                    <ul class="list-group list-group-flush" id="main_ul">
+                       {% include 'mrp/purchase/partialPurchaseList.html' %}
+                        
                       
                     </ul>
                 </div>

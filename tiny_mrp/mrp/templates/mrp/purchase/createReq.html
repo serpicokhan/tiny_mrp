@@ -6,7 +6,9 @@
         <h5 class="mb-0">
             درخواست
             <span class="badge bg-warning badge-pill ml-1">پیش نویس</span>
+
         </h5>
+        
     </div>
     <div class="app-detail-action-right">
         <div>
@@ -27,6 +29,18 @@
 <div class="app-detail-article">
     <div class="card-body">
      {% include 'mrp/purchase/purchase.html' %}
+     <div class="row">
+        <div class="col-md-6">
+            درخواست دهنده
+            <select class="form-control" name="requested_user">
+                {% for i in users %}
+                <option value="{{i.id}}">{{i}}</option>
+
+                {% endfor %}
+
+            </select>
+        </div>
+     </div>
     </div>
     <hr class="m-0">
     

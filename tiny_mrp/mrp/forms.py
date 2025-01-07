@@ -97,3 +97,11 @@ class AssetRandemanForm(forms.ModelForm):
     class Meta:
          model = AssetRandemanList
          fields = '__all__'
+class SysUserForm(forms.ModelForm):
+    #CustomerId = forms.ModelChoiceField(queryset=Customer.objects.all())
+
+
+
+    class Meta:
+        model = SysUser
+        fields = '__all__'

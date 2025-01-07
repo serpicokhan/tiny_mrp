@@ -13,6 +13,10 @@ urlpatterns = [
 
     url(r'^$',index,name='index'),
     url(r'^Register/$',register_daily_amar,name='register_daily_amar'),
+    url(r'^User/$',list_user,name='list_user'),
+    url(r'^User/create/$', user_create, name='user_create'),
+    url(r'^User/(?P<id>\d+)/update/$', user_update, name='user_update'),
+    url(r'^User/(?P<id>\d+)/delete/$', user_delete, name='user_delete'),
     url(r'^Backup/$',backup_database,name='backup_database'),
     url(r'^Dashboard$',list_dashboard,name='list_dashboard'),
     url(r'^Tolid/Heatset$',tolid_heatset,name='tolid_heatset'),
@@ -108,9 +112,9 @@ urlpatterns = [
     url(r'^Purchases/(?P<id>\d+)/Confirm$', confirm_request, name='confirm_request'),
     url(r'^Purchases/(?P<id>\d+)/Reject$', reject_request, name='reject_request'),
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
-    url(r'^Asset/GetAssets$', asset_getAssets, name='asset_getAssets'),
+    url(r'^Asset/GetAssets$', asset_getAssets2, name='asset_getAssets2'),
     url(r'^api/create-part/$', create_part, name="create_part"),
-    url(r'^api/create-asset/$', create_asset, name="create_asset"),
+    url(r'^api/create-asset/$', create_asset2, name="create_asset2"),
     url(r'^api/save-purchase-request/', views.save_purchase_request, name='save-purchase-request'),
     
 

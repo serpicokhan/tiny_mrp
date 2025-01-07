@@ -8,8 +8,13 @@ def asset_getAssets(request):
     searchStr= request.GET['qry'] if request.GET['qry'] else ''
     x=list(AssetUtility.getAssets(searchStr))
     return JsonResponse(x, safe=False)
+@csrf_exempt
+def asset_getAssets2(request):
+    searchStr= request.GET['qry'] if request.GET['qry'] else ''
+    x=list(AssetUtility.getAssets2(searchStr))
+    return JsonResponse(x, safe=False)
 @csrf_exempt  # Temporarily disable CSRF for testing; remove or replace with proper CSRF handling in production
-def create_asset(request):
+def create_asset2(request):
     print(request.method,'!!!!!!!!!!')
     if request.method == "POST":
         try:
@@ -29,7 +34,7 @@ def create_asset(request):
                 return JsonResponse({"error": "Part with this name already exists"}, status=400)
 
             # Create new part
-            new_asset = Asset.objects.create(assetCode=asset_code, assetName=asset_name)
+            new_asset = Asset2.objects.create(assetCode=asset_code, assetName=asset_name)
 
             # Return created part details
             return JsonResponse(

@@ -60,4 +60,5 @@ class SysUser(models.Model):
         ordering = ['title']
         permissions = [
             ("can_view_dashboard", "can view dashboard"),
+            ("can_admin_purchase", "can admin create purchase"),
         ]

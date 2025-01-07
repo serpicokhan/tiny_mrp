@@ -52,6 +52,7 @@ $(document).ready(function() {
         const $dropdown = $(this).closest('.dropdown-menu');
 
         const $cell = $('[data-active="true"]'); // Assuming you mark the active cell
+        console.log(createApiUrl);
 
 
         // Call API to create new item
@@ -279,6 +280,9 @@ $(document).ready(function() {
             success: function (response) {
                 toastr.success("Purchase request saved successfully!");
                 $('.app-detail').removeClass('show');
+                console.log( $("#main_ul"));
+                $("#main_ul").html('123');
+                $("#main_ul").html(response.parchase_req_html);
                 return false;
             },
             error: function (error) {

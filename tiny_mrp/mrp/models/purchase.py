@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import jdatetime
-from mrp.models import SysUser,Asset,Part
+from mrp.models import SysUser,Asset2,Part
 class PurchaseRequest(models.Model):
     def get_dateCreated_jalali(self):
         return jdatetime.date.fromgregorian(date=self.created_at)
@@ -28,7 +28,7 @@ class RequestItem(models.Model):
     """Represents an individual item in a purchase request."""
     purchase_request = models.ForeignKey(PurchaseRequest, on_delete=models.CASCADE, related_name='items')
     item_name  =models.ForeignKey(Part, on_delete=models.CASCADE, related_name='consume_place')
-    consume_place =models.ForeignKey(Asset, on_delete=models.CASCADE, related_name='consume_place')
+    consume_place =models.ForeignKey(Asset2, on_delete=models.CASCADE, related_name='consume_place')
 
     description = models.TextField(blank=True, null=True)
     price=models.FloatField(default=0)
