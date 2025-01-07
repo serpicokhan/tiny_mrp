@@ -36,7 +36,8 @@ def save_purchase_request(request):
             if(req_id):
                 #update
                 purchase_request = get_object_or_404(PurchaseRequest, id=req_id)
-                # existing_item_ids = [item.get('id') for item in items if 'id' in item]
+                existing_item_ids = [item.get('id') for item in items if 'id' in item]
+                RequestItem.objects.filter(purchase_request=purchase_request).exclude(id__in=existing_item_ids).delete()
                 for item in items:
                     if ('id' in item) and (item['id']):  # Update existing item
                         request_item = get_object_or_404(RequestItem, id=item['id'], purchase_request=purchase_request)
