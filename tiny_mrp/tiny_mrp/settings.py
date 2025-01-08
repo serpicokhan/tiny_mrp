@@ -138,3 +138,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Set the timezone for Tehran
+TIME_ZONE = 'Asia/Tehran'
+
+# Enable timezone support
+USE_TZ = True

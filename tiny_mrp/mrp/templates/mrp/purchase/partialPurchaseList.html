@@ -3,9 +3,9 @@
                         <li class="list-group-item" data-url="{% url 'update_purchase' i.id %}">
                             <div>
                                 <div class="custom-control  mr-2">
-                                   
+                                    
                                     <input type="checkbox" class="custom-control-input" id="customCheck{{i.id}}">
-                                    <label class="custom-control-label" for="customCheck{{i.id}}"></label>
+                                    <label class="custom-control-label" for="customCheck{{i.id}}">#{{i.id}}</label>
                                 </div>
                             </div>
                             <div>
@@ -20,7 +20,7 @@
                             </div>
                             <div class="flex-grow-1 min-width-0">
                                 <div class="mb-1 d-flex justify-content-between align-items-center">
-                                    <div class="text-truncate app-list-title"> </div>
+                                    <div class="text-truncate app-list-title"> {{i.user}}</div>
                                     <div class="pl-3 d-flex">
                                         <span class="text-nowrap text-muted">{{i.get_dateCreated_jalali}}:{{i.created_at|time:"HH"}}</span>
                                         <div class="dropdown ml-3">
@@ -38,11 +38,11 @@
                                     </div>
                                 </div>
                                 <div class="text-muted d-flex justify-content-between">
-                                    <div class="text-truncate small">{{user}}</div>
+                                    <div class="text-truncate small">{{i.getItems}}</div>
                                     <div class="text-nowrap pl-3">
                                         <ul class="list-inline">
                                             <li class="list-inline-item mb-0">
-                                                <i class="fa fa-circle text-danger"></i>
+                                                <i class="fa fa-circle text-{{i.get_purchase_status_color}}"></i>
                                             </li>
                                         </ul>
                                     </div>

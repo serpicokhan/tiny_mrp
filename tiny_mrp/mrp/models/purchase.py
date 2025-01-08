@@ -3,6 +3,11 @@ from django.contrib.auth.models import User
 import jdatetime
 from mrp.models import SysUser,Asset2,Part
 class PurchaseRequest(models.Model):
+    def getItems(self):
+        items = self.items.select_related('item_name').all()
+        item_details = [f"{item.item_name.partName} (Qty: {item.quantity}) (موردمصرف :{item.consume_place})" for item in items]  # Assuming Part model has a 'name' field
+        return ", ".join(item_details)
+
     def get_dateCreated_jalali(self):
         return jdatetime.date.fromgregorian(date=self.created_at)
     def get_purchase_status_color(self):
@@ -10,6 +15,8 @@ class PurchaseRequest(models.Model):
             return "danger"
         elif(self.status=="Approved"):
             return "success"
+        elif(self.status=="Pending"):
+            return "info"
     """Represents a purchase request submitted by an employee."""
     user = models.ForeignKey(SysUser, on_delete=models.CASCADE, related_name='purchase_requests')
     created_at = models.DateTimeField(auto_now_add=True)

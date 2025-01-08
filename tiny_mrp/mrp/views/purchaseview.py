@@ -4,14 +4,29 @@ from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2
 from django.template.loader import render_to_string
+from mrp.business.purchaseutility import *
+from django.db.models import Q
 
 import json
 
 def list_purchase(request):
     return render(request,"mrp/purchase/purchase.html",{})
 def list_purchase_req(request):
-    requests=PurchaseRequest.objects.filter(user__userId=request.user)
-    return render(request,"mrp/purchase/purchaseList.html",{"req":requests})
+    search_query = request.GET.get('q', '').strip() 
+    requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
+    if search_query:
+        filters = Q(items__item_name__partName__icontains=search_query) | \
+                Q(items__description__icontains=search_query) | \
+                Q(user__fullName__icontains=search_query)
+        
+        # Only add the id filter if the search query is a digit
+        if search_query.isdigit():
+            filters |= Q(id=search_query)
+        
+        requests = requests.filter(filters).distinct()
+    
+    ws=PurchaseUtility.doPaging(request,requests)
+    return render(request,"mrp/purchase/purchaseList.html",{"req":ws,"search_query": search_query})
 def list_purchase_req_detail(request):
     requests=list_purchaseRequeset()
     return render(request,"mrp/purchase/purchaseList2.html",{"req":requests})
