@@ -22,7 +22,7 @@
                                 <div class="mb-1 d-flex justify-content-between align-items-center">
                                     <div class="text-truncate app-list-title"> {{i.getItems}}</div>
                                     <div class="pl-3 d-flex">
-                                        <span class="text-nowrap text-muted">{{i.get_dateCreated_jalali}}:{{i.created_at|time:"HH"}}</span>
+                                        <span class="text-nowrap text-muted">{{i.created_at|time:"H:i"}}, {{i.get_dateCreated_jalali}}</span>
                                         <div class="dropdown ml-3">
                                             <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
                                                 <i class="fa fa-ellipsis-v"></i>
