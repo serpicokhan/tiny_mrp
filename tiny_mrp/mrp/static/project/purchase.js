@@ -148,7 +148,35 @@ $(document).ready(function() {
                     // Select item from dropdown
                     
                     // Handle "Create New Item" click
-                  
+                    let $items = $dropdown.find('.dropdown-item');
+                    let currentIndex = -1;
+    
+                    // Keyboard navigation
+                    $cell.off('keydown').on('keydown', function (e) {
+                        if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            currentIndex = (currentIndex + 1) % $items.length;
+                            $items.removeClass('active');
+                            $items.eq(currentIndex).addClass('active');
+                        } else if (e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            currentIndex = (currentIndex - 1 + $items.length) % $items.length;
+                            $items.removeClass('active');
+                            $items.eq(currentIndex).addClass('active');
+                        } else if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (currentIndex >= 0) {
+                                $items.eq(currentIndex).trigger('click');
+                            }
+                        }
+                    });
+    
+                    // Select item on click
+                    $dropdown.on('click', '.dropdown-item', function () {
+                        const selectedValue = $(this).data('name');
+                        $cell.text(selectedValue).trigger('change'); // Update cell text and trigger change
+                        $dropdown.remove(); // Remove dropdown
+                    });
 
                     // Remove dropdown on blur
                     $cell.on('blur', function() {

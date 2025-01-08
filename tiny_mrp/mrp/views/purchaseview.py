@@ -13,6 +13,8 @@ def list_purchase(request):
     return render(request,"mrp/purchase/purchase.html",{})
 def list_purchase_req(request):
     search_query = request.GET.get('q', '').strip() 
+    sort_by = request.GET.get('sort_by', '-created_at')  # Default sorting by `created_at` in descending order
+    status_filter = request.GET.get('status', 'all')  # Default to show all statuses
     requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
     if search_query:
         filters = Q(items__item_name__partName__icontains=search_query) | \
@@ -24,11 +26,24 @@ def list_purchase_req(request):
             filters |= Q(id=search_query)
         
         requests = requests.filter(filters).distinct()
+    # Status filtering
+    if status_filter != 'all':
+        requests = requests.filter(status=status_filter)
+    valid_sort_fields = ['id', '-id', 'created_at', '-created_at', 'status', '-status']
+    if sort_by in valid_sort_fields:
+        requests = requests.order_by(sort_by)
+    
     
     ws=PurchaseUtility.doPaging(request,requests)
-    return render(request,"mrp/purchase/purchaseList.html",{"req":ws,"search_query": search_query})
+    return render(request,"mrp/purchase/purchaseList.html",
+                  {
+                    "req":ws,
+                    "search_query": search_query,
+                    "sort_by": sort_by,
+                    "status": status_filter
+                    })
 def list_purchase_req_detail(request):
-    requests=list_purchaseRequeset()
+    requests=list_purchaseRequeset(request)
     return render(request,"mrp/purchase/purchaseList2.html",{"req":requests})
 
 @csrf_exempt
@@ -87,7 +102,7 @@ def save_purchase_request(request):
                         description=item['description']
 
                     )
-            list_item=list_purchaseRequeset()
+            list_item=list_purchaseRequeset(request)
             data=dict()
             data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
                         
@@ -111,8 +126,9 @@ def create_purchase(request):
         sysusers=SysUser.objects.all()
         data["parchase_req_html"]=render_to_string('mrp/purchase/createReq.html', {
                 'users': sysusers,
+
                 
-            })
+            },request)
         return JsonResponse(data)
 def update_purchase(request,id):
     company=PurchaseRequest.objects.get(id=id)
@@ -146,7 +162,7 @@ def confirm_request(request,id):
     company=PurchaseRequest.objects.get(id=id)
     company.status="Approved"
     company.save()
-    list_item=list_purchaseRequeset()
+    list_item=list_purchaseRequeset(request)
     data=dict()
     data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
                 
@@ -164,7 +180,7 @@ def reject_request(request,id):
     company=PurchaseRequest.objects.get(id=id)
     company.status="Rejected"
     company.save()
-    list_item=list_purchaseRequeset()
+    list_item=list_purchaseRequeset(request)
     data=dict()
     data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
                 
@@ -178,8 +194,8 @@ def reject_request(request,id):
 
     return JsonResponse(data)
 
-def list_purchaseRequeset():
-    list_items=PurchaseRequest.objects.all().order_by('-id')
+def list_purchaseRequeset(request):
+    list_items=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-id')
     return list_items
 
 @csrf_exempt
@@ -191,7 +207,7 @@ def delete_purchase_request(request,id):
 
         if(company.status=="Pending"):
             company.delete()
-            list_item=list_purchaseRequeset()
+            list_item=list_purchaseRequeset(request)
             data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
                         
                         'req':list_item,

@@ -20,7 +20,7 @@
                             </div>
                             <div class="flex-grow-1 min-width-0">
                                 <div class="mb-1 d-flex justify-content-between align-items-center">
-                                    <div class="text-truncate app-list-title"> {{i.user}}</div>
+                                    <div class="text-truncate app-list-title"> {{i.getItems}}</div>
                                     <div class="pl-3 d-flex">
                                         <span class="text-nowrap text-muted">{{i.get_dateCreated_jalali}}:{{i.created_at|time:"HH"}}</span>
                                         <div class="dropdown ml-3">
@@ -38,7 +38,7 @@
                                     </div>
                                 </div>
                                 <div class="text-muted d-flex justify-content-between">
-                                    <div class="text-truncate small">{{i.getItems}}</div>
+                                    <div class="text-truncate small">{{i.user}}</div>
                                     <div class="text-nowrap pl-3">
                                         <ul class="list-inline">
                                             <li class="list-inline-item mb-0">

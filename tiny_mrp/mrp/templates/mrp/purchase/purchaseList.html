@@ -90,24 +90,41 @@
                                 انتخاب بر اساس
                             </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#">خوانده شده</a>
-                                <a class="dropdown-item" href="#">خوانده نشده</a>
-                                <a class="dropdown-item" href="#">اسپم</a>
+                                <a class="dropdown-item" href="?status=Pending{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">درخواست شده</a>
+                                <a class="dropdown-item" href="?status=Approved{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید شده</a>
+                                <a class="dropdown-item" href="?status=Rejected{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">رد شده</a>
+                                
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="#">حذف</a>
+                                
+                                <!-- Show All -->
+                                <a class="dropdown-item text-danger" href="?{% if sort_by %}sort_by={{ sort_by }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}status=all">همه</a>
                             </div>
                         </li>
-                        <li class="list-inline-item mb-0">
-                            <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown">
-                                چینش</a>
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <a class="dropdown-item" href="#">تاریخ</a>
-                                <a class="dropdown-item" href="#">از</a>
-                                <a class="dropdown-item" href="#">موضوغ</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">اندازه</a>
+                        <li class="list-inline-item mb-0 ">
+                            <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                چینش
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right " x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(807px, 60px, 0px);">
+                                <!-- Sorting by Date -->
+                                <a class="dropdown-item" href="?sort_by=-created_at{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تاریخ (جدیدترین)</a>
+                                <a class="dropdown-item" href="?sort_by=created_at{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تاریخ (قدیمی‌ترین)</a>
+                        
+                                <!-- Sorting by ID -->
+                                <a class="dropdown-item" href="?sort_by=-id{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">کد (بزرگ‌ترین)</a>
+                                <a class="dropdown-item" href="?sort_by=id{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">کد (کوچک‌ترین)</a>
+                        
+                                <!-- Sorting by Status -->
+                                <a class="dropdown-item" href="?sort_by=status{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">وضعیت (صعودی)</a>
+                                <a class="dropdown-item" href="?sort_by=-status{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">وضعیت (نزولی)</a>
+                        
+                                {% comment %} <div class="dropdown-divider"></div> {% endcomment %}
+                        
+                                <!-- Sorting by Size (Example Field) -->
+                                {% comment %} <a class="dropdown-item" href="?sort_by=size">اندازه (صعودی)</a>
+                                <a class="dropdown-item" href="?sort_by=-size">اندازه (نزولی)</a> {% endcomment %}
                             </div>
                         </li>
+                        
                     </ul>
                 </div>
                 <div class="action-right">
@@ -133,7 +150,7 @@
                                 <li class="page-item">
                                 {% if req.has_previous %}
 
-                                    <a class="page-link" href="?page={{ req.previous_page_number }}" aria-label="Previous">
+                                    <a class="page-link" href="?page={{ req.previous_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" aria-label="Previous">
                                         <i data-feather="chevron-left" class="width-15 height-15"></i>
                                     </a>
                                 {% else %}
@@ -145,7 +162,7 @@
                                 </li>
                                 <li class="page-item">
                                     {% if req.has_next %}
-                                    <a class="page-link" href="?page={{ req.next_page_number }}" aria-label="Next">
+                                    <a class="page-link" href="?page={{ req.next_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" aria-label="Next">
                                         <i data-feather="chevron-right" class="width-15 height-15"></i>
                                     </a>
                                     {% else %}
