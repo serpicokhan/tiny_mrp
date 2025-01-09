@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render,redirect, get_object_or_404
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
@@ -9,6 +9,7 @@ from mrp.business.DateJob import *
 from django.db.models import Q
 from django.contrib.auth.context_processors import PermWrapper
 from django.core.files.storage import FileSystemStorage
+from mrp.forms import PurchaseRequestFileForm
 
 import json
 
@@ -84,6 +85,7 @@ def save_purchase_request(request):
             items = data.get('items', [])
             req_id=data.get('id', False)
             print("312321########",req_id)
+            purchase_request=None
 
 
             # Create a new PurchaseRequest
@@ -137,10 +139,12 @@ def save_purchase_request(request):
             data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
                         
                         'req':list_item,
+                       
 
                         
                     })
             data["http_status"]="ok"
+            data['purchase_request']=purchase_request.id
 
             return JsonResponse(data)
 
@@ -256,17 +260,30 @@ def delete_purchase_request(request,id):
         return JsonResponse(data)
     return JsonResponse({'stats':'BAD!','message':'Bad Data'})
 @csrf_exempt
-
 def upload_purchase_images(request):
-    if request.method == 'POST' and request.FILES.getlist('images[]'):
-        images = request.FILES.getlist('images[]')
-        fs = FileSystemStorage()
-        uploaded_files = []
+    # if request.method == 'POST' and request.FILES.getlist('images[]'):
+    #     images = request.FILES.getlist('images[]')
+    #     fs = FileSystemStorage()
+    #     uploaded_files = []
         
-        for image in images:
-            filename = fs.save(image.name, image)
-            uploaded_files.append(fs.url(filename))
+    #     for image in images:
+    #         filename = fs.save(image.name, image)
+    #         uploaded_files.append(fs.url(filename))
         
-        return JsonResponse({'message': 'Images uploaded successfully!', 'uploaded_files': uploaded_files})
+    #     return JsonResponse({'message': 'Images uploaded successfully!', 'uploaded_files': uploaded_files})
     
-    return JsonResponse({'error': 'No files uploaded!'}, status=400)
+    # return JsonResponse({'error': 'No files uploaded!'}, status=400)
+    purchase_request_id=request.GET.get('p_id')
+    purchase_request = get_object_or_404(PurchaseRequest, id=purchase_request_id)
+    
+    if request.method == 'POST' and request.FILES:
+        form = PurchaseRequestFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Save the file and associate it with the PurchaseRequest
+            purchase_request_file = form.save(commit=False)
+            purchase_request_file.purchase_request = purchase_request
+            purchase_request_file.save()
+            return JsonResponse({},status=201) # Redirect after successful upload
+    # else:
+    #     form = PurchaseRequestFileForm()
+    return JsonResponse({},status=201)

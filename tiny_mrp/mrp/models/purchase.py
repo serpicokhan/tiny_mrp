@@ -109,3 +109,15 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order for Supplier {self.supplier.name}"
+class PurchaseRequestFile(models.Model):
+    # Foreign Key to the PurchaseRequest model
+    purchase_request = models.ForeignKey(PurchaseRequest, on_delete=models.CASCADE, related_name='files')
+
+    # File field to store the uploaded file
+    file = models.FileField(upload_to='purchase_requests/files/')
+
+    # Optional: Timestamp when the file was uploaded
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"File for Purchase Request #{self.purchase_request.id}"

@@ -105,3 +105,8 @@ class SysUserForm(forms.ModelForm):
     class Meta:
         model = SysUser
         fields = '__all__'
+
+class PurchaseRequestFileForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseRequestFile
+        fields = ['purchase_request', 'file']
