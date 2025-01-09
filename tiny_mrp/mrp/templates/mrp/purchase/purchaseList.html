@@ -1,7 +1,9 @@
 {% extends 'mrp/temp2.html' %}
 {% load static %}
 {% block stylesheet %}
- 
+     <!-- Select2 -->
+     <link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
+
 {% endblock %}
 {% block content %}
 
@@ -20,19 +22,43 @@
                 <div class="app-sidebar-menu">
                     <div class="list-group list-group-flush">
                         <a href="#" class="list-group-item active d-flex align-items-center">
-                            <i data-feather="mail" class="mr-2 width-15 height-15"></i>
-                            صندوق ورودی
-                            <span class="small ml-auto">14</span>
-                        </a>
-                        <a href="#" class="list-group-item">
-                            <i data-feather="send" class="mr-2 width-15 height-15"></i>
-                            ارسال شده
-                        </a>
-                        <a href="#" class="list-group-item">
-                            <i data-feather="edit-3" class="mr-2 width-15 height-15"></i>
-                            ذخیره
+                            <i data-feather="filter" class="mr-2 width-15 height-15"></i>
+                            فیلتر تاریخ
+                            <span class="small ml-auto"></span>
                         </a>
                         <a href="#" class="list-group-item d-flex align-items-center">
+                            
+                            <input class=" form-control input-daterange-datepicker simple-date-range-picker" type="text" name="daterangepicker">
+                           
+                           
+                    
+                        </a>
+                        
+                        {% if perms.mrp.can_admin_purchase %}
+                        <a href="#" class="list-group-item active d-flex align-items-center">
+                            <i data-feather="filter" class="mr-2 width-15 height-15"></i>
+                            فیلتر اشخاص
+                            <span class="small ml-auto"></span>
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <select class="select2-example" multiple>
+                                <option>انتخاب</option>
+                            {% for i in users %}
+                                <option value="{{i.id}}">{{i}}</option>
+                            {% endfor %}
+                             
+                              </select>
+                        </a>
+                        {% endif %}
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            
+                            <button class="btn btn-outline-dark btn-block .btn-block3" data-url="#" >
+                                فیلتر                </button>
+                           
+                           
+                    
+                        </a>
+                        {% comment %} <a href="#" class="list-group-item d-flex align-items-center">
                             <i data-feather="star" class="mr-2 width-15 height-15"></i>
                             شروع شده
                             <span class="small ml-auto">10</span>
@@ -45,9 +71,9 @@
                             <i data-feather="trash" class="mr-2 width-15 height-15"></i>
                            سطل آشغال 
                             <span class="small ml-auto">2</span>
-                        </a>
+                        </a> {% endcomment %}
                     </div>
-                    <div class="card-body">
+                    {% comment %} <div class="card-body">
                         <h6 class="mb-0">برچسب‌ها</h6>
                     </div>
                     <div class="list-group list-group-flush">
@@ -72,7 +98,7 @@
                             <span class="text-secondary fa fa-circle mr-2"></span>
                             کدزدن
                         </a>
-                    </div>
+                    </div> {% endcomment %}
                 </div> 
             </div>
         </div>
@@ -261,9 +287,26 @@
 
 {% endblock %}
 {% block javascript %}
-
+  <!-- Plugin scripts -->
+  <script src="{% static 'vendors/select2/js/select2.min.js' %}"></script>
+  <script src="{% static 'assets/js/examples/select2.js' %}"></script>
+  <script>
+    $('.select2-example').select2({
+        placeholder: 'اشخاص'
+    });
+    $('input[name="datepicker"]').daterangepicker({
+        timePicker: true,
+        startDate: moment().startOf('hour'),
+        endDate: moment().startOf('hour').add(32, 'hour'),
+        locale: {
+            format: 'M/DD hh:mm A'
+        }
+    });
+  </script>
+  
 <script src="{% static 'project/purchase.js' %}"></script>
 
 <script src="{% static 'project/purchaselist.js' %}"></script>
+
 
 {% endblock %}

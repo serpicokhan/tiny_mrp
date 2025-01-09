@@ -24,13 +24,16 @@ def create_asset2(request):
             # Validate input
             asset_name = data.get("name")
             if not asset_name:
-                return JsonResponse({"error": "Part name is required"}, status=400)
+                print({"error": "Asset name is required"})
+                return JsonResponse({"error": "Asset name is required"}, status=400)
 
             # Generate part code (optional logic, modify as needed)
-            asset_code = data.get("code", asset_name.replace(" ", "_").lower())
+            asset_code = data.get("code", str(asset_name).replace(" ", "_").lower())
 
             # Check for duplicates
-            if Asset.objects.filter(assetName=asset_name).exists():
+            if Asset2.objects.filter(assetName=asset_name).exists():
+                print({"error": "َAsset with this name already exists"})
+
                 return JsonResponse({"error": "Part with this name already exists"}, status=400)
 
             # Create new part

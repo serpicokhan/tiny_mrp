@@ -103,7 +103,7 @@ $(document).ready(function() {
                     let dropdownHtml = '<div class="dropdown-menu show">';
                     data.forEach(item => {
                         if(type=="Part"){
-                            console.log(item);
+                            // console.log(item);
                             dropdownHtml += `
                                 <button class="dropdown-item" 
                                         data-id="${item.id}" 
@@ -136,7 +136,7 @@ $(document).ready(function() {
                     const $dropdown = $(dropdownHtml).css({
                         position: 'absolute',
                         top: offset.top + $cell.outerHeight(),
-                        left: offset.left,
+                        left: offset.left-100,
                         width: $cell.outerWidth(),
                         zIndex: 1000
                     });
@@ -247,53 +247,57 @@ $(document).ready(function() {
 
         // Iterate through each table row
         $("tbody tr").each(function () {
-            let partNameCell = $(this).find(".part-name");
-            let partCodeCell = partNameCell.data("id");
-            let quantityCell = $(this).find("td:nth-child(2)");
-            let machineNameCell = $(this).find(".machine-name");
-            let descriptionCell = $(this).find(".description");
-            let machineCodeCell = machineNameCell.data("id");
-            let item_id=$(this).attr("data-id")||null;
+            const partNameCell = $(this).find(".part-name");
+            const quantityCell = $(this).find(".editable-cell").eq(1); // Second cell for quantity
+            const machineNameCell = $(this).find(".machine-name");
+            const descriptionCell = $(this).find(".description");
+            const item_id=$(this).attr("data-id")||null;
 
             // Validate fields
             if (!partNameCell.text().trim()) {
                 valid = false;
-                errorMessage += "Part name is required.\n";
+                errorMessage += "اسم قطعه ضروری است.\n";
             }
-            if (!partCodeCell) {
+            if (!partNameCell.attr("data-id")) {
                 valid = false;
-                errorMessage += "Part code is required.\n";
+                errorMessage += "کد قطعه ضرور است.\n";
             }
 
             if (!quantityCell.text().trim() || isNaN(quantityCell.text().trim()) || parseInt(quantityCell.text().trim()) <= 0) {
                 valid = false;
-                errorMessage += "Quantity must be a positive number.\n";
+                errorMessage += "تعداد بایستی عدد مثبت باشد.\n";
             }
 
-            if (!machineNameCell.text().trim()) {
+            if (!machineNameCell.attr("data-id")) {
                 valid = false;
-                errorMessage += "Machine name is required.\n";
+                errorMessage += "کد ماشین ضروری است.\n";
             }
 
             if (!descriptionCell.text().trim()) {
                 valid = false;
-                errorMessage += "Description is required.\n";
+                errorMessage += "شرح ضروری است.\n";
             }
-            if (!machineCodeCell) {
-                valid = false;
-                errorMessage += "MachineCode is required.\n";
-            }
-            console.log(partNameCell,quantityCell,machineNameCell,machineCodeCell,descriptionCell);
+        //    console.log({
+        //     id:item_id,
+        //     part_name: partNameCell.text().trim(),
+        //     part_code: partNameCell.attr("data-id") || null,
+        //     quantity: parseInt(quantityCell.text().trim()) || 0,
+        //     machine_name: machineNameCell.text().trim(),
+        //     machine_code: machineNameCell.attr("data-id") || null,
+        //     description: descriptionCell.text().trim(),
+        // });
+           
+            // console.log(partNameCell,quantityCell,machineNameCell,machineCodeCell,descriptionCell);
 
             // If all fields are valid, push the data
             if (valid) {
                 requestData.push({
                     id:item_id,
                     part_name: partNameCell.text().trim(),
-                    part_code: partNameCell.data("id") || "",
+                    part_code: partNameCell.attr("data-id") || null,
                     quantity: parseInt(quantityCell.text().trim()) || 0,
                     machine_name: machineNameCell.text().trim(),
-                    machine_code: machineNameCell.data("id") || "",
+                    machine_code: machineNameCell.attr("data-id") || null,
                     description: descriptionCell.text().trim(),
                 });
             }
@@ -302,7 +306,9 @@ $(document).ready(function() {
 
         // If any invalid field, show error and prevent sending
         if (!valid) {
-            alert("Please fill out all fields correctly:\n\n" + errorMessage);
+          
+            swal("لطفا مقادیر زیر را با دقت وارد نمایید:\n\n" + errorMessage);
+            errorMessage='';
             return;  // Stop the form submission
         }
 
@@ -317,15 +323,14 @@ $(document).ready(function() {
                 // x.abort();
             },
             success: function (response) {
-                toastr.success("Purchase request saved successfully!");
+                toastr.success("درخواست با موفقیت ثبت شد");
                 $('.app-detail').removeClass('show');
-                console.log( $("#main_ul"));
-                $("#main_ul").html('123');
+                $("#main_ul").html('');
                 $("#main_ul").html(response.parchase_req_html);
                 return false;
             },
             error: function (error) {
-                toastr.error("Error saving purchase request!");
+                toastr.error("خطا در ثبت درخواست");
                 console.log(error);
             }
         });

@@ -10,7 +10,6 @@ def wo_getParts(request):
 def create_part(request):
     print(request.method,'!!!!!!!!!!!')
     if request.method == "POST":
-        print("321312321")
         try:
             # Parse JSON data from request body
             data = json.loads(request.body)
@@ -21,7 +20,7 @@ def create_part(request):
                 return JsonResponse({"error": "Part name is required"}, status=400)
 
             # Generate part code (optional logic, modify as needed)
-            part_code = data.get("code", part_name.replace(" ", "_").lower())
+            part_code = data.get("code", str(part_name).replace(" ", "_").lower())
 
             # Check for duplicates
             if Part.objects.filter(partName=part_name).exists():

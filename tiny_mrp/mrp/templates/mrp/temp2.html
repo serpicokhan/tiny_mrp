@@ -21,7 +21,12 @@
 
     <!-- App styles -->
     <link rel="stylesheet" href="{% static 'assets/css/app.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'vendors/datepicker/daterangepicker2.css' %}">
+
+    <link rel="stylesheet" href="{% static 'vendors/datepicker/daterangepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/Datepiker/persian-datepicker.css' %}">
     {% block stylesheet %}
+    
     {% endblock %}
 </head>
 <body class="stretch-layout navigation-toggle-one">
@@ -112,7 +117,41 @@
 
 
 <!-- Plugin scripts -->
+
+
+
+</body>
+
+
 <script src="{%  static 'vendors/bundle.js' %}"></script>
+
+
+<script src="{%  static 'vendor/moment/moment.min.js' %}"></script>
+<script src="{%  static 'vendor/Jcal/moment-jalaali.js' %}"></script>
+<!-- Datepicker -->
+
+
+<!-- <script type="text/javascript" src="vendors/datepicker/daterangepicker2.js"></script> -->
+
+
+<script src="{%  static 'vendors/datepicker/daterangepicker.js' %}"></script>
+<script src="{%  static 'vendor/Jcal/moment-jalaali.js' %}"></script>
+
+<!--  -->
+<script src="{%  static 'vendor/moment/moment.min.js' %}"></script>
+<script src="{%  static 'vendor/bootstrap-daterangepicker/daterangepicker.js' %}"></script>
+<script src="{%  static 'vendor/Jcal/bootstrap-datepicker.fa.min.js' %}"></script>
+<script src="{%  static 'assets/js/examples/datepicker.js' %}"></script>
+
+
+
+
+
+
+<!-- // -->
+<script src="{%  static 'assets/Datepiker/persian-date.js' %}"></script>
+<script src="{%  static 'assets/Datepiker/persian-datepicker.js' %}"></script>
+
 
 <!-- Tagsinput -->
 <script src="{%  static 'vendors/tagsinput/bootstrap-tagsinput.js' %}"></script>
@@ -121,12 +160,10 @@
 <!-- quill -->
 <script src="{%  static 'vendors/quill/quill.js' %}"></script>
 
-<!-- App scripts -->
 <script src="{%  static 'assets/js/app.min.js' %}"></script>
-
 {% block javascript %}
+
+
+<!-- App scripts -->
 {% endblock %}
-
-</body>
-
 </html>

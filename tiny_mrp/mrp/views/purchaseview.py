@@ -6,6 +6,8 @@ from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2
 from django.template.loader import render_to_string
 from mrp.business.purchaseutility import *
 from django.db.models import Q
+from django.contrib.auth.context_processors import PermWrapper
+
 
 import json
 
@@ -40,7 +42,9 @@ def list_purchase_req(request):
                     "req":ws,
                     "search_query": search_query,
                     "sort_by": sort_by,
-                    "status": status_filter
+                    "status": status_filter,
+                    'perms': PermWrapper(request.user),
+                    'users':SysUser.objects.all()
                     })
 def list_purchase_req_detail(request):
     requests=list_purchaseRequeset(request)

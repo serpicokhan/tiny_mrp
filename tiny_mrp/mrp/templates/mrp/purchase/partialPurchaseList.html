@@ -8,11 +8,11 @@
                                     <label class="custom-control-label" for="customCheck{{i.id}}">#{{i.id}}</label>
                                 </div>
                             </div>
-                            <div>
+                            {% comment %} <div>
                                 <a href="#" class="add-star mr-3" title="محبوب کردن">
                                    {{i.status}}
                                 </a>
-                            </div>
+                            </div> {% endcomment %}
                             <div>
                                 <figure class="avatar avatar-sm mr-3">
                                     <img src="{% static 'assets/media/image/user/man_avatar5.jpg' %}" class="rounded-circle" alt="image">
@@ -41,6 +41,11 @@
                                     <div class="text-truncate small">{{i.user}}</div>
                                     <div class="text-nowrap pl-3">
                                         <ul class="list-inline">
+                                            <li class="list-inline-item mb-0">
+                                                <a href="#" data-toggle="tooltip" title="" data-original-title="Attachment">
+                                                  {{i.status}}
+                                                </a>
+                                            </li>
                                             <li class="list-inline-item mb-0">
                                                 <i class="fa fa-circle text-{{i.get_purchase_status_color}}"></i>
                                             </li>
