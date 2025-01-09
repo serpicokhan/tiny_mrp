@@ -8,7 +8,7 @@ from mrp.business.purchaseutility import *
 from mrp.business.DateJob import *
 from django.db.models import Q
 from django.contrib.auth.context_processors import PermWrapper
-
+from django.core.files.storage import FileSystemStorage
 
 import json
 
@@ -255,5 +255,18 @@ def delete_purchase_request(request,id):
 
         return JsonResponse(data)
     return JsonResponse({'stats':'BAD!','message':'Bad Data'})
+@csrf_exempt
 
-   
+def upload_purchase_images(request):
+    if request.method == 'POST' and request.FILES.getlist('images[]'):
+        images = request.FILES.getlist('images[]')
+        fs = FileSystemStorage()
+        uploaded_files = []
+        
+        for image in images:
+            filename = fs.save(image.name, image)
+            uploaded_files.append(fs.url(filename))
+        
+        return JsonResponse({'message': 'Images uploaded successfully!', 'uploaded_files': uploaded_files})
+    
+    return JsonResponse({'error': 'No files uploaded!'}, status=400)

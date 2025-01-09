@@ -334,6 +334,25 @@ $(document).ready(function() {
                 console.log(error);
             }
         });
+        const form=$("#image-upload-form")[0];
+        const formData = new FormData(form);
+      
+      // Send the FormData to the server using AJAX
+      $.ajax({
+        url: '/Purchases/UploadImage',  // Replace with your server-side upload URL
+        type: 'POST',
+        data: formData,
+        processData: false,  // Prevent jQuery from processing the data
+        contentType: false,  // Don't set content type header as it will be set by the browser
+        success: function (response) {
+          console.log('Upload success', response);
+          alert('فرم ارسال شد!');
+        },
+        error: function (error) {
+          console.error('Error uploading images:', error);
+          alert('خطا در ارسال فرم');
+        }
+      });
     });
 });
 
