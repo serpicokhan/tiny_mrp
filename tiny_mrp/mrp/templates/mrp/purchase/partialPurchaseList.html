@@ -15,7 +15,7 @@
                             </div> {% endcomment %}
                             <div>
                                 <figure class="avatar avatar-sm mr-3">
-                                    <img src="{% static 'assets/media/image/user/man_avatar5.jpg' %}" class="rounded-circle" alt="image">
+                                    <img src="{{ i.user.profileImage.url }}" class="rounded-circle" alt="image">
                                 </figure>
                             </div>
                             <div class="flex-grow-1 min-width-0">
@@ -42,7 +42,7 @@
                                     <div class="text-nowrap pl-3">
                                         <ul class="list-inline">
                                             <li class="list-inline-item mb-0">
-                                                <a href="#" data-toggle="tooltip" title="" data-original-title="Attachment">
+                                                <a href="#" data-toggle="tooltip" title="" data-original-title="وضعیت">
                                                   {{i.status}}
                                                 </a>
                                             </li>

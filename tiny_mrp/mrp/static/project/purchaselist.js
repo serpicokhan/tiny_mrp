@@ -13,21 +13,21 @@ $(function () {
             //alert("3123@!");
             $(".ajax-content").html(data.parchase_req_html);
             feather.replace();
-            new Quill('.compose-quill-editor', {
-                modules: {
-                    toolbar: ".compose-quill-toolbar"
-                },
-                placeholder: "اینجا بنویسید...",
-                theme: "snow"
-            });
+            // new Quill('.compose-quill-editor', {
+            //     modules: {
+            //         toolbar: ".compose-quill-toolbar"
+            //     },
+            //     placeholder: "اینجا بنویسید...",
+            //     theme: "snow"
+            // });
             
-            new Quill('.reply-email-quill-editor', {
-                modules: {
-                    toolbar: ".reply-email-quill-toolbar"
-                },
-                placeholder: "اینجا بنویسید...",
-                theme: "snow"
-            });
+            // new Quill('.reply-email-quill-editor', {
+            //     modules: {
+            //         toolbar: ".reply-email-quill-toolbar"
+            //     },
+            //     placeholder: "اینجا بنویسید...",
+            //     theme: "snow"
+            // });
             
             
 
@@ -217,6 +217,39 @@ $(function () {
     
         
     });
+
+
+    function addImageInput() {
+        const inputGroup = `
+          <div class="input-group mb-2">
+            <input type="file" name="images[]" accept="image/*" class="form-control" required>
+            <button type="button" class="btn btn-danger remove-btn">حذف</button>
+          </div>`;
+        $('#image-container').append(inputGroup);
+      }
+  
+      // Add the first input field by default
+      addImageInput();
+  
+      // Handle "Add Image" button click
+      $(document).on('click','#add-image-btn', function () {
+        addImageInput();
+      });
+  
+      // Handle dynamic "Remove" button click
+      $(document).on('click', '#image-container .remove-btn', function () {
+        $(this).closest('.input-group').remove();
+      });
+  
+      // Handle form submission (for debugging)
+      $('#image-upload-form').on('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        for (let [key, value] of formData.entries()) {
+          console.log(key, value.name); // Logs the uploaded file names
+        }
+        alert('فرم ارسال شد!');
+      });
 
    
 });

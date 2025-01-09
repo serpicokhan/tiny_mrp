@@ -246,7 +246,7 @@ $(document).ready(function() {
         
 
         // Iterate through each table row
-        $("tbody tr").each(function () {
+        $("#table-body tr").each(function () {
             const partNameCell = $(this).find(".part-name");
             const quantityCell = $(this).find(".editable-cell").eq(1); // Second cell for quantity
             const machineNameCell = $(this).find(".machine-name");
@@ -277,15 +277,15 @@ $(document).ready(function() {
                 valid = false;
                 errorMessage += "شرح ضروری است.\n";
             }
-        //    console.log({
-        //     id:item_id,
-        //     part_name: partNameCell.text().trim(),
-        //     part_code: partNameCell.attr("data-id") || null,
-        //     quantity: parseInt(quantityCell.text().trim()) || 0,
-        //     machine_name: machineNameCell.text().trim(),
-        //     machine_code: machineNameCell.attr("data-id") || null,
-        //     description: descriptionCell.text().trim(),
-        // });
+           console.log({
+            id:item_id,
+            part_name: partNameCell.text().trim(),
+            part_code: partNameCell.attr("data-id") || null,
+            quantity: parseInt(quantityCell.text().trim()) || 0,
+            machine_name: machineNameCell.text().trim(),
+            machine_code: machineNameCell.attr("data-id") || null,
+            description: descriptionCell.text().trim(),
+        });
            
             // console.log(partNameCell,quantityCell,machineNameCell,machineCodeCell,descriptionCell);
 

@@ -20,15 +20,25 @@
                        
                 </div>
                 <div class="app-sidebar-menu">
+                    <form class="">
+
                     <div class="list-group list-group-flush">
                         <a href="#" class="list-group-item active d-flex align-items-center">
                             <i data-feather="filter" class="mr-2 width-15 height-15"></i>
                             فیلتر تاریخ
                             <span class="small ml-auto"></span>
                         </a>
+                        
                         <a href="#" class="list-group-item d-flex align-items-center">
                             
-                            <input class=" form-control input-daterange-datepicker simple-date-range-picker" type="text" name="daterangepicker">
+                            <input class=" form-control " type="text" name="start" value={{start}}>
+                           
+                           
+                    
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            
+                            <input class=" form-control " type="text" name="end" value={}>
                            
                            
                     
@@ -52,12 +62,13 @@
                         {% endif %}
                         <a href="#" class="list-group-item d-flex align-items-center">
                             
-                            <button class="btn btn-outline-dark btn-block .btn-block3" data-url="#" >
+                            <button class="btn btn-outline-dark btn-block .btn-block3" type="submit" data-url="#" >
                                 فیلتر                </button>
                            
                            
                     
                         </a>
+                    </form>
                         {% comment %} <a href="#" class="list-group-item d-flex align-items-center">
                             <i data-feather="star" class="mr-2 width-15 height-15"></i>
                             شروع شده
@@ -294,14 +305,16 @@
     $('.select2-example').select2({
         placeholder: 'اشخاص'
     });
-    $('input[name="datepicker"]').daterangepicker({
-        timePicker: true,
-        startDate: moment().startOf('hour'),
-        endDate: moment().startOf('hour').add(32, 'hour'),
-        locale: {
-            format: 'M/DD hh:mm A'
-        }
-    });
+    $('input[name="start"]').pDatepicker({
+        format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian'
+      });
+    $('input[name="end"]').pDatepicker({
+        format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian'
+      });
   </script>
   
 <script src="{% static 'project/purchase.js' %}"></script>

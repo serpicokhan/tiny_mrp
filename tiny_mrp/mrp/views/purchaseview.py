@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2
 from django.template.loader import render_to_string
 from mrp.business.purchaseutility import *
+from mrp.business.DateJob import *
 from django.db.models import Q
 from django.contrib.auth.context_processors import PermWrapper
 
@@ -15,6 +16,9 @@ def list_purchase(request):
     return render(request,"mrp/purchase/purchase.html",{})
 def list_purchase_req(request):
     search_query = request.GET.get('q', '').strip() 
+    start = request.GET.get('start', False) 
+    end = request.GET.get('end', False)
+
     sort_by = request.GET.get('sort_by', '-created_at')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
     requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
@@ -34,6 +38,26 @@ def list_purchase_req(request):
     valid_sort_fields = ['id', '-id', 'created_at', '-created_at', 'status', '-status']
     if sort_by in valid_sort_fields:
         requests = requests.order_by(sort_by)
+    if start and end:
+        # print(start,end,'!!!!!!!!!!!!!!!!!')
+        start_of_month=DateJob.getTaskDate(start)
+        end_of_month=DateJob.getTaskDate(end)
+        # print(start,end,'!!!!!!!!!!!!!!!!!')
+
+        requests=requests.filter(created_at__range=[start_of_month,end_of_month])
+    else:
+        today_shamsi = jdatetime.date.today()
+        start_of_month = jdatetime.date(today_shamsi.year, today_shamsi.month, 1)
+
+        # Calculate the end of the current month
+        if today_shamsi.month < 12:  # Not the last month of the year
+            next_month = jdatetime.date(today_shamsi.year, today_shamsi.month + 1, 1)
+        else:  # For Esfand (last month), move to Farvardin of the next year
+            next_month = jdatetime.date(today_shamsi.year + 1, 1, 1)
+
+        end_of_month = next_month - jdatetime.timedelta(days=1)
+        start_of_month=start_of_month.togregorian().strftime('%Y-%m-%d')
+        end_of_month=end_of_month.togregorian().strftime('%Y-%m-%d')
     
     
     ws=PurchaseUtility.doPaging(request,requests)
@@ -44,7 +68,9 @@ def list_purchase_req(request):
                     "sort_by": sort_by,
                     "status": status_filter,
                     'perms': PermWrapper(request.user),
-                    'users':SysUser.objects.all()
+                    'users':SysUser.objects.all(),
+                    'start':start_of_month,
+                    'end':end_of_month
                     })
 def list_purchase_req_detail(request):
     requests=list_purchaseRequeset(request)
