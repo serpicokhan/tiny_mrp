@@ -390,7 +390,7 @@ def export_purchase_requests(request):
         # Add the header for the PurchaseRequest
         sheet[f'A{row}'] = f'شماره درخواست: {purchase_request.id}'
         sheet[f'B{row}'] = f'کاربر: {purchase_request.user.fullName}'
-        sheet[f'C{row}'] = f'تاریخ: {purchase_request.get_dateCreated_jalali().strftime("%d/%m/%Y")}'
+        sheet[f'C{row}'] = f'تاریخ: {purchase_request.get_dateCreated_jalali().strftime("%Y/%m/%d")}'
         # sheet[f'D{row}'] = f'اضطراری: {purchase_request.is_emergency}'
         sheet[f'D{row}'] = f"اضطراری: {'بله' if purchase_request.is_emergency else 'خیر'}"
         sheet[f'E{row}'] = f'وضعیت: {purchase_request.status}'
@@ -463,7 +463,11 @@ def filter_request_by(request):
 
     sort_by = request.GET.get('sort_by', '-created_at')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
-    requests=PurchaseRequest.objects.all().order_by('-created_at')
+    if(request.user.is_superuser):
+        requests=PurchaseRequest.objects.all().order_by('-created_at')
+    else:
+        requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
+
     if search_query:
         filters = Q(items__item_name__partName__icontains=search_query) | \
                 Q(items__description__icontains=search_query) | \
