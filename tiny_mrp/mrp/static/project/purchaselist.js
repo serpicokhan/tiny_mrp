@@ -38,6 +38,24 @@ $(function () {
     
     
     };
+    var add_viewer=function(id){
+        $.ajax({
+            url: '/Purchases/AddViewer/?id='+id,  // The URL of your API endpoint
+            type: 'GET',  // Using GET method to retrieve data
+            dataType: 'json',  // The expected data format from the server
+            success: function(response) {
+                // This function is executed if the request is successful
+                console.log('Success:', response);
+                // You can use the response here, e.g., update the DOM or process the data
+            },
+            error: function(xhr, status, error) {
+                // This function is executed if there is an error with the request
+                console.error('Error:', status, error);
+                // You can display an error message or handle the failure
+            }
+        });
+        
+    }
     var confirm_request=function(url){
         return $.ajax({
             url: url,
@@ -147,6 +165,8 @@ $(function () {
             $('.app-detail').addClass('show').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function () {
                 $('.app-block .app-content .app-content-body .app-detail .app-detail-article').niceScroll().resize();
                 loadForm(btn.attr("data-url"));
+                add_viewer(btn.attr("data-id"));
+                btn.addClass('active');
                
             });
         }
@@ -295,7 +315,7 @@ $(function () {
     //     }
     //     alert('فرم ارسال شد!');
     //   });
-
+    
    
 });
 

@@ -1,6 +1,6 @@
 {% load static %}
 {% for i in req %}
-                        <li class="list-group-item" data-url="{% url 'update_purchase' i.id %}">
+                        <li class="list-group-item {% if request.user.id in i.get_viwer %} active {% endif %}"" data-id={{i.id}} data-url="{% url 'update_purchase' i.id %}">
                             <div>
                                 <div class="custom-control  mr-2">
                                     

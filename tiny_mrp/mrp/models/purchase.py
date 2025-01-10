@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import jdatetime
 import os
+import json
 from mrp.models import SysUser,Asset2,Part
 class PurchaseRequest(models.Model):
     def has_attachment(self):
@@ -38,10 +39,20 @@ class PurchaseRequest(models.Model):
             return "success"
         elif(self.status=="Pending"):
             return "info"
+    def add_viewer(self, user):
+        """Function to add a user to the viewed_by field (serialized list)"""
+        viewed_by_list = json.loads(self.viewed_by)  # Convert the string to a Python list
+        if user not in viewed_by_list:
+            viewed_by_list.append(user)  # Add the user ID to the list
+            self.viewed_by = json.dumps(viewed_by_list)  # Serialize the list back to a string
+            self.save()  # Save the updated PurchaseRequest with the new viewer
+    def get_viwer(self):
+        return json.loads(self.viewed_by)
     """Represents a purchase request submitted by an employee."""
     user = models.ForeignKey(SysUser, on_delete=models.CASCADE, related_name='purchase_requests')
     created_at = models.DateField(auto_now_add=True)
     is_emergency = models.BooleanField(default=False)
+    viewed_by = models.TextField(blank=True, default='[]')
     status = models.CharField(
         max_length=20,
         choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected'), ('Ordered', 'Ordered')],

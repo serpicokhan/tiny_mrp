@@ -47,6 +47,8 @@ def list_purchase_req(request):
         # print(start,end,'!!!!!!!!!!!!!!!!!')
 
         requests=requests.filter(created_at__range=[start_of_month,end_of_month])
+        start_of_month=start_of_month.strftime('%Y-%m-%d')
+        end_of_month=end_of_month.strftime('%Y-%m-%d')
     else:
         today_shamsi = jdatetime.date.today()
         start_of_month = jdatetime.date(today_shamsi.year, today_shamsi.month, 1)
@@ -71,8 +73,8 @@ def list_purchase_req(request):
                     "status": status_filter,
                     'perms': PermWrapper(request.user),
                     'users':SysUser.objects.all(),
-                    'start':start_of_month.strftime('%Y-%m-%d'),
-                    'end':end_of_month.strftime('%Y-%m-%d'),
+                    'start':start_of_month,
+                    'end':end_of_month,
                     })
 def list_purchase_req_detail(request):
     search_query = request.GET.get('q', '').strip() 
@@ -521,3 +523,18 @@ def get_purchase_request(request):
     id=request.GET.get('id',False)
     purchase=PurchaseRequest.objects.get(id=id)
     return render(request,'mrp/purchase/purchase_request_bill.html',{'purchase_request':purchase})
+def add_view_by(request):
+    try:
+        # user_id=SysUser.objects.get(userId=request.user).id
+        id=request.GET.get('id',False)
+        purchase=PurchaseRequest.objects.get(id=id)
+        purchase.add_viewer(request.user.id)
+        return JsonResponse({},status=201)
+    except Exception as e:
+        print(e)
+        return JsonResponse({'error':'error'},status=201)
+
+
+
+
+
