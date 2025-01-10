@@ -1,52 +1,67 @@
 {% load static %}
 {% for i in req %}
-<li class="list-group-item" data-url="{% url 'update_purchase_v2' i.id %}">
-    <div>
-        <div class="custom-control custom-checkbox mr-2">
-            <input type="checkbox" class="custom-control-input" id="customCheck{{i.id}}">
-            <label class="custom-control-label" for="customCheck{{i.id}}"></label>
-        </div>
-    </div>
-    
-    <div>
-        <a href="#" class="add-star mr-3" title="محبوب کردن">
-            #{{i.id}}   
-        </a>
-    </div>
-    <div>
-        <figure class="avatar avatar-sm mr-3">
-            <img src="{% static 'assets/media/image/user/man_avatar5.jpg' %}" class="rounded-circle" alt="image">
-        </figure>
-    </div>
-    <div class="flex-grow-1 min-width-0">
-        <div class="mb-1 d-flex justify-content-between align-items-center">
-            <div class="text-truncate app-list-title"> {{i.status}}</div>
-            <div class="pl-3 d-flex">
-                <span class="text-nowrap text-muted">{{i.get_dateCreated_jalali}}:{{i.created_at|time:"HH"}}</span>
-                <div class="dropdown ml-3">
-                    <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
-                        <i class="fa fa-ellipsis-v"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="#">پاسخ</a>
-                        <a class="dropdown-item" href="#">محبوب</a>
-                        <a class="dropdown-item" href="#">برچسب</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger" href="#">حذف</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="text-muted d-flex justify-content-between">
-            <div class="text-truncate small">{{i.user}}</div>
-            <div class="text-nowrap pl-3">
-                <ul class="list-inline">
-                    <li class="list-inline-item mb-0">
-                        <i class="fa fa-circle text-{{i.get_purchase_status_color}}"></i>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</li>
-{% endfor %}
+                        <li class="list-group-item" data-url="{% url 'update_purchase_v2' i.id %}">
+                            <div>
+                                <div class="custom-control  mr-2">
+                                    
+                                    <input type="checkbox" class="custom-control-input" id="customCheck{{i.id}}">
+                                    <label class="custom-control-label" for="customCheck{{i.id}}">#{{i.id}}</label>
+                                </div>
+                                {% comment %} <div class="spinner-grow spinner-grow-sm" role="status">
+                                    <span class="sr-only">در حال بارگذاری</span>
+                                </div> {% endcomment %}
+                            </div>
+                            {% comment %} <div>
+                                <a href="#" class="add-star mr-3" title="محبوب کردن">
+                                   {{i.status}}
+                                </a>
+                            </div> {% endcomment %}
+                            <div>
+                                <figure class="avatar avatar-sm mr-3">
+                                    <img src="{{ i.user.profileImage.url }}" class="rounded-circle" alt="image">
+                                </figure>
+                            </div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="mb-1 d-flex justify-content-between align-items-center">
+                                    <div class="text-truncate app-list-title"> {{i.getItems}}</div>
+                                    <div class="pl-3 d-flex">
+                                        <span class="text-nowrap text-muted">{{i.created_at|time:"H:i"}}, {{i.get_dateCreated_jalali}}</span>
+                                        <div class="dropdown ml-3">
+                                            <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
+                                                <i class="fa fa-ellipsis-v"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <!-- <a class="dropdown-item" href="#">پاسخ</a>
+                                                <a class="dropdown-item" href="#">محبوب</a>
+                                                <a class="dropdown-item" href="#">برچسب</a> -->
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger delete-purchase-request" data-url="{% url 'delete_purchase_request' i.id %}" href="#">حذف</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-muted d-flex justify-content-between">
+                                    <div class="text-truncate small">{{i.user}}</div>
+                                    <div class="text-nowrap pl-3">
+                                        <ul class="list-inline">
+                                            <li class="list-inline-item mb-0">
+                                                <a href="#" data-toggle="tooltip" title="" data-original-title="وضعیت">
+                                                  {{i.get_status_display}}
+                                                </a>
+                                            </li>
+                                            {% if i.has_attachment %}
+                                            <li class="list-inline-item mb-0">
+                                                <a href="#" data-toggle="tooltip" title="" data-original-title="Attachment">
+                                                    <i class="fa fa-paperclip"></i>
+                                                </a>
+                                            </li>
+                                            {% endif %}
+                                            <li class="list-inline-item mb-0">
+                                                <i class="fa fa-circle text-{{i.get_purchase_status_color}}"></i>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}

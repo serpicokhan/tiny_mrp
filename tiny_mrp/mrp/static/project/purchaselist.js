@@ -190,6 +190,51 @@ $(function () {
         $(this).hide();
         return false;
     });
+    $(document).on('click', '.btn-block3', function () {
+        console.log('clicked');
+
+        var currentUrl = new URL(window.location.href);
+        var baseUrl = "/Purchase/Download";  // Django URL tag
+    
+        // Initialize an empty query string
+        var queryParams = "";
+    
+        // Check if the current URL has query parameters and add them to the redirection URL
+        var sortBy = currentUrl.searchParams.get("sort_by");
+        var status = currentUrl.searchParams.get("status");
+        var searchQuery = currentUrl.searchParams.get("q");
+        var start = currentUrl.searchParams.get("start");
+        var end = currentUrl.searchParams.get("end");
+        var userlist = currentUrl.searchParams.get("userlist");
+    
+        // Add `sort_by` parameter if it exists in the URL
+        if (sortBy) {
+            queryParams += "?sort_by=" + encodeURIComponent(sortBy);
+        }
+    
+        // Add `status` parameter if it exists in the URL
+        if (status) {
+            queryParams += (queryParams ? "&" : "?") + "status=" + encodeURIComponent(status);
+        }
+    
+        // Add `q` parameter if it exists in the URL
+        if (searchQuery) {
+            queryParams += (queryParams ? "&" : "?") + "q=" + encodeURIComponent(searchQuery);
+        }
+        if (start) {
+            queryParams += (queryParams ? "&" : "?") + "start=" + encodeURIComponent(start);
+        }
+        if (end) {
+            queryParams += (queryParams ? "&" : "?") + "end=" + encodeURIComponent(end);
+        }
+        if (userlist) {
+            queryParams += (queryParams ? "&" : "?") + "userlist=" + encodeURIComponent(userlist);
+        }
+        console.log(queryParams);
+    
+        // Redirect to the generated URL
+        document.location = baseUrl + queryParams;
+    });
     $(document).on('click', '.delete-purchase-request', function () {
         url=$(this).attr("data-url");
         // reject_request(url);     

@@ -4,11 +4,31 @@ import jdatetime
 import os
 from mrp.models import SysUser,Asset2,Part
 class PurchaseRequest(models.Model):
+    def has_attachment(self):
+        # files
+        return self.files.select_related('file').all().count()>0
+
+
+
     def getItems(self):
         items = self.items.select_related('item_name').all()
         item_details = [f"{item.item_name.partName} (تعداد: {item.quantity}) (موردمصرف :{item.consume_place})" for item in items]  # Assuming Part model has a 'name' field
         return ", ".join(item_details)
+    # def getItems(self):
+    #     items = self.items.select_related('item_name').all()
+    #     rows = [
+    #         f"<li>Item Name: {item.item_name.partName} (Quantity: {item.quantity}, Consume Place: {item.consume_place})</li>"
+    #         for item in items
+    #     ]
+    #     return f"<ul>{''.join(rows)}</ul>"  # Wrap items in an unordered list
 
+    def getItems2(self):
+        items = self.items.select_related('item_name').all()
+        rows = [
+            f"نام کالا: {item.item_name.partName}, تعداد: {item.quantity}, مکان: {item.consume_place}"
+            for item in items
+        ]
+        return "\n".join(rows)  # Join rows with newline for better readability
     def get_dateCreated_jalali(self):
         return jdatetime.date.fromgregorian(date=self.created_at)
     def get_purchase_status_color(self):

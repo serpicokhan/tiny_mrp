@@ -105,16 +105,22 @@ urlpatterns = [
     url(r'^Purchase/Dash$', purchase_dash, name='purchase_dash'),
 
     url(r'^Purchase/Create$', create_purchase, name='create_purchase'),
+    url(r'^Purchase/Download$', export_purchase_requests, name='export_purchase_requests'),
     url(r'^Purchase/(?P<id>\d+)/Update$', update_purchase, name='update_purchase'),
     url(r'^Purchase/(?P<id>\d+)/Update2$', update_purchase_v2, name='update_purchase_v2'),
     url(r'^Purchases/$', list_purchase_req, name='list_purchase_req'),
+    url(r'^Purchases/Calendar$', calendar_purchase_request_main, name='calendar_purchase_request_main'),
     url(r'^Purchases/UploadImage/$', upload_purchase_images, name='upload_purchase_images'),
     url(r'^Purchases/All$', list_purchase_req_detail, name='list_purchase_req_detail'),
     url(r'^Purchases/(?P<id>\d+)/Confirm$', confirm_request, name='confirm_request'),
     url(r'^Purchases/(?P<id>\d+)/delete$', delete_purchase_request, name='delete_purchase_request'),
     url(r'^Purchases/(?P<id>\d+)/Reject$', reject_request, name='reject_request'),
+    url(r'^Purchases/GetInfo/$', get_purchasereq_calendar_info, name='get_purchasereq_calendar_info'),
+    url(r'^Purchases/Bill/$', get_purchase_request, name='get_purchase_request'),
+
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
     url(r'^Asset/GetAssets$', asset_getAssets2, name='asset_getAssets2'),
+    
     url(r'^api/create-part/$', create_part, name="create_part"),
     url(r'^api/create-asset/$', create_asset2, name="create_asset2"),
     url(r'^api/save-purchase-request/', views.save_purchase_request, name='save-purchase-request'),

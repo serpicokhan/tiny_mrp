@@ -1,7 +1,9 @@
 {% extends 'mrp/temp2.html' %}
 {% load static %}
 {% block stylesheet %}
- 
+     <!-- Select2 -->
+     <link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
+
 {% endblock %}
 {% block content %}
 
@@ -13,26 +15,61 @@
                 <div class="card-body">
                     <button class="btn btn-outline-dark btn-block btn-block2" id="createreq" data-url="{% url 'create_purchase' %}" >
                         درخواست جدید                   </button>
-                        <button class="btn btn-outline-dark btn-block .btn-block3" data-url="#" >
+                        <button class="btn btn-outline-dark btn-block btn-block3" data-url="#" >
                             درون ریزی                 </button>
                        
                 </div>
-                {% comment %} <div class="app-sidebar-menu">
+                <div class="app-sidebar-menu">
+                    <form class="">
+
                     <div class="list-group list-group-flush">
-                        <a href="#" class="list-group-item active d-flex align-items-center">
-                            <i data-feather="mail" class="mr-2 width-15 height-15"></i>
-                            صندوق ورودی
-                            <span class="small ml-auto">14</span>
+                        <a  class="list-group-item active d-flex align-items-center">
+                            <i data-feather="filter" class="mr-2 width-15 height-15"></i>
+                            فیلتر تاریخ
+                            <span class="small ml-auto"></span>
                         </a>
-                        <a href="#" class="list-group-item">
-                            <i data-feather="send" class="mr-2 width-15 height-15"></i>
-                            ارسال شده
+                        
+                        <a  class="list-group-item d-flex align-items-center">
+                            
+                            <input class=" form-control " type="text" name="start" value={{start}}>
+                           
+                           
+                    
                         </a>
-                        <a href="#" class="list-group-item">
-                            <i data-feather="edit-3" class="mr-2 width-15 height-15"></i>
-                            ذخیره
+                        <a  class="list-group-item d-flex align-items-center">
+                            
+                            <input class=" form-control " type="text" name="end" value={{end}}>
+                           
+                           
+                    
                         </a>
-                        <a href="#" class="list-group-item d-flex align-items-center">
+                        
+                        {% if perms.mrp.can_admin_purchase %}
+                        <a  class="list-group-item active d-flex align-items-center">
+                            <i data-feather="filter" class="mr-2 width-15 height-15"></i>
+                            فیلتر اشخاص
+                            <span class="small ml-auto"></span>
+                        </a>
+                        <a  class="list-group-item d-flex align-items-center">
+                            <select class="select2-example" name="userlist" multiple>
+                                <option>انتخاب</option>
+                            {% for i in users %}
+                                <option value="{{i.id}}" {% if i.id in userlist %} selected {% endif %}>{{i}}</option>
+                            {% endfor %}
+                             
+                              </select>
+                        </a>
+                        {% endif %}
+                        <a  class="list-group-item d-flex align-items-center">
+                            
+                            <button class="btn btn-outline-dark btn-block btn-block4" type="submit" data-url="#" >
+                                فیلتر                </button>
+                           
+                           
+                    
+                        </a>
+                    </form>
+                        {% comment %} <a href="#" class="list-group-item d-flex align-items-center">
                             <i data-feather="star" class="mr-2 width-15 height-15"></i>
                             شروع شده
                             <span class="small ml-auto">10</span>
@@ -45,9 +82,9 @@
                             <i data-feather="trash" class="mr-2 width-15 height-15"></i>
                            سطل آشغال 
                             <span class="small ml-auto">2</span>
-                        </a>
+                        </a> {% endcomment %}
                     </div>
-                    <div class="card-body">
+                    {% comment %} <div class="card-body">
                         <h6 class="mb-0">برچسب‌ها</h6>
                     </div>
                     <div class="list-group list-group-flush">
@@ -72,8 +109,8 @@
                             <span class="text-secondary fa fa-circle mr-2"></span>
                             کدزدن
                         </a>
-                    </div>
-                </div> {% endcomment %}
+                    </div> {% endcomment %}
+                </div> 
             </div>
         </div>
         <div class="col-md-9 app-content">
@@ -90,24 +127,41 @@
                                 انتخاب بر اساس
                             </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#">خوانده شده</a>
-                                <a class="dropdown-item" href="#">خوانده نشده</a>
-                                <a class="dropdown-item" href="#">اسپم</a>
+                                <a class="dropdown-item" href="?status=Pending{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">درخواست شده</a>
+                                <a class="dropdown-item" href="?status=Approved{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید شده</a>
+                                <a class="dropdown-item" href="?status=Rejected{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">رد شده</a>
+                                
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="#">حذف</a>
+                                
+                                <!-- Show All -->
+                                <a class="dropdown-item text-danger" href="?{% if sort_by %}sort_by={{ sort_by }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}status=all">همه</a>
                             </div>
                         </li>
-                        <li class="list-inline-item mb-0">
-                            <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown">
-                                چینش</a>
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <a class="dropdown-item" href="#">تاریخ</a>
-                                <a class="dropdown-item" href="#">از</a>
-                                <a class="dropdown-item" href="#">موضوغ</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">اندازه</a>
+                        <li class="list-inline-item mb-0 ">
+                            <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                چینش
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right " x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(807px, 60px, 0px);">
+                                <!-- Sorting by Date -->
+                                <a class="dropdown-item" href="?sort_by=-created_at{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تاریخ (جدیدترین)</a>
+                                <a class="dropdown-item" href="?sort_by=created_at{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تاریخ (قدیمی‌ترین)</a>
+                        
+                                <!-- Sorting by ID -->
+                                <a class="dropdown-item" href="?sort_by=-id{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">کد (بزرگ‌ترین)</a>
+                                <a class="dropdown-item" href="?sort_by=id{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">کد (کوچک‌ترین)</a>
+                        
+                                <!-- Sorting by Status -->
+                                <a class="dropdown-item" href="?sort_by=status{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">وضعیت (صعودی)</a>
+                                <a class="dropdown-item" href="?sort_by=-status{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">وضعیت (نزولی)</a>
+                        
+                                {% comment %} <div class="dropdown-divider"></div> {% endcomment %}
+                        
+                                <!-- Sorting by Size (Example Field) -->
+                                {% comment %} <a class="dropdown-item" href="?sort_by=size">اندازه (صعودی)</a>
+                                <a class="dropdown-item" href="?sort_by=-size">اندازه (نزولی)</a> {% endcomment %}
                             </div>
                         </li>
+                        
                     </ul>
                 </div>
                 <div class="action-right">
@@ -117,27 +171,43 @@
                         </a>
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="جستجوی درخواست"
-                                   aria-describedby="button-addon1">
+                                   aria-describedby="button-addon1"  name="q" 
+                                   value="{{ search_query }}">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-light" type="button" id="button-addon1">
+                                <button class="btn btn-outline-light" type="submit" id="button-addon1">
                                     <i class="ti-search"></i>
                                 </button>
                             </div>
                         </div>
                     </form>
                     <div class="app-pager d-flex align-items-center">
-                        <div class="mr-3">1-50 از 253</div>
+                        <div class="mr-3">{{ req.number }} از {{req.paginator.num_pages}}</div>
                         <nav aria-label="Page navigation example">
                             <ul class="pagination">
                                 <li class="page-item">
-                                    <a class="page-link" href="#" aria-label="Previous">
+                                {% if req.has_previous %}
+
+                                    <a class="page-link" href="?page={{ req.previous_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if userlist %}&userlist={{ userlist }}{% endif %}{% if start %}&start={{ start }}{% endif %}{% if end %}&end={{ end }}{% endif %}" aria-label="Previous">
                                         <i data-feather="chevron-left" class="width-15 height-15"></i>
                                     </a>
+                                {% else %}
+                                <a class="page-link" href="#" aria-label="Previous">
+                                    <i data-feather="chevron-left" class="width-15 height-15"></i>
+                                </a>
+                                {% endif %}
+
                                 </li>
                                 <li class="page-item">
+                                    {% if req.has_next %}
+                                    <a class="page-link" href="?page={{ req.next_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if userlist %}&userlist={{ userlist }}{% endif %}{% if start %}&start={{ start }}{% endif %}{% if end %}&end={{ end }}{% endif %}" aria-label="Next">
+                                        <i data-feather="chevron-right" class="width-15 height-15"></i>
+                                    </a>
+                                    {% else %}
                                     <a class="page-link" href="#" aria-label="Next">
                                         <i data-feather="chevron-right" class="width-15 height-15"></i>
                                     </a>
+
+                                    {% endif %}
                                 </li>
                             </ul>
                         </nav>
@@ -146,8 +216,9 @@
             </div>
             <div class="card card-body app-content-body">
                 <div class="app-lists">
-                    <ul class="list-group list-group-flush " id="main_ul">
+                    <ul class="list-group list-group-flush" id="main_ul">
                        {% include 'mrp/purchase/partialPurchaseList_v2.html' %}
+                        
                       
                     </ul>
                 </div>
@@ -227,9 +298,28 @@
 
 {% endblock %}
 {% block javascript %}
-
+  <!-- Plugin scripts -->
+  <script src="{% static 'vendors/select2/js/select2.min.js' %}"></script>
+  <script src="{% static 'assets/js/examples/select2.js' %}"></script>
+  <script>
+    $('.select2-example').select2({
+        placeholder: 'اشخاص'
+    });
+    $('input[name="start"]').pDatepicker({
+        format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian'
+      });
+    $('input[name="end"]').pDatepicker({
+        format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian'
+      });
+  </script>
+  
 <script src="{% static 'project/purchase.js' %}"></script>
 
 <script src="{% static 'project/purchaselist.js' %}"></script>
+
 
 {% endblock %}

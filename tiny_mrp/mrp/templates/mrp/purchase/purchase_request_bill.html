@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فاکتور درخواست خرید</title>
+    <!-- Bootstrap 4 CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'B Nazanin', sans-serif;
+            direction: rtl; /* Make the page RTL */
+            text-align: right; /* Align text to the right */
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .purchase-details, .item-list {
+            margin: 20px 0;
+        }
+        .table td, .table th {
+            text-align: center;
+        }
+        .status {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #fff;
+        }
+        .status.success {
+            background-color: #28a745;
+        }
+        .status.info {
+            background-color: #17a2b8;
+        }
+        .status.danger {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header Section -->
+    <div class="header">
+        <h1>فاکتور درخواست خرید</h1>
+        <p class="lead">اطلاعات درخواست خرید شماره {{ purchase_request.id }}</p>
+    </div>
+
+    <!-- Purchase Details Section -->
+    <div class="purchase-details">
+        <table class="table table-bordered">
+            <tr>
+                <th>درخواست‌دهنده</th>
+                <td>{{ purchase_request.user.fullName }}</td>
+            </tr>
+            <tr>
+                <th>تاریخ ایجاد</th>
+                <td>{{ purchase_request.get_dateCreated_jalali }}</td>
+            </tr>
+            <tr>
+                <th>وضعیت</th>
+                <td><span class="status {% if purchase_request.status == 'Approved' %}success{% elif purchase_request.status == 'Pending' %}info{% elif purchase_request.status == 'Rejected' %}danger{% endif %}">
+                    {{ purchase_request.status }}</span>
+                </td>
+            </tr>
+            <tr>
+                <th>وضعیت اضطراری</th>
+                <td>
+                    {% if purchase_request.is_emergency %} بلی {% else %} خیر {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Item List Section -->
+    <div class="item-list">
+        <h3>لیست اقلام درخواست شده</h3>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>نام کالا</th>
+                    <th>تعداد</th>
+                    <th>مکان مصرف</th>
+                    <th>قیمت واحد</th>
+                    <th>تامین‌کننده</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in purchase_request.items.all %}
+                <tr>
+                    <td>{{ item.item_name.partName }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.consume_place.assetName }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>{{ item.supplier_assigned.name }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Bootstrap 4 JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

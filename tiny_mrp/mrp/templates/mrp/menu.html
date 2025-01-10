@@ -180,6 +180,27 @@
       <li>
         <a href="{% url 'list_purchase_req' %}">
           <span>درخواست</span>
+        
+
+        </a>
+      </li>
+      {% if request.user.is_superuser %}
+         
+      <li>
+        <a href="{% url 'list_purchase_req_detail' %}">
+          <span>همه درخواست ها</span>
+
+        
+
+        </a>
+      </li>
+      {% endif %}
+
+      <li>
+        <a href="{% url 'calendar_purchase_request_main' %}">
+          <span>تقویم</span>
+
+        
 
         </a>
       </li>
