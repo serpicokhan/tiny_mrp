@@ -222,7 +222,7 @@ $(function () {
     function addImageInput() {
         const inputGroup = `
           <div class="input-group mb-2">
-            <input type="file" name="images[]" accept="image/*" class="form-control" required>
+            <input type="file" name="file" accept="image/*" class="form-control" required>
             <button type="button" class="btn btn-danger remove-btn">حذف</button>
           </div>`;
         $('#image-container').append(inputGroup);
@@ -242,14 +242,14 @@ $(function () {
       });
   
       // Handle form submission (for debugging)
-      $('#image-upload-form').on('submit', function (e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        for (let [key, value] of formData.entries()) {
-          console.log(key, value.name); // Logs the uploaded file names
-        }
-        alert('فرم ارسال شد!');
-      });
+    //   $('#image-upload-form').on('submit', function (e) {
+    //     e.preventDefault();
+    //     const formData = new FormData(this);
+    //     for (let [key, value] of formData.entries()) {
+    //       console.log(key, value.name); // Logs the uploaded file names
+    //     }
+    //     alert('فرم ارسال شد!');
+    //   });
 
    
 });

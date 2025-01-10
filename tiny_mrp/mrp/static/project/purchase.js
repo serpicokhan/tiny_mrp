@@ -236,6 +236,44 @@ $(document).ready(function() {
         // Reset background color
         $(this).css('background-color', '');
     });
+    var submit_file_form=function(last_id){
+        const fileInputs = $('input[name="file"]');
+        let valid = true;
+    
+        fileInputs.each(function () {
+            if (!this.files || this.files.length === 0) {
+                
+                valid = false;
+                return false; // Break the loop
+            }
+        });
+    
+        if (!valid) {
+            return;
+        }
+        
+
+        //#################
+        const form=$("#image-upload-form")[0];
+        const formData = new FormData(form);
+      // Send the FormData to the server using AJAX
+      $.ajax({
+        url: '/Purchases/UploadImage/?p_id='+last_id,  // Replace with your server-side upload URL
+        type: 'POST',
+        data: formData,
+        processData: false,  // Prevent jQuery from processing the data
+        contentType: false,  // Don't set content type header as it will be set by the browser
+        success: function (response) {
+          console.log('Upload success', response);
+          alert('فرم ارسال شد!');
+        },
+        error: function (error) {
+          console.error('Error uploading images:', error);
+        //   console.log(' فایل خطا در ارسال فرم');
+        }
+      });
+
+    }
     $(document).on("click",'#saveButton', function () {
         let requestData = [];
         let valid = true;  // Flag to check if all fields are valid
@@ -302,7 +340,13 @@ $(document).ready(function() {
                 });
             }
         });
+        const is_emergency=$("#customSwitch3_").is(":checked");
+        if(is_emergency){
+            main_data.push({id:companyId,user_name:user_name,items:requestData,emergency:true})
+        }
+        else{
         main_data.push({id:companyId,user_name:user_name,items:requestData})
+        }
 
         // If any invalid field, show error and prevent sending
         if (!valid) {
@@ -328,28 +372,9 @@ $(document).ready(function() {
                 $("#main_ul").html('');
                 $("#main_ul").html(response.parchase_req_html);
                 last_id=response.purchase_request;
-                
+                submit_file_form(last_id);
 
-                //#################
-                const form=$("#image-upload-form")[0];
-                const formData = new FormData(form);
-                console.log(last_id);
-              // Send the FormData to the server using AJAX
-              $.ajax({
-                url: '/Purchases/UploadImage/?p_id='+last_id,  // Replace with your server-side upload URL
-                type: 'POST',
-                data: formData,
-                processData: false,  // Prevent jQuery from processing the data
-                contentType: false,  // Don't set content type header as it will be set by the browser
-                success: function (response) {
-                  console.log('Upload success', response);
-                  alert('فرم ارسال شد!');
-                },
-                error: function (error) {
-                  console.error('Error uploading images:', error);
-                  alert('خطا در ارسال فرم');
-                }
-              });
+
 
                 //#################
 

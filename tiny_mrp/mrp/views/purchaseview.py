@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
-from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2
+from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2,PurchaseRequestFile
 from django.template.loader import render_to_string
 from mrp.business.purchaseutility import *
 from mrp.business.DateJob import *
@@ -118,8 +118,10 @@ def save_purchase_request(request):
                         )
                 # print(existing_item_ids)
             else:
+                is_emergency=request.POST.get("emergency",False)
                 purchase_request = PurchaseRequest.objects.create(
-                user=r_user,  # Assuming user is logged in
+                user=r_user,
+                is_emergency=is_emergency  # Assuming user is logged in
                 # consume_place="General",  # Default or get from frontend if applicable
                 # description="Auto-generated request"
                 )               
@@ -167,11 +169,13 @@ def create_purchase(request):
 def update_purchase(request,id):
     company=PurchaseRequest.objects.get(id=id)
     req_items=RequestItem.objects.filter(purchase_request=company)
+    files=PurchaseRequestFile.objects.filter(purchase_request=company)
     if(request.method=="GET"):
         data=dict()
         data["parchase_req_html"]=render_to_string('mrp/purchase/updateReq.html', {
                 'company': company,
-                'items':req_items
+                'items':req_items,
+                'files':files
                 
             })
         return JsonResponse(data)
@@ -261,29 +265,30 @@ def delete_purchase_request(request,id):
     return JsonResponse({'stats':'BAD!','message':'Bad Data'})
 @csrf_exempt
 def upload_purchase_images(request):
-    # if request.method == 'POST' and request.FILES.getlist('images[]'):
-    #     images = request.FILES.getlist('images[]')
-    #     fs = FileSystemStorage()
-    #     uploaded_files = []
-        
-    #     for image in images:
-    #         filename = fs.save(image.name, image)
-    #         uploaded_files.append(fs.url(filename))
-        
-    #     return JsonResponse({'message': 'Images uploaded successfully!', 'uploaded_files': uploaded_files})
     
-    # return JsonResponse({'error': 'No files uploaded!'}, status=400)
-    purchase_request_id=request.GET.get('p_id')
-    purchase_request = get_object_or_404(PurchaseRequest, id=purchase_request_id)
-    
-    if request.method == 'POST' and request.FILES:
-        form = PurchaseRequestFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Save the file and associate it with the PurchaseRequest
-            purchase_request_file = form.save(commit=False)
-            purchase_request_file.purchase_request = purchase_request
-            purchase_request_file.save()
-            return JsonResponse({},status=201) # Redirect after successful upload
-    # else:
-    #     form = PurchaseRequestFileForm()
-    return JsonResponse({},status=201)
+    print(request.method,'####################')
+    if request.method == 'POST':
+        purchase_request_id = request.GET.get('p_id')
+        uploaded_files = request.FILES.getlist('file')
+        print("files:",uploaded_files)
+        print("p_id:",purchase_request_id)
+
+        if not purchase_request_id or not uploaded_files:
+            print("here!!!")
+
+
+            return JsonResponse({'success': False,
+                                  'errors': 'Both purchase_request and file are required.'}, status=400)
+
+        # Validate and get the PurchaseRequest instance
+        purchase_request = get_object_or_404(PurchaseRequest, id=purchase_request_id)
+
+        # Create and save the PurchaseRequestFile instance
+        for uploaded_file in uploaded_files:
+            PurchaseRequestFile.objects.create(
+                purchase_request=purchase_request,
+                file=uploaded_file
+            )
+
+        return JsonResponse({'success': True, 'message': 'File uploaded successfully!'})
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)

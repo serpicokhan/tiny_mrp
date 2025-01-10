@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import jdatetime
+import os
 from mrp.models import SysUser,Asset2,Part
 class PurchaseRequest(models.Model):
     def getItems(self):
@@ -20,6 +21,7 @@ class PurchaseRequest(models.Model):
     """Represents a purchase request submitted by an employee."""
     user = models.ForeignKey(SysUser, on_delete=models.CASCADE, related_name='purchase_requests')
     created_at = models.DateField(auto_now_add=True)
+    is_emergency = models.BooleanField(default=False)
     status = models.CharField(
         max_length=20,
         choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected'), ('Ordered', 'Ordered')],
@@ -120,4 +122,4 @@ class PurchaseRequestFile(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"File for Purchase Request #{self.purchase_request.id}"
+         return os.path.basename(self.file.name)

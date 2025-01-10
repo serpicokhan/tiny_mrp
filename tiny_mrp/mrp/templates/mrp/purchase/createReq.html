@@ -12,17 +12,24 @@
     </div>
     <div class="app-detail-action-right">
         <div>
-            <a href="#" class="btn btn-outline-light" data-toggle="tooltip" title="پاسخ">
-                <i data-feather="corner-up-left"></i>
-            </a>
-            <a href="#" class="btn btn-outline-light ml-2" data-toggle="tooltip"
+            {% comment %} <a href="#" class="btn btn-outline-light" data-toggle="tooltip" title="اضطراری">
+                <i data-feather="alert-triangle"></i>
+            </a> {% endcomment %}
+            <div class="custom-control custom-switch custom-checkbox-danger">
+                <input type="checkbox" class="custom-control-input" id="customSwitch3_" >
+                <label class="custom-control-label" for="customSwitch3_">
+                    درخواست اورژانسی
+                    
+                   </label>
+            </div>
+            {% comment %} <a href="#" class="btn btn-outline-light ml-2" data-toggle="tooltip"
             title="اسپم">
              <i data-feather="info"></i>
          </a>
             <a href="#" class="btn btn-outline-light ml-2" data-toggle="tooltip"
                title="رد کردن">
                 <i data-feather="trash"></i>
-            </a>
+            </a> {% endcomment %}
         </div>
     </div>
 </div>

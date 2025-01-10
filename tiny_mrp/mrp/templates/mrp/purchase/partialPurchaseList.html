@@ -7,6 +7,9 @@
                                     <input type="checkbox" class="custom-control-input" id="customCheck{{i.id}}">
                                     <label class="custom-control-label" for="customCheck{{i.id}}">#{{i.id}}</label>
                                 </div>
+                                {% comment %} <div class="spinner-grow spinner-grow-sm" role="status">
+                                    <span class="sr-only">در حال بارگذاری</span>
+                                </div> {% endcomment %}
                             </div>
                             {% comment %} <div>
                                 <a href="#" class="add-star mr-3" title="محبوب کردن">
@@ -43,7 +46,7 @@
                                         <ul class="list-inline">
                                             <li class="list-inline-item mb-0">
                                                 <a href="#" data-toggle="tooltip" title="" data-original-title="وضعیت">
-                                                  {{i.status}}
+                                                  {{i.get_status_display}}
                                                 </a>
                                             </li>
                                             <li class="list-inline-item mb-0">
