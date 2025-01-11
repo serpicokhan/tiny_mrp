@@ -254,6 +254,7 @@ def update_purchase(request,id):
         return JsonResponse(data)
 
 def update_purchase_v2(request,id):
+    print(request.GET.get('page'),'!!!!!!!!!!!!!!')
     company=PurchaseRequest.objects.get(id=id)
     req_items=RequestItem.objects.filter(purchase_request=company)
     files=PurchaseRequestFile.objects.filter(purchase_request=company)
@@ -465,6 +466,8 @@ def export_purchase_requests(request):
     return response
 def filter_request_by(request):
     search_query = request.GET.get('q', '').strip() 
+    page=request.GET.get('page', False)
+    print(page,request.GET,'@@@@@@@@@@')
     
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
