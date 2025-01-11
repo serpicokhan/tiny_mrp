@@ -274,6 +274,30 @@ $(document).ready(function() {
       });
 
     }
+    function refreshList() {
+        const currentParams = new URLSearchParams(window.location.search);
+
+        // Save them globally for later use
+        const filters = {};
+        for (const [key, value] of currentParams.entries()) {
+            filters[key] = value;
+        }
+        // Send the query parameters with the list reload request
+        const params = new URLSearchParams(filters).toString();
+    
+        $.ajax({
+            url: `/Purchases/RefereshList?${params}`, // Append filters to the URL
+            method: 'GET',
+            success: function (data) {
+                // $('#list-container').html(data.parchase_req_html);
+                if(data.status="ok"){
+                $("#main_ul").html('');
+                $("#main_ul").html(data.parchase_req_html);
+                }
+            },
+        });
+        console.log(params);
+    }
     $(document).on("click",'#saveButton', function () {
         let requestData = [];
         let valid = true;  // Flag to check if all fields are valid
@@ -368,9 +392,10 @@ $(document).ready(function() {
             success: function (response) {
                 toastr.success("درخواست با موفقیت ثبت شد");
                 $('.app-detail').removeClass('show');
-                $("#main_ul").html('');
-                $("#main_ul").html(response.parchase_req_html);
+                // $("#main_ul").html('');
+                // $("#main_ul").html(response.parchase_req_html);
                 last_id=response.purchase_request;
+                refreshList();
                 submit_file_form(last_id);
 
 

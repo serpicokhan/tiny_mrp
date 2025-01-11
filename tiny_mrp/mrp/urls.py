@@ -118,6 +118,7 @@ urlpatterns = [
     url(r'^Purchases/GetInfo/$', get_purchasereq_calendar_info, name='get_purchasereq_calendar_info'),
     url(r'^Purchases/Bill/$', get_purchase_request, name='get_purchase_request'),
     url(r'^Purchases/AddViewer/$', add_view_by, name='add_view_by'),
+    url(r'^Purchases/RefereshList$', referesh_purchase_list, name='referesh_purchase_list'),
 
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
     url(r'^Asset/GetAssets$', asset_getAssets2, name='asset_getAssets2'),

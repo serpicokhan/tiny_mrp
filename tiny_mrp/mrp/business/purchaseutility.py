@@ -6,7 +6,7 @@ class PurchaseUtility:
     @staticmethod
     def doPaging(request,books):
         page=request.GET.get('page',1)
-        paginator = Paginator(books, 10)
+        paginator = Paginator(books, 2)
         wos=None
         try:
             wos=paginator.page(page)

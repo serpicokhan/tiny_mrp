@@ -248,7 +248,8 @@ def update_purchase(request,id):
                 'company': company,
                 'items':req_items,
                 'files':files,
-                'date_':company.created_at.strftime('%Y/%m/%d')
+                'date_':company.created_at.strftime('%Y/%m/%d'),
+                
                 
             },request)
         return JsonResponse(data)
@@ -464,10 +465,63 @@ def export_purchase_requests(request):
     # Save the workbook to the response
     wb.save(response)
     return response
+
+
+def referesh_purchase_list(request):
+    search_query = request.GET.get('q', '').strip() 
+    # page=request.GET.get('page', False)
+    # print(page,request.GET,'@@@@@@@@@@')
+    
+    start = request.GET.get('start', False) 
+    end = request.GET.get('end', False)
+    userlist = request.GET.getlist('userlist', False)
+
+    sort_by = request.GET.get('sort_by', '-created_at')  # Default sorting by `created_at` in descending order
+    status_filter = request.GET.get('status', 'all')  # Default to show all statuses
+    if(request.user.is_superuser):
+        requests=PurchaseRequest.objects.all().order_by('-created_at')
+    else:
+        requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
+
+    if search_query:
+        filters = Q(items__item_name__partName__icontains=search_query) | \
+                Q(items__description__icontains=search_query) | \
+                Q(user__fullName__icontains=search_query)
+        
+        # Only add the id filter if the search query is a digit
+        if search_query.isdigit():
+            filters |= Q(id=search_query)
+        
+        requests = requests.filter(filters).distinct()
+    # Status filtering
+    if status_filter != 'all':
+        requests = requests.filter(status=status_filter)
+    valid_sort_fields = ['id', '-id', 'created_at', '-created_at', 'status', '-status']
+    if sort_by in valid_sort_fields:
+        requests = requests.order_by(sort_by)
+    if(userlist):
+        userlist = [int(user_id) for user_id in userlist]
+        requests=requests.filter(user__id__in=userlist)
+    
+    
+    ws= PurchaseUtility.doPaging(request,requests)
+    data=dict()
+    data["status"]="ok"
+    data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
+                        
+                        'req':ws,
+                       
+
+                        
+                    },request)
+    return JsonResponse(data)
+
+
+
 def filter_request_by(request):
     search_query = request.GET.get('q', '').strip() 
     page=request.GET.get('page', False)
-    print(page,request.GET,'@@@@@@@@@@')
+    # print(page,request.GET,'@@@@@@@@@@')
     
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
