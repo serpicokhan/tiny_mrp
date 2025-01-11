@@ -413,33 +413,33 @@ $(document).ready(function() {
     });
     $(document).on('click','#add-comment-btn',function() {
         const commentText = $('#comment-text').val();
-        const purchaseRequestId = "{{ purchase_request.id }}"; // Replace with your purchase request ID
-
+        const purchaseRequestId = purchase_request_id; // Replace with your purchase request ID
+        console.log(purchaseRequestId);
         if (commentText.trim() === "") {
             alert("نظر نمی‌تواند خالی باشد!");
             return;
         }
 
         $.ajax({
-            url: "{% url 'add_comment' %}",
+            url: "/Purchases/AddComment",
             method: "POST",
             data: {
-                text: commentText,
+                content: commentText,
                 purchase_request_id: purchaseRequestId,
-                csrfmiddlewaretoken: '{{ csrf_token }}',
+                
             },
             success: function(response) {
-                if (response.success) {
+                if (response.status=="success") {
                     // Append the new comment to the comments section
                     $('#comments-section').append(`
                         <div class="card-body border p-3 mb-2">
                             <div class="d-flex">
                                 <figure class="avatar avatar-sm mr-3">
-                                    <img src="/path/to/default-avatar.jpg" class="rounded-circle" alt="...">
+                                    <img src="${response.image}" class="rounded-circle" alt="...">
                                 </figure>
                                 <div>
-                                    <strong>${response.username}</strong>
-                                    <p>${response.text}</p>
+                                    <strong>${response.user}</strong>
+                                    <p>${response.content}</p>
                                     <small class="text-muted">همین حالا</small>
                                 </div>
                             </div>

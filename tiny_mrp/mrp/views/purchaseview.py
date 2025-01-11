@@ -612,12 +612,12 @@ def add_view_by(request):
 
 @login_required
 @csrf_exempt
-def add_comment(request):
+def add_purchase_comment(request):
     if request.method == "POST" and request.is_ajax():
         content = request.POST.get("content")
         purchase_request_id = request.POST.get("purchase_request_id")
         parent_id = request.POST.get("parent_id")  # Optional for replies
-        user = request.user
+        user = request.user.sysuser
 
         purchase_request = get_object_or_404(PurchaseRequest, id=purchase_request_id)
         parent_comment = Comment.objects.filter(id=parent_id).first() if parent_id else None
@@ -634,7 +634,8 @@ def add_comment(request):
             "comment_id": comment.id,
             "content": comment.content,
             "created_at": comment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-            "user": str(user),
-            "parent_id": parent_id
+            "user": str(user.fullName),
+            "parent_id": parent_id,
+            'image':request.user.sysuser.profileImage.url
         })
     return JsonResponse({"status": "error"}, status=400)
