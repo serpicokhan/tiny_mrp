@@ -83,7 +83,7 @@
                     <th>نام کالا</th>
                     <th>تعداد</th>
                     <th>مکان مصرف</th>
-                    <th>قیمت واحد</th>
+                    <th>شرح</th>
                     <th>تامین‌کننده</th>
                 </tr>
             </thead>
@@ -93,7 +93,7 @@
                     <td>{{ item.item_name.partName }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>{{ item.consume_place.assetName }}</td>
-                    <td>{{ item.price }}</td>
+                    <td>{{ item.description }}</td>
                     <td>{{ item.supplier_assigned.name }}</td>
                 </tr>
                 {% endfor %}

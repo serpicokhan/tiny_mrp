@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 import jdatetime
+from django.utils import timezone
+
 import os
 import json
 from mrp.models import SysUser,Asset2,Part
@@ -50,7 +52,7 @@ class PurchaseRequest(models.Model):
         return json.loads(self.viewed_by)
     """Represents a purchase request submitted by an employee."""
     user = models.ForeignKey(SysUser, on_delete=models.CASCADE, related_name='purchase_requests')
-    created_at = models.DateField(auto_now_add=True)
+    created_at = models.DateField(auto_now_add=False, default=timezone.now)
     is_emergency = models.BooleanField(default=False)
     viewed_by = models.TextField(blank=True, default='[]')
     status = models.CharField(

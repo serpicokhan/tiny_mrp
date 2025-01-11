@@ -24,6 +24,17 @@
 <div class="app-detail-article">
     <div class="card-body">
      {% include 'mrp/purchase/purchase_v2.html' %}
+     {% if request.user.is_superuser %}
+     <div class="row">
+         
+         <div class="col-md-6">
+            تاریخ درخواست
+            <input class=" form-control " type="text" name="created_at" id="created_at" value={{date_}} >
+           
+            
+         </div>
+     </div>
+ {% endif %}
     </div>
     <hr class="m-0">
     
@@ -44,4 +55,22 @@
         </ul>
     </div>
     {% endif %}
+    <hr class="m-0">
+    <div class="card-body">
+       
+              <button type="button" class="btn btn-primary" id="saveButton">
+                <i data-feather="send" class="mr-2"></i>ارسال
+              </button>
+            
+            </div>
+          
+    </div>
 </div>
+<script>
+   
+    $('input[name="created_at"]').pDatepicker({
+        format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian'
+      });
+    </script>

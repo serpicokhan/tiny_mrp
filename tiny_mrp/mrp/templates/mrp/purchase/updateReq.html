@@ -27,6 +27,17 @@
 <div class="app-detail-article">
     <div class="card-body">
      {% include 'mrp/purchase/purchase.html' %}
+     {% if request.user.is_superuser %}
+     <div class="row">
+         
+         <div class="col-md-6">
+            تاریخ درخواست
+            <input class=" form-control " type="text" name="created_at" id="created_at" value={{date_}} >
+           
+            
+         </div>
+     </div>
+ {% endif %}
     </div>
     {% if files %}
     <hr class="m-0">
@@ -65,3 +76,11 @@
           </form>
     </div>
 </div>
+<script>
+   
+    $('input[name="created_at"]').pDatepicker({
+        format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian'
+      });
+    </script>

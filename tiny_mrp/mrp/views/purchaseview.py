@@ -148,6 +148,10 @@ def save_purchase_request(request):
             data = json.loads(request.body)
             items = data.get('items', [])
             req_id=data.get('id', False)
+            created_at=data.get("created_at",False)
+            is_emergency=data.get("emergency",False)
+
+
             print("312321########",req_id)
             purchase_request=None
 
@@ -162,6 +166,8 @@ def save_purchase_request(request):
             if(req_id):
                 #update
                 purchase_request = get_object_or_404(PurchaseRequest, id=req_id)
+                purchase_request.created_at=DateJob.getTaskDate(created_at)
+                purchase_request.save()
                 existing_item_ids = [item.get('id') for item in items if 'id' in item]
                 RequestItem.objects.filter(purchase_request=purchase_request).exclude(id__in=existing_item_ids).delete()
                 for item in items:
@@ -182,10 +188,12 @@ def save_purchase_request(request):
                         )
                 # print(existing_item_ids)
             else:
-                is_emergency=request.POST.get("emergency",False)
+                print(request.POST)
+                print(created_at," date!!!!!!!!")
                 purchase_request = PurchaseRequest.objects.create(
                 user=r_user,
-                is_emergency=is_emergency  # Assuming user is logged in
+                is_emergency=is_emergency,  # Assuming user is logged in
+                created_at=DateJob.getTaskDate(created_at)
                 # consume_place="General",  # Default or get from frontend if applicable
                 # description="Auto-generated request"
                 )               
@@ -208,7 +216,7 @@ def save_purchase_request(request):
                        
 
                         
-                    })
+                    },request)
             data["http_status"]="ok"
             data['purchase_request']=purchase_request.id
 
@@ -239,9 +247,10 @@ def update_purchase(request,id):
         data["parchase_req_html"]=render_to_string('mrp/purchase/updateReq.html', {
                 'company': company,
                 'items':req_items,
-                'files':files
+                'files':files,
+                'date_':company.created_at.strftime('%Y/%m/%d')
                 
-            })
+            },request)
         return JsonResponse(data)
 
 def update_purchase_v2(request,id):
@@ -254,10 +263,11 @@ def update_purchase_v2(request,id):
         data["parchase_req_html"]=render_to_string('mrp/purchase/updateReq_v2.html', {
                 'company': company,
                 'items':req_items,
-                'files':files
+                'files':files,
+                'date_':company.created_at.strftime('%Y/%m/%d')
 
                 
-            })
+            },request)
         return JsonResponse(data)
 
 def purchase_dash(request):
@@ -276,7 +286,7 @@ def confirm_request(request,id):
                 'req':list_item,
 
                 
-            })
+            },request)
     data["http_status"]="ok"
     data["status"]=company.status
 
@@ -294,7 +304,7 @@ def reject_request(request,id):
                 'req':list_item,
 
                 
-            })
+            },request)
     data["http_status"]="ok"
     data["status"]=company.status
 
@@ -302,8 +312,7 @@ def reject_request(request,id):
     return JsonResponse(data)
 
 def list_purchaseRequeset(request):
-    list_items=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-id')
-    return list_items
+    return filter_request_by(request)
 
 @csrf_exempt
 
@@ -456,7 +465,7 @@ def export_purchase_requests(request):
     return response
 def filter_request_by(request):
     search_query = request.GET.get('q', '').strip() 
-    print(request)
+    
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
     userlist = request.GET.getlist('userlist', False)

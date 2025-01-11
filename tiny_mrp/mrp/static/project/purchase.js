@@ -281,6 +281,9 @@ $(document).ready(function() {
         let main_data=[];
         let companyId=$("#companyId").val()||null;
         let user_name=$("#requested_user").val()||null;
+        let created_at=$("#created_at").val()||null;
+        let is_emergency=$("#customSwitch3_").is(":checked");
+
         
 
         // Iterate through each table row
@@ -340,13 +343,9 @@ $(document).ready(function() {
                 });
             }
         });
-        const is_emergency=$("#customSwitch3_").is(":checked");
-        if(is_emergency){
-            main_data.push({id:companyId,user_name:user_name,items:requestData,emergency:true})
-        }
-        else{
-        main_data.push({id:companyId,user_name:user_name,items:requestData})
-        }
+       
+        main_data.push({created_at:created_at,id:companyId,user_name:user_name,items:requestData})
+        
 
         // If any invalid field, show error and prevent sending
         if (!valid) {
@@ -361,9 +360,9 @@ $(document).ready(function() {
             url: "/api/save-purchase-request/",
             method: "POST",
             contentType: "application/json",
-            data: JSON.stringify({id:companyId,user_name:user_name,items:requestData}),
+            data: JSON.stringify({id:companyId,user_name:user_name,items:requestData,created_at:created_at,emergency:is_emergency}),
             beforeSend:function(x){
-                console.log( JSON.stringify({id:companyId,user_name:user_name,items:requestData}));
+                console.log( JSON.stringify({id:companyId,user_name:user_name,items:requestData,created_at:created_at,emergency:is_emergency}));
                 // x.abort();
             },
             success: function (response) {
