@@ -411,5 +411,51 @@ $(document).ready(function() {
         });
      
     });
+    $(document).on('click','#add-comment-btn',function() {
+        const commentText = $('#comment-text').val();
+        const purchaseRequestId = "{{ purchase_request.id }}"; // Replace with your purchase request ID
+
+        if (commentText.trim() === "") {
+            alert("نظر نمی‌تواند خالی باشد!");
+            return;
+        }
+
+        $.ajax({
+            url: "{% url 'add_comment' %}",
+            method: "POST",
+            data: {
+                text: commentText,
+                purchase_request_id: purchaseRequestId,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Append the new comment to the comments section
+                    $('#comments-section').append(`
+                        <div class="card-body border p-3 mb-2">
+                            <div class="d-flex">
+                                <figure class="avatar avatar-sm mr-3">
+                                    <img src="/path/to/default-avatar.jpg" class="rounded-circle" alt="...">
+                                </figure>
+                                <div>
+                                    <strong>${response.username}</strong>
+                                    <p>${response.text}</p>
+                                    <small class="text-muted">همین حالا</small>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+
+                    // Clear the textarea
+                    $('#comment-text').val('');
+                } else {
+                    alert(response.error || "خطایی رخ داده است!");
+                }
+            },
+            error: function(error) {
+                alert("خطایی رخ داد. دوباره تلاش کنید!");
+            }
+        });
+    });
 });
 

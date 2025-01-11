@@ -156,3 +156,16 @@ class PurchaseRequestFile(models.Model):
 
     def __str__(self):
          return os.path.basename(self.file.name)
+class Comment(models.Model):
+    purchase_request = models.ForeignKey(
+        PurchaseRequest, on_delete=models.CASCADE, related_name='comments'
+    )
+    user = models.ForeignKey(SysUser, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies'
+    )
+
+    def __str__(self):
+        return f"Comment by {self.user} on {self.purchase_request}"

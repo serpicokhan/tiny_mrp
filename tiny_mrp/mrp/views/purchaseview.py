@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.http import JsonResponse,HttpResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
-from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2,PurchaseRequestFile,Asset
+from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2,PurchaseRequestFile,Asset,Comment
 from django.template.loader import render_to_string
 from mrp.business.purchaseutility import *
 from mrp.business.DateJob import *
@@ -13,6 +13,7 @@ from mrp.forms import PurchaseRequestFileForm
 import openpyxl
 from openpyxl.styles import Border, Side, PatternFill,Font,Alignment
 import json
+from django.contrib.auth.decorators import login_required
 
 def list_purchase(request):
     return render(request,"mrp/purchase/purchase.html",{})
@@ -241,6 +242,7 @@ def create_purchase(request):
 def update_purchase(request,id):
     company=PurchaseRequest.objects.get(id=id)
     req_items=RequestItem.objects.filter(purchase_request=company)
+    comments = company.comments.all() 
     files=PurchaseRequestFile.objects.filter(purchase_request=company)
     if(request.method=="GET"):
         data=dict()
@@ -249,6 +251,7 @@ def update_purchase(request,id):
                 'items':req_items,
                 'files':files,
                 'date_':company.created_at.strftime('%Y/%m/%d'),
+                "comments": comments,
                 
                 
             },request)
@@ -607,4 +610,31 @@ def add_view_by(request):
 
 
 
+@login_required
+@csrf_exempt
+def add_comment(request):
+    if request.method == "POST" and request.is_ajax():
+        content = request.POST.get("content")
+        purchase_request_id = request.POST.get("purchase_request_id")
+        parent_id = request.POST.get("parent_id")  # Optional for replies
+        user = request.user
 
+        purchase_request = get_object_or_404(PurchaseRequest, id=purchase_request_id)
+        parent_comment = Comment.objects.filter(id=parent_id).first() if parent_id else None
+
+        comment = Comment.objects.create(
+            purchase_request=purchase_request,
+            user=user,
+            content=content,
+            parent=parent_comment
+        )
+
+        return JsonResponse({
+            "status": "success",
+            "comment_id": comment.id,
+            "content": comment.content,
+            "created_at": comment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "user": str(user),
+            "parent_id": parent_id
+        })
+    return JsonResponse({"status": "error"}, status=400)

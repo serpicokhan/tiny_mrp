@@ -22,14 +22,20 @@
                     
                    </label>
             </div>
-            {% comment %} <a href="#" class="btn btn-outline-light ml-2" data-toggle="tooltip"
-            title="اسپم">
-             <i data-feather="info"></i>
+            
+           
+           
+        </div>
+    </div>
+    <div class="app-detail-action-right">
+        <div>
+            <a href="#" class="btn btn-outline-light ml-2 "  data-toggle="tooltip" id="saveButton"
+            title="save">
+             <i data-feather="save"></i>
          </a>
-            <a href="#" class="btn btn-outline-light ml-2" data-toggle="tooltip"
-               title="رد کردن">
-                <i data-feather="trash"></i>
-            </a> {% endcomment %}
+            
+           
+           
         </div>
     </div>
 </div>
@@ -60,18 +66,15 @@
     
     <hr class="m-0">
     <div class="card-body">
-        <h6 class="mb-3 font-size-11 text-uppercase">پاسخ</h6>
         <form id="image-upload-form" method="post" enctype="multipart/form-data">
             <div id="image-container" class="mb-3">
               <!-- Dynamic image input fields will be added here -->
             </div>
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-center align-items-center">
               <button type="button" id="add-image-btn" class="btn btn-secondary">
                 <i class="fas fa-plus mr-2"></i>افزودن تصویر
               </button>
-              <button type="button" class="btn btn-primary" id="saveButton">
-                <i data-feather="send" class="mr-2"></i>ارسال
-              </button>
+              
             
             </div>
           </form>
