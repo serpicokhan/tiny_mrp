@@ -14,9 +14,15 @@ import openpyxl
 from openpyxl.styles import Border, Side, PatternFill,Font,Alignment
 import json
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
+
+
+@login_required
 
 def list_purchase(request):
     return render(request,"mrp/purchase/purchase.html",{})
+@login_required
+
 def list_purchase_req(request):
     search_query = request.GET.get('q', '').strip() 
     start = request.GET.get('start', False) 
@@ -77,6 +83,9 @@ def list_purchase_req(request):
                     'start':start_of_month,
                     'end':end_of_month,
                     })
+@login_required
+@permission_required('myapp.view_all_request',login_url='/Purchases')
+
 def list_purchase_req_detail(request):
     search_query = request.GET.get('q', '').strip() 
     start = request.GET.get('start', False) 
@@ -155,19 +164,16 @@ def save_purchase_request(request):
 
             print("312321########",req_id)
             purchase_request=None
-
-
             # Create a new PurchaseRequest
             r_user=data.get('user_name', False)
             if(r_user):
                 r_user=SysUser.objects.get(userId=r_user)
             else:
-                r_user=SysUser.objects.get(userId=request.user)
-            
+                r_user=SysUser.objects.get(userId=request.user)            
             if(req_id):
                 #update
                 purchase_request = get_object_or_404(PurchaseRequest, id=req_id)
-                purchase_request.created_at=DateJob.getTaskDate(created_at)
+                # purchase_request.created_at=DateJob.getTaskDate(created_at)
                 purchase_request.save()
                 existing_item_ids = [item.get('id') for item in items if 'id' in item]
                 RequestItem.objects.filter(purchase_request=purchase_request).exclude(id__in=existing_item_ids).delete()
@@ -255,6 +261,16 @@ def update_purchase(request,id):
                 
                 
             },request)
+        data["parchase_req_tab"]=render_to_string('mrp/purchase/tab_updatereq.html', {
+                'company': company,
+        
+                'files':files,
+                'date_':company.created_at.strftime('%Y/%m/%d'),
+                "comments": comments,
+
+
+                
+            },request)
         return JsonResponse(data)
 
 def update_purchase_v2(request,id):
@@ -262,6 +278,8 @@ def update_purchase_v2(request,id):
     company=PurchaseRequest.objects.get(id=id)
     req_items=RequestItem.objects.filter(purchase_request=company)
     files=PurchaseRequestFile.objects.filter(purchase_request=company)
+    comments = company.comments.all() 
+
 
     if(request.method=="GET"):
         data=dict()
@@ -269,7 +287,19 @@ def update_purchase_v2(request,id):
                 'company': company,
                 'items':req_items,
                 'files':files,
-                'date_':company.created_at.strftime('%Y/%m/%d')
+                'date_':company.created_at.strftime('%Y/%m/%d'),
+                "comments": comments,
+
+
+                
+            },request)
+        data["parchase_req_tab"]=render_to_string('mrp/purchase/tab_updatereq_v2.html', {
+                'company': company,
+        
+                'files':files,
+                'date_':company.created_at.strftime('%Y/%m/%d'),
+                "comments": comments,
+
 
                 
             },request)
@@ -423,7 +453,7 @@ def export_purchase_requests(request):
         sheet[f'A{row}'] = 'نام کالا'
         sheet[f'B{row}'] = 'تعداد'
         sheet[f'C{row}'] = 'مورد مصرف'
-        sheet[f'D{row}'] = 'قیمت'
+        sheet[f'D{row}'] = 'شرح'
         sheet[f'E{row}'] = 'تامین کننده'
         for col in ['A', 'B', 'C', 'D', 'E']:
             cell = sheet[f'{col}{row}']
@@ -442,7 +472,7 @@ def export_purchase_requests(request):
             sheet[f'A{row}'] = item.item_name.partName  # Assuming 'partName' is the name field
             sheet[f'B{row}'] = item.quantity
             sheet[f'C{row}'] = item.consume_place.assetName  # Assuming 'name' field in Asset2
-            sheet[f'D{row}'] = item.price
+            sheet[f'D{row}'] = item.description
             sheet[f'E{row}'] = item.supplier_assigned.name if item.supplier_assigned else "مشخص نشده"
             for col in ['A', 'B', 'C', 'D', 'E']:
                 cell = sheet[f'{col}{row}']

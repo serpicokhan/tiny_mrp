@@ -10,7 +10,7 @@
 <div class="container-fluid h-100">
 
     <div class="row app-block">
-        <div class="col-md-3 app-sidebar">
+        <div class="col-md-3 app-sidebar main_slidebar">
             <div class="card">
                 <div class="card-body">
                     <button class="btn btn-outline-dark btn-block btn-block2" id="createreq" data-url="{% url 'create_purchase' %}" >
@@ -113,6 +113,13 @@
                 </div> 
             </div>
         </div>
+        <div class="col-md-3 app-sidebar  d-none" id="update_tab2">
+            <div class="card" id="purchase_tab_card">
+               
+                
+            </div>
+        </div>
+        
         <div class="col-md-9 app-content">
             <div class="app-content-overlay"></div>
             <div class="app-action">

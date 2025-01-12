@@ -152,7 +152,7 @@ def user_create(request):
         return save_user_form(request, form, 'mrp/users/partialUserCreate.html')
 ############# create django user object#############
 def createDjangoUser(user):
-    djangoUser = User.objects.create_user(username=user.fullName,
+    djangoUser = User.objects.create_user(username=user.title,
                            email=user.email,
                               password=user.password)
     user.userId=djangoUser

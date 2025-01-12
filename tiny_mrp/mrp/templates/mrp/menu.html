@@ -6,16 +6,16 @@
       <div class="navigation-menu-tab-header" data-toggle="tooltip" title="" data-placement="right">
         <a href="#" class="nav-link" data-toggle="dropdown" aria-expanded="false">
           <figure class="avatar avatar-sm">
-            <img src="{% static 'assets/media/image/user/user.png' %}" class="rounded-circle" alt="avatar">
+            <img src="{{request.user.sysuser.profileImage.url}}" class="rounded-circle" alt="avatar">
           </figure>
         </a>
         <div class="dropdown-menu dropdown-menu-left dropdown-menu-big">
           <div class="p-3 text-center" data-backround-image="{% static 'assets/media/image/image1.jpg' %}">
             <figure class="avatar mb-3">
-              <img src="{% static 'assets/media/image/user/user.png' %}" class="rounded-circle" alt="image">
+              <img src="{{request.user.sysuser.profileImage.url}}" class="rounded-circle" alt="image">
             </figure>
             <h6 class="d-flex align-items-center justify-content-center">
-              کاربر
+              {{request.user.sysuser.fullName}}
               <a href="#" class="btn btn-primary btn-sm ml-2" data-toggle="tooltip" title="ویرایش پروفایل">
                 <i data-feather="edit-2"></i>
               </a>
@@ -146,6 +146,17 @@
   <div id="apps">
     <ul>
       <li class="navigation-divider">تنظیمات</li>
+      {% if request.user.is_superuser %}
+         
+      <li>
+        <a href="{% url 'list_user' %}">
+          <span>کاربران</span>
+
+        
+
+        </a>
+      </li>
+      {% endif %}
       <li>
         <a href="{% url 'list_shifts' %}">
           <span>شیفت ها</span>

@@ -396,6 +396,8 @@ $(document).ready(function() {
                 // $("#main_ul").html(response.parchase_req_html);
                 last_id=response.purchase_request;
                 refreshList();
+                $(".main_slidebar").removeClass( "d-none" );
+                $("#update_tab2").addClass("d-none");
                 submit_file_form(last_id);
 
 

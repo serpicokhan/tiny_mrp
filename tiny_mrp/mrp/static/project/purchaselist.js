@@ -12,6 +12,11 @@ $(function () {
           success: function (data) {
             //alert("3123@!");
             $(".ajax-content").html(data.parchase_req_html);
+            $("#purchase_tab_card").html(data.parchase_req_tab);
+            // console.log($("#purchase_tab_card"));
+            $("#update_tab2").removeClass( "d-none" )
+            $(".main_slidebar").addClass("d-none");
+
             feather.replace();
             // new Quill('.compose-quill-editor', {
             //     modules: {
@@ -68,7 +73,9 @@ $(function () {
               
               if(data.http_status=="ok"){
                 $(".badge_status").html(data.status);
-                $("#main_ul").html(data.parchase_req_html);
+                refreshList();
+                // $("#main_ul").html(data.parchase_req_html);
+
 
               }
               
@@ -92,7 +99,9 @@ $(function () {
               
               if(data.http_status=="ok"){
                 $(".badge_status").html(data.status);
-                $("#main_ul").html(data.parchase_req_html);
+                // $("#main_ul").html(data.parchase_req_html);
+                refreshList();
+
               }
             //   feather.replace();
               
@@ -183,6 +192,10 @@ $(function () {
 
     $(document).on('click', 'a.app-detail-close-button', function () {
         $('.app-detail').removeClass('show');
+        $(".main_slidebar").removeClass( "d-none" );
+        $("#update_tab2").addClass("d-none");
+        // $(".main_slidebar").addClass( "show" )
+
         // لود کردن اطلاعات بروز شده
         return false;
     });
