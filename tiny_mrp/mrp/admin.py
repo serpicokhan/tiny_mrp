@@ -8,6 +8,7 @@ admin.site.register(AssetFailure)
 admin.site.register(Color)
 admin.site.register(AssetCategory2)
 admin.site.register(EntryForm)
+admin.site.register(SysUser)
 
 # Register your models here.
 

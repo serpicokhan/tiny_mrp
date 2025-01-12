@@ -10,8 +10,12 @@ urlpatterns = [
     path(        'login/',        LoginView.as_view(            template_name="mrp/registration/login.html",            ),        name='login'),
     path(        'logout/',        LogoutView.as_view(            template_name="mrp/registration/logout.html",            ),        name='logout'),
 
-
+    url(r'^User/$',list_user,name='list_user'),
+    url(r'^User/create/$', user_create, name='user_create'),
+    url(r'^User/(?P<id>\d+)/update/$', user_update, name='user_update'),
+    url(r'^User/(?P<id>\d+)/delete/$', user_delete, name='user_delete'),
     url(r'^$',index,name='index'),
+
     url(r'^Register/$',register_daily_amar,name='register_daily_amar'),
     url(r'^Backup/$',backup_database,name='backup_database'),
     url(r'^Dashboard$',list_dashboard,name='list_dashboard'),

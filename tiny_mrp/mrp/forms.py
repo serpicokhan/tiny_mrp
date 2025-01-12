@@ -114,6 +114,15 @@ AssetDetailFormSet = modelformset_factory(
     extra=0,  # No extra blank forms; we populate dynamically
     can_delete=False
 )
+class SysUserForm(forms.ModelForm):
+    #CustomerId = forms.ModelChoiceField(queryset=Customer.objects.all())
+
+
+
+    class Meta:
+        model = SysUser
+        fields = '__all__'
+
 class PurchaseRequestFileForm(forms.ModelForm):
     class Meta:
         model = PurchaseRequestFile

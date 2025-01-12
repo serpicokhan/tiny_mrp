@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>سیستم مدیریت درخواست دایانا</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/media/image/favicon.png' %}"/>
+
+    <!-- Plugin styles -->
+    <link rel="stylesheet" href="{% static 'vendors/bundle.css' %}" type="text/css">
+
+    <!-- quill -->
+    <link href="{% static 'vendors/quill/quill.snow.css' %}" rel="stylesheet" type="text/css">
+
+    <!-- Tagsinput -->
+    <link rel="stylesheet" href="{% static 'vendors/tagsinput/bootstrap-tagsinput.css' %}" type="text/css">
+
+    <!-- App styles -->
+    <link rel="stylesheet" href="{% static 'assets/css/app.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'vendors/datepicker/daterangepicker2.css' %}">
+
+    <link rel="stylesheet" href="{% static 'vendors/datepicker/daterangepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/Datepiker/persian-datepicker.css' %}">
+    {% block stylesheet %}
+    
+    {% endblock %}
+</head>
+<body class="stretch-layout navigation-toggle-one">
+
+<!-- begin::preloader-->
+<div class="preloader">
+    <div class="preloader-icon"></div>
+</div>
+<!-- end::preloader -->
+
+<!-- begin::header -->
+<div class="header">
+
+    <div>
+        <ul class="navbar-nav">
+
+            <!-- begin::navigation-toggler -->
+            <li class="nav-item navigation-toggler">
+                <a href="#" class="nav-link" title="Hide navigation">
+                    <i data-feather="arrow-left"></i>
+                </a>
+            </li>
+            <li class="nav-item navigation-toggler mobile-toggler">
+                <a href="#" class="nav-link" title="Show navigation">
+                    <i data-feather="menu"></i>
+                </a>
+            </li>
+            <!-- end::navigation-toggler -->
+
+        
+        </ul>
+    </div>
+
+    <div>
+        <ul class="navbar-nav">
+
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link" title="تمام صفحه" data-toggle="fullscreen">
+                    <i class="maximize" data-feather="maximize"></i>
+                    <i class="minimize" data-feather="minimize"></i>
+                </a>
+            </li>
+        </ul>
+
+        <!-- begin::mobile header toggler -->
+        <ul class="navbar-nav d-flex align-items-center">
+            <li class="nav-item header-toggler">
+                <a href="#" class="nav-link">
+                    <i data-feather="arrow-down"></i>
+                </a>
+            </li>
+        </ul>
+        <!-- end::mobile header toggler -->
+    </div>
+
+</div>
+<!-- end::header -->
+
+<!-- begin::main -->
+<div id="main">
+
+    <!-- begin::navigation -->
+    {% include 'mrp/menu.html' %}
+    <!-- end::navigation -->
+
+    <!-- begin::main-content -->
+    <div class="main-content">
+        {% block content %}
+        {% endblock %}
+
+        
+
+        <!-- begin::footer -->
+        <footer>
+            <div class="container-fluid">
+              <div>© 1402 |سیستم مدیریت تولید دیانا <a href="https://sarvrayan.ir">سرو رایان</a></div>
+      
+             
+          </footer>
+        <!-- end::footer -->
+
+    </div>
+    <!-- end::main-content -->
+
+</div>
+<!-- end::main -->
+
+
+
+<!-- Plugin scripts -->
+
+
+
+</body>
+
+
+<script src="{%  static 'vendors/bundle.js' %}"></script>
+
+
+<script src="{%  static 'vendor/moment/moment.min.js' %}"></script>
+<script src="{%  static 'vendor/Jcal/moment-jalaali.js' %}"></script>
+<!-- Datepicker -->
+
+
+<!-- <script type="text/javascript" src="vendors/datepicker/daterangepicker2.js"></script> -->
+
+
+<script src="{%  static 'vendors/datepicker/daterangepicker.js' %}"></script>
+<script src="{%  static 'vendor/Jcal/moment-jalaali.js' %}"></script>
+
+<!--  -->
+<script src="{%  static 'vendor/moment/moment.min.js' %}"></script>
+<script src="{%  static 'vendor/bootstrap-daterangepicker/daterangepicker.js' %}"></script>
+<script src="{%  static 'vendor/Jcal/bootstrap-datepicker.fa.min.js' %}"></script>
+<script src="{%  static 'assets/js/examples/datepicker.js' %}"></script>
+
+
+
+
+
+
+<!-- // -->
+<script src="{%  static 'assets/Datepiker/persian-date.js' %}"></script>
+<script src="{%  static 'assets/Datepiker/persian-datepicker.js' %}"></script>
+
+
+<!-- Tagsinput -->
+<script src="{%  static 'vendors/tagsinput/bootstrap-tagsinput.js' %}"></script>
+<script src="{%  static 'assets/js/examples/tagsinput.js' %}"></script>
+
+<!-- quill -->
+<script src="{%  static 'vendors/quill/quill.js' %}"></script>
+
+<script src="{%  static 'assets/js/app.min.js' %}"></script>
+{% block javascript %}
+
+
+<!-- App scripts -->
+{% endblock %}
+</html>

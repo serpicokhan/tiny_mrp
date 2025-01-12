@@ -6,5 +6,7 @@ from mrp.models.failure import *
 from mrp.models.assetfailure import *
 
 from mrp.models.moshakhasat import *
+from mrp.models.part import *
+
 from mrp.models.purchase import *
 
