@@ -57,7 +57,7 @@ class PurchaseRequest(models.Model):
     viewed_by = models.TextField(blank=True, default='[]')
     status = models.CharField(
         max_length=20,
-        choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected'), ('Ordered', 'Ordered')],
+        choices=[('Pending', 'درخواست شده'), ('Approved', 'تایید شده'), ('Rejected', 'رد شده'), ('Ordered', 'سفارش دهده شده')],
         default='Pending'
     )
     
