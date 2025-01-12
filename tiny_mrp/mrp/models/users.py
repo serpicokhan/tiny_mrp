@@ -56,8 +56,10 @@ class SysUser(models.Model):
     userStatus=models.BooleanField("وضعیت",default=True)
 
     class Meta:
-        db_table="sysusers"
-        ordering = ['title']
-        permissions = [
-            ("can_view_dashboard", "can view dashboard"),
-        ]
+            db_table="sysusers"
+            ordering = ['title']
+            permissions = [
+                ("can_view_dashboard", "can view dashboard"),
+                ("can_admin_purchase", "can admin create purchase"),
+                ("view_all_request", "can view  all purchase request"),
+            ]

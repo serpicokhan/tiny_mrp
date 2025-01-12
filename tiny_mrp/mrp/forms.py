@@ -114,3 +114,7 @@ AssetDetailFormSet = modelformset_factory(
     extra=0,  # No extra blank forms; we populate dynamically
     can_delete=False
 )
+class PurchaseRequestFileForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseRequestFile
+        fields = ['purchase_request', 'file']
