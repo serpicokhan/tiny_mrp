@@ -1,0 +1,61 @@
+
+{% load static %}
+<div class="card-header">
+    <div class="app-detail-action-left">
+        <a class="app-detail-close-button" href="#">
+            <i data-feather="arrow-left" class="mr-3"></i>
+        </a>
+        <h5 class="mb-0">
+            درخواست
+            <span class="badge bg-{{company.get_purchase_status_color}} badge-pill ml-1">{{company.status}}</span>
+        </h5>
+    </div>
+    <div class="app-detail-action-right">
+        <div>
+            {% if company.is_emergency %}
+            <a href="#" class="btn btn-danger ml-2" data-toggle="tooltip"
+               title="اورژانسی">
+                <i data-feather="alert-triangle"></i>
+            </a> 
+            {% endif %}
+            <a href="#" class="btn btn-outline-light ml-2 "  data-toggle="tooltip" id="saveButton"
+            title="save">
+             <i data-feather="save"></i>
+         </a>
+            <a href="#" class="btn btn-outline-light ml-2 delete-purchase-request" data-url="{% url 'delete_purchase_request' company.id %}" data-toggle="tooltip"
+               title="رد کردن">
+                <i data-feather="trash"></i>
+            </a>
+           
+        </div>
+    </div>
+</div>
+<div class="app-detail-article">
+    <div class="card-body">
+     {% include 'mrp/purchase/purchase.html' %}
+     {% if request.user.is_superuser %}
+     <div class="row">
+         
+         <div class="col-md-6">
+            تاریخ درخواست
+            <input class=" form-control " type="text" name="created_at" id="created_at" value={{date_}} >
+           
+            
+         </div>
+     </div>
+ {% endif %}
+    </div>
+   
+    
+    {% comment %} {% include 'mrp/purchase/tab_updatereq.html' %} {% endcomment %}
+   
+    
+</div>
+<script>
+   var purchase_request_id='{{company.id}}';
+    $('input[name="created_at"]').pDatepicker({
+        format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian'
+      });
+    </script>

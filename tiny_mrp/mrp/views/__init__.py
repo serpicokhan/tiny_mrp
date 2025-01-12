@@ -8,3 +8,7 @@ from mrp.views.assetRandemanInitview import *
 from mrp.views.profileview import *
 from mrp.views.reportview import *
 from mrp.views.moshakhasview import *
+from mrp.views.assetview import *
+from mrp.views.partview import *
+from mrp.views.purchaseview import *
+from mrp.views.userview import *

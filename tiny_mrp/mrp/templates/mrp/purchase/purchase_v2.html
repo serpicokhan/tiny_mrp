@@ -1,0 +1,47 @@
+
+
+<div class="row">
+    
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">{{title}}</h6>
+                <input type="hidden" id="companyId" name="companyId" value="{{company.id}}" />
+
+                <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
+                    <table class="table  table-bordered">
+                        <thead>
+                            <tr>
+                                <th>نام کالا</th>
+                                <th>تعداد</th>
+                                <th>قسمت مورد مصرف</th>
+                                <th>شرح</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            {% for i in items %} 
+                            <tr data-id="{{i.id}}">
+                                <td  class="editable-cell part-name" data-id="{{i.item_name.id}}" data-partcode="{{i.item_name.partCode}}">{{i.item_name.partName}}</td>
+                                <td  class="editable-cell">{{i.quantity}}</td>
+                                <td  class="editable-cell machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
+                                <td  class="editable-cell description" data-id="">{{i.description}}</td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                       
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+
+

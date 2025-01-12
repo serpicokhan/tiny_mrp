@@ -1,0 +1,93 @@
+<div class="card-header">
+    <div class="app-detail-action-left">
+        <a class="app-detail-close-button" href="#">
+            <i data-feather="arrow-left" class="mr-3"></i>
+        </a>
+        <h5 class="mb-0">
+            درخواست
+            <span class="badge bg-warning badge-pill ml-1">پیش نویس</span>
+
+        </h5>
+        
+    </div>
+    <div class="app-detail-action-right">
+        <div>
+            {% comment %} <a href="#" class="btn btn-outline-light" data-toggle="tooltip" title="اضطراری">
+                <i data-feather="alert-triangle"></i>
+            </a> {% endcomment %}
+            <div class="custom-control custom-switch custom-checkbox-danger">
+                <input type="checkbox" class="custom-control-input" id="customSwitch3_" >
+                <label class="custom-control-label" for="customSwitch3_">
+                    درخواست اورژانسی
+                    
+                   </label>
+            </div>
+            
+           
+           
+        </div>
+    </div>
+    <div class="app-detail-action-right">
+        <div>
+            <a href="#" class="btn btn-outline-light ml-2 "  data-toggle="tooltip" id="saveButton"
+            title="save">
+             <i data-feather="save"></i>
+         </a>
+            
+           
+           
+        </div>
+    </div>
+</div>
+<div class="app-detail-article">
+    <div class="card-body">
+     {% include 'mrp/purchase/purchase.html' %}
+     
+     {% if request.user.is_superuser %}
+     <div class="row">
+         <div class="col-md-6">
+             درخواست دهنده
+             <select class="form-control select2" name="requested_user" id="requested_user">
+                 {% for i in users %}
+                     <option value="{{ i.id }}">{{ i }}</option>
+                 {% endfor %}
+             </select>
+         </div>
+         <div class="col-md-6">
+            تاریخ درخواست
+            <input class=" form-control " type="text" name="created_at" id="created_at" value={{company.created_at}} >
+           
+            
+         </div>
+     </div>
+ {% endif %}
+    </div>
+    <hr class="m-0">
+    
+    <hr class="m-0">
+    <div class="card-body">
+        <form id="image-upload-form" method="post" enctype="multipart/form-data">
+            <div id="image-container" class="mb-3">
+              <!-- Dynamic image input fields will be added here -->
+            </div>
+            <div class="d-flex justify-content-center align-items-center">
+              <button type="button" id="add-image-btn" class="btn btn-secondary">
+                <i class="fas fa-plus mr-2"></i>افزودن تصویر
+              </button>
+              
+            
+            </div>
+          </form>
+    </div>
+    
+</div>
+<script>
+    $('.select2').select2({
+        placeholder: 'اشخاص'
+    });
+    $('input[name="created_at"]').pDatepicker({
+        format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian'
+      });
+</script>
