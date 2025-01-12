@@ -112,7 +112,7 @@ def list_purchase_req_detail(request):
     if sort_by in valid_sort_fields:
         requests = requests.order_by(sort_by)
     if start and end:
-        # print(start,end,'!!!!!!!!!!!!!!!!!')
+        print(start,end,'!!!!!!!!!!!!!!!!!')
         start_of_month=DateJob.getTaskDate(start)
         end_of_month=DateJob.getTaskDate(end)
         # print(start,end,'!!!!!!!!!!!!!!!!!')
@@ -535,6 +535,15 @@ def referesh_purchase_list(request):
     if(userlist):
         userlist = [int(user_id) for user_id in userlist]
         requests=requests.filter(user__id__in=userlist)
+    if start and end:
+        print(start,end,'!!!!!!!!!!!!!!!!!')
+        start_of_month=DateJob.getTaskDate(start)
+        end_of_month=DateJob.getTaskDate(end)
+        # print(start,end,'!!!!!!!!!!!!!!!!!')
+
+        requests=requests.filter(created_at__range=[start_of_month,end_of_month])
+        # start_of_month=start_of_month.strftime('%Y-%m-%d')
+        # end_of_month=end_of_month.strftime('%Y-%m-%d')
     
     
     ws= PurchaseUtility.doPaging(request,requests)
@@ -586,6 +595,16 @@ def filter_request_by(request):
     if(userlist):
         userlist = [int(user_id) for user_id in userlist]
         requests=requests.filter(user__id__in=userlist)
+    if start and end:
+        print(start,end,'!!!!!!!!!!!!!!!!!')
+        start_of_month=DateJob.getTaskDate(start)
+        end_of_month=DateJob.getTaskDate(end)
+        # print(start,end,'!!!!!!!!!!!!!!!!!')
+
+        requests=requests.filter(created_at__range=[start_of_month,end_of_month])
+        # start_of_month=start_of_month.strftime('%Y-%m-%d')
+        # end_of_month=end_of_month.strftime('%Y-%m-%d')
+    
     
     return requests
 def calendar_purchase_request_main(request):
