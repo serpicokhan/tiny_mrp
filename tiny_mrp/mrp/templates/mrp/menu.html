@@ -195,7 +195,7 @@
 
         </a>
       </li>
-      {% if request.user.is_superuser %}
+      {% if perms.mrp.view_all_request %}
          
       <li>
         <a href="{% url 'list_purchase_req_detail' %}">

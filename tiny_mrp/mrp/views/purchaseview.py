@@ -84,7 +84,7 @@ def list_purchase_req(request):
                     'end':end_of_month,
                     })
 @login_required
-@permission_required('myapp.view_all_request',login_url='/Purchases')
+@permission_required('mrp.view_all_request',login_url='/Purchases')
 
 def list_purchase_req_detail(request):
     search_query = request.GET.get('q', '').strip() 
@@ -94,6 +94,7 @@ def list_purchase_req_detail(request):
 
     sort_by = request.GET.get('sort_by', '-created_at')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
+    
     requests=PurchaseRequest.objects.all().order_by('-created_at')
     if search_query:
         filters = Q(items__item_name__partName__icontains=search_query) | \
@@ -220,6 +221,8 @@ def save_purchase_request(request):
             data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
                         
                         'req':list_item,
+                        'perms': PermWrapper(request.user) 
+
                        
 
                         
@@ -258,6 +261,8 @@ def update_purchase(request,id):
                 'files':files,
                 'date_':company.created_at.strftime('%Y/%m/%d'),
                 "comments": comments,
+                'perms': PermWrapper(request.user) 
+
                 
                 
             },request)
@@ -274,7 +279,7 @@ def update_purchase(request,id):
         return JsonResponse(data)
 
 def update_purchase_v2(request,id):
-    print(request.GET.get('page'),'!!!!!!!!!!!!!!')
+    print("here!!!!",'!!!!!!!!!!!!!!')
     company=PurchaseRequest.objects.get(id=id)
     req_items=RequestItem.objects.filter(purchase_request=company)
     files=PurchaseRequestFile.objects.filter(purchase_request=company)
@@ -289,6 +294,7 @@ def update_purchase_v2(request,id):
                 'files':files,
                 'date_':company.created_at.strftime('%Y/%m/%d'),
                 "comments": comments,
+                'perms': PermWrapper(request.user) 
 
 
                 
@@ -310,17 +316,71 @@ def purchase_dash(request):
     list_items=PurchaseUtility.doPaging(request,list_items)
     
     return render(request,"mrp/purchase/mainList.html",{'items':list_items})
+@csrf_exempt
 def confirm_request(request,id):
-    company=PurchaseRequest.objects.get(id=id)
-    company.status="Approved"
+    company = PurchaseRequest.objects.get(id=id)
+
+    # Define the group-to-status mapping
+    group_status_map = {
+        "anbar": "Approved",        # انبار
+        "managers": "Approve2",      # مدیر
+        "director": "Approve3",     # مدیرعامل
+        "purchase": "Ordered",      # خرید
+    }
+
+    # Define the status hierarchy
+    status_hierarchy = [
+        "Pending", "Approved", "Approve2", "Approve3", "Ordered"
+    ]
+
+    # Check the user's groups and determine the new status
+    user_groups = request.user.groups.values_list('name', flat=True)
+    new_status = None
+
+    for group_name, status in group_status_map.items():
+        if group_name in user_groups:
+            new_status = status
+            break
+
+    # If no matching group is found, return an error
+    if not new_status:
+        return JsonResponse({
+            "http_status": "error",
+            "message": "You do not have permission to change the status.",
+        }, status=403)
+
+    # Ensure the user cannot confirm a request if the status is already higher
+    current_status_index = status_hierarchy.index(company.status)
+    new_status_index = status_hierarchy.index(new_status)
+    print("status",new_status,company.status)
+    print("status",new_status_index,current_status_index)
+    if new_status_index <= current_status_index:
+        return JsonResponse({
+            "http_status": "error",
+            # "message": "You cannot confirm this request because the current status is already higher or equal.",
+            "message": "شما نمی‌توانید این درخواست را تأیید کنید زیرا وضعیت فعلی برابر یا بالاتر از سطح موردنظر است."
+
+        }, status=201)
+    elif new_status_index > current_status_index+1:
+        return JsonResponse({
+            "http_status": "error",
+            # "message": "You cannot confirm this request because the current status is already higher or equal.",
+            "message": "شما نمی‌توانید این درخواست را تأیید کنید ."
+
+        }, status=201)
+
+    # Update the status
+    company.status = new_status
     company.save()
+
+
+    # Refresh the purchase request list
     list_item=list_purchaseRequeset(request)
     data=dict()
     data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
                 
-                'req':list_item,
-
-                
+                'req':list_item,     
+                'perms': PermWrapper(request.user)           
             },request)
     data["http_status"]="ok"
     data["status"]=company.status
@@ -337,6 +397,8 @@ def reject_request(request,id):
     data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
                 
                 'req':list_item,
+                'perms': PermWrapper(request.user) 
+
 
                 
             },request)
@@ -362,6 +424,8 @@ def delete_purchase_request(request,id):
             data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
                         
                         'req':list_item,
+                      'perms': PermWrapper(request.user) 
+
 
                         
                     })
@@ -511,10 +575,10 @@ def referesh_purchase_list(request):
 
     sort_by = request.GET.get('sort_by', '-created_at')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
-    if(request.user.is_superuser):
-        requests=PurchaseRequest.objects.all().order_by('-created_at')
-    else:
-        requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
+    # if(request.user.is_superuser):
+    requests=PurchaseRequest.objects.all().order_by('-created_at')
+    # else:
+    #     requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
 
     if search_query:
         filters = Q(items__item_name__partName__icontains=search_query) | \
@@ -549,9 +613,11 @@ def referesh_purchase_list(request):
     ws= PurchaseUtility.doPaging(request,requests)
     data=dict()
     data["status"]="ok"
-    data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
+    data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
                         
                         'req':ws,
+                         'perms': PermWrapper(request.user) 
+
                        
 
                         
@@ -571,10 +637,22 @@ def filter_request_by(request):
 
     sort_by = request.GET.get('sort_by', '-created_at')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
-    if(request.user.is_superuser):
-        requests=PurchaseRequest.objects.all().order_by('-created_at')
+    if request.user.is_superuser:
+        requests = PurchaseRequest.objects.all()
     else:
-        requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
+        # Check if the user belongs to any of the specified groups
+        user_groups = request.user.groups.values_list('name', flat=True)
+
+        # If user belongs to any of the specified groups, they can view the requests
+        if any(group in user_groups for group in ['anbar', 'purchase', 'manager', 'director']):
+            requests = PurchaseRequest.objects.all()  # All requests for these groups
+        else:
+            requests = PurchaseRequest.objects.filter(user__userId=request.user)  # Only requests for the user
+
+    # if(request.user.is_superuser):
+    #     requests=PurchaseRequest.objects.all().order_by('-created_at')
+    # else:
+    #     requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
 
     if search_query:
         filters = Q(items__item_name__partName__icontains=search_query) | \
@@ -615,20 +693,32 @@ def get_purchasereq_calendar_info(request):
     # print(request.GET.get("makan"),'!!!!!!!!!!!!!!!!!!')
     makan=request.GET.get("makan",False)
     data=[]
-    if(request.user.is_superuser):
-        user_info=PurchaseRequest.objects.all()
+    if request.user.is_superuser:
+        user_info = PurchaseRequest.objects.all()
     else:
-        user_info=PurchaseRequest.objects.filter(user__userId=request.user)
+        # Check if the user belongs to any of the specified groups
+        user_groups = request.user.groups.values_list('name', flat=True)
+
+        # If user belongs to any of the specified groups, they can view the requests
+        if any(group in user_groups for group in ['anbar', 'purchase', 'manager', 'director']):
+            user_info = PurchaseRequest.objects.all()  # All requests for these groups
+        else:
+            user_info = PurchaseRequest.objects.filter(user__userId=request.user)  # Only requests for the user
+
     # print(user_info)
     for i in user_info:
         if i.status == 'Approved':
             color = '#53c797'  # Green for approved
         elif i.status == 'Pending':
-            color = '#5bc0de'  # Yellow for pending
+            color = '#5bc0de'  # Cyan for pending
         elif i.status == 'Rejected':
             color = '#d9534f'  # Red for rejected
         elif i.status == 'Ordered':
-            color = '#5bc0de'  # Blue for ordered
+            color = '#5bc0de'  # Cyan for ordered
+        elif i.status == 'Approve2':
+            color = '#f0ad4e'  # Orange for approve2
+        elif i.status == 'Approve3':
+            color = '#0275d8'  # Blue for approve3
         else:
             color = '#cccccc'  # Default color if status is unknown
         data.append({'title': f"درخواست {i.user} {i.getItems()}",\

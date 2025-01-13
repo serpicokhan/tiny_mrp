@@ -43,7 +43,7 @@
     <div class="card-body">
      {% include 'mrp/purchase/purchase.html' %}
      
-     {% if request.user.is_superuser %}
+     {% if perms.mrp.can_admin_purchase %}
      <div class="row">
          <div class="col-md-6">
              درخواست دهنده

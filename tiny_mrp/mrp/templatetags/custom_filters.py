@@ -29,3 +29,7 @@ def sum_vazn_for_shift(zayeat_vazn_dict, shift_id):
             if entry['shift'] == shift_id:
                 total_vazn += entry['vazn']
     return round(total_vazn,2)
+@register.filter
+def in_group(user, group_name):
+    """Check if the user belongs to a specific group."""
+    return user.groups.filter(name=group_name).exists()

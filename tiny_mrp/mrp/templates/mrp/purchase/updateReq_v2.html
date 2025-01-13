@@ -1,3 +1,5 @@
+{% load custom_filters %}
+
 <div class="card-header">
     <div class="app-detail-action-left">
         <a class="app-detail-close-button" href="#">
@@ -5,7 +7,7 @@
         </a>
         <h5 class="mb-0">
             درخواست
-            <span class="badge bg-warning badge-pill ml-1 badge_status">{{company.status}}</span>
+            <span class="badge bg-warning badge-pill ml-1 badge_status">{{company.get_status_display}}</span>
         </h5>
     </div>
     <div class="app-detail-action-right">
@@ -20,10 +22,24 @@
             title="save">
              <i data-feather="save"></i>
          </a>
-            <a href="#" class="btn btn-outline-light aproved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید">
-                <i data-feather="check-circle"></i>
-            </a>
-           
+        
+         {% if request.user|in_group:"anbar" %}
+        <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید انبار">
+            <i data-feather="check-circle"></i>
+        </a>
+        {% elif request.user|in_group:"managers" %}
+        <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید مدیر">
+            <i data-feather="check-circle"></i>
+        </a>
+        {% elif request.user|in_group:"director" %}
+        <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید مدیرعامل">
+            <i data-feather="check-circle"></i>
+        </a>
+        {% elif request.user|in_group:"purchase" %}
+        <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید خرید">
+            <i data-feather="check-circle"></i>
+        </a>
+        {% endif %}
             <a href="#" class="btn btn-outline-light ml-2 rejected" data-url="{% url 'reject_request' company.id %}" data-toggle="tooltip"
                title="رد کردن">
                 <i data-feather="trash"></i>
