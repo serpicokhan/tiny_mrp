@@ -383,7 +383,7 @@ def confirm_request(request,id):
                 'perms': PermWrapper(request.user)           
             },request)
     data["http_status"]="ok"
-    data["status"]=company.status
+    data["status"]=company.get_status_display()
 
 
     return JsonResponse(data)
@@ -403,7 +403,7 @@ def reject_request(request,id):
                 
             },request)
     data["http_status"]="ok"
-    data["status"]=company.status
+    data["status"]=company.get_status_display()
 
 
     return JsonResponse(data)
