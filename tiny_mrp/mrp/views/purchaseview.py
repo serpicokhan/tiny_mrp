@@ -644,7 +644,7 @@ def filter_request_by(request):
         user_groups = request.user.groups.values_list('name', flat=True)
 
         # If user belongs to any of the specified groups, they can view the requests
-        if any(group in user_groups for group in ['anbar', 'purchase', 'manager', 'director']):
+        if any(group in user_groups for group in ['anbar', 'purchase', 'managers', 'director']):
             requests = PurchaseRequest.objects.all()  # All requests for these groups
         else:
             requests = PurchaseRequest.objects.filter(user__userId=request.user)  # Only requests for the user

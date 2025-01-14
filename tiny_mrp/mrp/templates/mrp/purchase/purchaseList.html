@@ -52,7 +52,6 @@
                         </a>
                         <a href="#" class="list-group-item d-flex align-items-center">
                             <select class="select2-example" multiple>
-                                <option>انتخاب</option>
                             {% for i in users %}
                                 <option value="{{i.id}}" >{{i}}</option>
                             {% endfor %}
@@ -135,8 +134,8 @@
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="?status=Pending{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">درخواست شده</a>
                                 <a class="dropdown-item" href="?status=Approved{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید انبار</a>
-                                <a class="dropdown-item" href="?status=Approve2{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید سرپرست</a>
-                                <a class="dropdown-item" href="?status=Approve3{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید مدیریت</a>
+                                <a class="dropdown-item" href="?status=Approve2{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید مهندس اعزامی</a>
+                                <a class="dropdown-item" href="?status=Approve3{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید مهندس ارزنده</a>
                                 <a class="dropdown-item" href="?status=Ordered{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">سفارش داده شده</a>
                                 <a class="dropdown-item" href="?status=Rejected{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">رد شده</a>
                                 

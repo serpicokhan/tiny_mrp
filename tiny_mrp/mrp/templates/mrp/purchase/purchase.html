@@ -47,7 +47,7 @@
                             {% endfor %}
                             {% endif %}
                         </tbody>
-                        {% if company.status == "Pending"%}
+                        {% if company.status == "Pending" or not company.status %}
                         <tfoot>
                             <tr class="add-row" id="add-row">
                                 <td colspan="5">  <button class="btn btn-primary  btn-floating">
