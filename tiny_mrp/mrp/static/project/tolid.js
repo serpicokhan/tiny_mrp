@@ -140,7 +140,7 @@ $(function () {
               // console.log(formula);
                 var result = eval(formula);
                 console.log(result)
-                return result.toFixed(0); // Adjust as needed
+                return (Math.ceil(result.toFixed(0))); // Adjust as needed
             } catch (error) {
                 console.error("Error evaluating formula:", error);
                 return 0;
@@ -188,7 +188,7 @@ $(function () {
             formula = formula.replace("Z", Z).replace("p", P).replace("Q",Q);
             try {
                 var result = eval(formula);
-                return result.toFixed(0); // Adjust as needed
+                return (Math.ceil(result.toFixed(0))); // Adjust as needed
             } catch (error) {
                 console.error("Error evaluating formula:", error);
                 return "Error";
@@ -477,21 +477,45 @@ $(".delete-info").click(function(){
 
 // Use event delegation for keydown event to move focus on Enter key
 $(".tab-content").on("keydown", ".editable-cell, .editable-cell2", function(e) {
-    if (e.key === "Enter") {
-        e.preventDefault(); // Prevent newline in contenteditable cell
+  var currentCell = $(this);
+  var columnIndex = currentCell.index();
+  var currentRow = currentCell.closest("tr");
 
-        var currentCell = $(this);
-        var columnIndex = currentCell.index();
-        var nextRow = currentCell.closest("tr").next("tr");
+  if (e.key === "Enter") {
+      e.preventDefault(); // Prevent newline in contenteditable cell
 
-        if (nextRow.length > 0) {
-            // Find the cell in the same column in the next row and focus it
-            var nextCell = nextRow.children().eq(columnIndex);
-            if (nextCell.hasClass("editable-cell") || nextCell.hasClass("editable-cell2")) {
-                nextCell.focus();
-            }
-        }
-    }
+      // Move to the next row
+      var nextRow = currentRow.next("tr");
+      if (nextRow.length > 0) {
+          var nextCell = nextRow.children().eq(columnIndex);
+          if (nextCell.hasClass("editable-cell") || nextCell.hasClass("editable-cell2")) {
+              nextCell.focus();
+          }
+      }
+  } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+
+      // Move to the next row
+      var nextRow = currentRow.next("tr");
+      if (nextRow.length > 0) {
+          var nextCell = nextRow.children().eq(columnIndex);
+          if (nextCell.hasClass("editable-cell") || nextCell.hasClass("editable-cell2")) {
+              nextCell.focus();
+          }
+      }
+  } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+
+      // Move to the previous row
+      var prevRow = currentRow.prev("tr");
+      if (prevRow.length > 0) {
+          var prevCell = prevRow.children().eq(columnIndex);
+          if (prevCell.hasClass("editable-cell") || prevCell.hasClass("editable-cell2")) {
+              prevCell.focus();
+          }
+      }
+  }
+
 });
   $("#select_shift").change(function(){
     window.location=`/Register?shift_id=${$(this).val()}&selected_date=${$("#search").val()}`;

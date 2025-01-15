@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
 from mrp.business.DateJob import *
+
 from datetime import datetime, timedelta
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import permission_required
@@ -61,7 +62,7 @@ def zayeatVazn_create(request):
         if(current_date):
             date_of_issue=DateJob.getTaskDate(current_date)
         else:
-            date_of_issue=datetime.now().date()
+            date_of_issue=datetime.datetime.now().date()
         za=Zayeat.objects.all()
         date_zayeat=ZayeatVaz.objects.filter(dayOfIssue=date_of_issue)
         shift=Shift.objects.all()
@@ -77,14 +78,14 @@ def zayeatVazn_create(request):
         )
         return JsonResponse(data)
 def get_daily_zaye(request):
-    dayOfIssue=request.GET.get('event_id',datetime.now())
-    date_object = datetime.strptime(dayOfIssue, '%Y-%m-%d')
+    dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
+    date_object = datetime.datetime.strptime(dayOfIssue, '%Y-%m-%d')
     za=Zayeat.objects.all()
     date_zayeat=ZayeatVaz.objects.filter(dayOfIssue=date_object)
     shift=Shift.objects.all()
     zayeat_vazn_dict = defaultdict(list)
     for zv in date_zayeat:
-        zayeat_vazn_dict[zv.zayeat.id].append({'vazn':zv.vazn,'shift':zv.shift.id,'moshakhase':zv.moshakhase})
+        zayeat_vazn_dict[zv.zayeat.id].append({'vazn':round(zv.vazn,0),'shift':zv.shift.id,'moshakhase':zv.moshakhase})
     return render(request,'mrp/zayeat_vazn/zayeatVaznList.html',
         {   'shifts':shift,
             'zayeat':za,

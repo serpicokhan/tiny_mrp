@@ -971,7 +971,7 @@ def get_tahlil_calendar_info(request):
                 'start': i[0],\
                  'color': '#a6c',\
                 'id':i[0]})
-        data.append({'title': "جمع ضایعات : {}".format(float(z)),\
+        data.append({'title': "جمع ضایعات : {}".format(round(z,0)),\
                 'start': i[0],\
                  'color': 'red',\
                 'id':i[0]})
