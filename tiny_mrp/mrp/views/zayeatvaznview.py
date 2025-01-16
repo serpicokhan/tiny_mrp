@@ -83,12 +83,18 @@ def zayeatVazn_create(request):
         )
         return JsonResponse(data)
 def get_daily_zaye(request):
-    dayOfIssue=request.GET.get('event_id',datetime.now())
+    dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
     makan_id=request.GET.get("makan_id",False)
-    makan_name=Asset.objects.get(id=makan_id).assetName
-    date_object = datetime.strptime(dayOfIssue, '%Y-%m-%d')
+    date_object = datetime.datetime.strptime(dayOfIssue, '%Y-%m-%d')
+    makan_name=""
     za=Zayeat.objects.all()
-    date_zayeat=ZayeatVaz.objects.filter(dayOfIssue=date_object,makan__id=makan_id)
+    if(makan_id):
+        makan_name=Asset.objects.get(id=makan_id).assetName
+
+        date_zayeat=ZayeatVaz.objects.filter(dayOfIssue=date_object,makan__id=makan_id)
+    else:
+        date_zayeat=ZayeatVaz.objects.filter(dayOfIssue=date_object)
+
     shift=Shift.objects.all()
     zayeat_vazn_dict = defaultdict(list)
     for zv in date_zayeat:
@@ -176,7 +182,7 @@ def monthly_zayeat_detaild_report(request):
             
             
     print(sum_dic)
-    return render(request,'mrp\zayeat_vazn\monthly_zayeat.html',{'sum_s':ts,'sum_shif':tt,'sum':sum_kol,'makan':makan,'cats':days,'title':'آمار ماهانه ضایعات','cat_list':cat_list,'shift':salooon_shifts,'month':j_month,'year':j_year,'saloon':saloons})
+    return render(request,'mrp/zayeat_vazn/monthly_zayeat.html',{'sum_s':ts,'sum_shif':tt,'sum':sum_kol,'makan':makan,'cats':days,'title':'آمار ماهانه ضایعات','cat_list':cat_list,'shift':salooon_shifts,'month':j_month,'year':j_year,'saloon':saloons})
 
 def export_monthly_zayeat(request):
     # Create an in-memory workbook

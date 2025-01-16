@@ -417,24 +417,34 @@ def delete_purchase_request(request,id):
     company=  get_object_or_404(PurchaseRequest, id=id)
     if(request.method=="POST"):
         data=dict()
-
-        if(company.status=="Pending"):
+        if(request.user.is_superuser):
             company.delete()
             list_item=list_purchaseRequeset(request)
             data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
                         
                         'req':list_item,
-                      'perms': PermWrapper(request.user) 
-
-
-                        
+                      'perms': PermWrapper(request.user)                         
                     })
             data["http_status"]="ok"
-            data["status"]=company.status
+            data["status"]=company.status            
         else:
-            data["http_status"]="ok"
-            data["status"]=company.status
-            data["message"]="حدف درخواست به خاطر تغییر وضعیت امکان پذیر نمی باشد"
+            if(company.status=="Pending"):
+                company.delete()
+                list_item=list_purchaseRequeset(request)
+                data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
+                            
+                            'req':list_item,
+                        'perms': PermWrapper(request.user) 
+
+
+                            
+                        })
+                data["http_status"]="ok"
+                data["status"]=company.status
+            else:
+                data["http_status"]="ok"
+                data["status"]=company.status
+                data["message"]="حدف درخواست به خاطر تغییر وضعیت امکان پذیر نمی باشد"
 
 
 

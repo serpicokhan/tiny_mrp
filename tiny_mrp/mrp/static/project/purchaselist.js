@@ -241,7 +241,7 @@ $(function () {
         
         return false;
     });
-    $(document).on('click', '.approved', function () {
+    $(document).on('click', '.approved, .confirm-purchase-request', function () {
         url=$(this).attr("data-url");
         confirm_request(url);     
         $(this).hide();
