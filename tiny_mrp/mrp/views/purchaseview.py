@@ -383,7 +383,7 @@ def confirm_request(request,id):
 def reject_request(request,id):
     company=PurchaseRequest.objects.get(id=id)
     company.status="Rejected"
-    company.save()
+    # company.save()
     list_item=list_purchaseRequeset(request)
     data=dict()
     data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
