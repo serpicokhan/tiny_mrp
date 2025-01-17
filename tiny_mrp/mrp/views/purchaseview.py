@@ -84,7 +84,7 @@ def list_purchase_req(request):
                     'end':end_of_month,
                     })
 @login_required
-@permission_required('myapp.view_all_request',login_url='/Purchases')
+@permission_required('mrp.view_all_request',login_url='/Purchases')
 
 def list_purchase_req_detail(request):
     search_query = request.GET.get('q', '').strip() 
@@ -311,22 +311,74 @@ def purchase_dash(request):
     
     return render(request,"mrp/purchase/mainList.html",{'items':list_items})
 def confirm_request(request,id):
-    company=PurchaseRequest.objects.get(id=id)
-    company.status="Approved"
+    company = PurchaseRequest.objects.get(id=id)
+
+    # Define the group-to-status mapping
+    group_status_map = {
+        "anbar": ["Approved", "Ordered"],  # انبار
+        "managers": ["Approve2"],          # مدیر
+        "director": ["Approve3"],          # مدیرعامل
+        "procurment": ["Ordered"],         # خرید
+    }
+
+    # Define the status hierarchy
+    status_hierarchy = [
+        "Pending", "Approved", "Approve2", "Approve3", "Ordered"
+    ]
+
+    # Check the user's groups and determine the new status
+    user_groups = request.user.groups.values_list('name', flat=True)
+    new_status = None
+
+    for group_name, statuses in group_status_map.items():
+        if group_name in user_groups:
+            # Choose the highest status in the group's allowed statuses
+            new_status = max(statuses, key=lambda status: status_hierarchy.index(status))
+            break
+
+    # If no matching group is found, return an error
+    if not new_status:
+        return JsonResponse({
+            "http_status": "error",
+            "message": "اجازه انجام این عملیات را ندارید",
+        }, status=403)
+
+    # Ensure the user cannot confirm a request if the status is already higher
+    current_status_index = status_hierarchy.index(company.status)
+    new_status_index = status_hierarchy.index(new_status)
+
+    if new_status_index <= current_status_index:
+        return JsonResponse({
+            "http_status": "error",
+            "message": "شما نمی‌توانید این درخواست را تأیید کنید زیرا وضعیت فعلی برابر یا بالاتر از سطح موردنظر است."
+        }, status=201)
+    elif new_status_index > current_status_index + 1:
+        return JsonResponse({
+            "http_status": "error",
+            "message": "شما نمی‌توانید این درخواست را تأیید کنید."
+        }, status=201)
+
+    # Update the status
+    company.status = new_status
     company.save()
-    list_item=list_purchaseRequeset(request)
-    data=dict()
-    data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
-                
-                'req':list_item,
 
-                
-            },request)
-    data["http_status"]="ok"
-    data["status"]=company.status
-
+    # Refresh the purchase request list
+    list_item = list_purchaseRequeset(request)
+    data = dict()
+    data["parchase_req_html"] = render_to_string(
+        'mrp/purchase/partialPurchaseList_v2.html',
+        {
+            'req': list_item,
+            'perms': PermWrapper(request.user)
+        },
+        request
+    )
+    data["http_status"] = "ok"
+    data["status"] = company.get_status_display()
 
     return JsonResponse(data)
+
+    # return JsonResponse({"status":"ok",'status':company.status})
     # return JsonResponse({"status":"ok",'status':company.status})
 def reject_request(request,id):
     company=PurchaseRequest.objects.get(id=id)
@@ -437,7 +489,7 @@ def export_purchase_requests(request):
         sheet[f'C{row}'] = f'تاریخ: {purchase_request.get_dateCreated_jalali().strftime("%Y/%m/%d")}'
         # sheet[f'D{row}'] = f'اضطراری: {purchase_request.is_emergency}'
         sheet[f'D{row}'] = f"اضطراری: {'بله' if purchase_request.is_emergency else 'خیر'}"
-        sheet[f'E{row}'] = f'وضعیت: {purchase_request.status}'
+        sheet[f'E{row}'] = f'وضعیت: {purchase_request.get_status_display()}'
         for col in ['A', 'B', 'C', 'D', 'E']:
             cell = sheet[f'{col}{row}']
             cell.border = thin_border
@@ -552,6 +604,7 @@ def referesh_purchase_list(request):
     data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
                         
                         'req':ws,
+
                        
 
                         
@@ -574,7 +627,13 @@ def filter_request_by(request):
     if(request.user.is_superuser):
         requests=PurchaseRequest.objects.all().order_by('-created_at')
     else:
-        requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
+        user_groups = request.user.groups.values_list('name', flat=True)
+
+        # If user belongs to any of the specified groups, they can view the requests
+        if any(group in user_groups for group in ['anbar', 'purchase', 'managers', 'director']):
+            requests = PurchaseRequest.objects.all()  # All requests for these groups
+        else:
+            requests = PurchaseRequest.objects.filter(user__userId=request.user)  # Only requests for the user
 
     if search_query:
         filters = Q(items__item_name__partName__icontains=search_query) | \

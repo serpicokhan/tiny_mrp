@@ -48,6 +48,30 @@ $(function () {
         });
         
     }
+    function refreshList2() {
+        const currentParams = new URLSearchParams(window.location.search);
+
+        // Save them globally for later use
+        const filters = {};
+        for (const [key, value] of currentParams.entries()) {
+            filters[key] = value;
+        }
+        // Send the query parameters with the list reload request
+        const params = new URLSearchParams(filters).toString();
+    
+        $.ajax({
+            url: `/Purchases/RefereshList?${params}`, // Append filters to the URL
+            method: 'GET',
+            success: function (data) {
+                // $('#list-container').html(data.parchase_req_html);
+                if(data.http_status == "ok"){
+                $("#main_ul").html('');
+                $("#main_ul").html(data.parchase_req_html);
+                }
+            },
+        });
+        console.log(params);
+    }
     var confirm_request=function(url){
         return $.ajax({
             url: url,
@@ -60,9 +84,14 @@ $(function () {
               
               if(data.http_status=="ok"){
                 $(".badge_status").html(data.status);
-                refreshList();
+                refreshList2();
                 // $("#main_ul").html(data.parchase_req_html);
 
+
+              }
+              if(data.http_status=="error"){
+                toastr.error(data.message);
+                
 
               }
               
@@ -87,7 +116,7 @@ $(function () {
               if(data.http_status=="ok"){
                 $(".badge_status").html(data.status);
                 // $("#main_ul").html(data.parchase_req_html);
-                refreshList();
+                refreshList2();
 
               }
             //   feather.replace();
@@ -227,7 +256,7 @@ $(function () {
         
         return false;
     });
-    $(document).on('click', '.aproved', function () {
+    $(document).on('click', '.aproved, .confirm-purchase-request', function () {
         url=$(this).attr("data-url");
         confirm_request(url);     
         $(this).hide();

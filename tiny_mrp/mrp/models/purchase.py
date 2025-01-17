@@ -35,12 +35,18 @@ class PurchaseRequest(models.Model):
     def get_dateCreated_jalali(self):
         return jdatetime.date.fromgregorian(date=self.created_at)
     def get_purchase_status_color(self):
-        if(self.status=="Rejected"):
+        if self.status == "Rejected":
             return "danger"
-        elif(self.status=="Approved"):
+        elif self.status == "Approved":
             return "success"
-        elif(self.status=="Pending"):
+        elif self.status == "Pending":
             return "info"
+        elif self.status == "Approve2":
+            return "warning"
+        elif self.status == "Approve3":
+            return "primary"
+        else:
+            return "secondary"  # Neutral color for unknown statuses
     def add_viewer(self, user):
         """Function to add a user to the viewed_by field (serialized list)"""
         viewed_by_list = json.loads(self.viewed_by)  # Convert the string to a Python list
@@ -57,7 +63,7 @@ class PurchaseRequest(models.Model):
     viewed_by = models.TextField(blank=True, default='[]')
     status = models.CharField(
         max_length=20,
-        choices=[('Pending', 'درخواست شده'), ('Approved', 'تایید شده'), ('Rejected', 'رد شده'), ('Ordered', 'سفارش دهده شده')],
+        choices=[('Pending', 'درخواست شده'), ('Approved', 'تایید انبار'), ('Rejected', 'رد شده'), ('Ordered', 'تحویل داده شده'),('Approve2', 'تایید مهندس فرهادی'),('Approve3', 'تایید مدیریت')],
         default='Pending'
     )
     

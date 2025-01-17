@@ -36,14 +36,7 @@
             </div> -->
             <div class="list-group list-group-flush">
               <a href="#" class="list-group-item">پروفایل</a>
-              <!-- <a href="#" class="list-group-item d-flex">
-                دنبال‌کنندگان<span class="text-muted ml-auto">214</span>
-              </a>
-              <a href="#" class="list-group-item d-flex">
-                صندوق ورودی <span class="text-muted ml-auto">18</span>
-              </a> -->
-              <!-- <a href="#" class="list-group-item" data-sidebar-target="#settings">صورتحساب</a>
-              <a href="#" class="list-group-item" data-sidebar-target="#settings">راهنمایی?</a> -->
+             
               <a href="{% url 'logout' %}" class="list-group-item text-danger" data-sidebar-target="#settings">خروج</a>
             </div>
           </div>
@@ -52,32 +45,47 @@
     </div>
     <div class="flex-grow-1">
       <ul>
+        {% if perms.mrp.can_operator_mrp %}
+
         <li>
           <a href="#" data-toggle="tooltip" data-placement="right" title="اطلاعات"
           data-nav-target="#dashboards">
           <i data-feather="bar-chart-2"></i>
         </a>
       </li>
+      {% endif %}
+      {% if request.user.is_superuser%}
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="تنظیمات" data-nav-target="#apps">
           <i data-feather="command"></i>
         </a>
       </li>
+      {% endif %}
+      {% if perms.mrp.can_operator_mrp %}
+
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="راندمان" data-nav-target="#apps2">
           <i data-feather="coffee"></i>
         </a>
       </li>
+      {% endif %}
+      {% if perms.mrp.can_operator_purchase %}
+
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="بازرگانی" data-nav-target="#apps4">
           <i data-feather="shopping-cart"></i>
         </a>
       </li>
+      {% endif %}
+      {% if perms.mrp.can_operator_mrp %}
+
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="گزارش" data-nav-target="#apps3">
           <i data-feather="layers"></i>
         </a>
       </li>
+      {% endif %}
+
 
   </ul>
 </div>
@@ -88,11 +96,15 @@
         <i data-feather="settings"></i>
       </a>
     </li> -->
+    {% if request.user.is_superuser%}
+
     <li>
       <a href="{% url 'backup_database' %}" data-toggle="tooltip" data-placement="right" title="پشتیبان گیری">
         <i data-feather="save"></i>
       </a>
     </li>
+    {% endif %}
+
     <li>
       <a href="{% url 'logout' %}" data-toggle="tooltip" data-placement="right" title="خروج">
         <i data-feather="log-out"></i>
@@ -117,6 +129,7 @@
 <!-- end::navigation-logo -->
 
 <div class="navigation-menu-group">
+  {% if perms.mrp.can_operator_mrp %}
 
   <div id="dashboards">
     <ul>
@@ -142,6 +155,9 @@
 
     </ul>
   </div>
+  {% endif %}
+  {% if request.user.is_superuser%}
+
   <div id="apps">
     <ul>
       <li class="navigation-divider">تنظیمات</li>
@@ -190,6 +206,9 @@
 
     </ul>
   </div>
+  {% endif %}
+  {% if perms.mrp.can_operator_purchase %}
+
   <div id="apps4">
     <ul>
       <li class="navigation-divider">بازرگانی</li>
@@ -200,7 +219,7 @@
 
         </a>
       </li>
-      {% if request.user.is_superuser %}
+      {% if request.user.is_superuser or perms.mrp.view_all_request %}
          
       <li>
         <a href="{% url 'list_purchase_req_detail' %}">
@@ -226,6 +245,8 @@
 
     </ul>
   </div>
+  {% endif %}
+  {% if perms.mrp.can_operator_mrp %}
 
   <div id="apps2">
     <ul>
@@ -263,6 +284,9 @@
 
     </ul>
   </div>
+  {% endif %}
+  {% if perms.mrp.can_operator_mrp %}
+
   <div id="apps3">
     <ul>
       <li class="navigation-divider">گزارشات</li>
@@ -274,6 +298,7 @@
       </a>
     </li>
   </div>
+  {% endif %}
 
 </div>
 </div>
