@@ -222,7 +222,7 @@ $(function () {
         
         } else {
           // Return to the list if no state or it's the list state
-          backToList();
+        //   backToList();
         }
       });
     $(document).on('click', '.btn-block2', function (e) {
