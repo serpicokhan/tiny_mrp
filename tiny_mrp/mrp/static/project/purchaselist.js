@@ -16,23 +16,10 @@ $(function () {
             // console.log($("#purchase_tab_card"));
             $("#update_tab2").removeClass( "d-none" )
             $(".main_slidebar").addClass("d-none");
+            $(".preloader").hide()
 
             feather.replace();
-            // new Quill('.compose-quill-editor', {
-            //     modules: {
-            //         toolbar: ".compose-quill-toolbar"
-            //     },
-            //     placeholder: "اینجا بنویسید...",
-            //     theme: "snow"
-            // });
             
-            // new Quill('.reply-email-quill-editor', {
-            //     modules: {
-            //         toolbar: ".reply-email-quill-toolbar"
-            //     },
-            //     placeholder: "اینجا بنویسید...",
-            //     theme: "snow"
-            // });
             
             
 
@@ -203,17 +190,46 @@ $(function () {
         if (!$(e.target).is('.custom-control, .custom-control *, a, a *')) {
             $('.app-detail').addClass('show').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function () {
                 $('.app-block .app-content .app-content-body .app-detail .app-detail-article').niceScroll().resize();
+                $(".preloader").show()
+
                 loadForm(btn.attr("data-url"));
+                itemId=btn.attr("data-url");
+                history.pushState({ view: "details", itemId }, "", `#details/${btn.attr("data-id")}`);
+                
                 add_viewer(btn.attr("data-id"));
                 btn.addClass('active');
                
             });
         }
     });
+    $(window).on("popstate", function (event) {
+        const state = event.originalEvent.state;
+    
+        if (state && state.view === "details") {
+          // Reopen the details if the state is details
+          const itemId = state.itemId;
+        //   $.ajax({
+        //     url: `/details/${itemId}`,
+        //     method: "GET",
+        //     success: function (html) {
+        //       $detailsContainer.html(html).show();
+        //       $listContainer.hide();
+        //     },
+        //   });
+        $('.app-detail').removeClass('show');
+        $(".main_slidebar").removeClass( "d-none" );
+        $("#update_tab2").addClass("d-none");
+        
+        } else {
+          // Return to the list if no state or it's the list state
+          backToList();
+        }
+      });
     $(document).on('click', '.btn-block2', function (e) {
         if (!$(e.target).is('.custom-control, .custom-control *, a, a *')) {
             $('.app-detail').addClass('show').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function () {
                 loadForm($("#createreq").attr("data-url"));
+
                 $('.app-block .app-content .app-content-body .app-detail .app-detail-article').niceScroll().resize();
                
             });
