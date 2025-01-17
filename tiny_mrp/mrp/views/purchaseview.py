@@ -408,7 +408,7 @@ def delete_purchase_request(request,id):
     if(request.method=="POST"):
         data=dict()
 
-        if(company.status=="Pending"):
+        if(company.status=="Pending" or request.user.is_superuser):
             company.delete()
             list_item=list_purchaseRequeset(request)
             data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
