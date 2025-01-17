@@ -44,7 +44,7 @@
 <div class="container">
     <!-- Header Section -->
     <div class="header">
-        <h1>فاکتور درخواست خرید</h1>
+        <h1>رسید درخواست خرید</h1>
         <p class="lead">اطلاعات درخواست خرید شماره {{ purchase_request.id }}</p>
     </div>
 
@@ -61,8 +61,17 @@
             </tr>
             <tr>
                 <th>وضعیت</th>
-                <td><span class="status {% if purchase_request.status == 'Approved' %}success{% elif purchase_request.status == 'Pending' %}info{% elif purchase_request.status == 'Rejected' %}danger{% endif %}">
-                    {{ purchase_request.status }}</span>
+                <td>
+                    <span class="status bg-{% if purchase_request.status == 'Approved' %}success
+                    {% elif purchase_request.status == 'Pending' %}info
+                    {% elif purchase_request.status == 'Rejected' %}danger
+                    {% elif purchase_request.status == 'Approve2' %}warning
+                    {% elif purchase_request.status == 'Approve3' %}primary
+                    {% elif purchase_request.status == 'Ordered' %}success
+                    {% else %}default
+                    {% endif %}">
+                    {{ purchase_request.get_status_display }}
+                </span>
                 </td>
             </tr>
             <tr>

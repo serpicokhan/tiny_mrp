@@ -113,7 +113,7 @@ def index(request):
     if(has_permission):
        return HttpResponseRedirect(reverse('list_dashboard'))
     elif(request.user.has_perm('mrp.can_operator_purchase')):
-       return HttpResponseRedirect(reverse('list_purchase_req'))
+       return HttpResponseRedirect(reverse('list_purchase_req_detail'))
 
     else:
        return HttpResponseRedirect(reverse('register_daily_amar'))
