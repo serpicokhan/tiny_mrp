@@ -92,7 +92,7 @@ def list_purchase_req_detail(request):
     end = request.GET.get('end', False)
     userlist = request.GET.getlist('userlist', False)
 
-    sort_by = request.GET.get('sort_by', '-created_at')  # Default sorting by `created_at` in descending order
+    sort_by = request.GET.get('sort_by', '-id')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
     
     requests=PurchaseRequest.objects.all().order_by('-created_at')
@@ -481,6 +481,45 @@ def delete_purchase_request(request,id):
         return JsonResponse(data)
     return JsonResponse({'stats':'BAD!','message':'Bad Data'})
 @csrf_exempt
+
+def delete_purchase_request_v2(request,id):
+    company=  get_object_or_404(PurchaseRequest, id=id)
+    if(request.method=="POST"):
+        data=dict()
+        if(request.user.is_superuser):
+            company.delete()
+            list_item=list_purchaseRequeset(request)
+            data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
+                        
+                        'req':list_item,
+                      'perms': PermWrapper(request.user)                         
+                    })
+            data["http_status"]="ok"
+            data["status"]=company.status            
+        else:
+            if(company.status=="Pending"):
+                company.delete()
+                list_item=list_purchaseRequeset(request)
+                data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
+                            
+                            'req':list_item,
+                        'perms': PermWrapper(request.user) 
+
+
+                            
+                        })
+                data["http_status"]="ok"
+                data["status"]=company.status
+            else:
+                data["http_status"]="ok"
+                data["status"]=company.status
+                data["message"]="حدف درخواست به خاطر تغییر وضعیت امکان پذیر نمی باشد"
+
+
+
+        return JsonResponse(data)
+    return JsonResponse({'stats':'BAD!','message':'Bad Data'})
+@csrf_exempt
 def upload_purchase_images(request):
     
     print(request.method,'####################')
@@ -613,7 +652,7 @@ def referesh_purchase_list(request):
     end = request.GET.get('end', False)
     userlist = request.GET.getlist('userlist', False)
 
-    sort_by = request.GET.get('sort_by', '-created_at')  # Default sorting by `created_at` in descending order
+    sort_by = request.GET.get('sort_by', '-id')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
     # if(request.user.is_superuser):
     requests=PurchaseRequest.objects.all().order_by('-created_at')
@@ -675,7 +714,8 @@ def filter_request_by(request):
     end = request.GET.get('end', False)
     userlist = request.GET.getlist('userlist', False)
 
-    sort_by = request.GET.get('sort_by', '-created_at')  # Default sorting by `created_at` in descending order
+    sort_by = request.GET.get('sort_by', '-id')  # Default sorting by `id` in descending order
+    print(sort_by,'!!!!!!!!!!')
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
     if request.user.is_superuser:
         requests = PurchaseRequest.objects.all()
@@ -710,6 +750,8 @@ def filter_request_by(request):
     valid_sort_fields = ['id', '-id', 'created_at', '-created_at', 'status', '-status']
     if sort_by in valid_sort_fields:
         requests = requests.order_by(sort_by)
+    else:
+        print("else")
     if(userlist):
         userlist = [int(user_id) for user_id in userlist]
         requests=requests.filter(user__id__in=userlist)

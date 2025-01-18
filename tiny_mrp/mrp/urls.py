@@ -115,6 +115,7 @@ urlpatterns = [
     url(r'^Purchases/All$', list_purchase_req_detail, name='list_purchase_req_detail'),
     url(r'^Purchases/(?P<id>\d+)/Confirm$', confirm_request, name='confirm_request'),
     url(r'^Purchases/(?P<id>\d+)/delete$', delete_purchase_request, name='delete_purchase_request'),
+    url(r'^Purchases/(?P<id>\d+)/delete_v2$', delete_purchase_request_v2, name='delete_purchase_request_v2'),
     url(r'^Purchases/(?P<id>\d+)/Reject$', reject_request, name='reject_request'),
     url(r'^Purchases/GetInfo/$', get_purchasereq_calendar_info, name='get_purchasereq_calendar_info'),
     url(r'^Purchases/Bill/$', get_purchase_request, name='get_purchase_request'),
