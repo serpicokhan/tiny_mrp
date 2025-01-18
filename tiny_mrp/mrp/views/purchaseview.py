@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.http import JsonResponse,HttpResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
-from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2,PurchaseRequestFile,Asset,Comment
+from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2,PurchaseRequestFile,Asset,Comment,PurchaseNotes,PurchaseActivityLog
 from django.template.loader import render_to_string
 from mrp.business.purchaseutility import *
 from mrp.business.DateJob import *
@@ -15,7 +15,7 @@ from openpyxl.styles import Border, Side, PatternFill,Font,Alignment
 import json
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
-
+import requests as rqt
 
 @login_required
 
@@ -204,7 +204,14 @@ def save_purchase_request(request):
                 created_at=DateJob.getTaskDate(created_at)
                 # consume_place="General",  # Default or get from frontend if applicable
                 # description="Auto-generated request"
-                )               
+                )   
+                PurchaseActivityLog.objects.create(
+                    user=request.user.sysuser,  # User making the change
+                    purchase_request=purchase_request,
+                    action=f"{request.user.sysuser} درخواست را ایجاد نمود"
+                )
+
+
 
             # Add items to the PurchaseRequest
                 for item in items:
@@ -252,6 +259,7 @@ def update_purchase(request,id):
     company=PurchaseRequest.objects.get(id=id)
     req_items=RequestItem.objects.filter(purchase_request=company)
     comments = company.comments.all() 
+    notes = company.notes.filter(user=request.user.sysuser) 
     files=PurchaseRequestFile.objects.filter(purchase_request=company)
     if(request.method=="GET"):
         data=dict()
@@ -272,6 +280,7 @@ def update_purchase(request,id):
                 'files':files,
                 'date_':company.created_at.strftime('%Y/%m/%d'),
                 "comments": comments,
+                'notes':notes
 
 
                 
@@ -284,6 +293,9 @@ def update_purchase_v2(request,id):
     req_items=RequestItem.objects.filter(purchase_request=company)
     files=PurchaseRequestFile.objects.filter(purchase_request=company)
     comments = company.comments.all() 
+    notes = company.notes.filter(user=request.user.sysuser) 
+    plogs=company.plogs.all()
+
 
 
     if(request.method=="GET"):
@@ -294,6 +306,9 @@ def update_purchase_v2(request,id):
                 'files':files,
                 'date_':company.created_at.strftime('%Y/%m/%d'),
                 "comments": comments,
+                "notes":notes,
+                "logs":plogs,
+
                 'perms': PermWrapper(request.user) 
 
 
@@ -305,6 +320,9 @@ def update_purchase_v2(request,id):
                 'files':files,
                 'date_':company.created_at.strftime('%Y/%m/%d'),
                 "comments": comments,
+                "notes":notes,
+                "logs":plogs
+
 
 
                 
@@ -322,32 +340,39 @@ def confirm_request(request,id):
 
     # Define the group-to-status mapping
     group_status_map = {
-        "anbar": "Approved",        # انبار
-        "managers": "Approve2",      # مدیر
-        "director": "Approve3",     # مدیرعامل
-        "purchase": "Ordered",      # خرید
+        "anbar": ["Approved"],  # انبار
+        "managers": ["Approve2"],          # مدیر
+        "director": ["Approve3"],          # مدیرعامل
+        "purchase": ["Ordered","Purchased"],         # خرید
     }
 
     # Define the status hierarchy
     status_hierarchy = [
-        "Pending", "Approved", "Approve2", "Approve3", "Ordered"
+        "Pending", "Approved", "Approve2", "Approve3", "Ordered","Purchased"
     ]
 
     # Check the user's groups and determine the new status
     user_groups = request.user.groups.values_list('name', flat=True)
     new_status = None
 
-    for group_name, status in group_status_map.items():
+    for group_name, statuses in group_status_map.items():
         if group_name in user_groups:
-            new_status = status
+            # Filter the group's statuses to find the next status in sequence
+            sorted_statuses = sorted(
+                statuses, key=lambda status: status_hierarchy.index(status)
+            )  # Sort statuses in order of the hierarchy
+            for status in sorted_statuses:
+                if status_hierarchy.index(status) > status_hierarchy.index(company.status):
+                    new_status = status
+                    break
             break
 
     # If no matching group is found, return an error
     if not new_status:
         return JsonResponse({
             "http_status": "error",
-            "message": "You do not have permission to change the status.",
-        }, status=403)
+            "message": "شما نمی‌توانید این درخواست را تأیید کنید .",
+        }, status=201)
 
     # Ensure the user cannot confirm a request if the status is already higher
     current_status_index = status_hierarchy.index(company.status)
@@ -372,6 +397,11 @@ def confirm_request(request,id):
     # Update the status
     company.status = new_status
     company.save()
+    PurchaseActivityLog.objects.create(
+            user=request.user.sysuser,  # User making the change
+            purchase_request=company,
+            action=f"{request.user.sysuser} درخواست را تایید نمود"
+        )
 
 
     # Refresh the purchase request list
@@ -767,10 +797,19 @@ def add_purchase_comment(request):
         purchase_request_id = request.POST.get("purchase_request_id")
         parent_id = request.POST.get("parent_id")  # Optional for replies
         user = request.user.sysuser
-
         purchase_request = get_object_or_404(PurchaseRequest, id=purchase_request_id)
         parent_comment = Comment.objects.filter(id=parent_id).first() if parent_id else None
+        # url = "https://app.wallmessage.com/api/sendMessage"
 
+        # payload={
+        # "appkey": "7fe75ff8-b457-4abb-ad12-e4c364b79484",
+        # "authkey": "06nWkgBK3SkPO1YLLC58DlxGRo7dEf3m6kV0gzsnydIgGYpfXb",
+        # 'to': '09390453690',
+        # 'message': f'کامنت {user.fullName} برای درخواست شماره {purchase_request_id}: {content}',
+        # }
+        # files=[]
+        # headers = {}
+        # response = rqt.request("POST", url, headers=headers, data=payload, files=files)
         comment = Comment.objects.create(
             purchase_request=purchase_request,
             user=user,
@@ -785,6 +824,44 @@ def add_purchase_comment(request):
             "created_at": comment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             "user": str(user.fullName),
             "parent_id": parent_id,
+            'image':request.user.sysuser.profileImage.url
+        })
+    return JsonResponse({"status": "error"}, status=400)
+@login_required
+@csrf_exempt
+def add_purchase_note(request):
+    if request.method == "POST" and request.is_ajax():
+        content = request.POST.get("content")
+        purchase_request_id = request.POST.get("purchase_request_id")
+        # parent_id = request.POST.get("parent_id")  # Optional for replies
+        user = request.user.sysuser
+        purchase_request = get_object_or_404(PurchaseRequest, id=purchase_request_id)
+        # parent_comment = Comment.objects.filter(id=parent_id).first() if parent_id else None
+        # url = "https://app.wallmessage.com/api/sendMessage"
+
+        # payload={
+        # "appkey": "7fe75ff8-b457-4abb-ad12-e4c364b79484",
+        # "authkey": "06nWkgBK3SkPO1YLLC58DlxGRo7dEf3m6kV0gzsnydIgGYpfXb",
+        # 'to': '09390453690',
+        # 'message': f'کامنت {user.fullName} برای درخواست شماره {purchase_request_id}: {content}',
+        # }
+        # files=[]
+        # headers = {}
+        # response = rqt.request("POST", url, headers=headers, data=payload, files=files)
+        comment = PurchaseNotes.objects.create(
+            purchase_request=purchase_request,
+            user=user,
+            content=content,
+           
+        )
+
+        return JsonResponse({
+            "status": "success",
+            "comment_id": comment.id,
+            "content": comment.content,
+            "created_at": comment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "user": str(user.fullName),
+            
             'image':request.user.sysuser.profileImage.url
         })
     return JsonResponse({"status": "error"}, status=400)

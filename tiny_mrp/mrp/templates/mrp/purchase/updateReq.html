@@ -12,6 +12,9 @@
     </div>
     <div class="app-detail-action-right">
         <div>
+            <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu width-15 height-15"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </a>
             {% if company.is_emergency %}
             <a href="#" class="btn btn-danger ml-2" data-toggle="tooltip"
                title="اورژانسی">
@@ -32,6 +35,29 @@
 </div>
 <div class="app-detail-article">
     <div class="card-body">
+        <div class="d-flex align-items-center p-l-r-0 m-b-20">
+            <div class="d-flex align-items-center">
+                <figure class="avatar avatar-sm m-r-15">
+                    <img src="assets/media/image/user/women_avatar5.jpg" class="rounded-circle" alt="image">
+                </figure>
+                <div>
+                    <h6 class="m-b-0">
+                        <span class="text-primary">ویدا موحد</span>
+                        <span class="d-sm-inline d-none text-muted"> &lt;elnora@gmail.com&gt;</span>
+                    </h6>
+                    <span class="small text-muted">به مهرانا بخشنده</span>
+                </div>
+            </div>
+            <div class="ml-auto">
+                <a href="#" data-toggle="tooltip" title="" class="mr-2" data-original-title="Attachment">
+                    <i class="fa fa-paperclip"></i>
+                </a>
+                <a href="#" class="mr-2">
+                    <i class="fa fa-star font-size-16 text-warning"></i>
+                </a>
+                <span class="text-muted">4:14 قبل‌ازظهر </span>
+            </div>
+        </div>
      {% include 'mrp/purchase/purchase.html' %}
      {% if request.user.is_superuser %}
      <div class="row">

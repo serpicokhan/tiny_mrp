@@ -13,6 +13,10 @@
           <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
              aria-controls="contact" aria-selected="false">فعالیت</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" id="contact-tab" data-toggle="tab" href="#notes" role="tab"
+               aria-controls="contact" aria-selected="false">یادداشت های من</a>
+          </li>
       </ul>
       <div class="tab-content">
         <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
@@ -112,6 +116,60 @@
         </div>
         <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
         هیچ فعالیتی ثبت نشده است
+        </div>
+        <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="profile-tab">
+            <div id="notes-section">
+                {% for comment in notes %}
+                   
+                    <div class="card card-body border p-3">
+                        <div class="d-flex mb-3">
+                            <div class="d-flex align-items-center">
+                                <figure class="avatar avatar-sm mr-3">
+                                    <img src="{{ comment.user.profileImage.url }}" class="rounded-circle" alt="...">
+                                </figure>
+                                <div class="d-inline-block">
+                                    <div><strong>{{comment.user.fullName}}</strong></div>
+                                    <small class="text-muted">{{ comment.created_at|timesince }} قبل</small>
+                                </div>
+                            </div>
+                            <div class="dropdown ml-auto">
+                                <a href="#" data-toggle="dropdown">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a href="#" class="dropdown-item">اشتراک</a>
+                                    <a href="#" class="dropdown-item">ویرایش</a>
+                                    <a href="#" class="dropdown-item">حذف</a>
+                                </div>
+                            </div>
+                        </div>
+                        <p>{{comment.content}}</p>
+                       
+                    </div>
+                    {% endfor %}
+                
+               
+            </div>
+            <div class="card-body" >
+                <h6 class="mb-3 font-size-11 text-uppercase">پاسخ</h6>
+                <div class="d-flex">
+                    <div>
+                        <figure class="avatar avatar-sm mr-3">
+                            <img src="{{ request.user.sysuser.profileImage.url}}" class="rounded-circle" alt="...">
+                        </figure>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="form-group">
+                            <textarea rows="2" class="form-control" id="note-text"></textarea>
+                        </div>
+                        <button class="btn btn-outline-light" id="add-note-btn">
+                                            <i data-feather="send"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        
+        
         </div>
       </div>
 </div>

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import jdatetime
 from django.utils import timezone
+from django.utils.timezone import now
 
 import os
 import json
@@ -67,7 +68,7 @@ class PurchaseRequest(models.Model):
         max_length=20,
         choices=[('Pending', 'درخواست شده'), ('Approved', 'تایید انبار'), ('Rejected', 'رد شده'),
                   ('Ordered', 'سفارش '), ('Approve2', 'تایید مهندس اعزامی'),
-            ('Approve3', 'تایید مهندس ارزنده')],
+            ('Approve3', 'تایید مهندس ارزنده'),('Purchased', 'خریداری شد')],
         default='Pending'
     )
     
@@ -179,3 +180,24 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.user} on {self.purchase_request}"
+    
+class PurchaseNotes(models.Model):
+    purchase_request = models.ForeignKey(
+        PurchaseRequest, on_delete=models.CASCADE, related_name='notes'
+    )
+    user = models.ForeignKey(SysUser, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)    
+
+    def __str__(self):
+        return f"Comment by {self.user} on {self.purchase_request}"
+class PurchaseActivityLog(models.Model):
+    user = models.ForeignKey(SysUser, on_delete=models.SET_NULL, null=True, blank=True)
+    purchase_request = models.ForeignKey('PurchaseRequest', on_delete=models.CASCADE,related_name='plogs')
+    action = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(default=now)
+
+    def __str__(self):
+        return f"{self.user} {self.action} on {self.purchase_request}"
+    def get_dateCreated_jalali(self):
+        return jdatetime.date.fromgregorian(date=self.timestamp) 

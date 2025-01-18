@@ -459,5 +459,51 @@ $(document).ready(function() {
             }
         });
     });
+    $(document).on('click','#add-note-btn',function() {
+        const commentText = $('#note-text').val();
+        const purchaseRequestId = purchase_request_id; // Replace with your purchase request ID
+        console.log(purchaseRequestId);
+        if (commentText.trim() === "") {
+            alert("یادداشت نمی‌تواند خالی باشد!");
+            return;
+        }
+
+        $.ajax({
+            url: "/Purchases/AddNote",
+            method: "POST",
+            data: {
+                content: commentText,
+                purchase_request_id: purchaseRequestId,
+                
+            },
+            success: function(response) {
+                if (response.status=="success") {
+                    // Append the new comment to the comments section
+                    $('#notes-section').append(`
+                        <div class="card-body border p-3 mb-2">
+                            <div class="d-flex">
+                                <figure class="avatar avatar-sm mr-3">
+                                    <img src="${response.image}" class="rounded-circle" alt="...">
+                                </figure>
+                                <div>
+                                    <strong>${response.user}</strong>
+                                    <p>${response.content}</p>
+                                    <small class="text-muted">همین حالا</small>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+
+                    // Clear the textarea
+                    $('#note-text').val('');
+                } else {
+                    alert(response.error || "خطایی رخ داده است!");
+                }
+            },
+            error: function(error) {
+                alert("خطایی رخ داد. دوباره تلاش کنید!");
+            }
+        });
+    });
 });
 
