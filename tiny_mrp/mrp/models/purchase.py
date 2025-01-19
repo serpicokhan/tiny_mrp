@@ -11,8 +11,15 @@ class PurchaseRequest(models.Model):
     def has_attachment(self):
         # files
         return self.files.select_related('file').all().count()>0
+    def has_comment(self):
+        # files
+        return self.comments.select_related('content').all().count()>0
 
-
+    def has_comment_by_user(self, user):
+        """
+        Check if the given user has commented on this purchase request.
+        """
+        return self.notes.filter(user=user).exists()
 
     def getItems(self):
         items = self.items.select_related('item_name').all()

@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 {% for i in req %}
                         <li class="list-group-item {% if request.user.id in i.get_viwer %} active {% endif %}" data-id={{i.id}} data-url="{% url 'update_purchase_v2' i.id %}" >
                             <div>
@@ -53,6 +54,13 @@
                                                 </div>
                                             </li>
                                             {% endif %}
+                                            {% if i|has_comment_by_user:request.user.sysuser %}
+                                            <li class="list-inline-item mb-0">
+                                                <a href="#" data-toggle="tooltip" title="" data-original-title="{{i|get_comment_by_user:request.user.sysuser}}">
+                                                    <i class="fa fa-file"></i>
+                                                </a>
+                                            </li>
+                                            {% endif %}
                                             <li class="list-inline-item mb-0">
                                                 <a href="#" data-toggle="tooltip" title="" data-original-title="وضعیت">
                                                   {{i.get_status_display}}
@@ -66,6 +74,7 @@
                                                 </a>
                                             </li>
                                             {% endif %}
+                                           
                                             <li class="list-inline-item mb-0">
                                                 <i class="fa fa-circle text-{{i.get_purchase_status_color}}"></i>
                                             </li>
@@ -73,6 +82,7 @@
                                         </ul>
                                     </div>
                                 </div>
+                                
                             </div>
                         </li>
                         {% endfor %}

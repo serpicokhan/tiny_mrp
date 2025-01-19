@@ -33,3 +33,15 @@ def sum_vazn_for_shift(zayeat_vazn_dict, shift_id):
 def in_group(user, group_name):
     """Check if the user belongs to a specific group."""
     return user.groups.filter(name=group_name).exists()
+@register.filter
+def has_comment_by_user(purchase_request, user):
+    """
+    Check if the given user has commented on the purchase request.
+    """
+    return purchase_request.notes.filter(user=user).exists()
+@register.filter
+def get_comment_by_user(purchase_request, user):
+    """
+    Check if the given user has commented on the purchase request.
+    """
+    return purchase_request.notes.filter(user=user)[0].content
