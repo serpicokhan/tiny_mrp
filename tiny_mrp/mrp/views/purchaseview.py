@@ -563,10 +563,18 @@ def referesh_purchase_list(request):
 
     sort_by = request.GET.get('sort_by', '-created_at')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
-    if(request.user.is_superuser):
-        requests=PurchaseRequest.objects.all().order_by('-created_at')
+    if request.user.is_superuser:
+        requests = PurchaseRequest.objects.all()
     else:
-        requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
+        # Check if the user belongs to any of the specified groups
+        user_groups = request.user.groups.values_list('name', flat=True)
+
+        # If user belongs to any of the specified groups, they can view the requests
+        if any(group in user_groups for group in ['anbar', 'purchase', 'managers', 'director']):
+            requests = PurchaseRequest.objects.all()  # All requests for these groups
+        else:
+            requests = PurchaseRequest.objects.filter(user__userId=request.user)  # Only requests for the user
+
 
     if search_query:
         filters = Q(items__item_name__partName__icontains=search_query) | \

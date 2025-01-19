@@ -7,11 +7,14 @@
         </a>
         <h5 class="mb-0">
             درخواست
-            <span class="badge bg-{{company.get_purchase_status_color}} badge-pill ml-1">{{company.status}}</span>
+            <span class="badge bg-{{company.get_purchase_status_color}} badge-pill ml-1">{{company.get_status_display}}</span>
         </h5>
     </div>
     <div class="app-detail-action-right">
         <div>
+            <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu width-15 height-15"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </a>
             {% if company.is_emergency %}
             <a href="#" class="btn btn-danger ml-2" data-toggle="tooltip"
                title="اورژانسی">
@@ -22,16 +25,43 @@
             title="save">
              <i data-feather="save"></i>
          </a>
-            <a href="#" class="btn btn-outline-light ml-2 delete-purchase-request" data-url="{% url 'delete_purchase_request' company.id %}" data-toggle="tooltip"
+            {% comment %} <a href="#" class="btn btn-outline-light ml-2 delete-purchase-request" data-url="{% url 'delete_purchase_request' company.id %}" data-toggle="tooltip"
                title="رد کردن">
                 <i data-feather="trash"></i>
-            </a>
+            </a> {% endcomment %}
            
         </div>
     </div>
 </div>
 <div class="app-detail-article">
     <div class="card-body">
+        <div class="d-flex align-items-center p-l-r-0 m-b-20">
+            <div class="d-flex align-items-center">
+                <figure class="avatar avatar-sm m-r-15">
+                    <img src="{{company.user.profileImage.url}}" class="rounded-circle" alt="image">
+
+                </figure>
+                <div>
+                    <h6 class="m-b-0">
+                        <span class="text-primary">{{company.user}}</span>
+
+                    </h6>
+                </div>
+            </div>
+            <div class="ml-auto">
+                {% if files %}
+                <a href="#" data-toggle="tooltip" title="" class="mr-2" data-original-title="Attachment">
+                    <i class="fa fa-paperclip"></i>
+                </a>
+                {% endif %}
+                {% if company.is_emergency %}
+                <a href="#" class="mr-2">
+                    <i class="fa fa-star font-size-16 text-warning"></i>
+                </a>
+                {% endif %}
+                <span class="text-muted">{{company.get_dateCreated_jalali}}</span>
+            </div>
+        </div>
      {% include 'mrp/purchase/purchase.html' %}
      {% if request.user.is_superuser %}
      <div class="row">
