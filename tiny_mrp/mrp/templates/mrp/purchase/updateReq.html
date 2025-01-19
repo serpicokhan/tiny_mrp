@@ -7,7 +7,7 @@
         </a>
         <h5 class="mb-0">
             درخواست
-            <span class="badge bg-{{company.get_purchase_status_color}} badge-pill ml-1">{{company.status}}</span>
+            <span class="badge bg-{{company.get_purchase_status_color}} badge-pill ml-1">{{company.get_status_display}}</span>
         </h5>
     </div>
     <div class="app-detail-action-right">
@@ -25,10 +25,10 @@
             title="save">
              <i data-feather="save"></i>
          </a>
-            <a href="#" class="btn btn-outline-light ml-2 delete-purchase-request" data-url="{% url 'delete_purchase_request' company.id %}" data-toggle="tooltip"
+            {% comment %} <a href="#" class="btn btn-outline-light ml-2 delete-purchase-request" data-url="{% url 'delete_purchase_request' company.id %}" data-toggle="tooltip"
                title="رد کردن">
                 <i data-feather="trash"></i>
-            </a>
+            </a> {% endcomment %}
            
         </div>
     </div>
@@ -38,24 +38,28 @@
         <div class="d-flex align-items-center p-l-r-0 m-b-20">
             <div class="d-flex align-items-center">
                 <figure class="avatar avatar-sm m-r-15">
-                    <img src="assets/media/image/user/women_avatar5.jpg" class="rounded-circle" alt="image">
+                    <img src="{{company.user.profileImage.url}}" class="rounded-circle" alt="image">
+
                 </figure>
                 <div>
                     <h6 class="m-b-0">
-                        <span class="text-primary">ویدا موحد</span>
-                        <span class="d-sm-inline d-none text-muted"> &lt;elnora@gmail.com&gt;</span>
+                        <span class="text-primary">{{company.user}}</span>
+
                     </h6>
-                    <span class="small text-muted">به مهرانا بخشنده</span>
                 </div>
             </div>
             <div class="ml-auto">
+                {% if files %}
                 <a href="#" data-toggle="tooltip" title="" class="mr-2" data-original-title="Attachment">
                     <i class="fa fa-paperclip"></i>
                 </a>
+                {% endif %}
+                {% if company.is_emergency %}
                 <a href="#" class="mr-2">
                     <i class="fa fa-star font-size-16 text-warning"></i>
                 </a>
-                <span class="text-muted">4:14 قبل‌ازظهر </span>
+                {% endif %}
+                <span class="text-muted">{{company.get_dateCreated_jalali}}</span>
             </div>
         </div>
      {% include 'mrp/purchase/purchase.html' %}

@@ -115,7 +115,25 @@
         
         </div>
         <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-        هیچ فعالیتی ثبت نشده است
+            {% for i in logs %}
+            <div class="d-flex align-items-center p-l-r-0 m-b-20">
+                <div class="d-flex align-items-center">
+                    <figure class="avatar avatar-sm m-r-15">
+                        <img src="{{i.user.profileImage.url}}" class="rounded-circle" alt="image">
+                    </figure>
+                    <div>
+                        <h6 class="m-b-0">
+                            <span class="text-primary"> {{i.action}}</span>
+                        </h6>
+                        
+                    </div>
+                </div>
+                <div class="ml-auto">
+                   
+                    <span class="text-muted">{{i.get_dateCreated_jalali}}<br/> {{i.timestamp|time:'H:i'}}</span>
+                </div>
+            </div>
+            {% endfor %}
         </div>
         <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="profile-tab">
             <div id="notes-section">
