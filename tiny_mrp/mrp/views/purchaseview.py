@@ -566,6 +566,7 @@ def export_purchase_requests(request):
 
     # Define the header fill color (for PurchaseRequest and items table)
     header_fill = PatternFill(start_color="FFFF99", end_color="FFFF99", fill_type="solid")
+    header_fill2 = PatternFill(start_color="bfb2b2", end_color="bfb2b2", fill_type="solid")
     nazanin_font = Font(name='B Nazanin', size=14)
     justified_alignment = Alignment(horizontal="center", wrap_text=True)
     
@@ -575,12 +576,27 @@ def export_purchase_requests(request):
 
     for purchase_request in purchase_requests:
         # Add the header for the PurchaseRequest
-        sheet[f'A{row}'] = f'شماره درخواست: {purchase_request.id}'
-        sheet[f'B{row}'] = f'کاربر: {purchase_request.user.fullName}'
-        sheet[f'C{row}'] = f'تاریخ: {purchase_request.get_dateCreated_jalali().strftime("%Y/%m/%d")}'
+        sheet[f'A{row}'] = f'شماره درخواست'
+        sheet[f'B{row}'] = f'کاربر'
+        sheet[f'C{row}'] = f'تاریخ'
+        # sheet[f'D{row}'] = f'اضطراری'
+        sheet[f'D{row}'] = f"اضطراری"
+        sheet[f'E{row}'] = f'وضعیت'
+        for col in ['A', 'B', 'C', 'D', 'E']:
+            cell = sheet[f'{col}{row}']
+            cell.border = thin_border
+            cell.fill = header_fill
+            cell.font = nazanin_font  # Apply B Nazanin font
+            # cell.alignment = Alignment(horizontal="justify")
+            cell.alignment = justified_alignment 
+        row += 1  # Move to the next row for the colored space
+        
+        sheet[f'A{row}'] = f'{purchase_request.id}'
+        sheet[f'B{row}'] = f'{purchase_request.user.fullName}'
+        sheet[f'C{row}'] = f'{purchase_request.get_dateCreated_jalali().strftime("%Y/%m/%d")}'
         # sheet[f'D{row}'] = f'اضطراری: {purchase_request.is_emergency}'
-        sheet[f'D{row}'] = f"اضطراری: {'بله' if purchase_request.is_emergency else 'خیر'}"
-        sheet[f'E{row}'] = f'وضعیت: {purchase_request.status}'
+        sheet[f'D{row}'] = f"{'بله' if purchase_request.is_emergency else 'خیر'}"
+        sheet[f'E{row}'] = f'{purchase_request.get_status_display()}'
         for col in ['A', 'B', 'C', 'D', 'E']:
             cell = sheet[f'{col}{row}']
             cell.border = thin_border
@@ -590,7 +606,8 @@ def export_purchase_requests(request):
             cell.alignment = justified_alignment 
             
         
-        row += 2  # Leave some space between PurchaseRequest header and items table
+        row += 1  # Leave some space between PurchaseRequest header and items table
+
 
         # Now, create the header for the items table under each PurchaseRequest
         sheet[f'A{row}'] = 'نام کالا'
@@ -601,12 +618,13 @@ def export_purchase_requests(request):
         for col in ['A', 'B', 'C', 'D', 'E']:
             cell = sheet[f'{col}{row}']
             cell.border = thin_border
-            cell.fill = header_fill
+            cell.fill = header_fill2
             cell.font = nazanin_font  # Apply B Nazanin font
             cell.alignment = justified_alignment 
 
-        row += 1  # Move to the next row to start the items list
-        
+        row += 1  # Move to the next row for the colored space
+       
+                
 
         # Fetch all items for the current purchase request
         items = purchase_request.items.all()
@@ -626,7 +644,8 @@ def export_purchase_requests(request):
             row += 1  # Move to the next row for the next item
         
         # Leave some space between different PurchaseRequests
-        row += 2
+        row += 1  # Move to the next row for the colored space
+        
      # Set the column widths
     sheet.column_dimensions['A'].width = 30  # 'Item Name' column
     sheet.column_dimensions['B'].width = 15  # 'Quantity' column
