@@ -240,6 +240,7 @@ $(function () {
         $('.app-detail').removeClass('show');
         $(".main_slidebar").removeClass( "d-none" );
         $("#update_tab2").addClass("d-none");
+        refreshList2();
         // $(".main_slidebar").addClass( "show" )
 
         // لود کردن اطلاعات بروز شده

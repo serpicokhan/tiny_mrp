@@ -30,7 +30,7 @@ def list_purchase_req(request):
 
     sort_by = request.GET.get('sort_by', '-id')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
-    requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
+    requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-id')
     if search_query:
         filters = Q(items__item_name__partName__icontains=search_query) | \
                 Q(items__description__icontains=search_query) | \

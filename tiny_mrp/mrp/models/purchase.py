@@ -14,6 +14,9 @@ class PurchaseRequest(models.Model):
     def has_comment(self):
         # files
         return self.comments.select_related('content').all().count()>0
+    def get_comment(self):
+        # files
+        return self.comments.all()
 
     def has_comment_by_user(self, user):
         """
