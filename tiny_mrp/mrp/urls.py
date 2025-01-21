@@ -123,6 +123,7 @@ urlpatterns = [
     url(r'^Purchases/RefereshList$', referesh_purchase_list, name='referesh_purchase_list'),
     url(r'^Purchases/AddComment$', add_purchase_comment, name='add_purchase_comment'),
     url(r'^Purchases/AddNote$', add_purchase_note, name='add_purchase_note'),
+    url(r'^Purchases/PB$', list_pboard, name='list_pboard'),
 
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
     url(r'^Asset/GetAssets$', asset_getAssets2, name='asset_getAssets2'),

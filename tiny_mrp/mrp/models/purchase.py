@@ -90,7 +90,7 @@ class PurchaseRequest(models.Model):
 class RequestItem(models.Model):
     """Represents an individual item in a purchase request."""
     purchase_request = models.ForeignKey(PurchaseRequest, on_delete=models.CASCADE, related_name='items')
-    item_name  =models.ForeignKey(Part, on_delete=models.CASCADE, related_name='consume_place')
+    item_name  =models.ForeignKey(Part, on_delete=models.CASCADE, related_name='consume_part')
     consume_place =models.ForeignKey(Asset2, on_delete=models.CASCADE, related_name='consume_place')
 
     description = models.TextField(blank=True, null=True)
