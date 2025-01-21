@@ -47,6 +47,13 @@
                                     <div class="text-truncate small">{{i.user}}</div>
                                     <div class="text-nowrap pl-3">
                                         <ul class="list-inline">
+                                            {% if i.is_emergency %}
+                                            <li class="list-inline-item mb-0">
+                                                <div class="spinner-grow text-dark" role="status" data-original-title="اضطراری">
+                                                    <span class="sr-only">در حال بارگذاری</span>
+                                                </div>
+                                            </li>
+                                            {% endif %}
                                             <li class="list-inline-item mb-0">
                                                 <a href="#" data-toggle="tooltip" title="" data-original-title="وضعیت">
                                                   {{i.get_status_display}}
