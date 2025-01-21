@@ -1,4 +1,6 @@
 {% load static %}
+{% load custom_filters %}
+
 {% for i in req %}
                         <li class="list-group-item {% if request.user.id in i.get_viwer %} active {% endif %}"" data-id={{i.id}} data-url="{% url 'update_purchase' i.id %}">
                             <div>
@@ -60,6 +62,39 @@
                                             <li class="list-inline-item mb-0">
                                                 <i class="fa fa-circle text-{{i.get_purchase_status_color}}"></i>
                                             </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="text-muted d-flex justify-content-between">
+                                    <div class="text-truncate small"></div>
+                                    <div class="text-nowrap pl-3">
+                                        <ul class="list-inline">
+                                            {% if i.has_comment %}
+                                            <div class="mr-3 d-sm-inline d-none">
+                                                <div class="avatar-group">
+                                                   
+                                                    {% for comment in i.get_comment %}
+                                                   
+                                                    <figure class="avatar avatar-sm" title="" data-toggle="tooltip" data-original-title="{{comment.content}}">
+                                                        <img src="{{comment.user.profileImage.url}}" class="rounded-circle" alt="image">
+                                                    </figure>
+                                                    {% endfor %}
+                                                    
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                           
+                                            {% if i|has_comment_by_user:request.user.sysuser %}
+                                            <li class="list-inline-item mb-0">
+                                                <a href="#" data-toggle="tooltip" title="" data-original-title="{{i|get_comment_by_user:request.user.sysuser}}">
+                                                    <i class="fa fa-file"></i>
+                                                </a>
+                                            </li>
+                                            {% endif %}
+                                            
+                                           
+                                           
+                                           
                                         </ul>
                                     </div>
                                 </div>
