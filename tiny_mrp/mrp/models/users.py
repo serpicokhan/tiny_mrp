@@ -64,6 +64,7 @@ class SysUser(models.Model):
             ("view_all_request", "can view  all purchase request"),
             ("can_confirm_request", "can confirm request"),
             ("can_operator_mrp","mrp user operator"),
-            ("can_operator_purchase","purchase user operator")
+            ("can_operator_purchase","purchase user operator"),
+            ("can_edit_purchase","user can edit purchase"),
 
         ]

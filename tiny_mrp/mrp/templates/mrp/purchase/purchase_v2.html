@@ -17,6 +17,10 @@
                                 <th>تعداد</th>
                                 <th>قسمت مورد مصرف</th>
                                 <th>شرح</th>
+                                {% if company.status == "Pending" and perms.mrp.can_edit_purchase %}
+                                <th> عملیات</th>
+                                {% endif%}
+
                                 
                             </tr>
                         </thead>
@@ -28,23 +32,37 @@
                                 <td  class="editable-cell">{{i.quantity}}</td>
                                 <td  class="editable-cell machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
                                 <td  class="editable-cell description" data-id="">{{i.description}}</td>
-                                <td></td>
+                                
                                 
                             </tr>
                             {% endfor %}
-                            {% else %}
+                            {% elif  company.status == "Pending" and perms.mrp.can_edit_purchase %}
                             {% for i in items %} 
                             <tr data-id="{{i.id}}">
                                 <td contenteditable="true" class="editable-cell part-name" data-id="{{i.item_name.id}}" data-partcode="{{i.item_name.partCode}}">{{i.item_name.partName}}</td>
                                 <td contenteditable="true" class="editable-cell">{{i.quantity}}</td>
                                 <td contenteditable="true" class="editable-cell machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
                                 <td contenteditable="true" class="editable-cell description" data-id="">{{i.description}}</td>
+                                <td>
+                                    <button class="btn btn-sm  delete-row">
+                                        <i class="fa fa-trash"></i> <!-- Tiny Trash Icon -->
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% elif  company.status == "Pending" and not perms.mrp.can_edit_purchase %}
+                            {% for i in items %} 
+                            <tr data-id="{{i.id}}">
+                                <td  class="editable-cell part-name" data-id="{{i.item_name.id}}" data-partcode="{{i.item_name.partCode}}">{{i.item_name.partName}}</td>
+                                <td  class="editable-cell">{{i.quantity}}</td>
+                                <td  class="editable-cell machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
+                                <td  class="editable-cell description" data-id="">{{i.description}}</td>
                                 
                             </tr>
                             {% endfor %}
                             {% endif %}
                         </tbody>
-                        {% if company.status == "Pending" or not company.status %}
+                        {% if company.status == "Pending" and perms.mrp.can_edit_purchase %}
                         <tfoot>
                             <tr class="add-row" id="add-row">
                                 <td colspan="5">  <button class="btn btn-primary  btn-floating">
