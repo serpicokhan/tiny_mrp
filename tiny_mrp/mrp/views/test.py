@@ -108,10 +108,10 @@ def get_daily_amar(request):
 
 @login_required
 def index(request):
-    has_permission = request.user.has_perm('myapp.can_view_dashboard')
+    has_permission = request.user.has_perm('mrp.can_view_dashboard')
     if(has_permission):
        return HttpResponseRedirect(reverse('list_dashboard'))
-    elif(request.user.has_perm('myapp.can_operator_mrp')):
+    elif(request.user.has_perm('mrp.can_operator_mrp')):
        return HttpResponseRedirect(reverse('register_daily_amar'))
     else:
        return HttpResponseRedirect(reverse('list_purchase_req_detail'))
