@@ -1,10 +1,3 @@
-{% comment %} {% extends 'mrp/blank-page.html' %}
-{% load static %}
-
-
-{% endblock %} {% endcomment %}
-{% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,19 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purchase Planning Board</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
     <link href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" rel="stylesheet">
-    
-    <!-- DataTable -->
-    <link rel="stylesheet" href="{% static 'vendors/dataTable/dataTables.min.css' %}" type="text/css">
 </head>
 <body>
     <div class="container my-5">
         <h2>Purchase Planning Board</h2>
-        <table class="table table-bordered" id="request-items-table">
+        <table class="table table-bordered display" id="request-items-table">
             <thead>
-                <tr class="bg-black">
+                <tr>
                     <th>Select</th>
-                    
                     <th>Item Name</th>
                     <th>Requested Quantity</th>
                     <th>Supplier</th>
@@ -32,21 +22,22 @@
                     <th>Price</th>
                     <th>Action</th>
                 </tr>
+               
             </thead>
             <tbody>
                 <!-- Example rows -->
-                
-               {% for i in items %}
-               <tr>
-                <td><input type="checkbox" class="request-item-checkbox"></td>
-                <td>{{i.item_name}}</td>
-                <td>{{i.quantity}}</td>
-                <td><input type="text" class="form-control supplier-autocomplete" placeholder="Select Supplier"></td>
-                <td><input type="number" class="form-control supplied-qty" placeholder="Enter Qty" min="1" max="10" disabled></td>
-                <td><input type="number" class="form-control item-price" placeholder="Enter Price" step="0.01" disabled></td>
-                <td><button class="btn btn-primary btn-sm assign-btn" disabled>Assign</button></td>
-            </tr>
-               {% endfor %}
+                {% for i in items %}
+                <tr>
+                    <td><input type="checkbox" class="request-item-checkbox"></td>
+                    <td>{{i.item_name}}</td>
+                    <td>{{i.quantity}}</td>
+                    <td><input type="text" class="form-control supplier-autocomplete" placeholder="Select Supplier"></td>
+                    <td><input type="number" class="form-control supplied-qty" placeholder="Enter Qty" min="1" max="10" disabled></td>
+                    <td><input type="number" class="form-control item-price" placeholder="Enter Price" step="0.01" disabled></td>
+                    <td><button class="btn btn-primary btn-sm assign-btn" disabled>Assign</button></td>
+                </tr>
+                {% endfor %}
+               
             </tbody>
         </table>
         <button class="btn btn-success my-3" id="assign-selected-btn" disabled>Assign Selected Items</button>
@@ -58,202 +49,177 @@
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-    <!-- DataTable -->
-    <script src="{% static 'vendors/dataTable/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'vendors/dataTable/dataTables.bootstrap4.min.js' %}"></script>
-    <script src="{% static 'vendors/dataTable/dataTables.responsive.min.js' %}"></script>
-    <script src="{% static 'assets/js/examples/datatable.js' %}"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function () {
-            $('#request-items-table').DataTable({
-                "scrollY": "400px",
-                "scrollCollapse": true
+            const suppliers = ["Supplier 1", "Supplier 2", "Supplier 3"]; // Example supplier list
+        
+            // Initialize DataTable for the Requested Items Table
+            const requestTable = $('#request-items-table').DataTable({
+                paging: true,
+                searching: true,
+                info: false
             });
-    const suppliers = ["Supplier 1", "Supplier 2", "Supplier 3"]; // Example supplier list
-
-    // Enable Autocomplete for Supplier Selection
-    $('.supplier-autocomplete').autocomplete({
-        source: suppliers,
-        select: function (event, ui) {
-            const row = $(this).closest('tr');
-            row.data('supplier', ui.item.value); // Store the selected supplier for this row
-            row.find('.assign-btn').prop('disabled', false);
-            row.find('.supplied-qty').prop('disabled', false);
-            row.find('.item-price').prop('disabled', false);
-        }
-    });
-
-    // Assign Button Logic for Individual Rows
-    $('#request-items-table').on('click', '.assign-btn', function () {
-        const row = $(this).closest('tr');
-        const itemName = row.find('td:nth-child(2)').text();
-        const requestedQty = row.find('td:nth-child(3)').text();
-        const suppliedQty = row.find('.supplied-qty').val() || requestedQty;
-        const itemPrice = row.find('.item-price').val() || 0;
-        const supplier = row.data('supplier'); // Get the assigned supplier for this row
-
-        if (!supplier) {
-            alert('Please select a supplier before assigning.');
-            return;
-        }
-
-        // Check if Supplier Table Exists
-        let supplierTable = $(`#${supplier.replace(/\s+/g, '')}-table`);
-        if (supplierTable.length === 0) {
-            // Create New Supplier Table
-            const supplierDiv = `
-                <div class="mb-4" id="${supplier.replace(/\s+/g, '')}-container">
-                    <h3>${supplier}'s Assigned Items</h3>
-                    <table class="table table-bordered" id="${supplier.replace(/\s+/g, '')}-table">
-                        <thead>
-                            <tr>
-                                <th>Item Name</th>
-                                <th>Requested Quantity</th>
-                                <th>Supplied Quantity</th>
-                                <th>Price</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            `;
-            $('#supplier-tables').append(supplierDiv);
-            supplierTable = $(`#${supplier.replace(/\s+/g, '')}-table`);
-        }
-
-        // Add Row to Supplier Table
-        const supplierRow = `
-            <tr>
-                <td>${itemName}</td>
-                <td>${requestedQty}</td>
-                <td><input type="number" class="form-control update-supplied-qty" value="${suppliedQty}" min="1" max="${requestedQty}"></td>
-                <td><input type="number" class="form-control update-item-price" value="${itemPrice}" step="0.01"></td>
-                <td><button class="btn btn-danger btn-sm remove-btn">Remove</button></td>
-            </tr>
-        `;
-        supplierTable.find('tbody').append(supplierRow);
-
-        // Remove Row from Request Items Table
-        row.remove();
-    });
-
-    // Remove Button Logic for Supplier Table
-    $('#supplier-tables').on('click', '.remove-btn', function () {
-        const row = $(this).closest('tr');
-        const supplierTable = $(this).closest('table');
-        const supplierContainer = supplierTable.closest('div');
-
-        const itemName = row.find('td:nth-child(1)').text();
-        const requestedQty = row.find('td:nth-child(2)').text();
-
-        // Add Back to Request Items Table
-        const requestRow = `
-            <tr>
-                <td><input type="checkbox" class="request-item-checkbox"></td>
-                <td>${itemName}</td>
-                <td>${requestedQty}</td>
-                <td>
-                    <input type="text" class="form-control supplier-autocomplete" placeholder="Select Supplier">
-                </td>
-                <td>
-                    <input type="number" class="form-control supplied-qty" placeholder="Enter Qty" min="1" max="${requestedQty}" disabled>
-                </td>
-                <td>
-                    <input type="number" class="form-control item-price" placeholder="Enter Price" step="0.01" disabled>
-                </td>
-                <td>
-                    <button class="btn btn-primary btn-sm assign-btn" disabled>Assign</button>
-                </td>
-            </tr>
-        `;
-        $('#request-items-table').append(requestRow);
-
-        row.remove();
-
-        // Remove Supplier Table if Empty
-        if (supplierTable.find('tbody tr').length === 0) {
-            supplierContainer.remove();
-        }
-
-        // Reapply Autocomplete to new row
-        $('.supplier-autocomplete').autocomplete({ source: suppliers });
-        $('#request-items-table').DataTable().destroy();
-        $('#request-items-table').DataTable({
-            "scrollY": "400px",
-            "scrollCollapse": true
-        });
-    });
-
-    // Assign Selected Items Button Logic
-    $('#assign-selected-btn').on('click', function () {
-        const selectedRows = $('.request-item-checkbox:checked').closest('tr');
-        const firstSupplier = selectedRows.first().data('supplier');
-
-        if (!firstSupplier) {
-            alert('Please select a supplier for the items.');
-            return;
-        }
-
-        selectedRows.each(function () {
-            const row = $(this);
-            const itemName = row.find('td:nth-child(2)').text();
-            const requestedQty = row.find('td:nth-child(3)').text();
-            const suppliedQty = row.find('.supplied-qty').val() || requestedQty;
-            const itemPrice = row.find('.item-price').val() || 0;
-            const supplier = row.data('supplier') || firstSupplier;
-
-            // Check if Supplier Table Exists
-            let supplierTable = $(`#${supplier.replace(/\s+/g, '')}-table`);
-            if (supplierTable.length === 0) {
-                // Create New Supplier Table
-                const supplierDiv = `
-                    <div class="mb-4" id="${supplier.replace(/\s+/g, '')}-container">
-                        <h3>${supplier}'s Assigned Items</h3>
-                        <table class="table table-bordered" id="${supplier.replace(/\s+/g, '')}-table">
-                            <thead>
-                                <tr>
-                                    <th>Item Name</th>
-                                    <th>Requested Quantity</th>
-                                    <th>Supplied Quantity</th>
-                                    <th>Price</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+        
+            // Reinitialize autocomplete for visible rows after table redraw (pagination, sorting, etc.)
+            $('#request-items-table').on('draw.dt', function () {
+                // Reinitialize autocomplete for visible rows
+                $('.supplier-autocomplete').each(function () {
+                    if (!$(this).data('ui-autocomplete')) {
+                        $(this).autocomplete({
+                            source: suppliers,
+                            select: function (event, ui) {
+                                const row = $(this).closest('tr');
+                                row.data('supplier', ui.item.value); // Store the selected supplier for this row
+                                row.find('.assign-btn').prop('disabled', false);
+                                row.find('.supplied-qty').prop('disabled', false);
+                                row.find('.item-price').prop('disabled', false);
+                            }
+                        });
+                    }
+                });
+            }).trigger('draw.dt'); // Trigger to apply autocomplete on page load
+        
+            // Enable the "Assign Selected" Button
+            $('#request-items-table').on('change', '.request-item-checkbox', function () {
+                const selectedCount = $('.request-item-checkbox:checked').length;
+                $('#assign-selected-btn').prop('disabled', selectedCount === 0);
+            });
+        
+            // Assign Selected Items Logic
+            $('#assign-selected-btn').on('click', function () {
+                const selectedRows = [];
+                
+                // Collect all selected rows from the entire table (not just the current page)
+                requestTable.rows().every(function () {
+                    const row = $(this.node());
+                    if (row.find('.request-item-checkbox').is(':checked')) {
+                        selectedRows.push(row);
+                    }
+                });
+        
+                if (selectedRows.length === 0) {
+                    alert('Please select at least one item.');
+                    return;
+                }
+        
+                // Determine the supplier for the first selected row
+                const firstRow = selectedRows[0];
+                const supplier = firstRow.find('.supplier-autocomplete').val();
+                if (!supplier) {
+                    alert('Please select a supplier for the first selected item.');
+                    return;
+                }
+        
+                // Assign selected rows to the supplier
+                selectedRows.forEach(function (row) {
+                    const itemName = row.find('td:nth-child(2)').text();
+                    const requestedQty = row.find('td:nth-child(3)').text();
+                    const suppliedQty = row.find('.supplied-qty').val() || requestedQty;
+                    const itemPrice = row.find('.item-price').val() || 0;
+        
+                    // Check if Supplier Table Exists
+                    let supplierTable = $(`#${supplier.replace(/\s+/g, '')}-table`);
+                    if (supplierTable.length === 0) {
+                        // Create New Supplier Table
+                        const supplierDiv = `
+                            <div class="mb-4" id="${supplier.replace(/\s+/g, '')}-container">
+                                <h3>${supplier}'s Assigned Items</h3>
+                                <table class="table table-bordered display" id="${supplier.replace(/\s+/g, '')}-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item Name</th>
+                                            <th>Requested Quantity</th>
+                                            <th>Supplied Quantity</th>
+                                            <th>Price</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        `;
+                        $('#supplier-tables').append(supplierDiv);
+        
+                        // Initialize DataTable for the New Supplier Table
+                        $(`#${supplier.replace(/\s+/g, '')}-table`).DataTable({
+                            paging: false,
+                            searching: false,
+                            info: false
+                        });
+                    }
+        
+                    // Add Row to Supplier Table
+                    const supplierRow = `
+                        <tr>
+                            <td>${itemName}</td>
+                            <td>${requestedQty}</td>
+                            <td><input type="number" class="form-control update-supplied-qty" value="${suppliedQty}" min="1" max="${requestedQty}"></td>
+                            <td><input type="number" class="form-control update-item-price" value="${itemPrice}" step="0.01"></td>
+                            <td><button class="btn btn-danger btn-sm remove-btn">Remove</button></td>
+                        </tr>
+                    `;
+                    const supplierTableApi = $(`#${supplier.replace(/\s+/g, '')}-table`).DataTable();
+                    supplierTableApi.row.add($(supplierRow)).draw();
+        
+                    // Remove row from request table
+                    requestTable.row(row).remove().draw();
+                });
+        
+                // Disable "Assign Selected" Button
+                $('#assign-selected-btn').prop('disabled', true);
+            });
+        
+            // Remove Button Logic for Supplier Table
+            $('#supplier-tables').on('click', '.remove-btn', function () {
+                const row = $(this).closest('tr');
+                const supplierTableId = $(this).closest('table').attr('id');
+                const supplierTableApi = $(`#${supplierTableId}`).DataTable();
+        
+                // Move item back to Requested Items Table
+                const itemName = row.find('td:nth-child(1)').text();
+                const requestedQty = row.find('td:nth-child(2)').text();
+        
+                const requestRow = `
+                    <tr>
+                        <td><input type="checkbox" class="request-item-checkbox"></td>
+                        <td>${itemName}</td>
+                        <td>${requestedQty}</td>
+                        <td>
+                            <input type="text" class="form-control supplier-autocomplete" placeholder="Select Supplier">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control supplied-qty" placeholder="Enter Qty" min="1" max="${requestedQty}" disabled>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control item-price" placeholder="Enter Price" step="0.01" disabled>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm assign-btn" disabled>Assign</button>
+                        </td>
+                    </tr>
                 `;
-                $('#supplier-tables').append(supplierDiv);
-                supplierTable = $(`#${supplier.replace(/\s+/g, '')}-table`);
-            }
-
-            // Add Row to Supplier Table
-            const supplierRow = `
-                <tr>
-                    <td>${itemName}</td>
-                    <td>${requestedQty}</td>
-                    <td><input type="number" class="form-control update-supplied-qty" value="${suppliedQty}" min="1" max="${requestedQty}"></td>
-                    <td><input type="number" class="form-control update-item-price" value="${itemPrice}" step="0.01"></td>
-                    <td><button class="btn btn-danger btn-sm remove-btn">Remove</button></td>
-                </tr>
-            `;
-            supplierTable.find('tbody').append(supplierRow);
-
-            // Remove Row from Request Items Table
-            row.remove();
+                requestTable.row.add($(requestRow)).draw();
+        
+                // Reinitialize Autocomplete for the new row
+                $('.supplier-autocomplete').autocomplete({
+                    source: suppliers
+                });
+        
+                // Remove row from supplier table
+                supplierTableApi.row(row).remove().draw();
+        
+                // If supplier table is empty, remove it
+                if (supplierTableApi.rows().count() === 0) {
+                    $(`#${supplierTableId}-container`).remove();
+                }
+            });
         });
-
-        toggleAssignSelectedButton(); // Update Assign Selected Button
-    });
-
-    // Toggle Assign Selected Button
-    $('#request-items-table').on('change', '.request-item-checkbox', function () {
-        const hasChecked = $('.request-item-checkbox:checked').length > 0;
-        $('#assign-selected-btn').prop('disabled', !hasChecked);
-    });
-});
-
+        
+        
+        
+        
+        
     </script>
 </body>
 </html>
