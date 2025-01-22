@@ -126,6 +126,7 @@ urlpatterns = [
     url(r'^Purchases/PB$', list_pboard, name='list_pboard'),
 
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
+    url(r'^Supplier/GetSuplier$', wo_getSuppliers, name='wo_getSuppliers'),
     url(r'^Asset/GetAssets$', asset_getAssets2, name='asset_getAssets2'),
     
     url(r'^api/create-part/$', create_part, name="create_part"),

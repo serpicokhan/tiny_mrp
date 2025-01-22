@@ -12,3 +12,4 @@ from mrp.views.partview import *
 from mrp.views.assetview import *
 from mrp.views.userview import *
 from mrp.views.planningboardview import *
+from mrp.views.supplierview import *
