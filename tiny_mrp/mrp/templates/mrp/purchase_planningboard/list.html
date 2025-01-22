@@ -22,6 +22,15 @@
                     <th>Price</th>
                     <th>Action</th>
                 </tr>
+                <tr>
+                    <th></th>
+                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Item"></th>
+                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Quantity"></th>
+                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Place"></th>
+                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search User"></th>
+                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Supplier"></th>
+                    <th></th>
+                </tr>
                
             </thead>
             <tbody>
@@ -58,7 +67,18 @@
             const requestTable = $('#request-items-table').DataTable({
                 paging: true,
                 searching: true,
-                info: false
+                info: false,
+                initComplete: function () {
+                    // Add column-wise search functionality
+                    this.api().columns().every(function () {
+                        const column = this;
+                        $('input', column.header()).on('keyup change clear', function () {
+                            if (column.search() !== this.value) {
+                                column.search(this.value).draw();
+                            }
+                        });
+                    });
+                }
             });
         
             // Reinitialize autocomplete for visible rows after table redraw (pagination, sorting, etc.)
@@ -84,6 +104,69 @@
             $('#request-items-table').on('change', '.request-item-checkbox', function () {
                 const selectedCount = $('.request-item-checkbox:checked').length;
                 $('#assign-selected-btn').prop('disabled', selectedCount === 0);
+            });
+            $('#request-items-table').on('click', '.assign-btn', function () {
+                const row = $(this).closest('tr');
+                const supplier = row.data('supplier');
+                const itemName = row.find('td:nth-child(2)').text();
+                const requestedQty = row.find('td:nth-child(3)').text();
+                const suppliedQty = row.find('.supplied-qty').val();
+                const itemPrice = row.find('.item-price').val();
+        
+                if (!supplier) {
+                    alert('Please select a supplier for this item.');
+                    return;
+                }
+        
+                // Check if Supplier Table Exists
+                let supplierTable = $(`#${supplier.replace(/\s+/g, '')}-table`);
+                if (supplierTable.length === 0) {
+                    // Create New Supplier Table
+                    const supplierDiv = `
+                        <div class="mb-4" id="${supplier.replace(/\s+/g, '')}-container">
+                            <h3>${supplier}'s Assigned Items</h3>
+                            <table class="table table-bordered display" id="${supplier.replace(/\s+/g, '')}-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item Name</th>
+                                        <th>Requested Quantity</th>
+                                        <th>Supplied Quantity</th>
+                                        <th>Price</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    `;
+                    $('#supplier-tables').append(supplierDiv);
+        
+                    // Initialize DataTable for the New Supplier Table
+                    $(`#${supplier.replace(/\s+/g, '')}-table`).DataTable({
+                        paging: false,
+                        searching: false,
+                        info: false
+                    });
+                }
+        
+                // Add Row to Supplier Table
+                const supplierRow = `
+                    <tr>
+                        <td>${itemName}</td>
+                        <td>${requestedQty}</td>
+                        <td><input type="number" class="form-control update-supplied-qty" value="${suppliedQty}" min="1" max="${requestedQty}"></td>
+                        <td><input type="number" class="form-control update-item-price" value="${itemPrice}" step="0.01"></td>
+                        <td><button class="btn btn-danger btn-sm remove-btn">Remove</button></td>
+                    </tr>
+                `;
+                const supplierTableApi = $(`#${supplier.replace(/\s+/g, '')}-table`).DataTable();
+                supplierTableApi.row.add($(supplierRow)).draw();
+        
+                // Remove row from request table
+                requestTable.row(row).remove().draw();
+        
+                // Disable the Assign button after it's clicked
+                row.find('.assign-btn').prop('disabled', true);
             });
         
             // Assign Selected Items Logic
