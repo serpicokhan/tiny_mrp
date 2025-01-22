@@ -61,8 +61,6 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function () {
-            const suppliers = ["Supplier 1", "Supplier 2", "Supplier 3"]; // Example supplier list
-        
             // Initialize DataTable for the Requested Items Table
             const requestTable = $('#request-items-table').DataTable({
                 paging: true,
@@ -81,223 +79,127 @@
                 }
             });
         
+            // Handle Suggestions for Supplier Input (Dynamic Dropdown)
+            function handleSuggestions($cell, apiUrl, createApiUrl2, type) {
+                createApiUrl = createApiUrl2;
+                $cell.on('input', function () {
+                    if ($cell && $cell.length) {
+                        console.log($cell);
+                        const inputValue = $cell.val();
+                    console.log(inputValue, createApiUrl2, type);
+
+        
+                    if (inputValue.length < 2) {
+                        console.log(inputValue);
+
+                        $('.dropdown-menu').remove(); // Hide dropdown if input is too short
+                        return;
+                    }
+        
+                    // Fetch suggestions from API (Use AJAX to fetch supplier list dynamically)
+                    $.ajax({
+                        url: apiUrl, // API endpoint to get suppliers
+                        method: "GET",
+                        data: { qry: inputValue },
+                        success: function (data) {
+                            console.log(data);
+                            let dropdownHtml = '<div class="dropdown-menu show">';
+                            data.forEach(item => {
+                                dropdownHtml += `
+                                    <button class="dropdown-item" data-id="${item.id}" data-name="${item.name}">
+                                        ${item.name}
+                                    </button>
+                                `;
+                            });
+        
+                            // Add "Create New Item" option
+                            dropdownHtml += `
+                                <button class="dropdown-item create-new" data-typed="${inputValue}">
+                                    +New: "${inputValue}"
+                                </button>
+                            </div>`;
+        
+                            // Position dropdown
+                            const offset = $cell.offset();
+                            const $dropdown = $(dropdownHtml).css({
+                                position: 'absolute',
+                                top: offset.top + $cell.outerHeight(),
+                                left: offset.left - 100,
+                                width: $cell.outerWidth(),
+                                zIndex: 1000
+                            });
+        
+                            // Remove existing dropdown and append the new one
+                            $('.dropdown-menu').remove();
+                            $('body').append($dropdown);
+        
+                            // Handle item selection from dropdown
+                            $dropdown.on('click', '.dropdown-item', function () {
+                                const selectedValue = $(this).data('name');
+                                $cell.text(selectedValue).trigger('change');
+                                $dropdown.remove();
+                                toggleAssignButton($cell.closest('tr'));
+                            });
+                        },
+                        error: function () {
+                            console.error('Error fetching suggestions');
+                        }
+                    });
+                    }
+                });
+            }
+        
+            // Handle supplier input field
+            function handleSupplierInput($cell) {
+                // Assuming `/get-suppliers` is your API endpoint to get suppliers
+                handleSuggestions($cell, '/get-suppliers', '/create-supplier', 'Supplier');
+            }
+        
             // Reinitialize autocomplete for visible rows after table redraw (pagination, sorting, etc.)
             $('#request-items-table').on('draw.dt', function () {
                 // Reinitialize autocomplete for visible rows
                 $('.supplier-autocomplete').each(function () {
                     if (!$(this).data('ui-autocomplete')) {
-                        $(this).autocomplete({
-                            source: suppliers,
-                            select: function (event, ui) {
-                                const row = $(this).closest('tr');
-                                row.data('supplier', ui.item.value); // Store the selected supplier for this row
-                                row.find('.assign-btn').prop('disabled', false);
-                                row.find('.supplied-qty').prop('disabled', false);
-                                row.find('.item-price').prop('disabled', false);
-                            }
-                        });
+                        
+                        handleSupplierInput($(this)); // Setup dynamic suggestion for each cell
                     }
                 });
             }).trigger('draw.dt'); // Trigger to apply autocomplete on page load
         
-            // Enable the "Assign Selected" Button
-            $('#request-items-table').on('change', '.request-item-checkbox', function () {
-                const selectedCount = $('.request-item-checkbox:checked').length;
-                $('#assign-selected-btn').prop('disabled', selectedCount === 0);
-            });
+            // Toggle "Assign" button state
+            function toggleAssignButton(row) {
+                const supplier = row.data('supplier');
+                const quantity = row.find('.supplied-qty').val();
+        
+                // Enable the "Assign" button if supplier is selected and quantity is entered
+                if (supplier && quantity > 0) {
+                    row.find('.assign-btn').prop('disabled', false);
+                } else {
+                    row.find('.assign-btn').prop('disabled', true);
+                }
+            }
+        
+            // Assign Button Logic
             $('#request-items-table').on('click', '.assign-btn', function () {
                 const row = $(this).closest('tr');
-                const supplier = row.data('supplier');
-                const itemName = row.find('td:nth-child(2)').text();
-                const requestedQty = row.find('td:nth-child(3)').text();
-                const suppliedQty = row.find('.supplied-qty').val();
-                const itemPrice = row.find('.item-price').val();
+                const supplier = row.find('.supplier-autocomplete').text();
+                const quantity = row.find('.supplied-qty').val();
         
-                if (!supplier) {
-                    alert('Please select a supplier for this item.');
+                if (!supplier || quantity <= 0) {
+                    alert("Please select a supplier and enter a quantity.");
                     return;
                 }
         
-                // Check if Supplier Table Exists
-                let supplierTable = $(`#${supplier.replace(/\s+/g, '')}-table`);
-                if (supplierTable.length === 0) {
-                    // Create New Supplier Table
-                    const supplierDiv = `
-                        <div class="mb-4" id="${supplier.replace(/\s+/g, '')}-container">
-                            <h3>${supplier}'s Assigned Items</h3>
-                            <table class="table table-bordered display" id="${supplier.replace(/\s+/g, '')}-table">
-                                <thead>
-                                    <tr>
-                                        <th>Item Name</th>
-                                        <th>Requested Quantity</th>
-                                        <th>Supplied Quantity</th>
-                                        <th>Price</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    `;
-                    $('#supplier-tables').append(supplierDiv);
+                // Your logic for assigning the item to the supplier
+                // You can now submit this data to the backend if needed
         
-                    // Initialize DataTable for the New Supplier Table
-                    $(`#${supplier.replace(/\s+/g, '')}-table`).DataTable({
-                        paging: false,
-                        searching: false,
-                        info: false
-                    });
-                }
-        
-                // Add Row to Supplier Table
-                const supplierRow = `
-                    <tr>
-                        <td>${itemName}</td>
-                        <td>${requestedQty}</td>
-                        <td><input type="number" class="form-control update-supplied-qty" value="${suppliedQty}" min="1" max="${requestedQty}"></td>
-                        <td><input type="number" class="form-control update-item-price" value="${itemPrice}" step="0.01"></td>
-                        <td><button class="btn btn-danger btn-sm remove-btn">Remove</button></td>
-                    </tr>
-                `;
-                const supplierTableApi = $(`#${supplier.replace(/\s+/g, '')}-table`).DataTable();
-                supplierTableApi.row.add($(supplierRow)).draw();
-        
-                // Remove row from request table
-                requestTable.row(row).remove().draw();
-        
-                // Disable the Assign button after it's clicked
-                row.find('.assign-btn').prop('disabled', true);
-            });
-        
-            // Assign Selected Items Logic
-            $('#assign-selected-btn').on('click', function () {
-                const selectedRows = [];
-                
-                // Collect all selected rows from the entire table (not just the current page)
-                requestTable.rows().every(function () {
-                    const row = $(this.node());
-                    if (row.find('.request-item-checkbox').is(':checked')) {
-                        selectedRows.push(row);
-                    }
-                });
-        
-                if (selectedRows.length === 0) {
-                    alert('Please select at least one item.');
-                    return;
-                }
-        
-                // Determine the supplier for the first selected row
-                const firstRow = selectedRows[0];
-                const supplier = firstRow.find('.supplier-autocomplete').val();
-                if (!supplier) {
-                    alert('Please select a supplier for the first selected item.');
-                    return;
-                }
-        
-                // Assign selected rows to the supplier
-                selectedRows.forEach(function (row) {
-                    const itemName = row.find('td:nth-child(2)').text();
-                    const requestedQty = row.find('td:nth-child(3)').text();
-                    const suppliedQty = row.find('.supplied-qty').val() || requestedQty;
-                    const itemPrice = row.find('.item-price').val() || 0;
-        
-                    // Check if Supplier Table Exists
-                    let supplierTable = $(`#${supplier.replace(/\s+/g, '')}-table`);
-                    if (supplierTable.length === 0) {
-                        // Create New Supplier Table
-                        const supplierDiv = `
-                            <div class="mb-4" id="${supplier.replace(/\s+/g, '')}-container">
-                                <h3>${supplier}'s Assigned Items</h3>
-                                <table class="table table-bordered display" id="${supplier.replace(/\s+/g, '')}-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Item Name</th>
-                                            <th>Requested Quantity</th>
-                                            <th>Supplied Quantity</th>
-                                            <th>Price</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        `;
-                        $('#supplier-tables').append(supplierDiv);
-        
-                        // Initialize DataTable for the New Supplier Table
-                        $(`#${supplier.replace(/\s+/g, '')}-table`).DataTable({
-                            paging: false,
-                            searching: false,
-                            info: false
-                        });
-                    }
-        
-                    // Add Row to Supplier Table
-                    const supplierRow = `
-                        <tr>
-                            <td>${itemName}</td>
-                            <td>${requestedQty}</td>
-                            <td><input type="number" class="form-control update-supplied-qty" value="${suppliedQty}" min="1" max="${requestedQty}"></td>
-                            <td><input type="number" class="form-control update-item-price" value="${itemPrice}" step="0.01"></td>
-                            <td><button class="btn btn-danger btn-sm remove-btn">Remove</button></td>
-                        </tr>
-                    `;
-                    const supplierTableApi = $(`#${supplier.replace(/\s+/g, '')}-table`).DataTable();
-                    supplierTableApi.row.add($(supplierRow)).draw();
-        
-                    // Remove row from request table
-                    requestTable.row(row).remove().draw();
-                });
-        
-                // Disable "Assign Selected" Button
-                $('#assign-selected-btn').prop('disabled', true);
-            });
-        
-            // Remove Button Logic for Supplier Table
-            $('#supplier-tables').on('click', '.remove-btn', function () {
-                const row = $(this).closest('tr');
-                const supplierTableId = $(this).closest('table').attr('id');
-                const supplierTableApi = $(`#${supplierTableId}`).DataTable();
-        
-                // Move item back to Requested Items Table
-                const itemName = row.find('td:nth-child(1)').text();
-                const requestedQty = row.find('td:nth-child(2)').text();
-        
-                const requestRow = `
-                    <tr>
-                        <td><input type="checkbox" class="request-item-checkbox"></td>
-                        <td>${itemName}</td>
-                        <td>${requestedQty}</td>
-                        <td>
-                            <input type="text" class="form-control supplier-autocomplete" placeholder="Select Supplier">
-                        </td>
-                        <td>
-                            <input type="number" class="form-control supplied-qty" placeholder="Enter Qty" min="1" max="${requestedQty}" disabled>
-                        </td>
-                        <td>
-                            <input type="number" class="form-control item-price" placeholder="Enter Price" step="0.01" disabled>
-                        </td>
-                        <td>
-                            <button class="btn btn-primary btn-sm assign-btn" disabled>Assign</button>
-                        </td>
-                    </tr>
-                `;
-                requestTable.row.add($(requestRow)).draw();
-        
-                // Reinitialize Autocomplete for the new row
-                $('.supplier-autocomplete').autocomplete({
-                    source: suppliers
-                });
-        
-                // Remove row from supplier table
-                supplierTableApi.row(row).remove().draw();
-        
-                // If supplier table is empty, remove it
-                if (supplierTableApi.rows().count() === 0) {
-                    $(`#${supplierTableId}-container`).remove();
-                }
+                // For demonstration, log to console
+                console.log(`Assigned item to ${supplier} with quantity ${quantity}`);
+                alert(`Item assigned to ${supplier} with quantity ${quantity}`);
             });
         });
+        
+        
         
         
         
