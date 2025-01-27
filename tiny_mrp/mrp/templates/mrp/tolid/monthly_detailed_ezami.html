@@ -133,6 +133,23 @@
                                         </tr>
 
                                     {% endfor %}
+                                    <tr >
+                                        <td colspan=2>جمع</td>
+                                        
+                                        <td>{{final_row.tolid.0.tab|floatformat:2}}</td>
+                                        {% for i in final_row.types %}
+                                       <td>{{i.waste|floatformat:2}}</td>
+                                       {% endfor %}
+                                       <td>{{final_row.sum_waste|floatformat:2}}</td>
+                                       <td>{{final_row.percentage|floatformat:2}}%</td>
+                                       <td>{{final_row.tolid.0.finisher|floatformat:2}}</td>
+                                       <td>{{final_row.tolid.0.ring|floatformat:2}}</td>
+                                       <td></td>
+                                       <td></td>
+
+                                         <!-- Add more columns for other data -->
+                                     </tr>
+
                                 </tbody>
                             </table>
                         </div>

@@ -909,11 +909,58 @@ def monthly_detaild_report_ezami(request):
         day_data["sum_waste"]=sum_waste
         day_data["percentage"]=(sum_waste/day_data["tolid"][0]["tab"])*100 if day_data["tolid"][0]["tab"] else 0
         result.append(day_data)
+    
+        day_data = {"date": "",'day_of_week':"", "types": [],"tolid":[]}
+        waste_data = ZayeatVaz.objects.filter(dayOfIssue__range=[start_date,end_date],makan__id=makan_id)\
+                        .values('zayeat').annotate(total_waste=Sum('vazn'))
+        product_data_finisher = DailyProduction.objects.filter(dayOfIssue__range=[start_date,end_date],machine__assetCategory__id=3,machine__assetIsLocatedAt__id=makan_id).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
+        product_data_ring = DailyProduction.objects.filter(dayOfIssue__range=[start_date,end_date],machine__assetCategory__id=4,machine__assetIsLocatedAt__id=makan_id).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
+        product_data_tab = DailyProduction.objects.filter(dayOfIssue__range=[start_date,end_date],machine__assetCategory__id=7,machine__assetIsLocatedAt__id=makan_id).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
+        sum_waste=0
+        if(waste_data.count()==0):
+            for i in z_name:
+                waste_type = i.id
+                waste_name=i.name
+                waste_value = 0
+                day_data["types"].append({
+                    "type": waste_type,
+                    "waste": waste_value,
+                    "waste_name":waste_name
+                    
+                })
+        else:
+
+            for waste in waste_data:
+                waste_type = waste['zayeat']
+                waste_name=z_name.get(id=waste_type).name
+                waste_value = waste['total_waste']
+                day_data["types"].append({
+                    "type": waste_type,
+                    "waste": waste_value,
+                    "waste_name":waste_name
+                    
+                })
+                sum_waste+=waste_value
+        day_data["tolid"].append({
+                "tab": product_data_tab[0]["total_product"] if product_data_tab else 0,
+                "finisher":product_data_finisher[0]["total_product"] if product_data_finisher else 0,
+                "ring":product_data_ring[0]["total_product"] if product_data_ring else 0
+                
+                
+            })
+        day_data["hozur"]=result_api[current_date.togregorian().strftime('%Y-%m-%d')] if current_date.togregorian().strftime('%Y-%m-%d') in result_api else 0
+
+        day_data["sarane"]= day_data["tolid"][0]["tab"]/day_data["hozur"] if day_data["hozur"] else 0
+        day_data["sum_waste"]=sum_waste
+        day_data["percentage"]=(sum_waste/day_data["tolid"][0]["tab"])*100 if day_data["tolid"][0]["tab"] else 0
+        
+        
 
 
 
 
-    return render(request,'mrp/tolid/monthly_detailed_ezami.html',{'z_name':z_name,'makan_id':int(makan_id),'makan':makan,'cats':asset_category,'title':'آمار ماهانه','cat_list':result,'shift':shift,'month':j_month,'year':j_year})
+
+    return render(request,'mrp/tolid/monthly_detailed_ezami.html',{'z_name':z_name,'makan_id':int(makan_id),'makan':makan,'cats':asset_category,'title':'آمار ماهانه','cat_list':result,'final_row':day_data,'shift':shift,'month':j_month,'year':j_year})
 def monthly_brief_report(request):
     shifts=Shift.objects.all()
     asset_cats=AssetCategory.objects.all().order_by('priority')
