@@ -521,6 +521,6 @@ $(".tab-content").on("keydown", ".editable-cell, .editable-cell2, .production", 
     return results ? decodeURIComponent(results[1]) : null;
 }
   $("#select_shift2").change(function(){
-    window.location=`/Tolid/DailyDetails?event_id=${getQueryParameter('event_id')}&shift_id=${$(this).val()}`;
+    window.location=`/Tolid/DailyDetails?event_id=${getQueryParameter('event_id')}&shift_id=${$(this).val()}&makan_id=${getQueryParameter('makan_id')}`;
   });
 });

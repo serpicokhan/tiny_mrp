@@ -104,7 +104,7 @@ def get_daily_amar(request):
     #             print(ex)
 
     # print("here")
-    return render(request,"mrp/tolid/daily_details_aria.html",{'heatsets':machines_with_formulas2,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه','shift_id':int(s)})
+    return render(request,"mrp/tolid/daily_details_aria.html",{'makan_id':int(makan_id),'heatsets':machines_with_formulas2,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه','shift_id':int(s)})
 
 @login_required
 def index(request):
@@ -686,10 +686,13 @@ def get_tolid_calendar_info(request):
     makan=request.GET.get("makan",False)
     data=[]
     user_info=DailyProduction.objects.filter(machine__assetIsLocatedAt=makan).values_list('dayOfIssue').distinct()
+
     # print(user_info)
     for i in user_info:
+        product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=7,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
+
         z=get_sum_vaz_zayeat_by_date_per_line(i[0],makan)
-        data.append({'title': "آمار روزانه",\
+        data.append({'title': f"آمار روزانه { round(product_data_tab[0]['total_product'],0)}",\
                 'start': i[0],\
                  'color': '#53c797',\
                 'id':i[0]})
