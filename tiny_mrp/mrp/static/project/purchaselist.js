@@ -19,6 +19,13 @@ $(function () {
             $(".preloader").hide()
 
             feather.replace();
+            new Quill('.reply-email-quill-editor', {
+                modules: {
+                    toolbar: ".reply-email-quill-toolbar"
+                },
+                placeholder: "اینجا بنویسید...",
+                theme: "snow"
+            });
             
             
             
@@ -352,6 +359,14 @@ $(function () {
           </div>`;
         $('#image-container').append(inputGroup);
       }
+      function addFaktorInput() {
+        const inputGroup = `
+          <div class="input-group mb-2">
+            <input type="file" name="file" accept="image/*" class="form-control" required>
+            <button type="button" class="btn btn-danger remove-btn">حذف</button>
+          </div>`;
+        $('#faktor-container').append(inputGroup);
+      }
   
       // Add the first input field by default
       addImageInput();
@@ -360,21 +375,19 @@ $(function () {
       $(document).on('click','#add-image-btn', function () {
         addImageInput();
       });
+      $(document).on('click','#add-faktor-btn', function () {
+        addFaktorInput();
+      });
   
       // Handle dynamic "Remove" button click
       $(document).on('click', '#image-container .remove-btn', function () {
         $(this).closest('.input-group').remove();
       });
+      $(document).on('click', '#faktor-container .remove-btn', function () {
+        $(this).closest('.input-group').remove();
+      });
   
-      // Handle form submission (for debugging)
-    //   $('#image-upload-form').on('submit', function (e) {
-    //     e.preventDefault();
-    //     const formData = new FormData(this);
-    //     for (let [key, value] of formData.entries()) {
-    //       console.log(key, value.name); // Logs the uploaded file names
-    //     }
-    //     alert('فرم ارسال شد!');
-    //   });
+    
     
    
 });

@@ -66,5 +66,9 @@ class SysUser(models.Model):
             ("can_operator_mrp","mrp user operator"),
             ("can_operator_purchase","purchase user operator"),
             ("can_edit_purchase","user can edit purchase"),
+            ("can_view_faktors","user can view faktors"),
+            ("can_upload_faktors","user can upload faktors"),
+            ("can_create_paraf","user can craete paraf"),
+            ("can_view_paraf","user can view paraf"),
 
         ]

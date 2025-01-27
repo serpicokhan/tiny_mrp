@@ -74,6 +74,7 @@ class PurchaseRequest(models.Model):
     created_at = models.DateField(auto_now_add=False, default=timezone.now)
     is_emergency = models.BooleanField(default=False)
     viewed_by = models.TextField(blank=True, default='[]')
+    manager_comment = models.TextField(blank=True, default='')
     status = models.CharField(
         max_length=20,
         choices=[('Pending', 'درخواست شده'), ('Approved', 'تایید انبار'), ('Rejected', 'رد شده'),
@@ -171,6 +172,18 @@ class PurchaseRequestFile(models.Model):
 
     # File field to store the uploaded file
     file = models.FileField(upload_to='purchase_requests/files/')
+
+    # Optional: Timestamp when the file was uploaded
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+         return os.path.basename(self.file.name)
+class PurchaseRequestFaktor(models.Model):
+    # Foreign Key to the PurchaseRequest model
+    purchase_request = models.ForeignKey(PurchaseRequest, on_delete=models.CASCADE, related_name='faktors')
+
+    # File field to store the uploaded file
+    file = models.FileField(upload_to='purchase_requests/faktors/')
 
     # Optional: Timestamp when the file was uploaded
     uploaded_at = models.DateTimeField(auto_now_add=True)

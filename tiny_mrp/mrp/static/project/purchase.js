@@ -265,7 +265,7 @@ $(document).ready(function() {
         contentType: false,  // Don't set content type header as it will be set by the browser
         success: function (response) {
           console.log('Upload success', response);
-          alert('فرم ارسال شد!');
+        
         },
         error: function (error) {
           console.error('Error uploading images:', error);
@@ -273,6 +273,69 @@ $(document).ready(function() {
         }
       });
 
+    }
+    var submit_faktor_form=function(last_id){
+        const fileInputs = $('input[name="file"]');
+        let valid = true;
+    
+        fileInputs.each(function () {
+            if (!this.files || this.files.length === 0) {
+                
+                valid = false;
+                return false; // Break the loop
+            }
+        });
+    
+        if (!valid) {
+            return;
+        }
+        
+
+        //#################
+
+        const form=$("#faktor-upload-form")[0];
+        const formData = new FormData(form);
+      // Send the FormData to the server using AJAX
+      $.ajax({
+        url: '/Purchases/UploadFaktor/?p_id='+last_id,  // Replace with your server-side upload URL
+        type: 'POST',
+        data: formData,
+        processData: false,  // Prevent jQuery from processing the data
+        contentType: false,  // Don't set content type header as it will be set by the browser
+        success: function (response) {
+          console.log('Upload success', response);
+         
+        },
+        error: function (error) {
+          console.error('Error uploading images:', error);
+        //   console.log(' فایل خطا در ارسال فرم');
+        }
+      });
+
+    }
+    var send_paraf=function(last_id){
+        const textToSend = $('#exampleFormControlTextarea1').val();
+
+          // Check if the input is empty
+          if (textToSend === '') {
+            
+            return; // Stop further execution
+          }
+        // AJAX POST request
+        $.ajax({
+          url: '/Purchases/UploadParagh?p_id='+last_id, // Replace with your server endpoint
+          method: 'POST',
+          data: {
+            text: textToSend,
+          },
+          success: function (response) {
+            
+          },
+          error: function (xhr, status, error) {
+            console.log('Error: ' + error);
+          },
+        });
+      
     }
     function refreshList() {
         const currentParams = new URLSearchParams(window.location.search);
@@ -399,6 +462,8 @@ $(document).ready(function() {
                 $(".main_slidebar").removeClass( "d-none" );
                 $("#update_tab2").addClass("d-none");
                 submit_file_form(last_id);
+                submit_faktor_form(last_id);
+                send_paraf(last_id);
 
 
 

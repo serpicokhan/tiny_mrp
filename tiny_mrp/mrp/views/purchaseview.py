@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.http import JsonResponse,HttpResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
-from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2,PurchaseRequestFile,Asset,Comment,PurchaseNotes,PurchaseActivityLog
+from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2,PurchaseRequestFile,PurchaseRequestFaktor,Asset,Comment,PurchaseNotes,PurchaseActivityLog
 from django.template.loader import render_to_string
 from mrp.business.purchaseutility import *
 from mrp.business.DateJob import *
@@ -292,6 +292,7 @@ def update_purchase_v2(request,id):
     company=PurchaseRequest.objects.get(id=id)
     req_items=RequestItem.objects.filter(purchase_request=company)
     files=PurchaseRequestFile.objects.filter(purchase_request=company)
+    faktors=PurchaseRequestFaktor.objects.filter(purchase_request=company)
     comments = company.comments.all() 
     notes = company.notes.filter(user=request.user.sysuser) 
     plogs=company.plogs.all()
@@ -308,6 +309,7 @@ def update_purchase_v2(request,id):
                 "comments": comments,
                 "notes":notes,
                 "logs":plogs,
+                "faktors":faktors,
 
                 'perms': PermWrapper(request.user) 
 
@@ -542,6 +544,35 @@ def upload_purchase_images(request):
         # Create and save the PurchaseRequestFile instance
         for uploaded_file in uploaded_files:
             PurchaseRequestFile.objects.create(
+                purchase_request=purchase_request,
+                file=uploaded_file
+            )
+
+        return JsonResponse({'success': True, 'message': 'File uploaded successfully!'})
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)
+@csrf_exempt
+def upload_purchase_faktors(request):
+    
+    print(request.method,'####################')
+    if request.method == 'POST':
+        purchase_request_id = request.GET.get('p_id')
+        uploaded_files = request.FILES.getlist('file')
+        print("files:",uploaded_files)
+        print("p_id:",purchase_request_id)
+
+        if not purchase_request_id or not uploaded_files:
+            print("here!!!")
+
+
+            return JsonResponse({'success': False,
+                                  'errors': 'Both purchase_request and file are required.'}, status=400)
+
+        # Validate and get the PurchaseRequest instance
+        purchase_request = get_object_or_404(PurchaseRequest, id=purchase_request_id)
+
+        # Create and save the PurchaseRequestFile instance
+        for uploaded_file in uploaded_files:
+            PurchaseRequestFaktor.objects.create(
                 purchase_request=purchase_request,
                 file=uploaded_file
             )
@@ -833,7 +864,7 @@ def get_purchasereq_calendar_info(request):
             color = '#0275d8'  # Blue for approve3
         else:
             color = '#cccccc'  # Default color if status is unknown
-        data.append({'title': f"درخواست {i.user} {i.getItems()}",\
+        data.append({'title': f"درخواست {i.user} {i.id}",\
                 'start': i.created_at,\
                  'color': color,\
                 'id':i.id})
@@ -937,3 +968,15 @@ def add_purchase_note(request):
             'image':request.user.sysuser.profileImage.url
         })
     return JsonResponse({"status": "error"}, status=400)
+@csrf_exempt  # Disable CSRF for testing purposes; ensure proper CSRF handling in production
+def handle_purchase_paraph(request):
+    print(request.method,'##################################')
+    if request.method == 'POST':
+        text = request.POST.get('text')
+        p_id=request.GET.get('p_id',False)
+        if(p_id):
+            p=PurchaseRequest.objects.get(id=p_id)
+            p.manager_comment=text
+            p.save()
+        return JsonResponse({'message': f'Text received: {text}'})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
