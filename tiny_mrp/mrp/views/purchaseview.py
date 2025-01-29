@@ -450,6 +450,11 @@ def delete_purchase_request(request,id):
     if(request.method=="POST"):
         data=dict()
         if(request.user.is_superuser):
+            PurchaseActivityLog.objects.create(
+                    user=request.user.sysuser,  # User making the change
+                    purchase_request=company,
+                    action=f"{request.user.sysuser} درخواست را حذف نمود"
+                )
             company.delete()
             list_item=list_purchaseRequeset(request)
             data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
@@ -461,6 +466,11 @@ def delete_purchase_request(request,id):
             data["status"]=company.status            
         else:
             if(company.status=="Pending"):
+                PurchaseActivityLog.objects.create(
+                    user=request.user.sysuser,  # User making the change
+                    purchase_request=company,
+                    action=f"{request.user.sysuser} درخواست را حذف نمود"
+                )
                 company.delete()
                 list_item=list_purchaseRequeset(request)
                 data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
