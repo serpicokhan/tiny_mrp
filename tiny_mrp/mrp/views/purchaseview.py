@@ -902,17 +902,18 @@ def add_purchase_comment(request):
         user = request.user.sysuser
         purchase_request = get_object_or_404(PurchaseRequest, id=purchase_request_id)
         parent_comment = Comment.objects.filter(id=parent_id).first() if parent_id else None
-        # url = "https://app.wallmessage.com/api/sendMessage"
+        if(user.tel1):
+            url = "https://app.wallmessage.com/api/sendMessage"
 
-        # payload={
-        # "appkey": "7fe75ff8-b457-4abb-ad12-e4c364b79484",
-        # "authkey": "06nWkgBK3SkPO1YLLC58DlxGRo7dEf3m6kV0gzsnydIgGYpfXb",
-        # 'to': '09390453690',
-        # 'message': f'کامنت {user.fullName} برای درخواست شماره {purchase_request_id}: {content}',
-        # }
-        # files=[]
-        # headers = {}
-        # response = rqt.request("POST", url, headers=headers, data=payload, files=files)
+            payload={
+            "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
+            "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
+            'to': user.tel,
+            'message': f'کامنت {user.fullName} برای درخواست شماره {purchase_request_id}: {content}',
+            }
+            files=[]
+            headers = {}
+            response = rqt.request("POST", url, headers=headers, data=payload, files=files)
         comment = Comment.objects.create(
             purchase_request=purchase_request,
             user=user,
