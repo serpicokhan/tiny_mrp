@@ -659,12 +659,12 @@ def export_purchase_requests(request):
 
     for purchase_request in purchase_requests:
         # Add the header for the PurchaseRequest
-        sheet[f'A{row}'] = f'شماره درخواست'
-        sheet[f'B{row}'] = f'کاربر'
+        sheet[f'E{row}'] = f'شماره درخواست'
+        sheet[f'D{row}'] = f'کاربر'
         sheet[f'C{row}'] = f'تاریخ'
         # sheet[f'D{row}'] = f'اضطراری'
-        sheet[f'D{row}'] = f"اضطراری"
-        sheet[f'E{row}'] = f'وضعیت'
+        sheet[f'B{row}'] = f"اضطراری"
+        sheet[f'A{row}'] = f'وضعیت'
         for col in ['A', 'B', 'C', 'D', 'E']:
             cell = sheet[f'{col}{row}']
             cell.border = thin_border
@@ -674,12 +674,12 @@ def export_purchase_requests(request):
             cell.alignment = justified_alignment 
         row += 1  # Move to the next row for the colored space
         
-        sheet[f'A{row}'] = f'{purchase_request.id}'
-        sheet[f'B{row}'] = f'{purchase_request.user.fullName}'
+        sheet[f'E{row}'] = f'{purchase_request.id}'
+        sheet[f'D{row}'] = f'{purchase_request.user.fullName}'
         sheet[f'C{row}'] = f'{purchase_request.get_dateCreated_jalali().strftime("%Y/%m/%d")}'
         # sheet[f'D{row}'] = f'اضطراری: {purchase_request.is_emergency}'
-        sheet[f'D{row}'] = f"{'بله' if purchase_request.is_emergency else 'خیر'}"
-        sheet[f'E{row}'] = f'{purchase_request.get_status_display()}'
+        sheet[f'B{row}'] = f"{'بله' if purchase_request.is_emergency else 'خیر'}"
+        sheet[f'A{row}'] = f'{purchase_request.get_status_display()}'
         for col in ['A', 'B', 'C', 'D', 'E']:
             cell = sheet[f'{col}{row}']
             cell.border = thin_border
@@ -693,11 +693,11 @@ def export_purchase_requests(request):
 
 
         # Now, create the header for the items table under each PurchaseRequest
-        sheet[f'A{row}'] = 'نام کالا'
-        sheet[f'B{row}'] = 'تعداد'
+        sheet[f'E{row}'] = 'نام کالا'
+        sheet[f'D{row}'] = 'تعداد'
         sheet[f'C{row}'] = 'مورد مصرف'
-        sheet[f'D{row}'] = 'شرح'
-        sheet[f'E{row}'] = 'تامین کننده'
+        sheet[f'B{row}'] = 'شرح'
+        sheet[f'A{row}'] = 'تامین کننده'
         for col in ['A', 'B', 'C', 'D', 'E']:
             cell = sheet[f'{col}{row}']
             cell.border = thin_border
@@ -713,11 +713,11 @@ def export_purchase_requests(request):
         items = purchase_request.items.all()
 
         for item in items:
-            sheet[f'A{row}'] = item.item_name.partName  # Assuming 'partName' is the name field
-            sheet[f'B{row}'] = item.quantity
+            sheet[f'E{row}'] = item.item_name.partName  # Assuming 'partName' is the name field
+            sheet[f'D{row}'] = item.quantity
             sheet[f'C{row}'] = item.consume_place.assetName  # Assuming 'name' field in Asset2
-            sheet[f'D{row}'] = item.description
-            sheet[f'E{row}'] = item.supplier_assigned.name if item.supplier_assigned else "مشخص نشده"
+            sheet[f'B{row}'] = item.description
+            sheet[f'A{row}'] = item.supplier_assigned.name if item.supplier_assigned else "مشخص نشده"
             for col in ['A', 'B', 'C', 'D', 'E']:
                 cell = sheet[f'{col}{row}']
                 cell.border = thin_border
@@ -730,11 +730,11 @@ def export_purchase_requests(request):
         row += 1  # Move to the next row for the colored space
         
      # Set the column widths
-    sheet.column_dimensions['A'].width = 30  # 'Item Name' column
-    sheet.column_dimensions['B'].width = 15  # 'Quantity' column
+    sheet.column_dimensions['E'].width = 30  # 'Item Name' column
+    sheet.column_dimensions['D'].width = 15  # 'Quantity' column
     sheet.column_dimensions['C'].width = 25  # 'Consume Place' column
-    sheet.column_dimensions['D'].width = 15  # 'Price' column
-    sheet.column_dimensions['E'].width = 20  # 'Supplier' column
+    sheet.column_dimensions['B'].width = 15  # 'Price' column
+    sheet.column_dimensions['A'].width = 20  # 'Supplier' column
 
     # Create a response to download the file
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
