@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comment Box with Mentions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.css">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h4>Leave a Comment</h4>
+    <div class="mb-3">
+        <textarea id="commentBox" class="form-control" rows="4" placeholder="Type @ to mention a user..."></textarea>
+    </div>
+    <button class="btn btn-primary">Submit</button>
+</div>
+
+<script>
+    // Dummy users list
+    let users = [
+        { key: "sarvi", value: "John Doe" },
+        { key: "JaneSmith", value: "Jane Smith" },
+        { key: "AliceBrown", value: "Alice Brown" }
+    ];
+
+    // Initialize Tribute.js
+    let tribute = new Tribute({
+        trigger: "@",
+        values: users,
+        selectTemplate: function(item) {
+            return "@" + item.original.key; // Inserts @username into text
+        }
+    });
+
+    // Attach Tribute.js to the textarea
+    tribute.attach(document.getElementById("commentBox"));
+</script>
+
+</body>
+</html>
