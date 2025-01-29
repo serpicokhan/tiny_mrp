@@ -16,6 +16,8 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 import requests as rqt
+from django.contrib.auth.models import User
+
 
 @login_required
 
@@ -356,6 +358,8 @@ def confirm_request(request,id):
     # Check the user's groups and determine the new status
     user_groups = request.user.groups.values_list('name', flat=True)
     new_status = None
+    next_status=None
+    next_group=None
 
     for group_name, statuses in group_status_map.items():
         if group_name in user_groups:
@@ -366,8 +370,23 @@ def confirm_request(request,id):
             for status in sorted_statuses:
                 if status_hierarchy.index(status) > status_hierarchy.index(company.status):
                     new_status = status
+                    # if(sorted_statuses.index(status)+1<len(sorted_statuses)):
+                    #     next_status=sorted_statuses[sorted_statuses.index(status)+1]
+                    #     next_group = next((group for group, statuses in group_status_map.items() if next_status in statuses), None)
+                    #     next_to_next_group_users = list(User.objects.filter(groups__name=next_group))
+
                     break
             break
+    # Find the **next-to-next** status and group
+    if new_status:
+        current_index = status_hierarchy.index(new_status)
+        if current_index + 1 < len(status_hierarchy):
+            next_status = status_hierarchy[current_index + 1]
+            next_group = next((group for group, statuses in group_status_map.items() if next_status in statuses), None)
+
+    # Find users in the next group
+    next_to_next_group_users = list(User.objects.filter(groups__name=next_group)) if next_group else []
+
 
     # If no matching group is found, return an error
     if not new_status:
@@ -404,6 +423,22 @@ def confirm_request(request,id):
             purchase_request=company,
             action=f"{request.user.sysuser} درخواست را تایید نمود"
         )
+    ###########Send whatsapp#############
+    url = "https://app.wallmessage.com/api/sendMessage"
+
+    for next_user in next_to_next_group_users:
+        if(next_user.sysuser.tel1):
+
+            payload={
+            "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
+            "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
+            'to': next_user.sysuser.tel1,
+            'message': f'درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد \n {company.getItems()}',
+            }
+            files=[]
+            headers = {}
+            response = rqt.request("POST", url, headers=headers, data=payload, files=files)
+
 
 
     # Refresh the purchase request list
@@ -991,3 +1026,16 @@ def handle_purchase_paraph(request):
             p.save()
         return JsonResponse({'message': f'Text received: {text}'})
     return JsonResponse({'error': 'Invalid request'}, status=400)
+# def send_whatsapp(purchaser_req):
+#      if(user.tel1):
+#             url = "https://app.wallmessage.com/api/sendMessage"
+
+#             payload={
+#             "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
+#             "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
+#             'to': user.tel,
+#             'message': f'کامنت {user.fullName} برای درخواست شماره {purchase_request_id}: {content}',
+#             }
+#             files=[]
+#             headers = {}
+#             response = rqt.request("POST", url, headers=headers, data=payload, files=files)
