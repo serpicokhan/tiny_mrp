@@ -28,6 +28,15 @@ class PurchaseRequest(models.Model):
         items = self.items.select_related('item_name').all()
         item_details = [f"{item.item_name.partName} (تعداد: {item.quantity}) (موردمصرف :{item.consume_place})" for item in items]  # Assuming Part model has a 'name' field
         return ", ".join(item_details)
+    def getItems3(self):
+        number_emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
+        items = self.items.select_related('item_name').all()
+        # item_details = [f"1️⃣ {item.item_name.partName} (تعداد: {item.quantity}) (موردمصرف :{item.consume_place})" for item in items]  # Assuming Part model has a 'name' field
+        item_details = [
+            f"{number_emojis[i]} {item.item_name.partName} (تعداد: {item.quantity}) (موردمصرف: {item.consume_place})"
+            for i, item in enumerate(items)
+        ]
+        return "\n".join(item_details)
     # def getItems(self):
     #     items = self.items.select_related('item_name').all()
     #     rows = [

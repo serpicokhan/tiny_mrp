@@ -432,7 +432,7 @@ def confirm_request(request,id):
                     "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
                     "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
                     'to': next_user.sysuser.tel1,
-                    'message': f'<<درخواست اضطراری>> \n درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد \n {company.getItems()}',
+                    'message': f'⛔⛔⛔ *درخواست اضطراری* ⛔⛔⛔ \n درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂\n🌐 https://kth.mymrp.ir',
                     }
             else:
 
@@ -440,11 +440,19 @@ def confirm_request(request,id):
                 "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
                 "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
                 'to': next_user.sysuser.tel1,
-                'message': f'درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد \n {company.getItems()}',
+                'message': f'درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂ \n🌐 https://kth.mymrp.ir',
                 }
-            files=[]
+            
+            files=PurchaseRequestFile.objects.filter(file__isnull=False,purchase_request=company)
+            files2=[]
+            # files=list(files)
+            # for i in files:
+            #     with i.file.open('rb') as file_obj:
+
+            #         files2.append(file_obj)
+
             headers = {}
-            response = rqt.request("POST", url, headers=headers, data=payload, files=files)
+            response = rqt.request("POST", url, headers=headers, data=payload, files=files2)
 
 
 
@@ -1046,3 +1054,21 @@ def handle_purchase_paraph(request):
 #             files=[]
 #             headers = {}
 #             response = rqt.request("POST", url, headers=headers, data=payload, files=files)
+#############################################################
+def load_more_purchaserequest(request):
+    items = list_purchaseRequeset(request)  # Get all items (modify filter as needed)
+
+    
+    try:
+        data = PurchaseUtility.doPaging(request,items)  # Get the requested page
+    except:
+        return JsonResponse({'html': ''})  # No more data, return empty response
+
+    # Render the HTML content as a string
+    html = render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
+                
+                'req':data,     
+                'perms': PermWrapper(request.user)           
+            },request)
+
+    return JsonResponse({'html': html})

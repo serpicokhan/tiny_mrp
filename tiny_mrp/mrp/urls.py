@@ -126,6 +126,7 @@ urlpatterns = [
     url(r'^Purchases/AddComment$', add_purchase_comment, name='add_purchase_comment'),
     url(r'^Purchases/AddNote$', add_purchase_note, name='add_purchase_note'),
     url(r'^Purchases/PB$', list_pboard, name='list_pboard'),
+    url(r'^Purchases/LoadMore/$', load_more_purchaserequest, name='load_more_purchaserequest'),
 
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
     url(r'^Supplier/GetSuplier$', wo_getSuppliers, name='wo_getSuppliers'),

@@ -386,6 +386,63 @@ $(function () {
       $(document).on('click', '#faktor-container .remove-btn', function () {
         $(this).closest('.input-group').remove();
       });
+    //   ##############################
+    // let page = 1; // Track current page
+    // let isLoading = false; // Prevent multiple requests
+    // $('.app-lists[style*="overflow"]').on('scroll', function () {
+    //     let scrollTop = $(this).scrollTop(); // Current scroll position
+    //     let scrollHeight = $(this)[0].scrollHeight; // Total scrollable height
+    //     let clientHeight = $(this).outerHeight(); // Visible height of the element
+        
+       
+    
+    //     if (!isLoading && scrollTop + clientHeight >= scrollHeight - 10) {
+    //         isLoading = true;
+    //         page += 1; // Increase page number
+
+    //         console.log("Loading more data...");
+    //         loadMoreData(page);
+    //     }
+    // });
+    //   function loadMoreData(page) {
+    //     const currentParams = new URLSearchParams(window.location.search);
+
+    //     // Save them globally for later use
+    //     const filters = {};
+    //     for (const [key, value] of currentParams.entries()) {
+    //         filters[key] = value;
+    //     }
+    //     filters.page=page;
+    //     // Send the query parameters with the list reload request
+    //     const params = new URLSearchParams(filters).toString();
+    //     $.ajax({
+    //         url: `/Purchases/LoadMore/?${params}`,
+    //         type: 'GET',
+    //         beforeSend: function () {
+    //             $('.loading').show();
+    //         },
+    //         success: function (data) {
+    //             if (data.html) {
+    //                 if ($('#main_ul').length === 0) {
+    //                     console.error("#main_ul not found in DOM!");
+    //                 }
+    //                 $('#main_ul').append(data.html);
+    //                 $("#main_ul").getNiceScroll().remove(); // Destroy
+    //                 $("#main_ul").niceScroll({ cursorcolor: "#333", cursorwidth: "6px" }); // 
+    //                 // console.log(data.html);
+    //             } else {
+    //                 console.log("No more data to load");
+    //             }
+    //         },
+    //         error: function (xhr) {
+    //             console.error("Error loading data:", xhr);
+    //         },
+    //         complete: function () {
+    //             $('.loading').hide();
+    //             isLoading = false;
+    //         }
+    //     });
+    // }
   
     
     
