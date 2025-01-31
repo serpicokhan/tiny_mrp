@@ -126,6 +126,8 @@ urlpatterns = [
     url(r'^Purchases/AddComment$', add_purchase_comment, name='add_purchase_comment'),
     url(r'^Purchases/AddNote$', add_purchase_note, name='add_purchase_note'),
     url(r'^Purchases/PB$', list_pboard, name='list_pboard'),
+    url(r'^Purchases/PB/save-suppliers$', save_suppliers_pb, name='save_suppliers_pb'),
+
     url(r'^Purchases/LoadMore/$', load_more_purchaserequest, name='load_more_purchaserequest'),
 
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
@@ -134,6 +136,7 @@ urlpatterns = [
     
     url(r'^api/create-part/$', create_part, name="create_part"),
     url(r'^api/create-asset/$', create_asset2, name="create_asset2"),
+    url(r'^api/create-supplier/$', create_supplier, name="create_supplier"),
     url(r'^api/save-purchase-request/', views.save_purchase_request, name='save-purchase-request'),
     
 

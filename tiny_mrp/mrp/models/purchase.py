@@ -106,6 +106,7 @@ class RequestItem(models.Model):
     description = models.TextField(blank=True, null=True)
     price=models.FloatField(default=0)
     quantity = models.PositiveIntegerField()
+    supplied_quantity = models.PositiveIntegerField(default=0)
     supplier_assigned = models.ForeignKey(
         'Supplier', 
         on_delete=models.SET_NULL, 

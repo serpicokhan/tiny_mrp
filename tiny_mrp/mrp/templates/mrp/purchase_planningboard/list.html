@@ -1,38 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+    {% load static %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Purchase Planning Board</title>
+    <title>برد برنامه ریزی خرید</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
     <link href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" rel="stylesheet">
+      <!-- Favicon -->
+  <link rel="shortcut icon" href="{% static 'assets/media/image/favicon.png' %}"/>
+
+  <!-- Plugin styles -->
+  <link rel="stylesheet" href="{% static 'vendors/bundle.css' %}" type="text/css">
+    <!-- App styles -->
+    <link rel="stylesheet" href="{%  static 'assets/css/app.min.css' %}" type="text/css">
+
 </head>
 <body>
     <div class="container my-5">
-        <h2>Purchase Planning Board</h2>
+        <h2>برد برنامه ریزی خرید</h2>
         <table class="table table-bordered display" id="request-items-table">
             <thead>
                 <tr>
-                    <th>Select</th>
-                    <th>Purchase ID</th>
-                    <th>User Name</th>
-                    <th>Place</th>
-                    <th>Item Name</th>
-                    <th>QTY</th>
-                    <th>Supplier</th>
+                    <th>انتخاب</th>
+                    <th>کد درخواست</th>
+                    <th>درخواست دهنده</th>
+                    <th>مکان</th>
+                    <th>کالا</th>
+                    <th>تعداد</th>
+                    <th>تامین کننده</th>
                     {% comment %} <th>Supplied Quantity</th>
                     <th>Price</th> {% endcomment %}
-                    <th>Action</th>
+                    <th>عملیات</th>
                 </tr>
                 <tr>
                     <th></th>
-                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Purchase ID"></th>
-                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search User Name"></th>
-                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Place"></th>
-                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Item"></th>
-                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="QTY"></th>
-                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Supplier"></th>
+                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="جستجو کد درخواست"></th>
+                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="جستجو کاربر"></th>
+                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="جستجو مکان"></th>
+                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="جستجو آیتم"></th>
+                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="تعداد"></th>
+                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="جستجو تامین کننده"></th>
                     {% comment %} <th></th>
                     <th></th> {% endcomment %}
                     <th></th>
@@ -41,32 +50,37 @@
             <tbody>
                 <!-- Example rows -->
                 {% for i in items %}
-                <tr>
+                <tr data-item={{i.id}}>
                     <td><input type="checkbox" class="request-item-checkbox"></td>
                     <td>{{ i.purchase_request.id }}</td>
                     <td>{{ i.purchase_request.user.fullName }}</td>
                     <td>{{ i.consume_place.assetName }}</td>
                     <td>{{ i.item_name.partName }}</td>
                     <td>{{ i.quantity }}</td>
-                    <td><input type="text" class="form-control supplier-autocomplete" data-id='' placeholder="Select Supplier"></td>
+                    <td><input type="text" class="form-control supplier-autocomplete" data-id='' placeholder="تامین کننده"></td>
                     {% comment %} <td><input type="number" class="form-control supplied-qty" placeholder="Enter Qty" min="1" max="10" disabled></td>
                     <td><input type="number" class="form-control item-price" placeholder="Enter Price" step="0.01" disabled></td> {% endcomment %}
-                    <td><button class="btn btn-primary btn-sm assign-btn" disabled>Assign</button></td>
+                    <td><button class="btn btn-primary btn-sm assign-btn" disabled>انتصاب</button></td>
                 </tr>
                 {% endfor %}
                
             </tbody>
         </table>
-        <button class="btn btn-success my-3" id="assign-selected-btn" disabled>Assign Selected Items</button>
+        <button class="btn btn-success my-3" id="assign-selected-btn" >انتصاب آیتم انتخابی</button>
+        <button class="btn btn-success" id="save-suppliers">ذخیره</button>
 
         <div id="supplier-tables">
             <!-- Supplier tables will dynamically appear here -->
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+   
+    <script src="{% static 'vendors/bundle.js' %}"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<!-- end::global scripts -->
+
+<!-- begin::custom scripts -->
     <script>
         $(document).ready(function () {
             // Initialize DataTable for the Requested Items Table
@@ -86,6 +100,7 @@
                     });
                 }
             });
+           
         
             // Handle Suggestions for Supplier Input (Dynamic Dropdown)
             function handleSuggestions($cell, apiUrl, createApiUrl2, type) {
@@ -165,8 +180,50 @@
             // Handle supplier input field
             function handleSupplierInput($cell) {
                 // Assuming `/get-suppliers` is your API endpoint to get suppliers
-                handleSuggestions($cell, '/Supplier/GetSuplier', '/create-supplier', 'Supplier');
+                handleSuggestions($cell, '/Supplier/GetSuplier', '/api/create-supplier/', 'Supplier');
             }
+            
+            const fetchPartsApiUrl = "/Supplier/GetSuplier"; // Replace with your API endpoint for fetching parts
+            const createPartsApiUrl = "/api/create-supplier/"; // Replace with your API endpoint for creating parts
+            $(document).on('focus', '.supplier-autocomplete', function() {
+                const $cell = $(this);
+                $('[data-active="true"]').removeAttr('data-active');
+        
+                // Mark the current cell as active
+                $cell.attr('data-active', 'true');
+                //handleSuggestions($cell, fetchPartsApiUrl, createPartsApiUrl, "Supplier");
+            });
+            $(document).on('click', '.create-new', function() {
+                const newName = $(this).data('typed');
+                const $dropdown = $(this).closest('.dropdown-menu');
+        
+                const $cell = $('[data-active="true"]'); // Assuming you mark the active cell
+                console.log($cell);
+                
+        
+                // Call API to create new item
+                $.ajax({
+                    url: createApiUrl,
+                    method: "post",
+                    contentType: "application/json",
+                    data: JSON.stringify({ name: newName }),
+                    success: function(response) {
+                        // Assume the response contains the newly created item's details
+                        const newItem = response; // Example: { id: 100, code: "new_machine_code", name: "New Machine" }
+        
+                        // Update the cell content and data attributes
+                        $cell.val(newItem.name);
+                        $cell.attr('data-id', newItem.id);
+                        //$cell.attr('data-code', newItem.code);
+        
+                        // Remove dropdown
+                        $dropdown.remove();
+                    },
+                    error: function() {
+                        alert(`Error creating new ${type}. Please try again.`);
+                    }
+                });
+            });
                 // Assign Selected Items Logic
     $('#assign-selected-btn').on('click', function () {
         const selectedRows = [];
@@ -187,6 +244,8 @@
         // Determine the supplier for the first selected row
         const firstRow = selectedRows[0];
         const supplier = firstRow.find('.supplier-autocomplete').val();
+        const supplierId = firstRow.find('.supplier-autocomplete').attr('data-id');
+
         if (!supplier) {
             alert('Please select a supplier for the first selected item.');
             return;
@@ -194,10 +253,15 @@
 
         // Assign selected rows to the supplier
         selectedRows.forEach(function (row) {
-            const itemName = row.find('td:nth-child(2)').text();
-            const requestedQty = row.find('td:nth-child(3)').text();
-            const suppliedQty = row.find('.supplied-qty').val() || requestedQty;
+            let itemid = row.attr('data-item');
+            
+            const itemName = row.find('td:nth-child(5)').text();
+            const purchaseId = row.find('td:nth-child(2)').text();
+            const requesteduser = row.find('td:nth-child(3)').text();
+            const requestedQty = row.find('td:nth-child(6)').text().trim();
+            const suppliedQty =  requestedQty;
             const itemPrice = row.find('.item-price').val() || 0;
+            const makan = row.find('td:nth-child(4)').text();;
 
             // Check if Supplier Table Exists
             let supplierTable = $(`#${supplier.replace(/\s+/g, '')}-table`);
@@ -205,15 +269,16 @@
                 // Create New Supplier Table
                 const supplierDiv = `
                     <div class="mb-4" id="${supplier.replace(/\s+/g, '')}-container">
-                        <h3>${supplier}'s Assigned Items</h3>
+                        <h3>کالاهای ${supplier} </h3>
                         <table class="table table-bordered display" id="${supplier.replace(/\s+/g, '')}-table">
                             <thead>
                                 <tr>
-                                    <th>Item Name</th>
-                                    <th>Requested Quantity</th>
-                                    <th>Supplied Quantity</th>
-                                    <th>Price</th>
-                                    <th>Action</th>
+                                    <th>کد درخواست</th>
+                                    <th>نام کالا</th>
+                                    <th>درخواست کننده</th>
+                                    <th>تعداد تامینی</th>
+                                    <th>قیمت واحد</th>
+                                    <th>عملیات</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -232,12 +297,13 @@
 
             // Add Row to Supplier Table
             const supplierRow = `
-                <tr>
+                <tr data-id=${itemid} data-supplier=${supplierId} data-makan="${makan}" data-qty="${requestedQty}">
+                    <td>${purchaseId}</td>
                     <td>${itemName}</td>
-                    <td>${requestedQty}</td>
+                    <td>${requesteduser}</td>
                     <td><input type="number" class="form-control update-supplied-qty" value="${suppliedQty}" min="1" max="${requestedQty}"></td>
                     <td><input type="number" class="form-control update-item-price" value="${itemPrice}" step="0.01"></td>
-                    <td><button class="btn btn-danger btn-sm remove-btn">Remove</button></td>
+                    <td><button class="btn btn-danger btn-sm remove-btn">حذف</button></td>
                 </tr>
             `;
             const supplierTableApi = $(`#${supplier.replace(/\s+/g, '')}-table`).DataTable();
@@ -248,7 +314,62 @@
         });
 
         // Disable "Assign Selected" Button
-        $('#assign-selected-btn').prop('disabled', true);
+        //$('#assign-selected-btn').prop('disabled', true);
+    });
+    $('#supplier-tables').on('click', '.remove-btn', function () {
+        const row = $(this).closest('tr');
+        const supplierTableId = $(this).closest('table').attr('id');
+        const supplierTableApi = $(`#${supplierTableId}`).DataTable();
+
+        // Move item back to Requested Items Table
+        const itemName = row.find('td:nth-child(2)').text();
+        const itemcode = row.attr("data-id");
+        const request_code = row.find('td:nth-child(1)').text();
+        const requestedQty = row.attr("data-qty");
+        const requesteduser = row.find('td:nth-child(3)').text();
+        const makan = row.attr("data-makan");
+
+        const requestRow = `
+            <tr data-item="${itemcode}">
+                <td><input type="checkbox" class="request-item-checkbox"></td>
+                <td>${request_code}</td>
+                <td>${requesteduser}</td>
+                <td>
+                   ${makan}
+                </td>
+                <td>
+                    ${itemName}
+                </td>
+                <td >
+                    ${requestedQty}
+                </td>
+                <td data-id="">
+                    <input type="text" class="form-control supplier-autocomplete" data-id="" placeholder="تامین کننده">
+                </td>
+                <td>
+                    <button class="btn btn-primary btn-sm assign-btn" disabled>Assign</button>
+                </td>
+            </tr>
+        `;
+        
+        requestTable.row.add($(requestRow)).draw();
+
+        // Reinitialize Autocomplete for the new row
+      /*  $('.supplier-autocomplete').autocomplete({
+            source: function(request, response) {
+                fetchSuppliers(request.term, function(suppliers) {
+                    response(suppliers);
+                });
+            }
+        });*/
+
+        // Remove row from supplier table
+        supplierTableApi.row(row).remove().draw();
+
+        // If supplier table is empty, remove it
+        if (supplierTableApi.rows().count() === 0) {
+            $(`#${supplierTableId}-container`).remove();
+        }
     });
         
             // Reinitialize autocomplete for visible rows after table redraw (pagination, sorting, etc.)
@@ -293,6 +414,67 @@
                 console.log(`Assigned item to ${supplier} with quantity ${quantity}`);
                 alert(`Item assigned to ${supplier} with quantity ${quantity}`);
             });
+            $('#save-suppliers').on('click', function () {
+                let suppliersData = [];
+        
+                // Loop through each row in the supplier's table
+                $('#supplier-tables  tbody tr').each(function () {
+                    let $row = $(this);
+                    let supplierId = $row.attr('data-supplier'); // Get supplier ID from input
+
+                    let itemId = $row.attr('data-id'); // Get item ID from second column
+                    let username = $row.find('td:eq(2)').text(); // Get user name
+                    let place = $row.find('td:eq(3)').text(); // Get place
+                    let itemName = $row.find('td:eq(2)').text(); // Get item name
+                    let quantity = $row.find('.update-supplied-qty').val().trim(); // Get quantity from input
+                    let price = $row.find('.update-item-price').val().trim(); // Get price from input
+                      // Check if quantity and price have values
+                    if (quantity === "" || price === "") {
+                        toastr.error("قیمت و مقدار را مشخص کنید");
+                        return; // Skip this row
+                    }
+
+        
+                    if (supplierId) { // Only include rows with a selected supplier
+                        suppliersData.push({
+                            supplier_id: supplierId,
+                            item_id: itemId,
+                            user_name: username,
+                            place: place,
+                            item_name: itemName,
+                            quantity: quantity,
+                            price:price
+                        });
+                    }
+                });
+        
+                // Ensure there is data to send
+                if (suppliersData.length === 0) {
+                    //alert("No supplier data to save!");
+                    return;
+                }
+                console.log(suppliersData);
+                // Send data via AJAX
+                $.ajax({
+                    url: '/Purchases/PB/save-suppliers', // Replace with your backend API endpoint
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ suppliers: suppliersData }),
+                    success: function (response) {
+                        if(response.status=="success"){
+                        toastr.success("اقلام با موفقیت ذخیره شدند");
+                        $('#supplier-tables').html('');
+
+                        console.log(response);
+                        }
+                    },
+                    error: function (error) {
+                        console.error("Error saving suppliers", error);
+                    }
+                });
+            });
+
+          
         });
         
         
