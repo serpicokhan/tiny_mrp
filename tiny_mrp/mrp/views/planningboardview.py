@@ -19,7 +19,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 def list_pboard(request):
-    items=RequestItem.objects.filter(purchase_request__status="Ordered",price=0,supplied_quantity=0 )
+    items=RequestItem.objects.filter(purchase_request__status="Purchased",price=0,supplied_quantity=0 )
     return render(request,'mrp/purchase_planningboard/list.html',{"items":items})
 
 
@@ -58,7 +58,7 @@ def save_suppliers_pb(request):
 
                 # Get or create the related Supplier, Part, and Asset2 objects
                 supplier = get_object_or_404(Supplier, pk=supplier_id)
-                part = get_object_or_404(Part, id=item_id)  # Adjust according to your Part model
+                # part = get_object_or_404(Part, id=item_id)  # Adjust according to your Part model
                 # consume_place = get_object_or_404(Asset2, name=place)  # Adjust according to your Asset2 model
 
                 # Update or create the RequestItem

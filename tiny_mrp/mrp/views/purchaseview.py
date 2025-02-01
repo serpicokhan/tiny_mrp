@@ -454,6 +454,17 @@ def confirm_request(request,id):
             headers = {}
             response = rqt.request("POST", url, headers=headers, data=payload, files=files2)
 
+    if(next_to_next_group_users.count()==0):
+        payload={
+                    "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
+                    "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
+                    'to': company.user.tel1,
+                    'message': f'درخواست شماره {{company.id}} با مشخصات زیر خریداری گردید: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂\n🌐 https://kth.mymrp.ir',
+                    }
+        files2=[]        
+
+        headers = {}
+        response = rqt.request("POST", url, headers=headers, data=payload, files=files2)
 
 
     # Refresh the purchase request list
