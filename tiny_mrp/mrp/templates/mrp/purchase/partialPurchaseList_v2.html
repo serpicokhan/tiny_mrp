@@ -68,6 +68,21 @@
                                                 </a>
                                             </li>
                                             {% endif %}
+                                            
+                                            {% if i.has_mgm_comment and perms.mrp.can_view_paraf %}
+                                            <li class="list-inline-item mb-0">
+                                                <a href="#" data-toggle="tooltip" title="" data-original-title="{{i.manager_comment}}">
+                                                    <span class="ti-crown"></span>
+                                                </a>
+                                            </li>
+                                            {% endif %}
+                                            {% if i.has_faktor and perms.mrp.can_view_faktors %}
+                                            <li class="list-inline-item mb-0">
+                                                <a href="#" data-toggle="tooltip" title="" data-original-title="اسناد مالی">
+                                                    <i class="fa fa-money"></i>
+                                                </a>
+                                            </li>
+                                            {% endif %}
                                            
                                             <li class="list-inline-item mb-0">
                                                 <i class="fa fa-circle text-{{i.get_purchase_status_color}}"></i>

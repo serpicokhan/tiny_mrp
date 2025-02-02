@@ -363,10 +363,15 @@ def confirm_request(request,id):
 
     for group_name, statuses in group_status_map.items():
         if group_name in user_groups:
+            
+
             # Filter the group's statuses to find the next status in sequence
             sorted_statuses = sorted(
                 statuses, key=lambda status: status_hierarchy.index(status)
             )  # Sort statuses in order of the hierarchy
+           
+           
+
             for status in sorted_statuses:
                 if status_hierarchy.index(status) > status_hierarchy.index(company.status):
                     new_status = status
@@ -385,7 +390,6 @@ def confirm_request(request,id):
             next_group = next((group for group, statuses in group_status_map.items() if next_status in statuses), None)
 
     # Find users in the next group
-    next_to_next_group_users = list(User.objects.filter(groups__name=next_group)) if next_group else []
 
 
     # If no matching group is found, return an error
@@ -408,12 +412,17 @@ def confirm_request(request,id):
 
         }, status=201)
     elif new_status_index > current_status_index+1:
-        return JsonResponse({
-            "http_status": "error",
-            # "message": "You cannot confirm this request because the current status is already higher or equal.",
-            "message": "شما نمی‌توانید این درخواست را تأیید کنید ."
+        if(not "director" in user_groups):
+            return JsonResponse({
+                "http_status": "error",
+                # "message": "You cannot confirm this request because the current status is already higher or equal.",
+                "message": "شما نمی‌توانید این درخواست را تأیید کنید ."
 
-        }, status=201)
+            }, status=201)
+        else:
+            new_status="Approve3"
+
+
 
     # Update the status
     company.status = new_status
@@ -424,42 +433,47 @@ def confirm_request(request,id):
             action=f"{request.user.sysuser} درخواست را تایید نمود"
         )
     ###########Send whatsapp#############
+    next_to_next_group_users = list(User.objects.filter(groups__name=next_group)) if next_group else []
+
     url = "https://app.wallmessage.com/api/sendMessage"
-    for next_user in next_to_next_group_users:
-        if(next_user.sysuser.tel1):
-            if(company.is_emergency):
+    if(company.status=="Approve3"):
+        for next_user in next_to_next_group_users:
+            
+
+            if(next_user.sysuser.tel1):
+                if(company.is_emergency):
+                        payload={
+                        "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
+                        "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
+                        'to': next_user.sysuser.tel1,
+                        'message': f'⛔⛔⛔ *درخواست اضطراری* ⛔⛔⛔ \n درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂\n🌐 https://kth.mymrp.ir',
+                        }
+                else:
+
                     payload={
                     "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
                     "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
                     'to': next_user.sysuser.tel1,
-                    'message': f'⛔⛔⛔ *درخواست اضطراری* ⛔⛔⛔ \n درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂\n🌐 https://kth.mymrp.ir',
+                    'message': f'درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂ \n🌐 https://kth.mymrp.ir',
                     }
-            else:
+                
+                files=PurchaseRequestFile.objects.filter(file__isnull=False,purchase_request=company)
+                files2=[]
+                # files=list(files)
+                # for i in files:
+                #     with i.file.open('rb') as file_obj:
 
-                payload={
-                "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
-                "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
-                'to': next_user.sysuser.tel1,
-                'message': f'درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂ \n🌐 https://kth.mymrp.ir',
-                }
-            
-            files=PurchaseRequestFile.objects.filter(file__isnull=False,purchase_request=company)
-            files2=[]
-            # files=list(files)
-            # for i in files:
-            #     with i.file.open('rb') as file_obj:
+                #         files2.append(file_obj)
 
-            #         files2.append(file_obj)
+                headers = {}
+                response = rqt.request("POST", url, headers=headers, data=payload, files=files2)
 
-            headers = {}
-            response = rqt.request("POST", url, headers=headers, data=payload, files=files2)
-
-    if(next_to_next_group_users.count()==0):
+    if(company.status=="Purchased"):
         payload={
                     "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
                     "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
                     'to': company.user.tel1,
-                    'message': f'درخواست شماره {{company.id}} با مشخصات زیر خریداری گردید: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂\n🌐 https://kth.mymrp.ir',
+                    'message': f'درخواست شماره {company.id} با مشخصات زیر خریداری گردید: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂\n🌐 https://kth.mymrp.ir',
                     }
         files2=[]        
 

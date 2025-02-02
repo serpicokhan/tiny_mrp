@@ -11,6 +11,12 @@ class PurchaseRequest(models.Model):
     def has_attachment(self):
         # files
         return self.files.select_related('file').all().count()>0
+    def has_faktor(self):
+        # files
+        return self.faktors.select_related('file').all().count()>0
+    def has_mgm_comment(self):
+        # files
+        return len(self.manager_comment)>0
     def has_comment(self):
         # files
         return self.comments.select_related('content').all().count()>0
