@@ -19,13 +19,13 @@ $(function () {
             $(".preloader").hide()
 
             feather.replace();
-            new Quill('.reply-email-quill-editor', {
-                modules: {
-                    toolbar: ".reply-email-quill-toolbar"
-                },
-                placeholder: "اینجا بنویسید...",
-                theme: "snow"
-            });
+            // new Quill('.reply-email-quill-editor', {
+            //     modules: {
+            //         toolbar: ".reply-email-quill-toolbar"
+            //     },
+            //     placeholder: "اینجا بنویسید...",
+            //     theme: "snow"
+            // });
             
             
             
@@ -235,6 +235,7 @@ $(function () {
     $(document).on('click', '.btn-block2', function (e) {
         if (!$(e.target).is('.custom-control, .custom-control *, a, a *')) {
             $('.app-detail').addClass('show').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function () {
+                $('.app-block .app-sidebar, .app-content-overlay').removeClass("show");
                 loadForm($("#createreq").attr("data-url"));
 
                 $('.app-block .app-content .app-content-body .app-detail .app-detail-article').niceScroll().resize();
@@ -247,6 +248,8 @@ $(function () {
         $('.app-detail').removeClass('show');
         $(".main_slidebar").removeClass( "d-none" );
         $("#update_tab2").addClass("d-none");
+        // $('.app-block .app-sidebar, .app-content-overlay').addClass('show');
+
         refreshList2();
         // $(".main_slidebar").addClass( "show" )
 
