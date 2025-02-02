@@ -17,6 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 import requests as rqt
 from django.contrib.auth.models import User
+from django.db.models import Max
 
 
 @login_required
@@ -111,9 +112,17 @@ def list_purchase_req_detail(request):
     # Status filtering
     if status_filter != 'all':
         requests = requests.filter(status=status_filter)
+
     valid_sort_fields = ['id', '-id', 'created_at', '-created_at', 'status', '-status']
+    
     if sort_by in valid_sort_fields:
         requests = requests.order_by(sort_by)
+
+    if(status_filter=="Approve3"):
+        requests = requests.annotate(
+            latest_activity_timestamp=Max('plogs__timestamp')
+            ).order_by('-latest_activity_timestamp')
+        
     if start and end:
         print(start,end,'!!!!!!!!!!!!!!!!!')
         start_of_month=DateJob.getTaskDate(start)
@@ -821,6 +830,10 @@ def referesh_purchase_list(request):
     valid_sort_fields = ['id', '-id', 'created_at', '-created_at', 'status', '-status']
     if sort_by in valid_sort_fields:
         requests = requests.order_by(sort_by)
+    if(status_filter=="Approve3"):
+        requests = requests.annotate(
+            latest_activity_timestamp=Max('plogs__timestamp')
+            ).order_by('-latest_activity_timestamp')
     if(userlist):
         userlist = [int(user_id) for user_id in userlist]
         requests=requests.filter(user__id__in=userlist)
@@ -898,6 +911,10 @@ def filter_request_by(request):
         requests = requests.order_by(sort_by)
     else:
         print("else")
+    if(status_filter=="Approve3"):
+        requests = requests.annotate(
+            latest_activity_timestamp=Max('plogs__timestamp')
+            ).order_by('-latest_activity_timestamp')
     if(userlist):
         userlist = [int(user_id) for user_id in userlist]
         requests=requests.filter(user__id__in=userlist)
