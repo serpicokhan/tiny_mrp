@@ -114,14 +114,17 @@ def list_purchase_req_detail(request):
         requests = requests.filter(status=status_filter)
 
     valid_sort_fields = ['id', '-id', 'created_at', '-created_at', 'status', '-status']
-    
-    if sort_by in valid_sort_fields:
-        requests = requests.order_by(sort_by)
-
-    if(status_filter=="Approve3"):
+    if sort_by == 'latest_activity_timestamp':
+    # Annotate PurchaseRequest with the latest activity log timestamp
         requests = requests.annotate(
             latest_activity_timestamp=Max('plogs__timestamp')
-            ).order_by('-latest_activity_timestamp')
+        ).order_by('-latest_activity_timestamp')
+    elif sort_by in valid_sort_fields:
+    # If the sort_by is a valid field, apply the sorting
+        requests = requests.order_by(sort_by)
+    
+
+
         
     if start and end:
         print(start,end,'!!!!!!!!!!!!!!!!!')
@@ -828,12 +831,15 @@ def referesh_purchase_list(request):
     if status_filter != 'all':
         requests = requests.filter(status=status_filter)
     valid_sort_fields = ['id', '-id', 'created_at', '-created_at', 'status', '-status']
-    if sort_by in valid_sort_fields:
-        requests = requests.order_by(sort_by)
-    if(status_filter=="Approve3"):
+    if sort_by == 'latest_activity_timestamp':
+    # Annotate PurchaseRequest with the latest activity log timestamp
         requests = requests.annotate(
             latest_activity_timestamp=Max('plogs__timestamp')
-            ).order_by('-latest_activity_timestamp')
+        ).order_by('-latest_activity_timestamp')
+    elif sort_by in valid_sort_fields:
+    # If the sort_by is a valid field, apply the sorting
+        requests = requests.order_by(sort_by)
+
     if(userlist):
         userlist = [int(user_id) for user_id in userlist]
         requests=requests.filter(user__id__in=userlist)
@@ -907,14 +913,15 @@ def filter_request_by(request):
     if status_filter != 'all':
         requests = requests.filter(status=status_filter)
     valid_sort_fields = ['id', '-id', 'created_at', '-created_at', 'status', '-status']
-    if sort_by in valid_sort_fields:
-        requests = requests.order_by(sort_by)
-    else:
-        print("else")
-    if(status_filter=="Approve3"):
+    if sort_by == 'latest_activity_timestamp':
+    # Annotate PurchaseRequest with the latest activity log timestamp
         requests = requests.annotate(
             latest_activity_timestamp=Max('plogs__timestamp')
-            ).order_by('-latest_activity_timestamp')
+        ).order_by('-latest_activity_timestamp')
+    elif sort_by in valid_sort_fields:
+    # If the sort_by is a valid field, apply the sorting
+        requests = requests.order_by(sort_by)
+
     if(userlist):
         userlist = [int(user_id) for user_id in userlist]
         requests=requests.filter(user__id__in=userlist)

@@ -152,6 +152,8 @@
                                 چینش
                             </a>
                             <div class="dropdown-menu dropdown-menu-right " x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(807px, 60px, 0px);">
+                                <a class="dropdown-item" href="?sort_by=latest_activity_timestamp{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید (جدیدترین)</a>
+
                                 <!-- Sorting by Date -->
                                 <a class="dropdown-item" href="?sort_by=-created_at{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تاریخ (جدیدترین)</a>
                                 <a class="dropdown-item" href="?sort_by=created_at{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تاریخ (قدیمی‌ترین)</a>
