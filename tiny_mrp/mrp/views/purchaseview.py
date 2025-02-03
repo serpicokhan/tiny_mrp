@@ -981,8 +981,9 @@ def get_purchasereq_calendar_info(request):
         else:
             color = '#cccccc'  # Default color if status is unknown
         last_activity_log = i.plogs.order_by('-timestamp').first()
+       
         data.append({'title': f"درخواست {i.user} {i.id}",\
-                'start': last_activity_log.timestamp if last_activity_log else i.created_at,\
+                'start': last_activity_log.timestamp.date() if last_activity_log else i.created_at,\
                  'color': color,\
                 'id':i.id})
         # data.append({'title': f"جمع ضایعات روز: {round(z,2)}",\
