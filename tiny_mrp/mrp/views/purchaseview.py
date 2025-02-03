@@ -943,7 +943,9 @@ def calendar_purchase_request_main(request):
     return render(request,'mrp/purchase/calendar_Purchase_main.html',{'title':'تولید روزانه','makan':makan,'makan_id':int(makan_id)})
 def get_purchasereq_calendar_info(request):
     # print(request.GET.get("makan"),'!!!!!!!!!!!!!!!!!!')
-    makan=request.GET.get("makan",False)
+    print(request.GET)
+    status=request.GET.get("status",'all')
+    print(status)
     data=[]
     if request.user.is_superuser:
         user_info = PurchaseRequest.objects.all()
@@ -956,6 +958,8 @@ def get_purchasereq_calendar_info(request):
             user_info = PurchaseRequest.objects.all()  # All requests for these groups
         else:
             user_info = PurchaseRequest.objects.filter(user__userId=request.user)  # Only requests for the user
+    if(status!="all"):
+        user_info=user_info.filter(status=status)
 
     # print(user_info)
     for i in user_info:

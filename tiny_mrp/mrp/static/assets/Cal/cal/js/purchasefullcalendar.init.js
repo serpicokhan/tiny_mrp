@@ -1,5 +1,12 @@
 var events2=[];
 document.addEventListener('DOMContentLoaded', function () {
+  const currentParams = new URLSearchParams(window.location.search);
+      const filters = {};
+      for (const [key, value] of currentParams.entries()) {
+          filters[key] = value;
+      }
+      // Send the query parameters with the list reload request
+      const params = new URLSearchParams(filters).toString();
     var Calendar = FullCalendar.Calendar;
     var Draggable = FullCalendar.Draggable;
 
@@ -34,6 +41,9 @@ document.addEventListener('DOMContentLoaded', function () {
         // Concatenate in YYYY-MM-DD format
         return `${year}-${month}-${day}`;
       }
+      
+      console.log(params);
+
     var calendar = new Calendar(calendarEl, {
 
         headerToolbar: {
@@ -47,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
         editable: true,
         locale: 'fa',
         events: {
-         url: `/Purchases/GetInfo/`, // Replace with your server-side script to fetch events
+         url: `/Purchases/GetInfo/?${params}`, // Replace with your server-side script to fetch events
          method: 'GET',
          failure: function() {
            // Handle failure to fetch events
@@ -59,8 +69,8 @@ document.addEventListener('DOMContentLoaded', function () {
             // Open a new window when an event is clicked
             confirm_it=confirm("اطلاعات به تاریخ جدید کپی شود؟");
             if(confirm_it){
-                console.log(info.oldEvent.start,info.event.start);
-                console.log(new Date(info.event.start).toLocaleDateString());
+                // console.log(info.oldEvent.start,info.event.start);
+                // console.log(new Date(info.event.start).toLocaleDateString());
                 $.ajax({
                     url: '/Tolid/Move/', // Your endpoint to update the event
                     type: 'POST',

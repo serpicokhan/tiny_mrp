@@ -19,18 +19,57 @@
         <div class="card">
            
             <div>
-                <div class="card-body">
-                   <select class="form-control" id="makan_select">
-                    {% for i in makan %}
-                    <option value={{i.id}} {% if i.id == makan_id %} selected {% endif %}>{{i.assetName}}</option>
-                    {% endfor %}
-                    
-                   </select>
-                </div>
-                <div class="card-body">
-                    <button class="btn btn-secondary btn-block" >
-                        فیلتر
+                <div class="card-body pb-0">
+                    <button class="btn btn-secondary btn-block" data-toggle="modal" data-target="#createEventModal">
+                        ساخت رویداد
                     </button>
+                </div>
+                <div>
+                    <div class="card-body pb-3">
+                        <h6 class="mb-0">رویدادها</h6>
+                        <p class="small text-muted mb-0">رویداد را بکشید و در محل مورد نظر رها کنید</p>
+                    </div>
+                    <div>
+                        <div class="list-group list-group-flush" id="external-events">
+                           <a href="?status=Pending"> 
+                                <div class="list-group-item fc-event">
+                                    <i class="fa fa-circle text-success" data-icon="car"></i> درخواست شده
+                                </div>
+                            
+                            </a>
+                           <a href="?status=Approved">
+                            <div class="list-group-item fc-event">
+                                <i class="fa fa-circle text-danger" style="background-color:#53c797" data-icon="users"></i> تایید انبار
+                            </div>
+                           </a>
+                           <a href="?status=Approve2">
+                            <div class="list-group-item fc-event">
+                                <i class="fa fa-circle text-danger" data-icon="users"></i> تایید مهندس اعزامی
+                            </div>
+                           </a>
+                            <a href="?status=Approve3">
+                                <div class="list-group-item fc-event">
+                                    <i class="fa fa-circle text-warning" data-icon="diamond"></i> تایید مهندس ارزنده
+                                </div>
+                             </a>
+                             <a href="?status=Ordered">
+                                <div class="list-group-item fc-event">
+                                    <i class="fa fa-circle text-primary" data-icon="glass"></i> سفارش داده شده
+                                </div>
+                             </a>
+                             <a href="?status=Purchased">
+                                <div class="list-group-item fc-event">
+                                    <i class="fa fa-circle text-secondary" data-icon="glass"></i> خریداری شده
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    {% comment %} <div class="card-body">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="drop-remove" checked="">
+                            <label class="custom-control-label" for="drop-remove">حذف بعد از انداختن</label>
+                        </div>
+                    </div> {% endcomment %}
                 </div>
                 
             </div>
