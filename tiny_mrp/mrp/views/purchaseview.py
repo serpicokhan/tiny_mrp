@@ -960,6 +960,9 @@ def get_purchasereq_calendar_info(request):
             user_info = PurchaseRequest.objects.filter(user__userId=request.user)  # Only requests for the user
     if(status!="all"):
         user_info=user_info.filter(status=status)
+        # user_info = user_info.annotate(
+        #         latest_activity_timestamp=Max('plogs__timestamp')
+        #     ).order_by('-latest_activity_timestamp')
 
     # print(user_info)
     for i in user_info:
@@ -977,8 +980,9 @@ def get_purchasereq_calendar_info(request):
             color = '#0275d8'  # Blue for approve3
         else:
             color = '#cccccc'  # Default color if status is unknown
+        last_activity_log = i.plogs.order_by('-timestamp').first()
         data.append({'title': f"درخواست {i.user} {i.id}",\
-                'start': i.created_at,\
+                'start': last_activity_log.timestamp if last_activity_log else i.created_at,\
                  'color': color,\
                 'id':i.id})
         # data.append({'title': f"جمع ضایعات روز: {round(z,2)}",\
