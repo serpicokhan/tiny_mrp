@@ -18,7 +18,7 @@ from django.contrib.auth.decorators import permission_required
 import requests as rqt
 from django.contrib.auth.models import User
 from django.db.models import Max
-
+import ast
 
 @login_required
 
@@ -93,7 +93,8 @@ def list_purchase_req_detail(request):
     search_query = request.GET.get('q', '').strip() 
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
-    userlist = request.GET.getlist('userlist', False)
+    userlist = request.GET.get('userlist', '[]')
+    print(userlist,'!@!@@!@')
 
     sort_by = request.GET.get('sort_by', '-id')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
@@ -149,8 +150,15 @@ def list_purchase_req_detail(request):
         start_of_month=start_of_month.togregorian().strftime('%Y-%m-%d')
         end_of_month=end_of_month.togregorian().strftime('%Y-%m-%d')
     if(userlist):
-        userlist = [int(user_id) for user_id in userlist]
-        requests=requests.filter(user__id__in=userlist)
+        
+        # userlist2 = [int(user_id) for user_id in userlist]
+        userlist2 = ast.literal_eval(userlist) 
+        if isinstance(userlist2, list) and all(isinstance(i, int) for i in userlist2):
+            # requests = requests.filter(user__id__in=userlist2)
+            requests=requests.filter(user__id__in=userlist2)
+        else:
+            requests=requests.filter(user__id=userlist2)
+
     
     
     ws=PurchaseUtility.doPaging(request,requests)
