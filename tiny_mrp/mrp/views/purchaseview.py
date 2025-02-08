@@ -805,7 +805,7 @@ def referesh_purchase_list(request):
     
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
-    userlist = request.GET.getlist('userlist', False)
+    userlist = request.GET.fet('userlist', '[]')
 
     sort_by = request.GET.get('sort_by', '-id')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
@@ -849,8 +849,14 @@ def referesh_purchase_list(request):
         requests = requests.order_by(sort_by)
 
     if(userlist):
-        userlist = [int(user_id) for user_id in userlist]
-        requests=requests.filter(user__id__in=userlist)
+        
+        # userlist2 = [int(user_id) for user_id in userlist]
+        userlist2 = ast.literal_eval(userlist) 
+        if isinstance(userlist2, list) and all(isinstance(i, int) for i in userlist2):
+            # requests = requests.filter(user__id__in=userlist2)
+            requests=requests.filter(user__id__in=userlist2)
+        else:
+            requests=requests.filter(user__id=userlist2)
     if start and end:
         print(start,end,'!!!!!!!!!!!!!!!!!')
         start_of_month=DateJob.getTaskDate(start)
