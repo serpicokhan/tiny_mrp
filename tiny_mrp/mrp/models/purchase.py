@@ -94,7 +94,7 @@ class PurchaseRequest(models.Model):
         max_length=20,
         choices=[('Pending', 'درخواست شده'), ('Approved', 'تایید انبار'), ('Rejected', 'رد شده'),
                   ('Ordered', 'سفارش '), ('Approve2', 'تایید مهندس اعزامی'),
-            ('Approve3', 'تایید مهندس ارزنده'),('Purchased', 'خریداری شد')],
+            ('Approve3', 'تایید مهندس ارزنده'),('Purchased', 'خریداری شد'),('Approve4', 'تایید بازرگانی')],
         default='Pending'
     )
     

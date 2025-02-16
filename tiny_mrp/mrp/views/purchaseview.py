@@ -93,13 +93,15 @@ def list_purchase_req_detail(request):
     search_query = request.GET.get('q', '').strip() 
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
-    userlist = request.GET.get('userlist', '[]')
-    print(userlist,'!@!@@!@')
+    userlist = request.GET.getlist('userlist')
+    
+    
 
     sort_by = request.GET.get('sort_by', '-id')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
     
     requests=PurchaseRequest.objects.all().order_by('-created_at')
+
     if search_query:
         filters = Q(items__item_name__partName__icontains=search_query) | \
                 Q(items__description__icontains=search_query) | \
@@ -149,10 +151,12 @@ def list_purchase_req_detail(request):
         end_of_month = next_month - jdatetime.timedelta(days=1)
         start_of_month=start_of_month.togregorian().strftime('%Y-%m-%d')
         end_of_month=end_of_month.togregorian().strftime('%Y-%m-%d')
-    if(userlist):
+    
+    if(userlist!='[]'):
         
-        # userlist2 = [int(user_id) for user_id in userlist]
-        userlist2 = ast.literal_eval(userlist) 
+        
+        userlist2 = [int(user_id) for user_id in userlist]
+        # userlist2 = ast.literal_eval(userlist) 
         if isinstance(userlist2, list) and all(isinstance(i, int) for i in userlist2):
             # requests = requests.filter(user__id__in=userlist2)
             requests=requests.filter(user__id__in=userlist2)
@@ -160,8 +164,9 @@ def list_purchase_req_detail(request):
             requests=requests.filter(user__id=userlist2)
 
     
-    
+    print(userlist2)
     ws=PurchaseUtility.doPaging(request,requests)
+    
     return render(request,"mrp/purchase/purchaseList2.html",
                   {
                     "req":ws,
@@ -172,7 +177,7 @@ def list_purchase_req_detail(request):
                     'users':SysUser.objects.all(),
                     'start':start_of_month,
                     'end':end_of_month,
-                    'userlist':userlist
+                    'userlist':userlist2
                     })
 @csrf_exempt
 def save_purchase_request(request):
@@ -367,12 +372,12 @@ def confirm_request(request,id):
         "anbar": ["Approved"],  # انبار
         "managers": ["Approve2"],          # مدیر
         "director": ["Approve3"],          # مدیرعامل
-        "purchase": ["Ordered","Purchased"],         # خرید
+        "purchase": ["Approve4","Ordered","Purchased"],         # خرید
     }
 
     # Define the status hierarchy
     status_hierarchy = [
-        "Pending", "Approved", "Approve2", "Approve3", "Ordered","Purchased"
+        "Pending", "Approved", "Approve2","Approve4", "Approve3", "Ordered","Purchased"
     ]
 
     # Check the user's groups and determine the new status
@@ -805,7 +810,7 @@ def referesh_purchase_list(request):
     
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
-    userlist = request.GET.fet('userlist', '[]')
+    userlist = request.GET.get('userlist', '[]')
 
     sort_by = request.GET.get('sort_by', '-id')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
@@ -848,7 +853,7 @@ def referesh_purchase_list(request):
     # If the sort_by is a valid field, apply the sorting
         requests = requests.order_by(sort_by)
 
-    if(userlist):
+    if(userlist!='[]'):
         
         # userlist2 = [int(user_id) for user_id in userlist]
         userlist2 = ast.literal_eval(userlist) 
@@ -891,7 +896,7 @@ def filter_request_by(request):
     
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
-    userlist = request.GET.getlist('userlist', False)
+    userlist = request.GET.get('userlist', '[]')
 
     sort_by = request.GET.get('sort_by', '-id')  # Default sorting by `id` in descending order
     print(sort_by,'!!!!!!!!!!')
@@ -936,9 +941,17 @@ def filter_request_by(request):
     # If the sort_by is a valid field, apply the sorting
         requests = requests.order_by(sort_by)
 
-    if(userlist):
-        userlist = [int(user_id) for user_id in userlist]
-        requests=requests.filter(user__id__in=userlist)
+    if(userlist!='[]'):
+        
+        # userlist2 = [int(user_id) for user_id in userlist]
+        userlist2 = ast.literal_eval(userlist) 
+        if isinstance(userlist2, list) and all(isinstance(i, int) for i in userlist2):
+            # requests = requests.filter(user__id__in=userlist2)
+            requests=requests.filter(user__id__in=userlist2)
+        else:
+            requests=requests.filter(user__id=userlist2)
+
+    
     if start and end:
         print(start,end,'!!!!!!!!!!!!!!!!!')
         start_of_month=DateJob.getTaskDate(start)
