@@ -113,4 +113,4 @@ class PurchaseRequestFileForm(forms.ModelForm):
 class RFQForm(forms.ModelForm):
     class Meta:
         model = RFQ
-        fields = ['supplier', 'items','total_price']
+        fields = ['supplier', 'items','total_price','description']

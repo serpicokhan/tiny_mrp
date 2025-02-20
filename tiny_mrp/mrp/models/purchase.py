@@ -155,6 +155,8 @@ class RFQ(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=0)
 
     issued_at = models.DateTimeField(auto_now_add=True)
+    description = models.TextField(blank=True, null=True)
+
 
     def __str__(self):
         return f"RFQ for Supplier {self.supplier.name}"
