@@ -2,14 +2,14 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.http import JsonResponse,HttpResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
-from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2,PurchaseRequestFile,PurchaseRequestFaktor,Asset,Comment,PurchaseNotes,PurchaseActivityLog
+from mrp.models import PurchaseRequest, RequestItem,SysUser,Part,Asset2,PurchaseRequestFile,PurchaseRequestFaktor,Asset,Comment,PurchaseNotes,PurchaseActivityLog,RFQ
 from django.template.loader import render_to_string
 from mrp.business.purchaseutility import *
 from mrp.business.DateJob import *
 from django.db.models import Q
 from django.contrib.auth.context_processors import PermWrapper
 from django.core.files.storage import FileSystemStorage
-from mrp.forms import PurchaseRequestFileForm
+from mrp.forms import PurchaseRequestFileForm,RFQForm
 import openpyxl
 from openpyxl.styles import Border, Side, PatternFill,Font,Alignment
 import json
@@ -93,7 +93,7 @@ def list_purchase_req_detail(request):
     search_query = request.GET.get('q', '').strip() 
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
-    userlist = request.GET.getlist('userlist')
+    userlist = request.GET.get('userlist','[]')
     
     
 
@@ -164,7 +164,7 @@ def list_purchase_req_detail(request):
             requests=requests.filter(user__id=userlist2)
 
     
-    print(userlist2)
+    
     ws=PurchaseUtility.doPaging(request,requests)
     
     return render(request,"mrp/purchase/purchaseList2.html",
@@ -177,7 +177,7 @@ def list_purchase_req_detail(request):
                     'users':SysUser.objects.all(),
                     'start':start_of_month,
                     'end':end_of_month,
-                    'userlist':userlist2
+                    'userlist':userlist
                     })
 @csrf_exempt
 def save_purchase_request(request):
@@ -1157,3 +1157,35 @@ def load_more_purchaserequest(request):
             },request)
 
     return JsonResponse({'html': html})
+def create_rfq(request,id):
+    if (request.method == 'POST'):
+        form = RFQForm(request.POST)
+        return save_rfq_form(request, form, 'mrp/rfq/partialRFQCreate.html')
+    else:
+
+        form = RFQForm()
+        return save_rfq_form(request, form, 'mrp/rfq/partialRFQCreate.html',id)
+    
+def save_rfq_form(request, form, template_name,id=None):
+
+    items=RequestItem.objects.filter(purchase_request__id=id)
+    data = dict()
+    if (request.method == 'POST'):
+        if form.is_valid():
+            form.save()
+            data['form_is_valid'] = True
+            books = RFQ.objects.all()
+            data['html_rfq_list'] = render_to_string('cmms/maintenancetype/partialMaintenanceTypeList.html', {
+                'maintenanceType': books,
+                'perms': PermWrapper(request.user)
+            })
+        else:
+
+            data['form_is_valid'] = False
+
+    context = {'form': form,'lid':id,'items':items}
+
+
+    data['html_rfq_form'] = render_to_string(template_name, context, request=request)
+    return JsonResponse(data)
+##########################################################

@@ -149,9 +149,11 @@ class Supplier(models.Model):
 
 class RFQ(models.Model):
     """Represents a Request for Quotation (RFQ) for a supplier to provide specific items."""
-    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name='rfqs')
-    items = models.ManyToManyField(RequestItem, related_name='rfqs')
-    issued_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rfqs')
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name='rfqsupplier')
+    items = models.ManyToManyField(RequestItem, related_name='rfqitem')
+    issued_by = models.ForeignKey(SysUser, on_delete=models.CASCADE, related_name='rfquser')
+    total_price = models.DecimalField(max_digits=10, decimal_places=0)
+
     issued_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

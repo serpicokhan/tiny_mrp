@@ -108,6 +108,7 @@ urlpatterns = [
     url(r'^Purchase/Create$', create_purchase, name='create_purchase'),
     url(r'^Purchase/Download$', export_purchase_requests, name='export_purchase_requests'),
     url(r'^Purchase/(?P<id>\d+)/Update$', update_purchase, name='update_purchase'),
+    url(r'^Purchase/(?P<id>\d+)/RFQ/Create$', create_rfq, name='create_rfq'),
     url(r'^Purchase/(?P<id>\d+)/Update2$', update_purchase_v2, name='update_purchase_v2'),
     url(r'^Purchases/$', list_purchase_req, name='list_purchase_req'),
     url(r'^Purchases/Calendar$', calendar_purchase_request_main, name='calendar_purchase_request_main'),

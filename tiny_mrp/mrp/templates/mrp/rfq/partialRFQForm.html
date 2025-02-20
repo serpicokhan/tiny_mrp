@@ -1,0 +1,38 @@
+{% load widget_tweaks %}
+<div class="row">
+<div class="col-sm-12 b-r">
+  <div class="form-group">
+    <label>تامین کننده</label>
+    {% render_field form.supplier  class='form-control select2' %}
+
+  </div>
+  <div class="form-group">
+    <label>کالا</label> 
+    <select id="supplier" name="supplier" class="form-control">
+        {% for i in items %}
+        <option value={{i.item_name.id}}>
+            {{i.item_name}}
+        </option>
+
+        {% endfor %}
+    </select>
+
+  </div>
+  <div class="form-group">
+
+    <label>قیمت</label>
+      {% render_field form.total_price  class='form-control' %}
+
+
+  </div>
+
+
+
+
+
+
+
+</div>
+
+
+</div>

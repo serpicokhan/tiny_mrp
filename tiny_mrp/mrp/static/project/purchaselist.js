@@ -37,6 +37,85 @@ $(function () {
     
     
     };
+    var loadRFQForm =function (btn1) {
+      var btn=0;
+      btn=btn1;
+      return $.ajax({
+        url: btn1,
+        type: 'get',
+        dataType: 'json',
+        beforeSend: function () {
+          $('#modal-company').modal({
+            backdrop: false
+        });
+        },
+        success: function (data) {
+        $("#modal-company .modal-content").html(data.html_rfq_form);
+        $('.select2').select2({
+          tags: true,  // Enable tags for creating new options
+          placeholder: 'Select an item or create new...',
+          allowClear: true,  // Option to clear selection
+          createTag: function (params) {
+              // When user types a new option, we can create the new option.
+              var term = params.term;
+              // Check if the term is not an empty string
+              if (term && term.trim() !== '') {
+                  return {
+                      id: term,  // Use the input value as the id
+                      text: term  // Display the input value as text
+                  };
+              }
+              return null;  // Do nothing if the term is empty
+          },
+          // Optional: You can define the placeholder when no match is found
+          matcher: function(params, data) {
+              if ($.trim(params.term) === '' || data.text.toUpperCase().indexOf(params.term.toUpperCase()) > -1) {
+                  return data;
+              }
+              return null;
+          }
+      });
+
+          
+          
+
+         
+          
+          
+          
+
+  
+        }
+      });
+  
+  
+  
+  };
+  $(document).on('change','#id_supplier', function(e) {
+    var selectedValue = $(this).val();
+    
+    
+    
+    if (selectedValue && !Number.isInteger(selectedValue)) {
+      
+        // New item created, make an API call to save it
+        $.ajax({
+            url: '/api/create-supplier/',  // Your API endpoint
+            method: 'POST',
+            data: JSON.stringify({ name: selectedValue }),
+            
+            success: function(response) {
+              console.log(response);
+                // Optionally, you could add the new item to the dropdown
+                var newOption = new Option(response.name, response.id, true, true);
+                $('#id_supplier').append(newOption);
+            },
+            error: function(error) {
+                alert('Failed to save the new item.');
+            }
+        });
+    }
+});
     var add_viewer=function(id){
         $.ajax({
             url: '/Purchases/AddViewer/?id='+id,  // The URL of your API endpoint
@@ -273,6 +352,9 @@ $(function () {
         confirm_request(url);     
         $(this).hide();
         return false;
+    });
+    $(document).on('click', '.rfq', function () {
+    loadRFQForm($(this).attr("data-url"));
     });
     $(document).on('click', '.rejected', function () {
         url=$(this).attr("data-url");

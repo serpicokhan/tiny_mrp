@@ -1,5 +1,12 @@
 {% load custom_filters %}
-
+<div class="modal fade" id="modal-company" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+       
+      </div>
+    </div>
+  </div>
+  
 <div class="card-header">
     <div class="app-detail-action-left">
         <a class="app-detail-close-button" href="#">
@@ -7,7 +14,7 @@
         </a>
         <h5 class="mb-0">
             درخواست شماره {{company.id}}
-            <span class="badge bg-warning badge-pill ml-1 badge_status">{{company.get_status_display}}</span>
+            <span class="badge bg-primary badge-pill ml-1 badge_status">{{company.get_status_display}}</span>
         </h5>
     </div>
     <div class="app-detail-action-right">
@@ -42,6 +49,11 @@
         <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید خرید">
             <i data-feather="check-circle"></i>
         </a>
+        <a href="#" class="btn btn-outline-light rfq"  data-url="{% url 'create_rfq' company.id %}" data-toggle="tooltip" title="استعلام">
+            <i data-feather="phone"></i>
+        </a>
+       <!-- Modal -->
+
         {% endif %}
             {% comment %} <a href="#" class="btn btn-outline-light ml-2 rejected" data-url="{% url 'reject_request' company.id %}" data-toggle="tooltip"
                title="رد کردن">
