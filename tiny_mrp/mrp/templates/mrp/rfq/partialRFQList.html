@@ -11,13 +11,13 @@
     {% if perms.mrp.can_edit_rfq %}
     <td>
         <button type="button"
-        class="btn btn-warning btn-sm js-update-rfq"
+        class="btn  btn-sm js-update-rfq"
         data-url="{% url 'rfq_update' i.id %}">
     ویرایش
         </button>
     
         <button type="button"
-                    class="btn btn-danger btn-sm js-delete-rfq"
+                    class="btn  btn-sm js-delete-rfq"
                     data-url="{% url 'rfq_delete' i.id %}">
                 </span> حذف
             </button>
