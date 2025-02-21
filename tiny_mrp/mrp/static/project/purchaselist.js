@@ -39,6 +39,7 @@ $(function () {
     };
     var loadRFQForm =function (btn1) {
       var btn=0;
+      
       btn=btn1;
       return $.ajax({
         url: btn1,
@@ -91,12 +92,96 @@ $(function () {
   
   
   };
+  var saveRFQForm= function () {
+    var form = $(this);
+   
+ 
+    $.ajax({
+      url: form.attr("action"),
+      data: form.serialize(),
+      type: form.attr("method"),
+      dataType: 'json',
+      success: function (data) {
+        if (data.form_is_valid) {
+          //alert("Company created!");  // <-- This is just a placeholder for now for testing
+          $("#rfqtable-body").empty();
+          console.log(data);
+          $("#rfqtable-body").html(data.html_rfq_list);
+          $("#modal-company").modal("hide");
+         // console.log(data.html_maintenanceType_list);
+        }
+        else {
+ 
+          $("#company-table tbody").html(data.html_maintenanceType_list);
+          $("#modal-company .modal-content").html(data.html_maintenanceType_form);
+        }
+      }
+    });
+    return false;
+  };
+$(document).on("submit", ".js-rfq-create-form", saveRFQForm);
+$(document).on("submit", ".js-rfq-update-form", saveRFQForm);
+$(document).on("submit", ".js-rfq-delete-form", saveRFQForm);
+$(document).on("click", ".js-update-rfq", function(){
+  
+  loadRFQForm($(this).attr("data-url"));
+});
+$(document).on("click", ".js-delete-rfq", function(){
+  
+  loadRFQForm($(this).attr("data-url"));
+});
+
+  function numberToWords(num) {
+    const units = ["", "هزار", "میلیون", "میلیارد", "تریلیون"];
+    const ones = ["", "یک", "دو", "سه", "چهار", "پنج", "شش", "هفت", "هشت", "نه"];
+    const teens = ["ده", "یازده", "دوازده", "سیزده", "چهارده", "پانزده", "شانزده", "هفده", "هجده", "نوزده"];
+    const tens = ["", "ده", "بیست", "سی", "چهل", "پنجاه", "شصت", "هفتاد", "هشتاد", "نود"];
+    const hundreds = ["", "صد", "دویست", "سیصد", "چهارصد", "پانصد", "ششصد", "هفتصد", "هشتصد", "نهصد"];
+
+    // if (num === 0) return "صفر";
+
+    let words = "";
+
+    for (let i = 0; num > 0; i++) {
+        const part = num % 1000;
+        if (part !== 0) {
+            let partWords = "";
+            if (part < 10) {
+                partWords = ones[part];
+            } else if (part < 20) {
+                partWords = teens[part - 10];
+            } else if (part < 100) {
+                partWords = tens[Math.floor(part / 10)] + " " + ones[part % 10];
+            } else {
+                partWords = hundreds[Math.floor(part / 100)] + " " + numberToWords(part % 100);
+            }
+            words = partWords + " " + units[i] + " " + words;
+        }
+        num = Math.floor(num / 1000);
+    }
+
+    return words.trim();
+}
+$(document).on('input','#id_total_price', function() {
+  // دریافت مقدار فعلی فیلد
+  const value = $(this).val();
+  // نمایش مقدار در پاراگراف
+  $('#id_price').text(numberToWords(value));
+});
+// مثال استفاده
+// const number = 111000000;
+// console.log(numberToWords(number)); // خروجی: "صد و یازده میلیون"
+function isNumeric(str) {
+  if (typeof str != "string") return false // we only process strings!  
+  return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+         !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+}
   $(document).on('change','#id_supplier', function(e) {
     var selectedValue = $(this).val();
     
     
     
-    if (selectedValue && !Number.isInteger(selectedValue)) {
+    if (selectedValue && !isNumeric(selectedValue)) {
       
         // New item created, make an API call to save it
         $.ajax({

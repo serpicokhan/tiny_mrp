@@ -70,5 +70,7 @@ class SysUser(models.Model):
             ("can_upload_faktors","user can upload faktors"),
             ("can_create_paraf","user can craete paraf"),
             ("can_view_paraf","user can view paraf"),
+            ("can_edit_rfq","user can edit rfq"),
+            ("can_view_rfq","user can view rfq"),
 
         ]

@@ -93,9 +93,9 @@
         </div>
      {% include 'mrp/purchase/purchase_v2.html' %}
     <hr class="m-0">
-
+    {% if request.user|in_group:"purchase" or request.user|in_group:"director"  %}
      {% include 'mrp/rfq/rfqList.html' %}
-    
+    {% endif %}
     </div>
     {% if perms.mrp.can_view_faktors and faktors %}
     <hr class="m-0">

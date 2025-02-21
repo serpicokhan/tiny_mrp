@@ -114,3 +114,7 @@ class RFQForm(forms.ModelForm):
     class Meta:
         model = RFQ
         fields = ['supplier', 'items','total_price','description']
+    # def clean_items(self):
+    #     items = self.cleaned_data.get('items')
+    #     items=RequestItem.objects.get(id=items)
+    #     return items

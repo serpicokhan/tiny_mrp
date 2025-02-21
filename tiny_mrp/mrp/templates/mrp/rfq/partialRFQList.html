@@ -1,0 +1,41 @@
+{% load humanize %}
+
+{% for i in rfqs %}
+                            
+                             
+<tr data-id="{{i.id}}">
+    <td class="editable-cell part-name" data-id="596" data-partcode="پکینگ_طبق_نمونه">{{i.items}}</td>
+    <td class="editable-cell">{{i.supplier}}</td>
+    <td class="editable-cell machine-name" data-id="302" data-machinecode="شیر_بادی">{{i.total_price|intcomma}}</td>
+    <td class="editable-cell description" data-id="">{{i.description}}</td>
+    {% if perms.mrp.can_edit_rfq %}
+    <td>
+        <button type="button"
+        class="btn btn-warning btn-sm js-update-rfq"
+        data-url="{% url 'rfq_update' i.id %}">
+    ویرایش
+        </button>
+    
+        <button type="button"
+                    class="btn btn-danger btn-sm js-delete-rfq"
+                    data-url="{% url 'rfq_delete' i.id %}">
+                </span> حذف
+            </button>
+       </td>
+    {% endif %}
+    
+    
+</tr>
+ 
+
+{% empty %}
+{% if perms.mrp.can_view_rfq %}
+<tr>
+    <td colspan="4" class="text-center bg-info">استعلامی برای این درخواست وجود ندارد</td>
+   </tr>
+{% elif perms.mrp.can_edit_rfq %}
+<tr>
+    <td colspan="5" class="text-center bg-info">استعلامی برای این درخواست وجود ندارد</td>
+   </tr>
+   {% endif %}
+{% endfor%}

@@ -83,6 +83,16 @@
                                                 </a>
                                             </li>
                                             {% endif %}
+                                            {% if i.has_rfq  %}
+                                                {% if perms.mrp.can_view_rfq or perms.mrp.can_edit_rfq %}
+                                                
+                                                <li class="list-inline-item mb-0">
+                                                    <a href="#" data-toggle="tooltip" title="" data-original-title="اسناد مالی">
+                                                        <i class="fa fa-phone"></i>
+                                                    </a>
+                                                </li>
+                                                {% endif %}
+                                            {% endif %}
                                            
                                             <li class="list-inline-item mb-0">
                                                 <i class="fa fa-circle text-{{i.get_purchase_status_color}}"></i>

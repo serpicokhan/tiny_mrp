@@ -8,9 +8,10 @@
   </div>
   <div class="form-group">
     <label>کالا</label> 
-    <select id="supplier" name="supplier" class="form-control">
+    
+    <select id="items" name="items" class="form-control">
         {% for i in items %}
-        <option value={{i.item_name.id}}>
+        <option value={{i.id}} {% if i.id == form.instance.items.id %} selected {% endif %}>
             {{i.item_name}}
         </option>
 
@@ -22,6 +23,7 @@
 
     <label>قیمت</label>
       {% render_field form.total_price  class='form-control' %}
+      <p id="id_price">قیمت</p>
 
 
   </div>

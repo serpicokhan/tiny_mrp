@@ -14,6 +14,9 @@ class PurchaseRequest(models.Model):
     def has_faktor(self):
         # files
         return self.faktors.select_related('file').all().count()>0
+    def has_rfq(self):
+        # files
+        return self.items.filter(rfqitem__isnull=False).exists()
     def has_mgm_comment(self):
         # files
         return len(self.manager_comment)>0
@@ -150,8 +153,8 @@ class Supplier(models.Model):
 class RFQ(models.Model):
     """Represents a Request for Quotation (RFQ) for a supplier to provide specific items."""
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name='rfqsupplier')
-    items = models.ManyToManyField(RequestItem, related_name='rfqitem')
-    issued_by = models.ForeignKey(SysUser, on_delete=models.CASCADE, related_name='rfquser')
+    items = models.ForeignKey(RequestItem,on_delete=models.CASCADE, related_name='rfqitem',null=True,blank=True)
+    issued_by = models.ForeignKey(SysUser, on_delete=models.CASCADE, related_name='rfquser',null=True,blank=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=0)
 
     issued_at = models.DateTimeField(auto_now_add=True)

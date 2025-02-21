@@ -1,62 +1,35 @@
+{% load humanize %}
+
 <div class="row">
     
     <div class="col-md-12">
 
         <div class="card">
             <div class="card-body">
-        <h6 class="mb-3 font-size-11 text-uppercase">استعلام</h6>
 
-                <h6 class="card-title"></h6>
-                <input type="hidden" id="companyId" name="companyId" value="491">
+                <h6 class="card-title">استعلام</h6>
+                
 
                 <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
                     <table class="table  table-bordered">
                         <thead>
-                            <tr class="bg-dark">
+                            <tr class="bg-primary">
                                 <th>نام کالا</th>
                                 <th>تامین کننده</th>
                                 <th>قیمت</th>
                                 <th>شرح</th>
+                                 {% if perms.mrp.can_edit_rfq %}
+
+                                <th>عملیات</th>
+                                {% endif %}
+                                
                                 
 
                                 
                             </tr>
                         </thead>
-                        <tbody id="table-body">
-                        {% for i in rfqs %}
-                            
-                             
-                            <tr data-id="689">
-                                <td class="editable-cell part-name" data-id="596" data-partcode="پکینگ_طبق_نمونه">پکینگ طبق نمونه</td>
-                                <td class="editable-cell">2</td>
-                                <td class="editable-cell machine-name" data-id="302" data-machinecode="شیر_بادی">شیر بادی</td>
-                                <td class="editable-cell description" data-id="">رنگرزی</td>
-                                
-                                
-                            </tr>
-                             
-                            <tr data-id="690">
-                                <td class="editable-cell part-name" data-id="599" data-partcode="تعمیر_شفت_شیر_بادی">تعمیر شفت شیر بادی</td>
-                                <td class="editable-cell">1</td>
-                                <td class="editable-cell machine-name" data-id="92" data-machinecode="رنگرزی">رنگرزی</td>
-                                <td class="editable-cell description" data-id="">شرح</td>
-                                
-                                
-                            </tr>
-                             
-                            <tr data-id="691">
-                                <td class="editable-cell part-name" data-id="598" data-partcode="واشر_تفلون_نسوز_ptf">واشر تفلون نسوز PTF</td>
-                                <td class="editable-cell">2</td>
-                                <td class="editable-cell machine-name" data-id="302" data-machinecode="شیر_بادی">شیر بادی</td>
-                                <td class="editable-cell description" data-id="">شرح</td>
-                                
-                                
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center bg-info">استعلامی برای این درخواست وجود ندارد</td>
-                               </tr>
-                            {% endfor%}
+                        <tbody id="rfqtable-body">
+                       {% include 'mrp/rfq/partialRFQList.html' %}
                             
                             
                         </tbody>

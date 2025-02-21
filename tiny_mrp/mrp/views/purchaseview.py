@@ -323,6 +323,7 @@ def update_purchase_v2(request,id):
     comments = company.comments.all() 
     notes = company.notes.filter(user=request.user.sysuser) 
     plogs=company.plogs.all()
+    rfqs=RFQ.objects.filter(items__purchase_request=company)
 
 
 
@@ -337,6 +338,7 @@ def update_purchase_v2(request,id):
                 "notes":notes,
                 "logs":plogs,
                 "faktors":faktors,
+                "rfqs":rfqs,
 
                 'perms': PermWrapper(request.user) 
 
@@ -1159,8 +1161,10 @@ def load_more_purchaserequest(request):
     return JsonResponse({'html': html})
 def create_rfq(request,id):
     if (request.method == 'POST'):
+        
         form = RFQForm(request.POST)
-        return save_rfq_form(request, form, 'mrp/rfq/partialRFQCreate.html')
+        # form.items=RequestItem.objects.get(id=form.items)
+        return save_rfq_form(request, form, 'mrp/rfq/partialRFQCreate.html',id)
     else:
 
         form = RFQForm()
@@ -1172,15 +1176,18 @@ def save_rfq_form(request, form, template_name,id=None):
     data = dict()
     if (request.method == 'POST'):
         if form.is_valid():
+            form.save(commit=False)
+            form.instance.issued_by=request.user.sysuser
             form.save()
             data['form_is_valid'] = True
-            books = RFQ.objects.all()
-            data['html_rfq_list'] = render_to_string('cmms/maintenancetype/partialMaintenanceTypeList.html', {
-                'maintenanceType': books,
+            books = RFQ.objects.filter(items__purchase_request__id=id)
+            data['html_rfq_list'] = render_to_string('mrp/rfq/partialRFQList.html', {
+                'rfqs': books,
                 'perms': PermWrapper(request.user)
             })
         else:
-
+            
+            print(form.errors)
             data['form_is_valid'] = False
 
     context = {'form': form,'lid':id,'items':items}
@@ -1189,3 +1196,35 @@ def save_rfq_form(request, form, template_name,id=None):
     data['html_rfq_form'] = render_to_string(template_name, context, request=request)
     return JsonResponse(data)
 ##########################################################
+##########################################################
+def rfq_update(request, id):
+    company= get_object_or_404(RFQ, id=id)
+    template=""
+    if (request.method == 'POST'):
+        form = RFQForm(request.POST, instance=company)
+    else:
+        form = RFQForm(instance=company)
+
+
+    return save_rfq_form(request, form,"mrp/rfq/partialRFQUpdate.html",company.items.purchase_request.id)
+
+def rfq_delete(request, id):
+    comp1 = get_object_or_404(RFQ, id=id)
+    purchase_request=comp1.items.purchase_request
+    data = dict()
+    if (request.method == 'POST'):
+        comp1.delete()
+        data['form_is_valid'] = True  # This is just to play along with the existing code
+        companies =  RFQ.objects.filter(items__purchase_request=purchase_request)
+        #Tasks.objects.filter(maintenanceTypeId=id).update(maintenanceType=id)
+        data['html_rfq_list'] = render_to_string('mrp/rfq/partialRFQList.html', {
+            'rfqs': companies,
+            'perms': PermWrapper(request.user)
+        })
+    else:
+        context = {'rfq': comp1}
+        data['html_rfq_form'] = render_to_string('mrp/rfq/partialRFQDelete.html',
+            context,
+            request=request,
+        )
+    return JsonResponse(data)
