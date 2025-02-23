@@ -10,10 +10,11 @@
     <td class="editable-cell description" data-id="">{{i.description}}</td>
     {% if perms.mrp.can_edit_rfq %}
     <td>
+        {% if company.status in "Approve2,Approve" and i.is_verified == False %}
         <button type="button"
         class="btn  btn-sm js-update-rfq"
-        data-url="{% url 'rfq_update' i.id %}">
-    ویرایش
+        data-url="{% url 'rfq_update' i.id %} ">
+    ویرایش 
         </button>
     
         <button type="button"
@@ -21,6 +22,7 @@
                     data-url="{% url 'rfq_delete' i.id %}">
                 </span> حذف
             </button>
+            {% endif%}
        </td>
     {% endif %}
     {% if perms.mrp.can_view_rfq %}
