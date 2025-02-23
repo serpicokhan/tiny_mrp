@@ -111,6 +111,7 @@ urlpatterns = [
     url(r'^Purchase/(?P<id>\d+)/RFQ/Create$', create_rfq, name='create_rfq'),
     url(r'^Purchase/(?P<id>\d+)/RFQ/Update$', rfq_update, name='rfq_update'),
     url(r'^Purchase/(?P<id>\d+)/RFQ/Delete$', rfq_delete, name='rfq_delete'),
+    path('Purchase/update_is_verified/RFQ/<int:id>/', update_RFQ_is_verified, name='update_is_verified'),
     url(r'^Purchase/(?P<id>\d+)/Update2$', update_purchase_v2, name='update_purchase_v2'),
     url(r'^Purchases/$', list_purchase_req, name='list_purchase_req'),
     url(r'^Purchases/Calendar$', calendar_purchase_request_main, name='calendar_purchase_request_main'),

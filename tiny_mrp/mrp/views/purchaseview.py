@@ -1228,3 +1228,21 @@ def rfq_delete(request, id):
             request=request,
         )
     return JsonResponse(data)
+
+@csrf_exempt  # Use this decorator to exempt the view from CSRF verification for simplicity
+def update_RFQ_is_verified(request, id):
+    if request.method == 'POST':
+        data=dict()
+        user_profile = get_object_or_404(RFQ, id=id)
+        user_profile.is_verified = True
+        user_profile.save()
+        companies =  RFQ.objects.filter(items__purchase_request=user_profile.items.purchase_request)
+        #Tasks.objects.filter(maintenanceTypeId=id).update(maintenanceType=id)
+        data['html_rfq_list'] = render_to_string('mrp/rfq/partialRFQList.html', {
+            'rfqs': companies,
+            'perms': PermWrapper(request.user)
+        })
+        data["is_valid"]=True
+        return JsonResponse(data)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)

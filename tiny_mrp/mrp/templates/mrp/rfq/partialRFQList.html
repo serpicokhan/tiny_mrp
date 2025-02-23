@@ -3,7 +3,7 @@
 {% for i in rfqs %}
                             
                              
-<tr data-id="{{i.id}}">
+<tr data-id="{{i.id}}" class="{% if i.is_verified %} bg-success {% endif %}">
     <td class="editable-cell part-name" data-id="596" data-partcode="پکینگ_طبق_نمونه">{{i.items}}</td>
     <td class="editable-cell">{{i.supplier}}</td>
     <td class="editable-cell machine-name" data-id="302" data-machinecode="شیر_بادی">{{i.total_price|intcomma}}</td>
@@ -23,19 +23,30 @@
             </button>
        </td>
     {% endif %}
+    {% if perms.mrp.can_view_rfq %}
+
+    <td class="text-center">
+        {% if i.is_verified %}
+        <i class="fa fa-check"></i>
+        {% else %}
+        <button type="button"
+        class="btn bg-primary  btn-sm verify_rfq"
+        data-id="{{i.id}}">
+    تایید
+        </button>
+        {% endif %}
+    
+      
+       </td>
+    {% endif %}
     
     
 </tr>
  
 
 {% empty %}
-{% if perms.mrp.can_view_rfq %}
-<tr>
-    <td colspan="4" class="text-center bg-info">استعلامی برای این درخواست وجود ندارد</td>
-   </tr>
-{% elif perms.mrp.can_edit_rfq %}
 <tr>
     <td colspan="5" class="text-center bg-info">استعلامی برای این درخواست وجود ندارد</td>
    </tr>
-   {% endif %}
+
 {% endfor%}

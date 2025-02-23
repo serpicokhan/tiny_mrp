@@ -119,6 +119,46 @@ $(function () {
     });
     return false;
   };
+  $(document).on('click','.verify_rfq',function() {
+    var rfq_id = $(this).attr("data-id");  // Replace with the actual user ID you want to update
+    
+   
+    swal({
+      title: "مطمئن هستید؟",
+      text: "از تایید این تامین کننده مطمین هستید؟",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+  })
+      .then((willDelete) => {
+      if (willDelete) {
+          $.ajax({
+        url: '/Purchase/update_is_verified/RFQ/' + rfq_id + '/',
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            if (response.is_valid ==true) {
+              $("#rfqtable-body").empty();
+              
+              $("#rfqtable-body").html(response.html_rfq_list);
+                
+            } else {
+                alert('Error: ' + response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            alert('An error occurred: ' + error);
+        }
+    });
+
+
+          
+      } 
+      else {
+         
+  }
+      });
+});
 $(document).on("submit", ".js-rfq-create-form", saveRFQForm);
 $(document).on("submit", ".js-rfq-update-form", saveRFQForm);
 $(document).on("submit", ".js-rfq-delete-form", saveRFQForm);

@@ -159,6 +159,8 @@ class RFQ(models.Model):
 
     issued_at = models.DateTimeField(auto_now_add=True)
     description = models.TextField(blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
+
 
 
     def __str__(self):
