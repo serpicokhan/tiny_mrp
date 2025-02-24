@@ -603,16 +603,16 @@
             data: data,
             success: function(response) {
                 if (response.http_status === 'success') {
-                    alert('ورود کالا با موفقیت ثبت شد.');
+                    toastr.success('ورود کالا با موفقیت ثبت شد.');
                     // می‌تونی اینجا جدول رو آپدیت کنی یا ردیف رو پاک کنی
                     $row.find('.supplied-qty').val(''); // پاک کردن مقدار ورودی
                     $row.find('.supplier-autocomplete').val('').data('id', ''); // ریست تأمین‌کننده
                 } else {
-                    alert('خطا: ' + response.message);
+                    toastr.error('خطا: ' + response.message);
                 }
             },
             error: function(xhr, status, error) {
-                alert('خطایی رخ داد: ' + error);
+                toastr.error('خطایی رخ داد: ' + error);
             }
         });
     });

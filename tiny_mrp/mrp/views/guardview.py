@@ -42,7 +42,6 @@ def create_goods_entry(request):
             guard_approved=True  # پیش‌فرض تأیید نگهبانی خیر
         )
         goods_entry.save()
-
         # به‌روزرسانی وضعیت درخواست
         request_item.purchase_request.update_status()
         PurchaseActivityLog.objects.create(

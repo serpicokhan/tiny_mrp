@@ -81,47 +81,9 @@
                     
                         </a>
                     </form>
-                        {% comment %} <a href="#" class="list-group-item d-flex align-items-center">
-                            <i data-feather="star" class="mr-2 width-15 height-15"></i>
-                            شروع شده
-                            <span class="small ml-auto">10</span>
-                        </a>
-                        <a href="#" class="list-group-item">
-                            <i data-feather="info" class="mr-2 width-15 height-15"></i>
-                            اسپم
-                        </a>
-                        <a href="#" class="list-group-item d-flex align-items-center">
-                            <i data-feather="trash" class="mr-2 width-15 height-15"></i>
-                           سطل آشغال 
-                            <span class="small ml-auto">2</span>
-                        </a> {% endcomment %}
+                        
                     </div>
-                    {% comment %} <div class="card-body">
-                        <h6 class="mb-0">برچسب‌ها</h6>
-                    </div>
-                    <div class="list-group list-group-flush">
-                        <a href="#" class="list-group-item d-flex align-items-center">
-                            <span class="text-warning fa fa-circle mr-2"></span>
-                            پشتیبانی
-                            <span class="small ml-auto">5</span>
-                        </a>
-                        <a href="#" class="list-group-item d-flex align-items-center">
-                            <span class="text-success fa fa-circle mr-2"></span>
-                          آزاد
-                        </a>
-                        <a href="#" class="list-group-item d-flex align-items-center">
-                            <span class="text-danger fa fa-circle mr-2"></span>
-                            اجتماعی
-                        </a>
-                        <a href="#" class="list-group-item d-flex align-items-center">
-                            <span class="text-info fa fa-circle mr-2"></span>
-                            دوستان
-                        </a>
-                        <a href="#" class="list-group-item d-flex align-items-center">
-                            <span class="text-secondary fa fa-circle mr-2"></span>
-                            کدزدن
-                        </a>
-                    </div> {% endcomment %}
+                    
                 </div> 
             </div>
         </div>
@@ -154,6 +116,8 @@
                                 <a class="dropdown-item" href="?status=Approve3{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید مهندس ارزنده</a>
                                 <a class="dropdown-item" href="?status=Ordered{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">سفارش داده شده</a>
                                 <a class="dropdown-item" href="?status=Purchased{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">خریداری شده</a>
+                                <a class="dropdown-item" href="?status=GuardApproved{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">دریافت ناقص</a>
+                                <a class="dropdown-item" href="?status=Completed{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">کامل شده</a>
                                 <a class="dropdown-item" href="?status=Rejected{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">رد شده</a>
                                 
                                 <div class="dropdown-divider"></div>
