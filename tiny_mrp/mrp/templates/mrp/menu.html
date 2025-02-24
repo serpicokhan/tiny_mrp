@@ -81,6 +81,11 @@
         </a>
       </li>
       {% endif %}
+      <li>
+        <a href="#" data-toggle="tooltip" data-placement="right" title="نگهبانی" data-nav-target="#apps5">
+          <i data-feather="shield"></i>
+        </a>
+      </li>
       {% if perms.mrp.can_operator_mrp %}
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="گزارش" data-nav-target="#apps3">
@@ -289,6 +294,18 @@
     </li>
   </div>
   {% endif %}
+  <div id="apps5">
+    <ul>
+      <li class="navigation-divider">نگهبانی</li>
+      <li>
+        <a href="{% url 'list_gaurd' %}">
+          <span>آمار ورود خروج</span>
+  
+        </a>
+      </li>
+    </ul>
+    
+  </div>
 
 </div>
 </div>

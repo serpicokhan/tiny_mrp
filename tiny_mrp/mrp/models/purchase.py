@@ -95,11 +95,35 @@ class PurchaseRequest(models.Model):
     manager_comment = models.TextField(blank=True, default='')
     status = models.CharField(
         max_length=20,
-        choices=[('Pending', 'درخواست شده'), ('Approved', 'تایید انبار'), ('Rejected', 'رد شده'),
-                  ('Ordered', 'سفارش '), ('Approve2', 'تایید مهندس اعزامی'),
-            ('Approve3', 'تایید مهندس ارزنده'),('Purchased', 'خریداری شد'),('Approve4', 'تایید بازرگانی')],
+        choices=[
+            ('Pending', 'درخواست شده'),
+            ('Approved', 'تایید انبار'),
+            ('Rejected', 'رد شده'),
+            ('Ordered', 'سفارش '),
+            ('Approve2', 'تایید مهندس اعزامی'),
+            ('Approve3', 'تایید مهندس ارزنده'),
+            ('Purchased', 'خریداری شد'),
+            ('Approve4', 'تایید بازرگانی'),
+            ('GuardApproved', 'تأیید نگهبانی'),  # وضعیت جدید
+            ('Completed', 'کامل شده')  # وقتی همه آیتم‌ها تأمین و تأیید شدن
+            ],
         default='Pending'
     )
+    def is_fully_supplied(self):
+        return all(item.is_fully_supplied() for item in self.items.all())
+    def update_status(self):
+        if self.is_fully_supplied():
+            all_guard_approved = all(
+                entry.guard_approved 
+                for item in self.items.all() 
+                for entry in item.entries.all()
+            )
+            if all_guard_approved:
+                self.status = 'Completed'
+            elif self.status != 'GuardApproved':
+                self.status = 'GuardApproved'
+        self.save()
+
     
 
     def __str__(self):
@@ -124,6 +148,8 @@ class RequestItem(models.Model):
         related_name='assigned_items',
         help_text="Supplier who can provide this item"
     )
+    def is_fully_supplied(self):
+        return self.supplied_quantity >= self.quantity
 
     def __str__(self):
         return f"{self.item_name} (x{self.quantity})"
@@ -249,3 +275,27 @@ class PurchaseActivityLog(models.Model):
         return f"{self.user} {self.action} on {self.purchase_request}"
     def get_dateCreated_jalali(self):
         return jdatetime.date.fromgregorian(date=self.timestamp) 
+class GoodsEntry(models.Model):
+    request_item = models.ForeignKey(RequestItem, on_delete=models.CASCADE, related_name='entries')
+    entry_date = models.DateField(default=timezone.now)
+    quantity_received = models.PositiveIntegerField(help_text="تعداد کالای وارد شده در این ورود")
+    guard_approved = models.BooleanField(default=False, help_text="تأیید شده توسط نگهبانی")
+    guard_comment = models.TextField(blank=True, null=True, help_text="توضیحات نگهبان در صورت رد")
+    supplier = models.ForeignKey(
+        'Supplier', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='delivered_entries'
+    )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # به‌روزرسانی supplied_quantity در RequestItem
+        total_received = self.request_item.entries.aggregate(total=models.Sum('quantity_received'))['total'] or 0
+        self.request_item.supplied_quantity = total_received
+        self.request_item.save()
+
+    def __str__(self):
+        return f"ورود {self.quantity_received} عدد از {self.request_item.item_name} در {self.entry_date}"
+

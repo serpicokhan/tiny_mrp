@@ -129,6 +129,10 @@ urlpatterns = [
     url(r'^Purchases/RefereshList$', referesh_purchase_list, name='referesh_purchase_list'),
     url(r'^Purchases/AddComment$', add_purchase_comment, name='add_purchase_comment'),
     url(r'^Purchases/AddNote$', add_purchase_note, name='add_purchase_note'),
+    # Gaurd section
+    url(r'^Purchases/Gaurd/List$', list_gaurd, name='list_gaurd'),
+    url(r'^Purchases/Gaurd/create-goods-entry/$', create_goods_entry, name='create_goods_entry'),
+
     url(r'^Purchases/PB$', list_pboard, name='list_pboard'),
     url(r'^Purchases/PB/save-suppliers$', save_suppliers_pb, name='save_suppliers_pb'),
 

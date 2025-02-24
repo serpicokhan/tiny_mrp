@@ -1,0 +1,697 @@
+{% extends 'mrp/temp2.html' %}
+{% load static %}
+{% block stylesheet %}
+     <!-- Select2 -->
+     <link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.css">
+     <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+     <link href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" rel="stylesheet">
+       <!-- Favicon -->
+     <style>
+        .modal-backdrop {
+            z-index: 1040 !important; /* Lower z-index for backdrop */
+        }
+        
+        .modal {
+            z-index: 1050 !important; /* Higher z-index for modal */
+        }
+        
+     </style>
+
+{% endblock %}
+{% block content %}
+
+<div class="container-fluid h-100">
+
+    <div class="row app-block">
+        <div class="col-md-3 app-sidebar main_slidebar">
+            <div class="card">
+                <div class="card-body">
+                    <button class="btn btn-outline-dark btn-block btn-block2" id="createreq" data-url="{% url 'create_purchase' %}" >
+                        درخواست جدید                   </button>
+                        <button class="btn btn-outline-dark btn-block btn-block3" data-url="#" >
+                            برون ریزی                 </button>
+                       
+                </div>
+                <div class="app-sidebar-menu">
+                    <form class="">
+
+                    <div class="list-group list-group-flush">
+                        <a  class="list-group-item active d-flex align-items-center">
+                            <i data-feather="filter" class="mr-2 width-15 height-15"></i>
+                            فیلتر تاریخ
+                            <span class="small ml-auto"></span>
+                        </a>
+                        
+                        <a  class="list-group-item d-flex align-items-center">
+                            
+                            <input class=" form-control " type="text" name="start" value={{start}}>
+                           
+                           
+                    
+                        </a>
+                        <a  class="list-group-item d-flex align-items-center">
+                            
+                            <input class=" form-control " type="text" name="end" value={{end}}>
+                           
+                           
+                    
+                        </a>
+                        
+                        {% if perms.mrp.can_admin_purchase %}
+                        <a  class="list-group-item active d-flex align-items-center">
+                            <i data-feather="filter" class="mr-2 width-15 height-15"></i>
+                            فیلتر اشخاص
+                            <span class="small ml-auto"></span>
+                        </a>
+                        <a  class="list-group-item d-flex align-items-center">
+                            
+                            <select class="select2-example" name="userlist" multiple>
+                               
+                            {% for i in users %}
+                                <option value="{{i.id}}" {% if i.id in userlist %} selected {% endif %} >{{i}}</option>
+                            {% endfor %}
+                             
+                              </select>
+                        </a>
+                        {% endif %}
+                        <a  class="list-group-item d-flex align-items-center">
+                            
+                            <button class="btn btn-outline-dark btn-block btn-block4" type="submit" data-url="#" >
+                                فیلتر                </button>
+                           
+                           
+                    
+                        </a>
+                    </form>
+                      
+                    </div>
+                    
+                </div> 
+            </div>
+        </div>
+      
+        
+        <div class="col-md-9 app-content">
+            <div class="app-content-overlay"></div>
+            
+            <div class="card card-body app-content-body">
+                
+                <!-- end::app-lists -->
+
+                <!-- begin:app-detail -->
+                <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
+                    <table class="table table-bordered display" id="request-items-table">
+                        <thead>
+                            <tr>
+                                <th>انتخاب</th>
+                                <th>کد درخواست</th>
+                               
+                                <th>کالا</th>
+                                <th>تعداد</th>
+                                <th>تامین کننده</th>
+                                {% comment %} <th>Supplied Quantity</th>
+                                <th>Price</th> {% endcomment %}
+                                <th>عملیات</th>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <th><input type="text" class="form-control form-control-sm column-search" placeholder="جستجو کد درخواست"></th>
+                                
+                                <th><input type="text" class="form-control form-control-sm column-search" placeholder="جستجو آیتم"></th>
+                                <th></th>
+                                <th><input type="text" class="form-control form-control-sm column-search" placeholder="جستجو تامین کننده"></th>
+                                {% comment %} <th></th>
+                                <th></th> {% endcomment %}
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Example rows -->
+                            {% for i in items %}
+                            <tr data-item={{i.id}}>
+                                <td><input type="checkbox" class="request-item-checkbox"></td>
+                                <td>{{ i.purchase_request.id }}</td>
+                                
+                                <td>{{ i.item_name.partName }}</td>
+                                <td><input type="number" class="form-control supplied-qty" placeholder="تعداد" min="1" max="10" ></td>
+                                <td><input type="text" class="form-control supplier-autocomplete" data-id='' placeholder="تامین کننده"></td>
+                                {% comment %} <td><input type="number" class="form-control supplied-qty" placeholder="Enter Qty" min="1" max="10" disabled></td>
+                                <td><input type="number" class="form-control item-price" placeholder="Enter Price" step="0.01" disabled></td> {% endcomment %}
+                                <td><button class="btn btn-primary btn-sm assign-btn">انتصاب</button></td>
+                            </tr>
+                            {% endfor %}
+                           
+                        </tbody>
+                    </table>
+                    <button class="btn btn-success my-3" id="assign-selected-btn" >انتصاب آیتم انتخابی</button>
+                    <button class="btn btn-success" id="save-suppliers">ذخیره</button>
+            
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" id="compose">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ارسال ایمیل به</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="d-flex justify-content-between m-b-20">
+                    <div>
+                        <a href="#" data-toggle="tooltip" title=""
+                           class="btn btn-outline-light btn-sm mr-2"
+                           data-original-title="ذخیره">
+                            <i data-feather="save"></i>
+                        </a>
+                        <a href="#" data-toggle="tooltip" title=""
+                           class="btn btn-outline-light btn-sm mr-2"
+                           data-original-title="حذف">
+                            <i data-feather="trash-2"></i>
+                        </a>
+                    </div>
+                </div>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control tagsinput" placeholder="به"
+                               value="example@test.com.tr" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="موضوع" required>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" multiple id="customFileLangHTML">
+                            <label class="custom-file-label" for="customFileLangHTML" data-browse="انتخاب فایل">لورم ایپسوم</label>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="compose-quill-editor mb-3"></div>
+                        <div class="d-flex justify-content-between">
+                            <div class="compose-quill-toolbar">
+                            <span class="ql-formats mr-0">
+                                <button class="ql-bold"></button>
+                                <button class="ql-italic"></button>
+                                <button class="ql-underline"></button>
+                                <button class="ql-link"></button>
+                                <button class="ql-image"></button>
+                            </span>
+                            </div>
+                            <button class="btn btn-primary">
+                                <i data-feather="send" class="mr-2"></i>
+                                ارسال
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block javascript %}
+  <!-- Plugin scripts -->
+  <script src="{% static 'vendors/select2/js/select2.min.js' %}"></script>
+  <script src="{% static 'assets/js/examples/select2.js' %}"></script>
+  <script>
+    $('.select2-example').select2({
+        placeholder: 'اشخاص'
+    });
+    $('input[name="start"]').pDatepicker({
+        format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian'
+      });
+    $('input[name="end"]').pDatepicker({
+        format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian'
+      });
+  </script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+  <!-- end::global scripts -->
+  
+  <!-- begin::custom scripts -->
+      <script>
+          $(document).ready(function () {
+              // Initialize DataTable for the Requested Items Table
+              const requestTable = $('#request-items-table').DataTable({
+                  paging: true,
+                  searching: true,
+                  info: false,
+                  initComplete: function () {
+                      // Add column-wise search functionality
+                      this.api().columns().every(function () {
+                          const column = this;
+                          $('input', column.header()).on('keyup change clear', function () {
+                              if (column.search() !== this.value) {
+                                  column.search(this.value).draw();
+                              }
+                          });
+                      });
+                  }
+              });
+             
+          
+              // Handle Suggestions for Supplier Input (Dynamic Dropdown)
+              function handleSuggestions($cell, apiUrl, createApiUrl2, type) {
+                  createApiUrl = createApiUrl2;
+                  $cell.on('input', function () {
+                      if ($cell && $cell.length) {
+                          console.log($cell);
+                          const inputValue = $cell.val();
+                      console.log(inputValue, createApiUrl2, type);
+  
+          
+                      if (inputValue.length < 2) {
+                          console.log(inputValue);
+  
+                          $('.dropdown-menu').remove(); // Hide dropdown if input is too short
+                          return;
+                      }
+          
+                      // Fetch suggestions from API (Use AJAX to fetch supplier list dynamically)
+                      $.ajax({
+                          url: apiUrl, // API endpoint to get suppliers
+                          method: "GET",
+                          data: { qry: inputValue },
+                          success: function (data) {
+                              console.log(data);
+                              let dropdownHtml = '<div class="dropdown-menu show">';
+                              data.forEach(item => {
+                                  dropdownHtml += `
+                                      <button class="dropdown-item" data-id="${item.id}" data-name="${item.name}">
+                                          ${item.name}
+                                      </button>
+                                  `;
+                              });
+          
+                              // Add "Create New Item" option
+                              dropdownHtml += `
+                                  <button class="dropdown-item create-new" data-typed="${inputValue}">
+                                      +New: "${inputValue}"
+                                  </button>
+                              </div>`;
+          
+                              // Position dropdown
+                              const offset = $cell.offset();
+                              const $dropdown = $(dropdownHtml).css({
+                                  position: 'absolute',
+                                  top: offset.top + $cell.outerHeight(),
+                                  left: offset.left - 100,
+                                  width: $cell.outerWidth(),
+                                  zIndex: 1000
+                              });
+          
+                              // Remove existing dropdown and append the new one
+                              $('.dropdown-menu').remove();
+                              $('body').append($dropdown);
+          
+                              // Handle item selection from dropdown
+                              $dropdown.on('click', '.dropdown-item', function () {
+                                  const selectedValue = $(this).data('name');
+                                  const selectedId = $(this).data('id');
+                                  console.log(selectedValue);
+                                  $cell.val(selectedValue);
+                                  $cell.attr('data-id',selectedId);
+  
+                                  $cell.text(selectedValue).trigger('change');
+                                  $dropdown.remove();
+                                  //toggleAssignButton($cell.closest('tr'));
+                              });
+                          },
+                          error: function () {
+                              console.error('Error fetching suggestions');
+                          }
+                      });
+                      }
+                  });
+              }
+          
+              // Handle supplier input field
+              function handleSupplierInput($cell) {
+                  // Assuming `/get-suppliers` is your API endpoint to get suppliers
+                  handleSuggestions($cell, '/Supplier/GetSuplier', '/api/create-supplier/', 'Supplier');
+              }
+              
+              const fetchPartsApiUrl = "/Supplier/GetSuplier"; // Replace with your API endpoint for fetching parts
+              const createPartsApiUrl = "/api/create-supplier/"; // Replace with your API endpoint for creating parts
+              $(document).on('focus', '.supplier-autocomplete', function() {
+                  const $cell = $(this);
+                  $('[data-active="true"]').removeAttr('data-active');
+          
+                  // Mark the current cell as active
+                  $cell.attr('data-active', 'true');
+                  //handleSuggestions($cell, fetchPartsApiUrl, createPartsApiUrl, "Supplier");
+              });
+              $(document).on('click', '.create-new', function() {
+                  const newName = $(this).data('typed');
+                  const $dropdown = $(this).closest('.dropdown-menu');
+          
+                  const $cell = $('[data-active="true"]'); // Assuming you mark the active cell
+                  console.log($cell);
+                  
+          
+                  // Call API to create new item
+                  $.ajax({
+                      url: createApiUrl,
+                      method: "post",
+                      contentType: "application/json",
+                      data: JSON.stringify({ name: newName }),
+                      success: function(response) {
+                          // Assume the response contains the newly created item's details
+                          const newItem = response; // Example: { id: 100, code: "new_machine_code", name: "New Machine" }
+          
+                          // Update the cell content and data attributes
+                          $cell.val(newItem.name);
+                          $cell.attr('data-id', newItem.id);
+                          //$cell.attr('data-code', newItem.code);
+          
+                          // Remove dropdown
+                          $dropdown.remove();
+                      },
+                      error: function() {
+                          alert(`Error creating new ${type}. Please try again.`);
+                      }
+                  });
+              });
+                  // Assign Selected Items Logic
+      $('#assign-selected-btn').on('click', function () {
+          const selectedRows = [];
+          
+          // Collect all selected rows from the entire table (not just the current page)
+          requestTable.rows().every(function () {
+              const row = $(this.node());
+              if (row.find('.request-item-checkbox').is(':checked')) {
+                  selectedRows.push(row);
+              }
+          });
+  
+          if (selectedRows.length === 0) {
+              alert('Please select at least one item.');
+              return;
+          }
+  
+          // Determine the supplier for the first selected row
+          const firstRow = selectedRows[0];
+          const supplier = firstRow.find('.supplier-autocomplete').val();
+          const supplierId = firstRow.find('.supplier-autocomplete').attr('data-id');
+  
+          if (!supplier) {
+              alert('Please select a supplier for the first selected item.');
+              return;
+          }
+  
+          // Assign selected rows to the supplier
+          selectedRows.forEach(function (row) {
+              let itemid = row.attr('data-item');
+              
+              const itemName = row.find('td:nth-child(5)').text();
+              const purchaseId = row.find('td:nth-child(2)').text();
+              const requesteduser = row.find('td:nth-child(3)').text();
+              const requestedQty = row.find('td:nth-child(6)').text().trim();
+              const suppliedQty =  requestedQty;
+              const itemPrice = row.find('.item-price').val() || 0;
+              const makan = row.find('td:nth-child(4)').text();;
+  
+              // Check if Supplier Table Exists
+              let supplierTable = $(`#${supplier.replace(/\s+/g, '')}-table`);
+              if (supplierTable.length === 0) {
+                  // Create New Supplier Table
+                  const supplierDiv = `
+                      <div class="mb-4" id="${supplier.replace(/\s+/g, '')}-container">
+                          <h3>کالاهای ${supplier} </h3>
+                          <table class="table table-bordered display" id="${supplier.replace(/\s+/g, '')}-table">
+                              <thead>
+                                  <tr>
+                                      <th>کد درخواست</th>
+                                      <th>نام کالا</th>
+                                      <th>درخواست کننده</th>
+                                      <th>تعداد تامینی</th>
+                                      <th>قیمت واحد</th>
+                                      <th>عملیات</th>
+                                  </tr>
+                              </thead>
+                              <tbody></tbody>
+                          </table>
+                      </div>
+                  `;
+                  $('#supplier-tables').append(supplierDiv);
+  
+                  // Initialize DataTable for the New Supplier Table
+                  $(`#${supplier.replace(/\s+/g, '')}-table`).DataTable({
+                      paging: false,
+                      searching: false,
+                      info: false
+                  });
+              }
+  
+              // Add Row to Supplier Table
+              const supplierRow = `
+                  <tr data-id=${itemid} data-supplier=${supplierId} data-makan="${makan}" data-qty="${requestedQty}">
+                      <td>${purchaseId}</td>
+                      <td>${itemName}</td>
+                      <td>${requesteduser}</td>
+                      <td><input type="number" class="form-control update-supplied-qty" value="${suppliedQty}" min="1" max="${requestedQty}"></td>
+                      <td><input type="number" class="form-control update-item-price" value="${itemPrice}" step="0.01"></td>
+                      <td><button class="btn btn-danger btn-sm remove-btn">حذف</button></td>
+                  </tr>
+              `;
+              const supplierTableApi = $(`#${supplier.replace(/\s+/g, '')}-table`).DataTable();
+              supplierTableApi.row.add($(supplierRow)).draw();
+  
+              // Remove row from request table
+              requestTable.row(row).remove().draw();
+          });
+  
+          // Disable "Assign Selected" Button
+          //$('#assign-selected-btn').prop('disabled', true);
+      });
+      $('#supplier-tables').on('click', '.remove-btn', function () {
+          const row = $(this).closest('tr');
+          const supplierTableId = $(this).closest('table').attr('id');
+          const supplierTableApi = $(`#${supplierTableId}`).DataTable();
+  
+          // Move item back to Requested Items Table
+          const itemName = row.find('td:nth-child(2)').text();
+          const itemcode = row.attr("data-id");
+          const request_code = row.find('td:nth-child(1)').text();
+          const requestedQty = row.attr("data-qty");
+          const requesteduser = row.find('td:nth-child(3)').text();
+          const makan = row.attr("data-makan");
+  
+          const requestRow = `
+              <tr data-item="${itemcode}">
+                  <td><input type="checkbox" class="request-item-checkbox"></td>
+                  <td>${request_code}</td>
+                  <td>${requesteduser}</td>
+                  <td>
+                     ${makan}
+                  </td>
+                  <td>
+                      ${itemName}
+                  </td>
+                  <td >
+                      ${requestedQty}
+                  </td>
+                  <td data-id="">
+                      <input type="text" class="form-control supplier-autocomplete" data-id="" placeholder="تامین کننده">
+                  </td>
+                  <td>
+                      <button class="btn btn-primary btn-sm assign-btn" disabled>Assign</button>
+                  </td>
+              </tr>
+          `;
+          
+          requestTable.row.add($(requestRow)).draw();
+  
+          // Reinitialize Autocomplete for the new row
+        /*  $('.supplier-autocomplete').autocomplete({
+              source: function(request, response) {
+                  fetchSuppliers(request.term, function(suppliers) {
+                      response(suppliers);
+                  });
+              }
+          });*/
+  
+          // Remove row from supplier table
+          supplierTableApi.row(row).remove().draw();
+  
+          // If supplier table is empty, remove it
+          if (supplierTableApi.rows().count() === 0) {
+              $(`#${supplierTableId}-container`).remove();
+          }
+      });
+          
+              // Reinitialize autocomplete for visible rows after table redraw (pagination, sorting, etc.)
+              $('#request-items-table').on('draw.dt', function () {
+                  // Reinitialize autocomplete for visible rows
+                  $('.supplier-autocomplete').each(function () {
+                      if (!$(this).data('ui-autocomplete')) {
+                          
+                          handleSupplierInput($(this)); // Setup dynamic suggestion for each cell
+                      }
+                  });
+              }).trigger('draw.dt'); // Trigger to apply autocomplete on page load
+          
+              // Toggle "Assign" button state
+              function toggleAssignButton(row) {
+                  const supplier = row.data('supplier');
+                  const quantity = row.find('.supplied-qty').val();
+          
+                  // Enable the "Assign" button if supplier is selected and quantity is entered
+                  if (supplier && quantity > 0) {
+                      row.find('.assign-btn').prop('disabled', false);
+                  } else {
+                      row.find('.assign-btn').prop('disabled', true);
+                  }
+              }
+          
+              // Assign Button Logic
+              $('#request-items-table').on('click', '.assign-btn', function () {
+                  /*const row = $(this).closest('tr');
+                  const supplier = row.find('.supplier-autocomplete').text();
+                  const quantity = row.find('.supplied-qty').val();
+          
+                  if (!supplier || quantity <= 0) {
+                      alert("Please select a supplier and enter a quantity.");
+                      return;
+                  }
+          
+                  // Your logic for assigning the item to the supplier
+                  // You can now submit this data to the backend if needed
+          
+                  // For demonstration, log to console
+                  console.log(`Assigned item to ${supplier} with quantity ${quantity}`);
+                  alert(`Item assigned to ${supplier} with quantity ${quantity}`);*/
+                  var $row = $(this).closest('tr');
+                  var requestItemId = $row.data('item'); // گرفتن request_item از data-item
+                  var quantityReceived = $row.find('.supplied-qty').val(); // گرفتن تعداد وارد شده
+                  var supplierId = $row.find('.supplier-autocomplete').attr("data-id"); // گرفتن آیدی تأمین‌کننده
+                  //console.log(requestItemId,quantityReceived,supplierId);
+                  // اعتبارسنجی ساده
+        if (!quantityReceived || quantityReceived <= 0) {
+            alert('لطفاً تعداد معتبری وارد کنید.');
+            return;
+        }
+        if (!supplierId) {
+            alert('لطفاً یک تأمین‌کننده انتخاب کنید.');
+            return;
+        }
+
+        // داده‌ها برای ارسال
+        var data = {
+            request_item: requestItemId,
+            quantity_received: quantityReceived,
+            supplier: supplierId
+            
+        };
+
+        // درخواست AJAX
+        $.ajax({
+            url: '/Purchases/Gaurd/create-goods-entry/', // آدرس ویوی جنگو که GoodsEntry رو می‌سازه
+            type: 'POST',
+            data: data,
+            success: function(response) {
+                if (response.http_status === 'success') {
+                    alert('ورود کالا با موفقیت ثبت شد.');
+                    // می‌تونی اینجا جدول رو آپدیت کنی یا ردیف رو پاک کنی
+                    $row.find('.supplied-qty').val(''); // پاک کردن مقدار ورودی
+                    $row.find('.supplier-autocomplete').val('').data('id', ''); // ریست تأمین‌کننده
+                } else {
+                    alert('خطا: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('خطایی رخ داد: ' + error);
+            }
+        });
+    });
+              $('#save-suppliers').on('click', function () {
+                  let suppliersData = [];
+          
+                  // Loop through each row in the supplier's table
+                  $('#supplier-tables  tbody tr').each(function () {
+                      let $row = $(this);
+                      let supplierId = $row.attr('data-supplier'); // Get supplier ID from input
+  
+                      let itemId = $row.attr('data-id'); // Get item ID from second column
+                      let username = $row.find('td:eq(2)').text(); // Get user name
+                      let place = $row.find('td:eq(3)').text(); // Get place
+                      let itemName = $row.find('td:eq(2)').text(); // Get item name
+                      let quantity = $row.find('.update-supplied-qty').val().trim(); // Get quantity from input
+                      let price = $row.find('.update-item-price').val().trim(); // Get price from input
+                        // Check if quantity and price have values
+                      if (quantity === "" || price === "") {
+                          toastr.error("قیمت و مقدار را مشخص کنید");
+                          return; // Skip this row
+                      }
+  
+          
+                      if (supplierId) { // Only include rows with a selected supplier
+                          suppliersData.push({
+                              supplier_id: supplierId,
+                              item_id: itemId,
+                              user_name: username,
+                              place: place,
+                              item_name: itemName,
+                              quantity: quantity,
+                              price:price
+                          });
+                      }
+                  });
+          
+                  // Ensure there is data to send
+                  if (suppliersData.length === 0) {
+                      //alert("No supplier data to save!");
+                      return;
+                  }
+                  console.log(suppliersData);
+                  // Send data via AJAX
+                  $.ajax({
+                      url: '/Purchases/PB/save-suppliers', // Replace with your backend API endpoint
+                      method: 'POST',
+                      contentType: 'application/json',
+                      data: JSON.stringify({ suppliers: suppliersData }),
+                      success: function (response) {
+                          if(response.status=="success"){
+                          toastr.success("اقلام با موفقیت ذخیره شدند");
+                          $('#supplier-tables').html('');
+  
+                          console.log(response);
+                          }
+                      },
+                      error: function (error) {
+                          console.error("Error saving suppliers", error);
+                      }
+                  });
+              });
+  
+            
+          });
+          
+          
+          
+          
+          
+          
+          
+      </script>
+  
+<script src="{% static 'project/purchase.js' %}"></script>
+
+<script src="{% static 'project/purchaselist.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.min.js"></script>
+
+
+
+{% endblock %}
