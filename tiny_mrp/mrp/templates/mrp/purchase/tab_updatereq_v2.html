@@ -162,7 +162,7 @@
         
         
         </div>
-        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab" style="max-height: 400px; overflow-y: auto;">
             {% for i in logs %}
             <div class="d-flex align-items-center p-l-r-0 m-b-20">
                 <div class="d-flex align-items-center">
@@ -188,6 +188,12 @@
 <script>
     // Dummy users list
     $(document).ready(function () {
+        $("#contact").niceScroll({
+            cursorcolor: "#00f", // Customize scrollbar color
+            cursorwidth: "8px", // Width of the scrollbar
+            background: "#ddd", // Background of the scrollbar track
+            autohidemode: true  // Hide scrollbar when not scrolling
+        });
         // Dummy users list
         let users1000 = [
             { key: "arzande", value: "arzande" },

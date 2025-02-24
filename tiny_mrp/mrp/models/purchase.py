@@ -104,7 +104,7 @@ class PurchaseRequest(models.Model):
             ('Approve3', 'تایید مهندس ارزنده'),
             ('Purchased', 'خریداری شد'),
             ('Approve4', 'تایید بازرگانی'),
-            ('GuardApproved', 'تأیید نگهبانی'),  # وضعیت جدید
+            ('GuardApproved', 'ورود ناقص'),  # وضعیت جدید
             ('Completed', 'کامل شده')  # وقتی همه آیتم‌ها تأمین و تأیید شدن
             ],
         default='Pending'
@@ -112,16 +112,31 @@ class PurchaseRequest(models.Model):
     def is_fully_supplied(self):
         return all(item.is_fully_supplied() for item in self.items.all())
     def update_status(self):
-        if self.is_fully_supplied():
-            all_guard_approved = all(
-                entry.guard_approved 
-                for item in self.items.all() 
-                for entry in item.entries.all()
-            )
-            if all_guard_approved:
-                self.status = 'Completed'
-            elif self.status != 'GuardApproved':
-                self.status = 'GuardApproved'
+        has_entries = any(
+        item.entries.exists() 
+        for item in self.items.all()
+    )
+        if not has_entries:
+            return  # اگه هیچ ورودی نباشه، هیچ کاری نکن
+        all_guard_approved = all(
+            entry.guard_approved 
+            for item in self.items.all() 
+            for entry in item.entries.all()
+        )
+    
+        # چک کن که همه آیتم‌ها کامل تأمین شدن یا نه
+        fully_supplied = self.is_fully_supplied()
+
+        if fully_supplied and all_guard_approved:
+            self.status = 'Completed'
+        elif has_entries  and self.status != 'GuardApproved':
+            print("her$$$$$$$")
+            self.status = 'GuardApproved'
+        else:
+            # print("else$$$$$$$$$",fully_supplied,all_guard_approved,has_entries)
+            print(has_entries,all_guard_approved,'!!!!!!!!!!!!!!')
+            print(has_entries and not all_guard_approved and self.status != 'GuardApproved')
+        
         self.save()
 
     
@@ -295,6 +310,8 @@ class GoodsEntry(models.Model):
         total_received = self.request_item.entries.aggregate(total=models.Sum('quantity_received'))['total'] or 0
         self.request_item.supplied_quantity = total_received
         self.request_item.save()
+        self.request_item.purchase_request.update_status()
+
 
     def __str__(self):
         return f"ورود {self.quantity_received} عدد از {self.request_item.item_name} در {self.entry_date}"
