@@ -81,11 +81,14 @@
         </a>
       </li>
       {% endif %}
+  {% if perms.mrp.can_operate_guard %}
+
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="نگهبانی" data-nav-target="#apps5">
           <i data-feather="shield"></i>
         </a>
       </li>
+      {% endif %}
       {% if perms.mrp.can_operator_mrp %}
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="گزارش" data-nav-target="#apps3">
@@ -294,6 +297,7 @@
     </li>
   </div>
   {% endif %}
+  {% if perms.mrp.can_operate_guard %}
   <div id="apps5">
     <ul>
       <li class="navigation-divider">نگهبانی</li>
@@ -306,6 +310,7 @@
     </ul>
     
   </div>
+  {% endif %}
 
 </div>
 </div>

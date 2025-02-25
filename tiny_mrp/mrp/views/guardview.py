@@ -49,6 +49,13 @@ def create_goods_entry(request):
                     purchase_request=request_item.purchase_request,
                     action=f"{request.user.sysuser} ورود {quantity_received}  {request_item.item_name.partName} </br> را از {supplier} تایید نمود"
                 )
+        if(request_item.purchase_request=="Completed"):
+            PurchaseActivityLog.objects.create(
+            user=request.user.sysuser,  # User making the change
+            purchase_request=request_item.purchase_request,
+            action=f"{request.user.sysuser} درخواست را تایید نمود"
+        )
+        
 
         return JsonResponse({
             'http_status': 'success',

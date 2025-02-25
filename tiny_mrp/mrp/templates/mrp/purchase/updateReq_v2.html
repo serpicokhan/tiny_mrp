@@ -49,9 +49,11 @@
         <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید خرید">
             <i data-feather="check-circle"></i>
         </a>
+        {% if company.status == "Approve4" or company.status == "Approve2" %}
         <a href="#" class="btn btn-outline-light rfq"  data-url="{% url 'create_rfq' company.id %}" data-toggle="tooltip" title="استعلام">
             <i data-feather="phone"></i>
         </a>
+        {% endif %}
        <!-- Modal -->
 
         {% endif %}
