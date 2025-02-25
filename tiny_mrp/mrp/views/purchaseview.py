@@ -190,7 +190,7 @@ def save_purchase_request(request):
             is_emergency=data.get("emergency",False)
 
 
-            print("312321########",req_id)
+            
             purchase_request=None
             # Create a new PurchaseRequest
             r_user=data.get('user_name', False)
@@ -223,8 +223,7 @@ def save_purchase_request(request):
                         )
                 # print(existing_item_ids)
             else:
-                print(request.POST)
-                print(created_at," date!!!!!!!!")
+                
                 purchase_request = PurchaseRequest.objects.create(
                 user=r_user,
                 is_emergency=is_emergency,  # Assuming user is logged in
@@ -272,7 +271,7 @@ def save_purchase_request(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
-def create_purchase(request):
+def     create_purchase(request):
     if(request.method=="GET"):
         data=dict()
         sysusers=SysUser.objects.all()
