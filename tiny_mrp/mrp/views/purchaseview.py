@@ -249,11 +249,11 @@ def save_purchase_request(request):
                         description=item['description']
 
                     )
-            list_item=list_purchaseRequeset(request)
+            # list_item=list_purchaseRequeset(request)
             data=dict()
             data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
                         
-                        'req':list_item,
+                        
                         'perms': PermWrapper(request.user) 
 
                        
@@ -271,7 +271,7 @@ def save_purchase_request(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
-def     create_purchase(request):
+def create_purchase(request):
     if(request.method=="GET"):
         data=dict()
         sysusers=SysUser.objects.all()
