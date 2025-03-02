@@ -94,6 +94,7 @@ def list_purchase_req_detail(request):
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
     userlist = request.GET.get('userlist','[]')
+    is_tamiri = request.GET.get('customSwitch3_',False)
     
     
 
@@ -164,7 +165,8 @@ def list_purchase_req_detail(request):
             requests=requests.filter(user__id=userlist2)
 
     
-    
+    if(is_tamiri=="on"):
+        requests=requests.filter(is_tamiri="True")
     ws=PurchaseUtility.doPaging(request,requests)
     
     return render(request,"mrp/purchase/purchaseList2.html",
@@ -177,7 +179,8 @@ def list_purchase_req_detail(request):
                     'users':SysUser.objects.all(),
                     'start':start_of_month,
                     'end':end_of_month,
-                    'userlist':userlist
+                    'userlist':userlist,
+                    'is_tamiri':is_tamiri
                     })
 @csrf_exempt
 def save_purchase_request(request):
@@ -188,6 +191,8 @@ def save_purchase_request(request):
             req_id=data.get('id', False)
             created_at=data.get("created_at",False)
             is_emergency=data.get("emergency",False)
+            is_tamiri=data.get("tamiri",False)
+            print(is_tamiri,"tamiri")
 
 
             
@@ -227,6 +232,7 @@ def save_purchase_request(request):
                 purchase_request = PurchaseRequest.objects.create(
                 user=r_user,
                 is_emergency=is_emergency,  # Assuming user is logged in
+                is_tamiri=is_tamiri,  # Assuming user is logged in
                 created_at=DateJob.getTaskDate(created_at)
                 # consume_place="General",  # Default or get from frontend if applicable
                 # description="Auto-generated request"
@@ -812,6 +818,7 @@ def referesh_purchase_list(request):
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
     userlist = request.GET.get('userlist', '[]')
+    is_tamiri = request.GET.get('customSwitch3_', False)
 
     sort_by = request.GET.get('sort_by', '-id')  # Default sorting by `created_at` in descending order
     status_filter = request.GET.get('status', 'all')  # Default to show all statuses
@@ -872,6 +879,8 @@ def referesh_purchase_list(request):
         requests=requests.filter(created_at__range=[start_of_month,end_of_month])
         # start_of_month=start_of_month.strftime('%Y-%m-%d')
         # end_of_month=end_of_month.strftime('%Y-%m-%d')
+    if(is_tamiri=="om"):
+        requests=requests.filter(is_tamiri=True)
     
     
     ws= PurchaseUtility.doPaging(request,requests)
@@ -898,6 +907,7 @@ def filter_request_by(request):
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
     userlist = request.GET.get('userlist', '[]')
+    is_tamiri = request.GET.get('customSwitch3_', False)
 
     sort_by = request.GET.get('sort_by', '-id')  # Default sorting by `id` in descending order
     print(sort_by,'!!!!!!!!!!')
@@ -962,6 +972,8 @@ def filter_request_by(request):
         requests=requests.filter(created_at__range=[start_of_month,end_of_month])
         # start_of_month=start_of_month.strftime('%Y-%m-%d')
         # end_of_month=end_of_month.strftime('%Y-%m-%d')
+    if is_tamiri:
+        requests=requests.filter(is_tamiri=is_tamiri)
     
     
     return requests

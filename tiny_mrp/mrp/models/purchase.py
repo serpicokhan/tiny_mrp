@@ -91,6 +91,7 @@ class PurchaseRequest(models.Model):
     user = models.ForeignKey(SysUser, on_delete=models.CASCADE, related_name='purchase_requests')
     created_at = models.DateField(auto_now_add=False, default=timezone.now)
     is_emergency = models.BooleanField(default=False)
+    is_tamiri = models.BooleanField(default=False)
     viewed_by = models.TextField(blank=True, default='[]')
     manager_comment = models.TextField(blank=True, default='')
     status = models.CharField(

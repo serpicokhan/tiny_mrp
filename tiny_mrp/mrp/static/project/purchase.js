@@ -369,7 +369,9 @@ $(document).ready(function() {
         let companyId=$("#companyId").val()||null;
         let user_name=$("#requested_user").val()||null;
         let created_at=$("#created_at").val()||null;
-        let is_emergency=$("#customSwitch3_").is(":checked");
+        let is_emergency=$("#customSwitch2_").is(":checked");
+        let is_tamiri=$("#customSwitch1_").is(":checked");
+
 
         
 
@@ -447,7 +449,7 @@ $(document).ready(function() {
             url: "/api/save-purchase-request/",
             method: "POST",
             contentType: "application/json",
-            data: JSON.stringify({id:companyId,user_name:user_name,items:requestData,created_at:created_at,emergency:is_emergency}),
+            data: JSON.stringify({id:companyId,user_name:user_name,items:requestData,created_at:created_at,emergency:is_emergency,tamiri:is_tamiri}),
             beforeSend:function(x){
                 console.log( JSON.stringify({id:companyId,user_name:user_name,items:requestData,created_at:created_at,emergency:is_emergency}));
                 // x.abort();

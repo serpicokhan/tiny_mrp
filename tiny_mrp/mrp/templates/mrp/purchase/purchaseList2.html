@@ -74,6 +74,19 @@
                         {% endif %}
                         <a  class="list-group-item d-flex align-items-center">
                             
+                            <div class="custom-control custom-switch custom-checkbox-warning">
+                                <input type="checkbox" class="custom-control-input" id="customSwitch3_" name="customSwitch3_">
+                                <label class="custom-control-label" for="customSwitch3_">
+                                    درخواست تعمیر
+                                    
+                                   </label>
+                            </div>
+                           
+                           
+                    
+                        </a>
+                        <a  class="list-group-item d-flex align-items-center">
+                            
                             <button class="btn btn-outline-dark btn-block btn-block4" type="submit" data-url="#" >
                                 فیلتر                </button>
                            
@@ -108,17 +121,17 @@
                                 انتخاب بر اساس
                             </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="?status=Pending{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">درخواست شده</a>
-                                <a class="dropdown-item" href="?status=Approved{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید انبار</a>
-                                <a class="dropdown-item" href="?status=Approve2{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید مهندس اعزامی</a>
-                                <a class="dropdown-item" href="?status=Approve4{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید بازرگانی</a>
+                                <a class="dropdown-item" href="?status=Pending{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">درخواست شده</a>
+                                <a class="dropdown-item" href="?status=Approved{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">تایید انبار</a>
+                                <a class="dropdown-item" href="?status=Approve2{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">تایید مهندس اعزامی</a>
+                                <a class="dropdown-item" href="?status=Approve4{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">تایید بازرگانی</a>
 
-                                <a class="dropdown-item" href="?status=Approve3{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید مهندس ارزنده</a>
-                                <a class="dropdown-item" href="?status=Ordered{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">سفارش داده شده</a>
-                                <a class="dropdown-item" href="?status=Purchased{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">خریداری شده</a>
-                                <a class="dropdown-item" href="?status=GuardApproved{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">دریافت ناقص</a>
-                                <a class="dropdown-item" href="?status=Completed{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">کامل شده</a>
-                                <a class="dropdown-item" href="?status=Rejected{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">رد شده</a>
+                                <a class="dropdown-item" href="?status=Approve3{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">تایید مهندس ارزنده</a>
+                                <a class="dropdown-item" href="?status=Ordered{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">سفارش داده شده</a>
+                                <a class="dropdown-item" href="?status=Purchased{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">خریداری شده</a>
+                                <a class="dropdown-item" href="?status=GuardApproved{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">دریافت ناقص</a>
+                                <a class="dropdown-item" href="?status=Completed{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">کامل شده</a>
+                                <a class="dropdown-item" href="?status=Rejected{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">رد شده</a>
                                 
                                 <div class="dropdown-divider"></div>
                                 
@@ -133,19 +146,19 @@
                             <div class="dropdown-menu dropdown-menu-right " x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(807px, 60px, 0px);">
                                 
                                 <!-- Sorting by last cconfirm date -->
-                                <a class="dropdown-item" href="?sort_by=latest_activity_timestamp{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید (جدیدترین)</a>
+                                <a class="dropdown-item" href="?sort_by=latest_activity_timestamp{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">تایید (جدیدترین)</a>
 
                                 <!-- Sorting by Date -->
-                                <a class="dropdown-item" href="?sort_by=-created_at{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تاریخ (جدیدترین)</a>
-                                <a class="dropdown-item" href="?sort_by=created_at{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تاریخ (قدیمی‌ترین)</a>
+                                <a class="dropdown-item" href="?sort_by=-created_at{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">تاریخ (جدیدترین)</a>
+                                <a class="dropdown-item" href="?sort_by=created_at{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">تاریخ (قدیمی‌ترین)</a>
                         
                                 <!-- Sorting by ID -->
-                                <a class="dropdown-item" href="?sort_by=-id{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">کد (بزرگ‌ترین)</a>
-                                <a class="dropdown-item" href="?sort_by=id{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">کد (کوچک‌ترین)</a>
+                                <a class="dropdown-item" href="?sort_by=-id{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">کد (بزرگ‌ترین)</a>
+                                <a class="dropdown-item" href="?sort_by=id{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">کد (کوچک‌ترین)</a>
                         
                                 <!-- Sorting by Status -->
-                                <a class="dropdown-item" href="?sort_by=status{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">وضعیت (صعودی)</a>
-                                <a class="dropdown-item" href="?sort_by=-status{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">وضعیت (نزولی)</a>
+                                <a class="dropdown-item" href="?sort_by=status{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">وضعیت (صعودی)</a>
+                                <a class="dropdown-item" href="?sort_by=-status{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}">وضعیت (نزولی)</a>
                         
                                 {% comment %} <div class="dropdown-divider"></div> {% endcomment %}
                         
@@ -180,7 +193,7 @@
                                 <li class="page-item">
                                 {% if req.has_previous %}
                                 {% comment %} {% if start %}&start={{ start }}{% endif %}{% if end %}&end={{ end }}{% endif %} {% endcomment %}
-                                    <a class="page-link" href="?page={{ req.previous_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if userlist %}&userlist={{ userlist }}{% endif %}" aria-label="Previous">
+                                    <a class="page-link" href="?page={{ req.previous_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if userlist %}&userlist={{ userlist }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}" aria-label="Previous">
                                         <i data-feather="chevron-left" class="width-15 height-15"></i>
                                     </a>
                                 {% else %}
@@ -192,7 +205,7 @@
                                 </li>
                                 <li class="page-item">
                                     {% if req.has_next %}
-                                    <a class="page-link" href="?page={{ req.next_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if userlist %}&userlist={{ userlist }}{% endif %}" aria-label="Next">
+                                    <a class="page-link" href="?page={{ req.next_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if userlist %}&userlist={{ userlist }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}" aria-label="Next">
                                         <i data-feather="chevron-right" class="width-15 height-15"></i>
                                     </a>
                                     {% else %}

@@ -28,6 +28,12 @@
                 <i data-feather="alert-triangle"></i>
             </a> 
             {% endif %}
+            {% if company.is_tamiri %}
+            <a href="#" class="btn btn-secondary ml-2" data-toggle="tooltip"
+               title="تعمیری">
+                <i data-feather="tool"></i>
+            </a> 
+            {% endif %}
             <a href="#" class="btn btn-outline-light ml-2 "  data-toggle="tooltip" id="saveButton"
             title="save">
              <i data-feather="save"></i>
