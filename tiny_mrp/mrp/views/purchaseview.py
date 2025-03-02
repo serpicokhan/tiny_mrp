@@ -93,7 +93,9 @@ def list_purchase_req_detail(request):
     search_query = request.GET.get('q', '').strip() 
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
-    userlist = request.GET.get('userlist','[]')
+    userlist = request.GET.getlist('userlist')
+    userlist = [int(user_id) for user_id in userlist if user_id.isdigit()]
+    
     is_tamiri = request.GET.get('customSwitch3_',False)
     
     
@@ -153,16 +155,8 @@ def list_purchase_req_detail(request):
         start_of_month=start_of_month.togregorian().strftime('%Y-%m-%d')
         end_of_month=end_of_month.togregorian().strftime('%Y-%m-%d')
     
-    if(userlist!='[]'):
-        
-        
-        userlist2 = [int(user_id) for user_id in userlist]
-        # userlist2 = ast.literal_eval(userlist) 
-        if isinstance(userlist2, list) and all(isinstance(i, int) for i in userlist2):
-            # requests = requests.filter(user__id__in=userlist2)
-            requests=requests.filter(user__id__in=userlist2)
-        else:
-            requests=requests.filter(user__id=userlist2)
+    if(userlist):
+        requests=requests.filter(user__id__in=userlist)
 
     
     if(is_tamiri=="on"):
@@ -817,7 +811,8 @@ def referesh_purchase_list(request):
     
     start = request.GET.get('start', False) 
     end = request.GET.get('end', False)
-    userlist = request.GET.get('userlist', '[]')
+    userlist = request.GET.getlist('userlist')
+    userlist = [int(user_id) for user_id in userlist if user_id.isdigit()]
     is_tamiri = request.GET.get('customSwitch3_', False)
 
     sort_by = request.GET.get('sort_by', '-id')  # Default sorting by `created_at` in descending order
@@ -861,15 +856,10 @@ def referesh_purchase_list(request):
     # If the sort_by is a valid field, apply the sorting
         requests = requests.order_by(sort_by)
 
-    if(userlist!='[]'):
+    if(userlist):
         
-        # userlist2 = [int(user_id) for user_id in userlist]
-        userlist2 = ast.literal_eval(userlist) 
-        if isinstance(userlist2, list) and all(isinstance(i, int) for i in userlist2):
-            # requests = requests.filter(user__id__in=userlist2)
-            requests=requests.filter(user__id__in=userlist2)
-        else:
-            requests=requests.filter(user__id=userlist2)
+        requests=requests.filter(user__id__in=userlist)
+
     if start and end:
         print(start,end,'!!!!!!!!!!!!!!!!!')
         start_of_month=DateJob.getTaskDate(start)
@@ -879,7 +869,7 @@ def referesh_purchase_list(request):
         requests=requests.filter(created_at__range=[start_of_month,end_of_month])
         # start_of_month=start_of_month.strftime('%Y-%m-%d')
         # end_of_month=end_of_month.strftime('%Y-%m-%d')
-    if(is_tamiri=="om"):
+    if(is_tamiri=="on"):
         requests=requests.filter(is_tamiri=True)
     
     

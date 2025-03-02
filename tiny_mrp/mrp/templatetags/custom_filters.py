@@ -1,5 +1,6 @@
 from django import template
-
+from datetime import datetime
+import jdatetime
 register = template.Library()
 
 @register.filter
@@ -45,3 +46,35 @@ def get_comment_by_user(purchase_request, user):
     Check if the given user has commented on the purchase request.
     """
     return purchase_request.notes.filter(user=user)[0].content
+@register.filter(name='to_jalali')
+def to_jalali(value, format='%Y-%m-%d'):
+    """
+    Convert a Gregorian date to Jalali date.
+    
+    Args:
+        value: A datetime object or string representing a Gregorian date.
+        format: The desired output format (default: 'YYYY/MM/DD').
+    
+    Returns:
+        A string representing the date in Jalali format.
+    """
+    # Handle case where value is None or invalid
+    if not value:
+        return ''
+    
+    # If value is a string, parse it to a datetime object
+    if isinstance(value, str):
+        try:
+            value = datetime.strptime(value, '%Y-%m-%d')  # Adjust format if your input differs
+        except ValueError:
+            return value  # Return original value if parsing fails
+    
+    # Ensure value is a datetime object
+    if not isinstance(value, datetime):
+        return value
+    
+    # Convert Gregorian to Jalali
+    jalali_date = jdatetime.date.fromgregorian(date=value)
+    
+    # Return formatted Jalali date
+    return jalali_date.strftime(format)

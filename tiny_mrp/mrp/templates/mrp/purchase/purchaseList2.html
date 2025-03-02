@@ -1,4 +1,5 @@
 {% extends 'mrp/temp2.html' %}
+{% load custom_filters %}
 {% load static %}
 {% block stylesheet %}
      <!-- Select2 -->
@@ -193,7 +194,7 @@
                                 <li class="page-item">
                                 {% if req.has_previous %}
                                 {% comment %} {% if start %}&start={{ start }}{% endif %}{% if end %}&end={{ end }}{% endif %} {% endcomment %}
-                                    <a class="page-link" href="?page={{ req.previous_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if userlist %}&userlist={{ userlist }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}" aria-label="Previous">
+                                    <a class="page-link" href="?page={{ req.previous_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% for user_id in userlist %}&userlist={{ user_id }}{% endfor %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start %}&start={{ start|to_jalali }}{% endif %}{% if end %}&end={{ end|to_jalali }}{% endif %}" aria-label="Previous">
                                         <i data-feather="chevron-left" class="width-15 height-15"></i>
                                     </a>
                                 {% else %}
@@ -205,7 +206,7 @@
                                 </li>
                                 <li class="page-item">
                                     {% if req.has_next %}
-                                    <a class="page-link" href="?page={{ req.next_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if userlist %}&userlist={{ userlist }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}" aria-label="Next">
+                                    <a class="page-link" href="?page={{ req.next_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% for user_id in userlist %}&userlist={{ user_id }}{% endfor %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start %}&start={{ start|to_jalali }}{% endif %}{% if end %}&end={{ end|to_jalali }}{% endif %}" aria-label="Next">
                                         <i data-feather="chevron-right" class="width-15 height-15"></i>
                                     </a>
                                     {% else %}
