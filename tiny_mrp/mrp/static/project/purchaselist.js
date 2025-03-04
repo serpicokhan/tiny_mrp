@@ -283,6 +283,26 @@ function isNumeric(str) {
         });
         console.log(params);
     }
+    var send_purchase_wtf_msg=function(woid,group){
+      $.ajax({
+        url: `/Purchases/Whatsapp/send_group?id=${woid}&group=${group}`,
+        type: "get",
+        dataType: 'json',
+        beforeSend: function () {
+  
+        },
+        success: function (data) {
+          if (data.status=="ok") {
+            console.log("پیام ارسال شد");
+          }
+          else{
+            console.log("خطا");
+  
+          }
+        }
+      });
+  
+    }
     var confirm_request=function(url){
         return $.ajax({
             url: url,
@@ -297,6 +317,8 @@ function isNumeric(str) {
               if(data.http_status=="ok"){
                 $(".badge_status").html(data.status);
                 refreshList2();
+                send_purchase_wtf_msg(data.purchase_request_id,data.group);
+
                 // $("#main_ul").html(data.parchase_req_html);
 
 

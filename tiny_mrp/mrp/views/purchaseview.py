@@ -459,62 +459,20 @@ def confirm_request(request,id):
             action=f"{request.user.sysuser} درخواست را تایید نمود"
         )
     ###########Send whatsapp#############
-    next_to_next_group_users = list(User.objects.filter(groups__name=next_group)) if next_group else []
 
-    url = "https://app.wallmessage.com/api/sendMessage"
-    if(company.status=="Approve3"):
-        for next_user in next_to_next_group_users:
-            
-
-            if(next_user.sysuser.tel1):
-                if(company.is_emergency):
-                        payload={
-                        "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
-                        "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
-                        'to': next_user.sysuser.tel1,
-                        'message': f'⛔⛔⛔ *درخواست اضطراری* ⛔⛔⛔ \n درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂\n🌐 https://kth.mymrp.ir',
-                        }
-                else:
-
-                    payload={
-                    "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
-                    "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
-                    'to': next_user.sysuser.tel1,
-                    'message': f'درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂ \n🌐 https://kth.mymrp.ir',
-                    }
-                
-                files=PurchaseRequestFile.objects.filter(file__isnull=False,purchase_request=company)
-                files2=[]
-                # files=list(files)
-                # for i in files:
-                #     with i.file.open('rb') as file_obj:
-
-                #         files2.append(file_obj)
-
-                headers = {}
-                response = rqt.request("POST", url, headers=headers, data=payload, files=files2)
-
-    if(company.status=="Purchased"):
-        payload={
-                    "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
-                    "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
-                    'to': company.user.tel1,
-                    'message': f'درخواست شماره {company.id} با مشخصات زیر خریداری گردید: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂\n🌐 https://kth.mymrp.ir',
-                    }
-        files2=[]        
-
-        headers = {}
-        response = rqt.request("POST", url, headers=headers, data=payload, files=files2)
+    
 
 
     # Refresh the purchase request list
-    list_item=list_purchaseRequeset(request)
+    # list_item=list_purchaseRequeset(request)
     data=dict()
-    data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
+    data["group"]=next_group
+    data["purchase_request_id"]=company.id
+    # data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
                 
-                'req':list_item,     
-                'perms': PermWrapper(request.user)           
-            },request)
+    #             'req':list_item,     
+    #             'perms': PermWrapper(request.user)           
+    #         },request)
     data["http_status"]="ok"
     data["status"]=company.get_status_display()
 
@@ -1247,3 +1205,54 @@ def update_RFQ_is_verified(request, id):
         return JsonResponse(data)
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
+def send_purchase_wtf_msg(request):
+    next_group=request.GET.get("group",False)
+    id=request.GET.get("id",False)
+    company=PurchaseRequest.objects.get(id=id)
+    next_to_next_group_users = list(User.objects.filter(groups__name=next_group)) if next_group else []
+
+    url = "https://app.wallmessage.com/api/sendMessage"
+    if(company.status=="Approve3"):
+        for next_user in next_to_next_group_users:
+            
+
+            if(next_user.sysuser.tel1):
+                if(company.is_emergency):
+                        payload={
+                        "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
+                        "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
+                        'to': next_user.sysuser.tel1,
+                        'message': f'⛔⛔⛔ *درخواست اضطراری* ⛔⛔⛔ \n درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂\n🌐 https://kth.mymrp.ir',
+                        }
+                else:
+
+                    payload={
+                    "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
+                    "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
+                    'to': next_user.sysuser.tel1,
+                    'message': f'درخواست شماره {company.id} از طرف {company.user.fullName} با مشخصات زیر نیاز به تایید شما دارد: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂ \n🌐 https://kth.mymrp.ir',
+                    }
+                
+                files=PurchaseRequestFile.objects.filter(file__isnull=False,purchase_request=company)
+                files2=[]
+                # files=list(files)
+                # for i in files:
+                #     with i.file.open('rb') as file_obj:
+
+                #         files2.append(file_obj)
+
+                headers = {}
+                response = rqt.request("POST", url, headers=headers, data=payload, files=files2)
+
+    if(company.status=="Purchased"):
+        payload={
+                    "appkey": "78dba514-1a21-478e-8484-aecd14b198b7",
+                    "authkey": "ipnKtmP2bwr6t6kKDkOqV3q5w8aZcV2lLueoWBX3YlIBF1ZgMZ",
+                    'to': company.user.tel1,
+                    'message': f'درخواست شماره {company.id} با مشخصات زیر خریداری گردید: \n\n {company.getItems3()} \n\n 【سیستم مدیریت درخواست دایانا】\n\n    ꧁ ریسندگی محتشم ꧂\n🌐 https://kth.mymrp.ir',
+                    }
+        files2=[]        
+
+        headers = {}
+        response = rqt.request("POST", url, headers=headers, data=payload, files=files2)
+    return JsonResponse({"status":"ok"})
