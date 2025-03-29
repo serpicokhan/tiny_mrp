@@ -174,7 +174,9 @@ def list_purchase_req_detail(request):
                     'start':start_of_month,
                     'end':end_of_month,
                     'userlist':userlist,
-                    'is_tamiri':is_tamiri
+                    'is_tamiri':is_tamiri,
+                    'start_j':start,
+                    'end_j':end
                     })
 @csrf_exempt
 def save_purchase_request(request):
