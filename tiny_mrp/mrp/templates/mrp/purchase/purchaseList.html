@@ -323,12 +323,22 @@
     $('input[name="start"]').pDatepicker({
         format: 'YYYY-MM-DD',
                 autoClose: true,
-                initialValueType: 'gregorian'
+                initialValueType: 'gregorian',
+                calendar:{
+            persian: {
+                leapYearMode: 'astronomical'
+            }
+        },
       });
     $('input[name="end"]').pDatepicker({
         format: 'YYYY-MM-DD',
                 autoClose: true,
-                initialValueType: 'gregorian'
+                initialValueType: 'gregorian',
+                calendar:{
+            persian: {
+                leapYearMode: 'astronomical'
+            }
+        },
       });
   </script>
   

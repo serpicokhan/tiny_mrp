@@ -3,6 +3,11 @@ $(function () {
           format: 'YYYY-MM-DD',
           autoClose: true,
           initialValueType: 'gregorian',
+          calendar:{
+            persian: {
+                leapYearMode: 'astronomical'
+            }
+        },
           onSelect: function(unixDate) {
             // const persianDate = new persianDate(unixDate);  // Convert Unix timestamp to Persian date
             // const formattedDate = persianDate.format('YYYY-MM-DD'); // Format as desired

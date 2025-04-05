@@ -93,6 +93,11 @@
     $('input[name="created_at"]').pDatepicker({
         format: 'YYYY-MM-DD',
                 autoClose: true,
-                initialValueType: 'gregorian'
+                initialValueType: 'gregorian',
+                calendar:{
+            persian: {
+                leapYearMode: 'astronomical'
+            }
+        },
       });
     </script>

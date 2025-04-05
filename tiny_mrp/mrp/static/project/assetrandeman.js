@@ -79,7 +79,7 @@ $(function () {
    $('#search').pDatepicker({
     format: 'YYYY-MM-DD',
     autoClose: true,
-    initialValueType: 'gregorian'
+    initialValueType: 'gregorian',
   });
   var delete_asset_randeman=function(){
      swal({
