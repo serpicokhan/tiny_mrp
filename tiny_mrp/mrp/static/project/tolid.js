@@ -85,6 +85,7 @@ var a;
 
 
 $(function () {
+  $(".select2").select2();
   
   var handleCellValueChange = function(event) {
      const tables = $('.company-table');
@@ -400,6 +401,7 @@ $("#save_production").click(function(){
     $('.nav-link.active').removeClass('active').attr('aria-selected', false);
     $a = $($(".nav-item a")[0]); // Wrap the first DOM element in a jQuery object
     $a.addClass('active').attr('aria-selected', true).tab('show');
+    $(".select2").select2();
 
 
       }

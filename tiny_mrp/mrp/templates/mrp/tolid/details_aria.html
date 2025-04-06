@@ -110,7 +110,7 @@
                                   <thead class="thead-dark">
                                     <tr>
                                       <th>نام ماشین</th>
-                                      <th>مشخصه</th>
+                                      <th>مشخصات</th>
 
                                       <th>واحد</th>
 
@@ -133,7 +133,7 @@
                                     <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
                                       <td data-assetcategory2="{{c.machine.assetCategory2.id}}">{{c.machine.assetName}}</td>
                                       <td>
-                                        <select name="moshakhase" class="form-control select moshakhase" required="">
+                                        <select name="moshakhase" class="form-control select moshakhase select2" required="">
                                         
                                         <option value="-1" selected="">---------</option>
                                         {% for moshakhase in moshakhastat %}
