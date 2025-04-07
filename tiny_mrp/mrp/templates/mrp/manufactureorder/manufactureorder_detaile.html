@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturing Order - BOM View</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-draft {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+        .status-confirmed {
+            background-color: #e2f0fd;
+            color: #0d6efd;
+        }
+        .status-progress {
+            background-color: #fff3cd;
+            color: #ffc107;
+        }
+        .status-done {
+            background-color: #d1e7dd;
+            color: #198754;
+        }
+        .status-canceled {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+        .bom-table thead {
+            background-color: #f8f9fa;
+        }
+        .bom-table tbody tr:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+        .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+        .mo-header {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .action-buttons .btn {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Manufacturing Order Header -->
+        <div class="mo-header">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>
+                        <span id="mo-reference">MO/2023/0001</span>
+                        <span id="mo-status" class="status-badge status-draft ms-2">Draft</span>
+                    </h2>
+                    <div class="mt-2">
+                        <strong>Product:</strong> 
+                        <span id="mo-product">Office Desk (OD-1001)</span>
+                    </div>
+                    <div>
+                        <strong>Quantity:</strong> 
+                        <span id="mo-quantity">10.0</span> Units
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="mb-2">
+                        <strong>Scheduled Date:</strong> 
+                        <span id="mo-date">2023-06-15 08:00</span>
+                    </div>
+                    <div>
+                        <strong>Responsible:</strong> 
+                        <span id="mo-responsible">John Doe</span>
+                    </div>
+                    <div class="action-buttons mt-3">
+                        <button class="btn btn-sm btn-primary confirm-mo">
+                            <i class="fas fa-check me-1"></i> Confirm
+                        </button>
+                        <button class="btn btn-sm btn-warning start-mo">
+                            <i class="fas fa-play me-1"></i> Start
+                        </button>
+                        <button class="btn btn-sm btn-success finish-mo">
+                            <i class="fas fa-flag-checkered me-1"></i> Finish
+                        </button>
+                        <button class="btn btn-sm btn-danger cancel-mo">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </button>
+                        <button class="btn btn-sm btn-secondary print-mo">
+                            <i class="fas fa-print me-1"></i> Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOM Details -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list-alt me-2"></i>Bill of Materials
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover bom-table">
+                        <thead>
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="10%">Image</th>
+                                <th width="25%">Component</th>
+                                <th width="15%">Reference</th>
+                                <th width="10%">Quantity</th>
+                                <th width="15%">UoM</th>
+                                <th width="10%">Available</th>
+                                <th width="10%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Example BOM Line 1 -->
+                            <tr>
+                                <td>1</td>
+                                <td>
+                                    <img src="/media/products/wood-plank.jpg" class="product-image" alt="Wood Plank">
+                                </td>
+                                <td>Wood Plank (120cm)</td>
+                                <td>WP-120</td>
+                                <td>20.0</td>
+                                <td>Units</td>
+                                <td>
+                                    <span class="badge bg-success">25.0</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary view-component">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Example BOM Line 2 -->
+                            <tr>
+                                <td>2</td>
+                                <td>
+                                    <img src="/media/products/metal-bracket.jpg" class="product-image" alt="Metal Bracket">
+                                </td>
+                                <td>Metal Bracket</td>
+                                <td>MB-001</td>
+                                <td>40.0</td>
+                                <td>Units</td>
+                                <td>
+                                    <span class="badge bg-success">60.0</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary view-component">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Example BOM Line 3 -->
+                            <tr>
+                                <td>3</td>
+                                <td>
+                                    <img src="/media/products/wood-screw.jpg" class="product-image" alt="Wood Screw">
+                                </td>
+                                <td>Wood Screw 3x40mm</td>
+                                <td>WS-340</td>
+                                <td>120.0</td>
+                                <td>Units</td>
+                                <td>
+                                    <span class="badge bg-success">200.0</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary view-component">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operations/Tasks -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks me-2"></i>Operations
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="30%">Operation</th>
+                                <th width="15%">Work Center</th>
+                                <th width="10%">Duration</th>
+                                <th width="10%">Status</th>
+                                <th width="20%">Start/End</th>
+                                <th width="10%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Cutting Wood Planks</td>
+                                <td>Carpentry</td>
+                                <td>4.0 hours</td>
+                                <td>
+                                    <span class="badge bg-secondary">Pending</span>
+                                </td>
+                                <td>-</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary start-operation">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Assemble Desk Frame</td>
+                                <td>Assembly</td>
+                                <td>6.0 hours</td>
+                                <td>
+                                    <span class="badge bg-secondary">Pending</span>
+                                </td>
+                                <td>-</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary start-operation">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consumption/Produced Moves -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-exchange-alt me-2"></i>Inventory Moves
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="movesTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="consumption-tab" data-bs-toggle="tab" data-bs-target="#consumption" type="button" role="tab">Consumption</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="produced-tab" data-bs-toggle="tab" data-bs-target="#produced" type="button" role="tab">Produced Products</button>
+                    </li>
+                </ul>
+                <div class="tab-content p-3 border border-top-0 rounded-bottom" id="movesTabContent">
+                    <div class="tab-pane fade show active" id="consumption" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>UoM</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No consumption recorded yet</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="produced" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>UoM</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No products produced yet</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="componentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Component Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Component details will be loaded here via AJAX -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // View component details
+            $('.view-component').click(function() {
+                // In a real app, this would fetch data via AJAX
+                $('#componentModal .modal-body').html(`
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <img src="/media/products/wood-plank.jpg" class="img-fluid mb-3" style="max-height: 200px;">
+                        </div>
+                        <div class="col-md-8">
+                            <h4>Wood Plank (120cm)</h4>
+                            <p><strong>Reference:</strong> WP-120</p>
+                            <p><strong>Product Type:</strong> Raw Material</p>
+                            <p><strong>Category:</strong> Wood Materials</p>
+                            <p><strong>Available Quantity:</strong> 25.0 Units</p>
+                            <p><strong>Description:</strong> High quality oak wood plank, 120cm length</p>
+                        </div>
+                    </div>
+                `);
+                $('#componentModal').modal('show');
+            });
+
+            // MO Action Buttons
+            $('.confirm-mo').click(function() {
+                if(confirm('Are you sure you want to confirm this Manufacturing Order?')) {
+                    // AJAX call to update status
+                    $('#mo-status').removeClass('status-draft').addClass('status-confirmed').text('Confirmed');
+                    alert('Manufacturing Order confirmed successfully!');
+                }
+            });
+
+            $('.start-mo').click(function() {
+                if(confirm('Are you sure you want to start this Manufacturing Order?')) {
+                    // AJAX call to update status
+                    $('#mo-status').removeClass('status-confirmed').addClass('status-progress').text('In Progress');
+                    alert('Manufacturing Order started successfully!');
+                }
+            });
+
+            $('.finish-mo').click(function() {
+                if(confirm('Are you sure you want to mark this Manufacturing Order as done?')) {
+                    // AJAX call to update status
+                    $('#mo-status').removeClass('status-progress').addClass('status-done').text('Done');
+                    alert('Manufacturing Order completed successfully!');
+                }
+            });
+
+            $('.cancel-mo').click(function() {
+                if(confirm('Are you sure you want to cancel this Manufacturing Order?')) {
+                    // AJAX call to update status
+                    $('#mo-status').removeClass('status-draft status-confirmed status-progress').addClass('status-canceled').text('Canceled');
+                    alert('Manufacturing Order canceled successfully!');
+                }
+            });
+
+            $('.print-mo').click(function() {
+                window.print();
+            });
+
+            // Operation buttons
+            $('.start-operation').click(function() {
+                const operationName = $(this).closest('tr').find('td:nth-child(2)').text();
+                if(confirm(`Start operation: ${operationName}?`)) {
+                    const statusBadge = $(this).closest('tr').find('.badge');
+                    statusBadge.removeClass('bg-secondary').addClass('bg-warning').text('In Progress');
+                    $(this).html('<i class="fas fa-stop"></i>').removeClass('btn-outline-primary').addClass('btn-outline-danger stop-operation');
+                }
+            });
+
+            // Dynamic handler for stop operation (since these buttons are created after DOM load)
+            $(document).on('click', '.stop-operation', function() {
+                const operationName = $(this).closest('tr').find('td:nth-child(2)').text();
+                if(confirm(`Complete operation: ${operationName}?`)) {
+                    const statusBadge = $(this).closest('tr').find('.badge');
+                    statusBadge.removeClass('bg-warning').addClass('bg-success').text('Done');
+                    $(this).html('<i class="fas fa-check"></i>').removeClass('btn-outline-danger stop-operation').addClass('btn-outline-success');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
