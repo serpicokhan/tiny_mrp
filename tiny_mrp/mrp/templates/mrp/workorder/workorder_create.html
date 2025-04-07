@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Orders</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-planned {
+            background-color: #e2f0fd;
+            color: #0d6efd;
+        }
+        .status-in-progress {
+            background-color: #fff3cd;
+            color: #ffc107;
+        }
+        .status-completed {
+            background-color: #d1e7dd;
+            color: #198754;
+        }
+        .status-canceled {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+        .workorders-table thead {
+            background-color: #f8f9fa;
+        }
+        .workorders-table tbody tr:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+        .search-bar {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .action-buttons .btn {
+            margin-right: 5px;
+        }
+        .filter-buttons .btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .gantt-chart {
+            height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .gantt-bar {
+            height: 30px;
+            background-color: #0d6efd;
+            border-radius: 3px;
+            margin-top: 5px;
+            position: relative;
+            color: white;
+            font-size: 12px;
+            padding-left: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .timeline {
+            height: 40px;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .timeline-marker {
+            position: absolute;
+            bottom: 0;
+            width: 1px;
+            height: 10px;
+            background-color: #6c757d;
+        }
+        .timeline-label {
+            position: absolute;
+            font-size: 10px;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-tasks me-2"></i>Work Orders</h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newWorkOrderModal">
+                <i class="fas fa-plus me-1"></i> New Work Order
+            </button>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="search-bar">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Search work orders..." id="workOrderSearch">
+                        <button class="btn btn-outline-secondary" type="button" id="searchButton">Search</button>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="filter-buttons">
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-secondary active" id="filterAll">All</button>
+                            <button class="btn btn-sm btn-outline-secondary" id="filterPlanned">Planned</button>
+                            <button class="btn btn-sm btn-outline-secondary" id="filterInProgress">In Progress</button>
+                            <button class="btn btn-sm btn-outline-secondary" id="filterCompleted">Completed</button>
+                            <button class="btn btn-sm btn-outline-secondary" id="filterCanceled">Canceled</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gantt Chart View -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Work Order Schedule
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="gantt-chart">
+                    <div class="timeline" id="timeline">
+                        <!-- Timeline markers will be added by JavaScript -->
+                    </div>
+                    <div id="ganttBars">
+                        <!-- Gantt bars will be added by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Orders Table -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover workorders-table">
+                        <thead>
+                            <tr>
+                                <th width="15%">MO Reference</th>
+                                <th width="20%">Product</th>
+                                <th width="15%">Work Center</th>
+                                <th width="10%">Duration</th>
+                                <th width="10%">Status</th>
+                                <th width="15%">Start - End</th>
+                                <th width="15%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="workOrdersTableBody">
+                            <!-- Work Order 1 -->
+                            <tr>
+                                <td><strong>MO/2023/0001</strong></td>
+                                <td>Office Desk (OD-1001)</td>
+                                <td>Assembly Line 1</td>
+                                <td>4.0 hours</td>
+                                <td><span class="status-badge status-planned">Planned</span></td>
+                                <td>2023-06-15 08:00 - 12:00</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary edit-workorder" data-id="1">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success start-workorder" data-id="1">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger cancel-workorder" data-id="1">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Work Order 2 -->
+                            <tr>
+                                <td><strong>MO/2023/0001</strong></td>
+                                <td>Office Desk (OD-1001)</td>
+                                <td>Painting Station</td>
+                                <td>2.0 hours</td>
+                                <td><span class="status-badge status-in-progress">In Progress</span></td>
+                                <td>2023-06-15 13:00 - 15:00</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary edit-workorder" data-id="2">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success finish-workorder" data-id="2">
+                                        <i class="fas fa-flag-checkered"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger cancel-workorder" data-id="2">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Work Order 3 -->
+                            <tr>
+                                <td><strong>MO/2023/0002</strong></td>
+                                <td>Office Chair (OC-2001)</td>
+                                <td>Assembly Line 1</td>
+                                <td>3.0 hours</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td>2023-06-14 09:00 - 12:00</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary edit-workorder" data-id="3">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Work Order 4 -->
+                            <tr>
+                                <td><strong>MO/2023/0003</strong></td>
+                                <td>Bookshelf (BS-3001)</td>
+                                <td>Packaging Area</td>
+                                <td>1.5 hours</td>
+                                <td><span class="status-badge status-canceled">Canceled</span></td>
+                                <td>2023-06-13 14:00 - 15:30</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary edit-workorder" data-id="4">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Work Order Modal -->
+    <div class="modal fade" id="newWorkOrderModal" tabindex="-1" aria-labelledby="newWorkOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newWorkOrderModalLabel">Create New Work Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="workOrderForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="moSelect" class="form-label">Manufacturing Order *</label>
+                                <select class="form-select" id="moSelect" required>
+                                    <option value="" selected disabled>Select MO</option>
+                                    <option value="1">MO/2023/0001 - Office Desk (OD-1001)</option>
+                                    <option value="2">MO/2023/0002 - Office Chair (OC-2001)</option>
+                                    <option value="3">MO/2023/0003 - Bookshelf (BS-3001)</option>
+                                    <option value="4">MO/2023/0004 - Coffee Table (CT-4001)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="workCenterSelect" class="form-label">Work Center *</label>
+                                <select class="form-select" id="workCenterSelect" required>
+                                    <option value="" selected disabled>Select Work Center</option>
+                                    <option value="1">Assembly Line 1 (WC-001)</option>
+                                    <option value="2">Painting Station (WC-002)</option>
+                                    <option value="3">Packaging Area (WC-003)</option>
+                                    <option value="4">Quality Control (WC-004)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="durationInput" class="form-label">Duration (hours) *</label>
+                                <input type="number" class="form-control" id="durationInput" min="0.1" step="0.1" value="1.0" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="startDateInput" class="form-label">Start Date *</label>
+                                <input type="datetime-local" class="form-control" id="startDateInput" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="endDateInput" class="form-label">End Date *</label>
+                                <input type="datetime-local" class="form-control" id="endDateInput" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notesTextarea" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notesTextarea" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="createWorkOrderBtn">Create Work Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Work Order Modal -->
+    <div class="modal fade" id="editWorkOrderModal" tabindex="-1" aria-labelledby="editWorkOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editWorkOrderModalLabel">Edit Work Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editWorkOrderForm">
+                        <input type="hidden" id="editWorkOrderId">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="editMoSelect" class="form-label">Manufacturing Order *</label>
+                                <select class="form-select" id="editMoSelect" required disabled>
+                                    <!-- Will be populated by JavaScript -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editWorkCenterSelect" class="form-label">Work Center *</label>
+                                <select class="form-select" id="editWorkCenterSelect" required>
+                                    <!-- Will be populated by JavaScript -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="editDurationInput" class="form-label">Duration (hours) *</label>
+                                <input type="number" class="form-control" id="editDurationInput" min="0.1" step="0.1" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editStartDateInput" class="form-label">Start Date *</label>
+                                <input type="datetime-local" class="form-control" id="editStartDateInput" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editEndDateInput" class="form-label">End Date *</label>
+                                <input type="datetime-local" class="form-control" id="editEndDateInput" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editNotesTextarea" class="form-label">Notes</label>
+                            <textarea class="form-control" id="editNotesTextarea" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="updateWorkOrderBtn">Update Work Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Initialize Gantt chart
+            initializeGanttChart();
+
+            // Filter buttons
+            $('#filterAll, #filterPlanned, #filterInProgress, #filterCompleted, #filterCanceled').click(function() {
+                $('#filterAll, #filterPlanned, #filterInProgress, #filterCompleted, #filterCanceled').removeClass('active');
+                $(this).addClass('active');
+                filterWorkOrders();
+            });
+
+            // Search functionality
+            $('#searchButton').click(function() {
+                filterWorkOrders();
+            });
+
+            $('#workOrderSearch').keypress(function(e) {
+                if(e.which === 13) { // Enter key
+                    filterWorkOrders();
+                }
+            });
+
+            // Create new work order
+            $('#createWorkOrderBtn').click(function() {
+                if($('#workOrderForm')[0].checkValidity()) {
+                    // In a real app, this would submit the form via AJAX
+                    const newWorkOrder = {
+                        id: Date.now(), // Temporary ID
+                        moReference: $('#moSelect option:selected').text().split(' - ')[0],
+                        product: $('#moSelect option:selected').text().split(' - ')[1],
+                        workCenter: $('#workCenterSelect option:selected').text(),
+                        duration: $('#durationInput').val(),
+                        status: 'planned',
+                        startDate: $('#startDateInput').val(),
+                        endDate: $('#endDateInput').val(),
+                        notes: $('#notesTextarea').val()
+                    };
+                    
+                    addWorkOrderToTable(newWorkOrder);
+                    $('#newWorkOrderModal').modal('hide');
+                    $('#workOrderForm')[0].reset();
+                    alert('Work order created successfully!');
+                    updateGanttChart();
+                } else {
+                    $('#workOrderForm')[0].reportValidity();
+                }
+            });
+
+            // Edit work order
+            $(document).on('click', '.edit-workorder', function() {
+                const workOrderId = $(this).data('id');
+                // In a real app, this would fetch the work order data via AJAX
+                const workOrder = getWorkOrderById(workOrderId);
+                
+                if(workOrder) {
+                    $('#editWorkOrderId').val(workOrder.id);
+                    $('#editMoSelect').html(`<option value="${workOrder.moId}" selected>${workOrder.moReference} - ${workOrder.product}</option>`);
+                    $('#editWorkCenterSelect').html(`<option value="${workOrder.workCenterId}" selected>${workOrder.workCenter}</option>`);
+                    $('#editDurationInput').val(workOrder.duration);
+                    $('#editStartDateInput').val(workOrder.startDate);
+                    $('#editEndDateInput').val(workOrder.endDate);
+                    $('#editNotesTextarea').val(workOrder.notes);
+                    
+                    $('#editWorkOrderModal').modal('show');
+                }
+            });
+
+            // Update work order
+            $('#updateWorkOrderBtn').click(function() {
+                if($('#editWorkOrderForm')[0].checkValidity()) {
+                    const workOrderId = $('#editWorkOrderId').val();
+                    // In a real app, this would submit the form via AJAX
+                    const updatedWorkOrder = {
+                        id: workOrderId,
+                        moReference: $('#editMoSelect option:selected').text().split(' - ')[0],
+                        product: $('#editMoSelect option:selected').text().split(' - ')[1],
+                        workCenter: $('#editWorkCenterSelect option:selected').text(),
+                        duration: $('#editDurationInput').val(),
+                        startDate: $('#editStartDateInput').val(),
+                        endDate: $('#editEndDateInput').val(),
+                        notes: $('#editNotesTextarea').val()
+                    };
+                    
+                    updateWorkOrderInTable(updatedWorkOrder);
+                    $('#editWorkOrderModal').modal('hide');
+                    alert('Work order updated successfully!');
+                    updateGanttChart();
+                } else {
+                    $('#editWorkOrderForm')[0].reportValidity();
+                }
+            });
+
+            // Start work order
+            $(document).on('click', '.start-workorder', function() {
+                const workOrderId = $(this).data('id');
+                if(confirm('Are you sure you want to start this work order?')) {
+                    // In a real app, this would update via AJAX
+                    const row = $(this).closest('tr');
+                    row.find('.status-badge').removeClass('status-planned').addClass('status-in-progress').text('In Progress');
+                    
+                    // Change start button to finish button
+                    $(this).removeClass('start-workorder btn-outline-success').addClass('finish-workorder btn-outline-primary')
+                           .html('<i class="fas fa-flag-checkered"></i>');
+                    
+                    alert('Work order started successfully!');
+                    updateGanttChart();
+                }
+            });
+
+            // Finish work order
+            $(document).on('click', '.finish-workorder', function() {
+                const workOrderId = $(this).data('id');
+                if(confirm('Are you sure you want to mark this work order as completed?')) {
+                    // In a real app, this would update via AJAX
+                    const row = $(this).closest('tr');
+                    row.find('.status-badge').removeClass('status-in-progress').addClass('status-completed').text('Completed');
+                    
+                    // Remove finish button
+                    $(this).remove();
+                    
+                    alert('Work order completed successfully!');
+                    updateGanttChart();
+                }
+            });
+
+            // Cancel work order
+            $(document).on('click', '.cancel-workorder', function() {
+                const workOrderId = $(this).data('id');
+                if(confirm('Are you sure you want to cancel this work order?')) {
+                    // In a real app, this would update via AJAX
+                    const row = $(this).closest('tr');
+                    row.find('.status-badge').removeClass('status-planned status-in-progress').addClass('status-canceled').text('Canceled');
+                    
+                    // Remove action buttons
+                    row.find('.start-workorder, .finish-workorder, .cancel-workorder').remove();
+                    row.find('td:last-child').html(`
+                        <button class="btn btn-sm btn-outline-primary edit-workorder" data-id="${workOrderId}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-print"></i>
+                        </button>
+                    `);
+                    
+                    alert('Work order canceled successfully!');
+                    updateGanttChart();
+                }
+            });
+
+            // Helper function to filter work orders
+            function filterWorkOrders() {
+                const searchTerm = $('#workOrderSearch').val().toLowerCase();
+                const filter = $('.filter-buttons .btn.active').attr('id');
+                
+                $('#workOrdersTableBody tr').each(function() {
+                    const moRef = $(this).find('td:nth-child(1)').text().toLowerCase();
+                    const product = $(this).find('td:nth-child(2)').text().toLowerCase();
+                    const workCenter = $(this).find('td:nth-child(3)').text().toLowerCase();
+                    const status = $(this).find('td:nth-child(5)').text().toLowerCase();
+                    
+                    const matchesSearch = moRef.includes(searchTerm) || product.includes(searchTerm) || workCenter.includes(searchTerm);
+                    let matchesFilter = true;
+                    
+                    if(filter === 'filterPlanned') {
+                        matchesFilter = status === 'planned';
+                    } else if(filter === 'filterInProgress') {
+                        matchesFilter = status === 'in progress';
+                    } else if(filter === 'filterCompleted') {
+                        matchesFilter = status === 'completed';
+                    } else if(filter === 'filterCanceled') {
+                        matchesFilter = status === 'canceled';
+                    }
+                    
+                    $(this).toggle(matchesSearch && matchesFilter);
+                });
+            }
+
+            // Helper function to add work order to table
+            function addWorkOrderToTable(workOrder) {
+                const newRow = `
+                    <tr>
+                        <td><strong>${workOrder.moReference}</strong></td>
+                        <td>${workOrder.product}</td>
+                        <td>${workOrder.workCenter}</td>
+                        <td>${workOrder.duration} hours</td>
+                        <td><span class="status-badge status-${workOrder.status.replace(' ', '-')}">
+                            ${workOrder.status.charAt(0).toUpperCase() + workOrder.status.slice(1)}
+                        </span></td>
+                        <td>${formatDateTime(workOrder.startDate)} - ${formatDateTime(workOrder.endDate)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary edit-workorder" data-id="${workOrder.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success start-workorder" data-id="${workOrder.id}">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger cancel-workorder" data-id="${workOrder.id}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                
+                $('#workOrdersTableBody').prepend(newRow);
+            }
+
+            // Helper function to update work order in table
+            function updateWorkOrderInTable(workOrder) {
+                const row = $(`#workOrdersTableBody tr td:nth-child(1) strong:contains("${workOrder.moReference}")`).closest('tr');
+                const currentStatus = row.find('.status-badge').text().toLowerCase();
+                
+                row.html(`
+                    <td><strong>${workOrder.moReference}</strong></td>
+                    <td>${workOrder.product}</td>
+                    <td>${workOrder.workCenter}</td>
+                    <td>${workOrder.duration} hours</td>
+                    <td><span class="status-badge status-${currentStatus.replace(' ', '-')}">
+                        ${currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)}
+                    </span></td>
+                    <td>${formatDateTime(workOrder.startDate)} - ${formatDateTime(workOrder.endDate)}</td>
+                    <td>
+                        ${row.find('td:last-child').html()}
+                    </td>
+                `);
+            }
+
+            // Helper function to get work order by ID (simulated)
+            function getWorkOrderById(id) {
+                // In a real app, this would come from the server
+                const workOrders = [
+                    { 
+                        id: 1, 
+                        moId: 1,
+                        moReference: 'MO/2023/0001', 
+                        product: 'Office Desk (OD-1001)',
+                        workCenterId: 1,
+                        workCenter: 'Assembly Line 1 (WC-001)',
+                        duration: '4.0',
+                        status: 'planned',
+                        startDate: '2023-06-15T08:00',
+                        endDate: '2023-06-15T12:00',
+                        notes: ''
+                    },
+                    { 
+                        id: 2, 
+                        moId: 1,
+                        moReference: 'MO/2023/0001', 
+                        product: 'Office Desk (OD-1001)',
+                        workCenterId: 2,
+                        workCenter: 'Painting Station (WC-002)',
+                        duration: '2.0',
+                        status: 'in-progress',
+                        startDate: '2023-06-15T13:00',
+                        endDate: '2023-06-15T15:00',
+                        notes: ''
+                    },
+                    { 
+                        id: 3, 
+                        moId: 2,
+                        moReference: 'MO/2023/0002', 
+                        product: 'Office Chair (OC-2001)',
+                        workCenterId: 1,
+                        workCenter: 'Assembly Line 1 (WC-001)',
+                        duration: '3.0',
+                        status: 'completed',
+                        startDate: '2023-06-14T09:00',
+                        endDate: '2023-06-14T12:00',
+                        notes: ''
+                    },
+                    { 
+                        id: 4, 
+                        moId: 3,
+                        moReference: 'MO/2023/0003', 
+                        product: 'Bookshelf (BS-3001)',
+                        workCenterId: 3,
+                        workCenter: 'Packaging Area (WC-003)',
+                        duration: '1.5',
+                        status: 'canceled',
+                        startDate: '2023-06-13T14:00',
+                        endDate: '2023-06-13T15:30',
+                        notes: ''
+                    }
+                ];
+                
+                return workOrders.find(wo => wo.id == id);
+            }
+
+            // Helper function to format datetime for display
+            function formatDateTime(datetimeStr) {
+                if(!datetimeStr) return '';
+                const dt = new Date(datetimeStr);
+                return dt.toISOString().split('T')[0] + ' ' + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            }
+
+            // Initialize Gantt chart
+            function initializeGanttChart() {
+                const timeline = $('#timeline');
+                timeline.empty();
+                
+                // Add timeline markers for a 24-hour period
+                for(let i = 0; i <= 24; i += 2) {
+                    const marker = $('<div class="timeline-marker"></div>');
+                    marker.css('left', `${(i/24)*100}%`);
+                    
+                    const label = $('<div class="timeline-label"></div>');
+                    label.css('left', `${(i/24)*100}%`);
+                    label.text(`${i}:00`);
+                    
+                    timeline.append(marker);
+                    timeline.append(label);
+                }
+                
+                updateGanttChart();
+            }
+
+            // Update Gantt chart with current work orders
+            function updateGanttChart() {
+                const ganttBars = $('#ganttBars');
+                ganttBars.empty();
+                
+                // In a real app, this would fetch work orders from the table or server
+                const workOrders = [
+                    {
+                        id: 1,
+                        name: 'MO/2023/0001 - Assembly',
+                        start: new Date('2023-06-15T08:00'),
+                        end: new Date('2023-06-15T12:00'),
+                        status: 'planned'
+                    },
+                    {
+                        id: 2,
+                        name: 'MO/2023/0001 - Painting',
+                        start: new Date('2023-06-15T13:00'),
+                        end: new Date('2023-06-15T15:00'),
+                        status: 'in-progress'
+                    },
+                    {
+                        id: 3,
+                        name: 'MO/2023/0002 - Assembly',
+                        start: new Date('2023-06-14T09:00'),
+                        end: new Date('2023-06-14T12:00'),
+                        status: 'completed'
+                    }
+                ];
+                
+                // Find the date range for the Gantt chart
+                const minDate = new Date(Math.min(...workOrders.map(wo => wo.start)));
+                const maxDate = new Date(Math.max(...workOrders.map(wo => wo.end)));
+                
+                // Calculate total hours in the range
+                const totalHours = (maxDate - minDate) / (1000 * 60 * 60);
+                
+                // Create bars for each work order
+                workOrders.forEach(wo => {
+                    const startOffset = (wo.start - minDate) / (1000 * 60 * 60);
+                    const duration = (wo.end - wo.start) / (1000 * 60 * 60);
+                    
+                    const bar = $('<div class="gantt-bar"></div>');
+                    bar.text(wo.name);
+                    bar.css('left', `${(startOffset/totalHours)*100}%`);
+                    bar.css('width', `${(duration/totalHours)*100}%`);
+                    
+                    // Color based on status
+                    if(wo.status === 'planned') bar.css('background-color', '#0d6efd');
+                    else if(wo.status === 'in-progress') bar.css('background-color', '#ffc107');
+                    else if(wo.status === 'completed') bar.css('background-color', '#198754');
+                    else if(wo.status === 'canceled') bar.css('background-color', '#dc3545');
+                    
+                    ganttBars.append(bar);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
