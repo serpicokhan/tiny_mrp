@@ -14,3 +14,5 @@ from mrp.views.userview import *
 from mrp.views.planningboardview import *
 from mrp.views.supplierview import *
 from mrp.views.guardview import *
+from mrp.views.bomview import *
+

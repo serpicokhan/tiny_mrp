@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill of Materials Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Roboto', sans-serif;
+        }
+        .o_main_content {
+            padding: 20px;
+        }
+        .o_control_panel {
+            background-color: white;
+            padding: 16px 16px 8px 16px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .o_bom_header {
+            background-color: white;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .o_list_view {
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .o_list_table {
+            margin-bottom: 0;
+        }
+        .o_list_table th {
+            background-color: #f8f9fa;
+        }
+        .o_form_buttons_edit {
+            margin-bottom: 16px;
+        }
+        .o_readonly {
+            color: #6c757d;
+            font-weight: 500;
+        }
+        .o_field_widget {
+            margin-bottom: 16px;
+        }
+        .o_status_indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .o_status_green {
+            background-color: #28a745;
+        }
+        .o_status_orange {
+            background-color: #fd7e14;
+        }
+        .nav-tabs .nav-link.active {
+            font-weight: 500;
+            border-bottom: 2px solid #0d6efd;
+        }
+        .o_notebook {
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px;
+        }
+        .dropdown-toggle::after {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="/api/placeholder/200/50" alt="Company Logo" height="30">
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-box"></i> Inventory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-industry"></i> Manufacturing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-shopping-cart"></i> Purchase</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <div class="dropdown me-3">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="notificationsDropdown" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">No new notifications</a></li>
+                        </ul>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">My Profile</a></li>
+                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content Area -->
+    <div class="o_main_content">
+        <!-- Control Panel -->
+        <div class="o_control_panel">
+            <div class="container-fluid d-flex align-items-center justify-content-between">
+                <div>
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="#">Manufacturing</a></li>
+                        <li class="breadcrumb-item active">Bills of Materials</li>
+                    </ol>
+                    <h1 class="h3 mt-1">Bills of Materials</h1>
+                </div>
+                <div class="d-flex">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-outline-secondary">
+                            <i class="fas fa-filter"></i> Filters
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary">
+                            <i class="fas fa-sort"></i> Group By
+                        </button>
+                    </div>
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-outline-secondary">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                    <button id="create_bom_btn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create
+                    </button>
+                </div>
+            </div>
+            <div class="container-fluid mt-3">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" placeholder="Search...">
+                </div>
+            </div>
+        </div>
+
+        <!-- BOM List View -->
+        <div class="container-fluid o_list_view mb-4">
+            <table class="table table-hover o_list_table">
+                <thead>
+                    <tr>
+                        <th width="30px">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="selectAll">
+                            </div>
+                        </th>
+                        <th>Reference</th>
+                        <th>Product</th>
+                        <th>Components</th>
+                        <th>Operation Time</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                        <th width="100px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="bom-row" data-id="BOM001">
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </td>
+                        <td>BOM001</td>
+                        <td>Office Chair (Black)</td>
+                        <td>5 items</td>
+                        <td>45 minutes</td>
+                        <td>10/03/2025</td>
+                        <td>02/04/2025</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-link text-decoration-none">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="bom-row" data-id="BOM002">
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </td>
+                        <td>BOM002</td>
+                        <td>Desk Lamp (LED)</td>
+                        <td>8 items</td>
+                        <td>30 minutes</td>
+                        <td>15/03/2025</td>
+                        <td>15/03/2025</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-link text-decoration-none">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="bom-row" data-id="BOM003">
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </td>
+                        <td>BOM003</td>
+                        <td>Office Desk (Standard)</td>
+                        <td>12 items</td>
+                        <td>120 minutes</td>
+                        <td>20/03/2025</td>
+                        <td>03/04/2025</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-link text-decoration-none">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <nav class="d-flex justify-content-between align-items-center p-2 border-top">
+                <div>
+                    <span class="text-muted">Showing 1-3 of 3 records</span>
+                </div>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                    </li>
+                    <li class="page-item active">
+                        <a class="page-link" href="#">1</a>
+                    </li>
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- BOM Form View (Hidden by default) -->
+        <div id="bom_form" class="container-fluid d-none">
+            <div class="o_form_buttons_edit mb-3">
+                <button class="btn btn-primary me-2">Save</button>
+                <button id="discard_bom_btn" class="btn btn-secondary">Discard</button>
+                <div class="float-end">
+                    <button class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            Action
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Duplicate</a></li>
+                            <li><a class="dropdown-item" href="#">Archive</a></li>
+                            <li><a class="dropdown-item" href="#">Delete</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="o_bom_header">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="o_field_widget">
+                            <label class="form-label">Reference</label>
+                            <input type="text" class="form-control" value="BOM004" placeholder="e.g. BOM001">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="o_field_widget">
+                            <label class="form-label">Product</label>
+                            <select class="form-select">
+                                <option>Select a product</option>
+                                <option>Office Chair (Blue)</option>
+                                <option>Conference Table</option>
+                                <option>Filing Cabinet</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="o_field_widget">
+                            <label class="form-label">Operation Time (minutes)</label>
+                            <input type="number" class="form-control" value="60" min="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="o_notebook mb-4">
+                <ul class="nav nav-tabs" id="bomTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="components-tab" data-bs-toggle="tab" href="#components" role="tab">Components</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="operations-tab" data-bs-toggle="tab" href="#operations" role="tab">Operations</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="misc-tab" data-bs-toggle="tab" href="#misc" role="tab">Miscellaneous</a>
+                    </li>
+                </ul>
+                <div class="tab-content p-3" id="bomTabContent">
+                    <div class="tab-pane fade show active" id="components" role="tabpanel">
+                        <div class="d-flex justify-content-end mb-3">
+                            <button class="btn btn-secondary me-2">
+                                <i class="fas fa-plus"></i> Add Component
+                            </button>
+                            <button class="btn btn-outline-secondary">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                        </div>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Unit of Measure</th>
+                                    <th>Cost</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <select class="form-select form-select-sm">
+                                            <option>Select a product</option>
+                                            <option selected>Chair Base</option>
+                                            <option>Chair Leg</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm" value="1">
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-select-sm">
+                                            <option>Unit</option>
+                                            <option selected>Piece(s)</option>
+                                            <option>Kg</option>
+                                        </select>
+                                    </td>
+                                    <td>$45.00</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-link text-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select class="form-select form-select-sm">
+                                            <option>Select a product</option>
+                                            <option>Chair Base</option>
+                                            <option selected>Chair Leg</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm" value="4">
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-select-sm">
+                                            <option>Unit</option>
+                                            <option selected>Piece(s)</option>
+                                            <option>Kg</option>
+                                        </select>
+                                    </td>
+                                    <td>$12.50</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-link text-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select class="form-select form-select-sm">
+                                            <option>Select a product</option>
+                                            <option>Chair Base</option>
+                                            <option>Chair Leg</option>
+                                            <option selected>Chair Seat</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm" value="1">
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-select-sm">
+                                            <option>Unit</option>
+                                            <option selected>Piece(s)</option>
+                                            <option>Kg</option>
+                                        </select>
+                                    </td>
+                                    <td>$35.00</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-link text-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="operations" role="tabpanel">
+                        <div class="d-flex justify-content-end mb-3">
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-plus"></i> Add Operation
+                            </button>
+                        </div>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Operation</th>
+                                    <th>Work Center</th>
+                                    <th>Time</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm" value="Assembly">
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-select-sm">
+                                            <option>Select a work center</option>
+                                            <option selected>Assembly Line 1</option>
+                                            <option>Assembly Line 2</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div class="input-group input-group-sm">
+                                            <input type="number" class="form-control" value="45">
+                                            <span class="input-group-text">min</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-link text-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm" value="Quality Check">
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-select-sm">
+                                            <option>Select a work center</option>
+                                            <option>Assembly Line 1</option>
+                                            <option>Assembly Line 2</option>
+                                            <option selected>QA Station</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div class="input-group input-group-sm">
+                                            <input type="number" class="form-control" value="15">
+                                            <span class="input-group-text">min</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-link text-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="misc" role="tabpanel">
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="o_field_widget">
+                                    <label class="form-label">Created At</label>
+                                    <div class="o_readonly">07/04/2025 10:23:45</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="o_field_widget">
+                                    <label class="form-label">Updated At</label>
+                                    <div class="o_readonly">07/04/2025 10:23:45</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Toggle select all checkboxes
+            $('#selectAll').change(function() {
+                $('tbody .form-check-input').prop('checked', $(this).prop('checked'));
+            });
+            
+            // Handle BOM row click to open form view
+            $('.bom-row').click(function() {
+                $('.o_list_view').hide();
+                $('#bom_form').removeClass('d-none');
+            });
+            
+            // Handle Create BOM button
+            $('#create_bom_btn').click(function() {
+                $('.o_list_view').hide();
+                $('#bom_form').removeClass('d-none');
+            });
+            
+            // Handle Discard button
+            $('#discard_bom_btn').click(function() {
+                $('#bom_form').addClass('d-none');
+                $('.o_list_view').show();
+            });
+        });
+    </script>
+</body>
+</html>
