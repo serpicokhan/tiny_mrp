@@ -17,4 +17,5 @@ from mrp.views.guardview import *
 from mrp.views.bomview import *
 from mrp.views.productview import *
 from mrp.views.manufactureorderview import *
+from mrp.views.workcenterview import *
 

@@ -146,6 +146,7 @@ urlpatterns = [
     url(r'^BOM/Create$', bom_create, name='bom_create'),
     url(r'^Product/Create$', product_create, name='product_create'),
     url(r'^MOrder/Create$', manufacture_order_create, name='manufacture_order_create'),
+    url(r'^Workcenter/Create$', workcenter_create, name='workcenter_create'),
     
     url(r'^api/create-part/$', create_part, name="create_part"),
     url(r'^api/create-asset/$', create_asset2, name="create_asset2"),
