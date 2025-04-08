@@ -149,6 +149,7 @@ urlpatterns = [
     url(r'^MOrder/Detaile$', manufacture_order_detail, name='manufacture_order_detail'),
     url(r'^Workcenter/Create$', workcenter_create, name='workcenter_create'),
     url(r'^Workorder/Create$', workorder_create, name='workorder_create'),
+    url(r'^Workorder/Detail$', workorder_detail, name='workorder_detail'),
     
     url(r'^api/create-part/$', create_part, name="create_part"),
     url(r'^api/create-asset/$', create_asset2, name="create_asset2"),

@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Order Details</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-planned {
+            background-color: #e2f0fd;
+            color: #0d6efd;
+        }
+        .status-in-progress {
+            background-color: #fff3cd;
+            color: #ffc107;
+        }
+        .status-completed {
+            background-color: #d1e7dd;
+            color: #198754;
+        }
+        .status-canceled {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+        .wo-header {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .action-buttons .btn {
+            margin-right: 5px;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            margin: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #dee2e6;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #0d6efd;
+            border: 2px solid white;
+        }
+        .timeline-item.planned::before {
+            background-color: #0d6efd;
+        }
+        .timeline-item.in-progress::before {
+            background-color: #ffc107;
+        }
+        .timeline-item.completed::before {
+            background-color: #198754;
+        }
+        .timeline-item.canceled::before {
+            background-color: #dc3545;
+        }
+        .progress-container {
+            height: 30px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .material-table thead {
+            background-color: #f8f9fa;
+        }
+        .material-table tbody tr:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+        .time-remaining {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Work Order Header -->
+        <div class="wo-header">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>
+                        <span id="wo-reference">WO-0001</span>
+                        <span id="wo-status" class="status-badge status-planned ms-2">Planned</span>
+                    </h2>
+                    <div class="mt-2">
+                        <strong>Manufacturing Order:</strong> 
+                        <a href="#" id="mo-reference">MO/2023/0001</a> - 
+                        <span id="mo-product">Office Desk (OD-1001)</span>
+                    </div>
+                    <div>
+                        <strong>Work Center:</strong> 
+                        <span id="work-center">Assembly Line 1 (WC-001)</span>
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="mb-2">
+                        <strong>Duration:</strong> 
+                        <span id="wo-duration">4.0</span> hours
+                    </div>
+                    <div>
+                        <strong>Scheduled:</strong> 
+                        <span id="wo-schedule">2023-06-15 08:00 - 12:00</span>
+                    </div>
+                    <div class="action-buttons mt-3">
+                        <button class="btn btn-sm btn-success start-wo">
+                            <i class="fas fa-play me-1"></i> Start
+                        </button>
+                        <button class="btn btn-sm btn-primary finish-wo">
+                            <i class="fas fa-flag-checkered me-1"></i> Finish
+                        </button>
+                        <button class="btn btn-sm btn-danger cancel-wo">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </button>
+                        <button class="btn btn-sm btn-secondary print-wo">
+                            <i class="fas fa-print me-1"></i> Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tachometer-alt me-2"></i>Progress
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="progress-container">
+                    <div class="progress-bar bg-success" style="width: 0%" id="progressBar">0%</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-between">
+                            <span>Start Time:</span>
+                            <strong id="start-time">08:00</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="time-remaining" id="time-remaining">4h 0m remaining</div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="d-flex justify-content-between">
+                            <span>End Time:</span>
+                            <strong id="end-time">12:00</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<!-- Add this card below the Progress card in your detail page -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-cogs me-2"></i>Work Center Details
+        </h5>
+        <a href="/workcenters/1" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-external-link-alt me-1"></i>View Work Center
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Work Center Basic Info -->
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <strong>Name:</strong>
+                    <div id="wc-name">Assembly Line 1</div>
+                </div>
+                <div class="mb-3">
+                    <strong>Code:</strong>
+                    <div id="wc-code">WC-001</div>
+                </div>
+                <div class="mb-3">
+                    <strong>Status:</strong>
+                    <span id="wc-status" class="status-badge status-active">Active</span>
+                </div>
+            </div>
+            
+            <!-- Capacity and Utilization -->
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <strong>Capacity:</strong>
+                    <div id="wc-capacity">5.0 units/hour</div>
+                </div>
+                <div class="mb-3">
+                    <strong>Current Utilization:</strong>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 75%;" 
+                             aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Schedule and Next Availability -->
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <strong>Current Schedule:</strong>
+                    <div id="wc-schedule">
+                        <span class="badge bg-primary">08:00-12:00</span>
+                        <span class="badge bg-primary">13:00-17:00</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <strong>Next Available:</strong>
+                    <div id="wc-next-available">Tomorrow 08:00</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Work Center Notes -->
+        <div class="mt-3">
+            <strong>Notes:</strong>
+            <div id="wc-notes" class="text-muted">
+                This line is optimized for furniture assembly. Maximum product dimensions: 2m x 1.5m x 0.5m.
+            </div>
+        </div>
+    </div>
+</div>
+        <!-- Work Order Details -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Details
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Created:</strong>
+                                <div id="created-at">2023-06-10 14:30</div>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Last Updated:</strong>
+                                <div id="updated-at">2023-06-14 09:15</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Notes:</strong>
+                            <div id="wo-notes">Standard assembly process. Ensure all components are available before starting.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Materials/Components -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-boxes me-2"></i>Required Materials
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm material-table">
+                                <thead>
+                                    <tr>
+                                        <th>Component</th>
+                                        <th>Quantity</th>
+                                        <th>UoM</th>
+                                        <th>Available</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Wood Plank (120cm)</td>
+                                        <td>2.0</td>
+                                        <td>Units</td>
+                                        <td>25.0</td>
+                                        <td><span class="badge bg-success">Available</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Metal Bracket</td>
+                                        <td>4.0</td>
+                                        <td>Units</td>
+                                        <td>60.0</td>
+                                        <td><span class="badge bg-success">Available</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Wood Screw 3x40mm</td>
+                                        <td>12.0</td>
+                                        <td>Units</td>
+                                        <td>200.0</td>
+                                        <td><span class="badge bg-success">Available</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <!-- Work Instructions -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list-ol me-2"></i>Work Instructions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ol class="list-group list-group-numbered">
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Prepare materials</div>
+                                    Gather all required components from inventory
+                                </div>
+                                <span class="badge bg-primary rounded-pill">5 min</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Assemble frame</div>
+                                    Connect side panels to front and back pieces
+                                </div>
+                                <span class="badge bg-primary rounded-pill">45 min</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Attach desktop</div>
+                                    Secure desktop to frame using brackets
+                                </div>
+                                <span class="badge bg-primary rounded-pill">30 min</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Quality check</div>
+                                    Verify all connections are secure
+                                </div>
+                                <span class="badge bg-primary rounded-pill">10 min</span>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Activity Timeline -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-history me-2"></i>Activity Timeline
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item planned">
+                                <h6>Work Order Created</h6>
+                                <p class="text-muted mb-1">2023-06-10 14:30</p>
+                                <p>Created by John Doe</p>
+                            </div>
+                            <div class="timeline-item planned">
+                                <h6>Scheduled</h6>
+                                <p class="text-muted mb-1">2023-06-12 09:15</p>
+                                <p>Scheduled for 2023-06-15 08:00 - 12:00</p>
+                            </div>
+                            <div class="timeline-item planned">
+                                <h6>Materials Reserved</h6>
+                                <p class="text-muted mb-1">2023-06-14 09:15</p>
+                                <p>All required materials confirmed available</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quality Checks -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-check-circle me-2"></i>Quality Checks
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Check</th>
+                                <th>Standard</th>
+                                <th>Status</th>
+                                <th>Completed By</th>
+                                <th>Date</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Frame Stability</td>
+                                <td>No wobble when shaken</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>Surface Finish</td>
+                                <td>No scratches or dents</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>Hardware Tightness</td>
+                                <td>All screws properly tightened</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Labor Tracking -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-users me-2"></i>Labor Tracking
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Role</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Duration</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No labor recorded yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-sm btn-primary mt-3">
+                    <i class="fas fa-plus me-1"></i> Add Labor Entry
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Work Order Modal -->
+    <div class="modal fade" id="startWoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Start Work Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="startWoForm">
+                        <div class="mb-3">
+                            <label for="actualStartTime" class="form-label">Actual Start Time *</label>
+                            <input type="datetime-local" class="form-control" id="actualStartTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="operatorSelect" class="form-label">Operator *</label>
+                            <select class="form-select" id="operatorSelect" required>
+                                <option value="" selected disabled>Select operator</option>
+                                <option value="1">John Doe</option>
+                                <option value="2">Jane Smith</option>
+                                <option value="3">Mike Johnson</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="startNotes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="startNotes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmStartWo">Start Work Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Finish Work Order Modal -->
+    <div class="modal fade" id="finishWoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Finish Work Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="finishWoForm">
+                        <div class="mb-3">
+                            <label for="actualEndTime" class="form-label">Actual End Time *</label>
+                            <input type="datetime-local" class="form-control" id="actualEndTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quantityProduced" class="form-label">Quantity Produced *</label>
+                            <input type="number" class="form-control" id="quantityProduced" min="1" value="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="finishNotes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="finishNotes" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="qualityCheckPassed" required>
+                            <label class="form-check-label" for="qualityCheckPassed">All quality checks passed</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmFinishWo">Finish Work Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Work Order Modal -->
+    <div class="modal fade" id="cancelWoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cancel Work Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="cancelWoForm">
+                        <div class="mb-3">
+                            <label for="cancelReason" class="form-label">Reason *</label>
+                            <select class="form-select" id="cancelReason" required>
+                                <option value="" selected disabled>Select reason</option>
+                                <option value="material">Material shortage</option>
+                                <option value="machine">Machine breakdown</option>
+                                <option value="priority">Priority change</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cancelNotes" class="form-label">Notes *</label>
+                            <textarea class="form-control" id="cancelNotes" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmCancelWo">Confirm Cancellation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Initialize with sample data
+            const workOrder = {
+                id: 1,
+                reference: 'WO-0001',
+                status: 'planned',
+                moReference: 'MO/2023/0001',
+                moProduct: 'Office Desk (OD-1001)',
+                workCenter: 'Assembly Line 1 (WC-001)',
+                duration: 4.0,
+                startDate: '2023-06-15T08:00',
+                endDate: '2023-06-15T12:00',
+                createdAt: '2023-06-10 14:30',
+                updatedAt: '2023-06-14 09:15',
+                notes: 'Standard assembly process. Ensure all components are available before starting.'
+            };
+            
+            // Update UI with work order data
+            $('#wo-reference').text(workOrder.reference);
+            $('#wo-status').text(workOrder.status.charAt(0).toUpperCase() + workOrder.status.slice(1))
+                          .removeClass().addClass('status-badge status-' + workOrder.status.replace(' ', '-'));
+            $('#mo-reference').text(workOrder.moReference);
+            $('#mo-product').text(workOrder.moProduct);
+            $('#work-center').text(workOrder.workCenter);
+            $('#wo-duration').text(workOrder.duration);
+            $('#wo-schedule').text(formatDateTime(workOrder.startDate) + ' - ' + formatDateTime(workOrder.endDate));
+            $('#created-at').text(workOrder.createdAt);
+            $('#updated-at').text(workOrder.updatedAt);
+            $('#wo-notes').text(workOrder.notes);
+            
+            // Set up progress timer (simulated)
+            if(workOrder.status === 'in-progress') {
+                startProgressTimer();
+            }
+            
+            // Start Work Order button
+            $('.start-wo').click(function() {
+                $('#startWoModal').modal('show');
+            });
+            // Add this to your document.ready function
+function loadWorkCenterDetails(workCenterId) {
+    // In a real app, this would be an AJAX call
+    const workCenter = {
+        id: 1,
+        name: 'Assembly Line 1',
+        code: 'WC-001',
+        status: 'active',
+        capacity: 5.0,
+        utilization: 75,
+        schedule: [
+            { start: '08:00', end: '12:00' },
+            { start: '13:00', end: '17:00' }
+        ],
+        nextAvailable: '2023-06-16T08:00',
+        notes: 'This line is optimized for furniture assembly. Maximum product dimensions: 2m x 1.5m x 0.5m.'
+    };
+    
+    // Update the UI
+    $('#wc-name').text(workCenter.name);
+    $('#wc-code').text(workCenter.code);
+    $('#wc-status').text(workCenter.status.charAt(0).toUpperCase() + workCenter.status.slice(1))
+                  .removeClass().addClass('status-badge status-' + workCenter.status);
+    $('#wc-capacity').text(workCenter.capacity + ' units/hour');
+    $('.progress-bar').css('width', workCenter.utilization + '%')
+                     .text(workCenter.utilization + '%');
+    
+    // Format schedule badges
+    const scheduleBadges = workCenter.schedule.map(s => 
+        `<span class="badge bg-primary me-1">${s.start}-${s.end}</span>`
+    ).join('');
+    $('#wc-schedule').html(scheduleBadges);
+    
+    // Format next available time
+    const nextAvail = new Date(workCenter.nextAvailable);
+    $('#wc-next-available').text(
+        nextAvail.toLocaleDateString() + ' ' + 
+        nextAvail.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+    );
+    
+    $('#wc-notes').text(workCenter.notes);
+}
+
+// Call this when loading the work order details
+loadWorkCenterDetails(1);
+            // Confirm Start Work Order
+            $('#confirmStartWo').click(function() {
+                if($('#startWoForm')[0].checkValidity()) {
+                    // In a real app, this would submit via AJAX
+                    $('#wo-status').removeClass('status-planned').addClass('status-in-progress').text('In Progress');
+                    $('.start-wo').hide();
+                    $('.finish-wo').show();
+                    $('.cancel-wo').show();
+                    
+                    // Add to timeline
+                    const timelineItem = `
+                        <div class="timeline-item in-progress">
+                            <h6>Work Order Started</h6>
+                            <p class="text-muted mb-1">${new Date().toISOString().split('T')[0]} ${new Date().toLocaleTimeString()}</p>
+                            <p>Started by ${$('#operatorSelect option:selected').text()}</p>
+                        </div>
+                    `;
+                    $('.timeline').append(timelineItem);
+                    
+                    // Start progress timer
+                    startProgressTimer();
+                    
+                    $('#startWoModal').modal('hide');
+                    $('#startWoForm')[0].reset();
+                    alert('Work order started successfully!');
+                } else {
+                    $('#startWoForm')[0].reportValidity();
+                }
+            });
+            
+            // Finish Work Order button
+            $('.finish-wo').click(function() {
+                $('#finishWoModal').modal('show');
+            });
+            
+            // Confirm Finish Work Order
+            $('#confirmFinishWo').click(function() {
+                if($('#finishWoForm')[0].checkValidity()) {
+                    // In a real app, this would submit via AJAX
+                    $('#wo-status').removeClass('status-in-progress').addClass('status-completed').text('Completed');
+                    $('.finish-wo').hide();
+                    $('.cancel-wo').hide();
+                    
+                    // Add to timeline
+                    const timelineItem = `
+                        <div class="timeline-item completed">
+                            <h6>Work Order Completed</h6>
+                            <p class="text-muted mb-1">${new Date().toISOString().split('T')[0]} ${new Date().toLocaleTimeString()}</p>
+                            <p>Completed ${$('#quantityProduced').val()} units</p>
+                        </div>
+                    `;
+                    $('.timeline').append(timelineItem);
+                    
+                    // Stop progress timer
+                    clearInterval(progressInterval);
+                    $('#progressBar').css('width', '100%').text('100%');
+                    $('#time-remaining').text('Completed');
+                    
+                    $('#finishWoModal').modal('hide');
+                    $('#finishWoForm')[0].reset();
+                    alert('Work order completed successfully!');
+                } else {
+                    $('#finishWoForm')[0].reportValidity();
+                }
+            });
+            
+            // Cancel Work Order button
+            $('.cancel-wo').click(function() {
+                $('#cancelWoModal').modal('show');
+            });
+            
+            // Confirm Cancel Work Order
+            $('#confirmCancelWo').click(function() {
+                if($('#cancelWoForm')[0].checkValidity()) {
+                    // In a real app, this would submit via AJAX
+                    $('#wo-status').removeClass('status-planned status-in-progress').addClass('status-canceled').text('Canceled');
+                    $('.start-wo, .finish-wo, .cancel-wo').hide();
+                    
+                    // Add to timeline
+                    const timelineItem = `
+                        <div class="timeline-item canceled">
+                            <h6>Work Order Canceled</h6>
+                            <p class="text-muted mb-1">${new Date().toISOString().split('T')[0]} ${new Date().toLocaleTimeString()}</p>
+                            <p>Reason: ${$('#cancelReason option:selected').text()}</p>
+                        </div>
+                    `;
+                    $('.timeline').append(timelineItem);
+                    
+                    // Stop progress timer if running
+                    clearInterval(progressInterval);
+                    $('#progressBar').css('width', '0%').text('0%');
+                    $('#time-remaining').text('Canceled');
+                    
+                    $('#cancelWoModal').modal('hide');
+                    $('#cancelWoForm')[0].reset();
+                    alert('Work order canceled successfully!');
+                } else {
+                    $('#cancelWoForm')[0].reportValidity();
+                }
+            });
+            
+            // Print button
+            $('.print-wo').click(function() {
+                window.print();
+            });
+            
+            // Helper function to format datetime
+            function formatDateTime(datetimeStr) {
+                if(!datetimeStr) return '';
+                const dt = new Date(datetimeStr);
+                return dt.toISOString().split('T')[0] + ' ' + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            }
+            
+            // Progress timer simulation
+            let progressInterval;
+            function startProgressTimer() {
+                const startTime = new Date(workOrder.startDate).getTime();
+                const endTime = new Date(workOrder.endDate).getTime();
+                const totalDuration = endTime - startTime;
+                
+                // Update immediately
+                updateProgress();
+                
+                // Update every minute
+                progressInterval = setInterval(updateProgress, 60000);
+                
+                function updateProgress() {
+                    const now = new Date().getTime();
+                    let progress = 0;
+                    let remaining = 'Completed';
+                    
+                    if(now < startTime) {
+                        progress = 0;
+                        remaining = 'Not started';
+                    } else if(now > endTime) {
+                        progress = 100;
+                        remaining = 'Completed';
+                    } else {
+                        progress = ((now - startTime) / totalDuration) * 100;
+                        const remainingMs = endTime - now;
+                        const remainingHours = Math.floor(remainingMs / (1000 * 60 * 60));
+                        const remainingMins = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+                        remaining = `${remainingHours}h ${remainingMins}m remaining`;
+                    }
+                    
+                    $('#progressBar').css('width', `${progress}%`).text(`${Math.round(progress)}%`);
+                    $('#time-remaining').text(remaining);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

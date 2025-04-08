@@ -20,3 +20,5 @@ from django.core.exceptions import ValidationError
 
 def workorder_create(request):
     return render(request,"mrp/workorder/workorder_create.html",{})
+def workorder_detail(request):
+    return render(request,"mrp/workorder/workorder_detail.html",{})
