@@ -19,4 +19,4 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 
 def product_create(request):
-    return render(request,"mrp/product/product_create.html",{})
+    return render(request,"mrp/product/partialProductCreate.html",{})
