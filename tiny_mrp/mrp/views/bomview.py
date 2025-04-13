@@ -19,4 +19,4 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 
 def bom_create(request):
-    return render(request,"mrp/bom/bomcreate.html",{})
+    return render(request,"mrp/bom/bom3.html",{})

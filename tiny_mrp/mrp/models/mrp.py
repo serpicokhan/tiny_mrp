@@ -32,13 +32,13 @@ class Product(models.Model):
         (CENTIMETERS, 'Centimeters'),
     ]
     
-    name = models.CharField(max_length=200)
-    code = models.CharField(max_length=50, unique=True)
-    product_type = models.CharField(max_length=20, choices=PRODUCT_TYPES)
-    unit_of_measure = models.CharField(max_length=50, choices=UOM_CHOICES)
-    cost_price = models.DecimalField(max_digits=10, decimal_places=2)
-    sale_price = models.DecimalField(max_digits=10, decimal_places=2)
-    available_quantity = models.FloatField(
+    name = models.CharField("نام محصول",max_length=200)
+    code = models.CharField("کد محصول",max_length=50, unique=True)
+    product_type = models.CharField("نوع محصول",max_length=20, choices=PRODUCT_TYPES)
+    unit_of_measure = models.CharField("واحد اندازه گیری",max_length=50, choices=UOM_CHOICES)
+    cost_price = models.DecimalField("قیمت تمام شده",max_digits=10, decimal_places=2)
+    sale_price = models.DecimalField("قیمت فروش",max_digits=10, decimal_places=2)
+    available_quantity = models.FloatField("موجودی",
         default=0,
         validators=[MinValueValidator(0.0)]
     )
@@ -68,3 +68,41 @@ class Product(models.Model):
         # Ensure sale price is greater than cost price
         if self.sale_price <= self.cost_price:
             raise ValidationError("Sale price must be greater than cost price.")
+        
+class BOMComponent(models.Model):
+    """Through model for Bill of Materials components with quantity."""
+    bom = models.ForeignKey('BillOfMaterials', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.FloatField(validators=[MinValueValidator(0.0)])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['product__name']
+
+    def __str__(self):
+        return f"{self.product.name} - {self.quantity}"
+
+
+class BillOfMaterials(models.Model):
+    """Model representing a Bill of Materials for manufacturing a product."""
+    reference = models.CharField(max_length=50, unique=True)
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='boms',
+        limit_choices_to={'product_type': 'finished'}
+    )
+    components = models.ManyToManyField(Product, through=BOMComponent, related_name='used_in_boms')
+    operation_time = models.FloatField(
+        validators=[MinValueValidator(0.0)],
+        help_text="Time in minutes"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['reference']
+
+    def __str__(self):
+        return self.reference

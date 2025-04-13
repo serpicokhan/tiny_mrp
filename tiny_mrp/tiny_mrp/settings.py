@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'mrp.apps.MrpConfig',
     'widget_tweaks',
     'django.contrib.humanize',
-    'mathfilters'
+    'mathfilters',
+    'rest_framework',
 
 
 ]

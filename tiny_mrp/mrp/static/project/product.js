@@ -3,12 +3,35 @@
 $(function () {
     let currentProductId = null;
     let currentView = 'grid'; // 'grid' or 'list'
+    function refreshList() {
+        const currentParams = new URLSearchParams(window.location.search);
+
+        // Save them globally for later use
+        const filters = {};
+        for (const [key, value] of currentParams.entries()) {
+            filters[key] = value;
+        }
+        // Send the query parameters with the list reload request
+        const params = new URLSearchParams(filters).toString();
     
+        $.ajax({
+            url: `/Product/RefereshList?${params}`, // Append filters to the URL
+            method: 'GET',
+            success: function (data) {
+                // $('#list-container').html(data.parchase_req_html);
+                if(data.status="ok"){
+                $("#main_ul").html('');
+                $("#main_ul").html(data.parchase_req_html);
+                }
+            },
+        });
+        console.log(params);
+    }
     // Initialize the page
     loadProducts();
     
     // Event handlers
-    $('#create-product-btn').click(showCreateProductModal);
+    $('#create-product-btn').click(loadForm);
     $('#save-product-btn').click(saveProduct);
     $('#confirm-delete-btn').click(deleteProduct);
     $('#product-search').on('keyup', filterProducts);
@@ -37,7 +60,7 @@ $(function () {
     }
     
     // Load products from server
-
+    let mockProducts=[];
     function loadProducts() {
 
         // In a real app, this would be an AJAX call to your Django backend
@@ -49,7 +72,7 @@ $(function () {
             success: function(response) {
                 // Process the response data (similar to your mockProducts)
                 // console.log('Received products:', response);
-                const mockProducts=response
+                mockProducts=response
                 // Example: Display products in a table
                 if (mockProducts.length > 0) {
                     renderProductGrid(mockProducts);
@@ -97,10 +120,10 @@ $(function () {
                                 </p>
                                 <div class="d-flex justify-content-between action-buttons">
                                     <button class="btn btn-sm btn-outline-primary edit-product-btn">
-                                        <i class="fas fa-edit"></i> ویرایش
+                                        <i class="fas fa-edit mr-1"></i> ویرایش
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger delete-product-btn">
-                                        <i class="fas fa-trash"></i> حذف
+                                        <i class="fas fa-trash mr-1"></i> حذف
                                     </button>
                                 </div>
                             </div>
@@ -185,48 +208,7 @@ $(function () {
         currentProductId = productId;
         
         // In a real app, you would fetch the product data via AJAX
-        const mockProducts = [
-            {
-                id: 1,
-                name: "Finished Product A",
-                code: "FP-001",
-                product_type: "finished",
-                unit_of_measure: "units",
-                cost_price: "15.50",
-                sale_price: "29.99",
-                available_quantity: 25
-            },
-            {
-                id: 2,
-                name: "Raw Material X",
-                code: "RM-001",
-                product_type: "raw",
-                unit_of_measure: "kg",
-                cost_price: "8.75",
-                sale_price: "12.50",
-                available_quantity: 150.5
-            },
-            {
-                id: 3,
-                name: "Component Y",
-                code: "CP-001",
-                product_type: "component",
-                unit_of_measure: "units",
-                cost_price: "3.20",
-                sale_price: "5.99",
-                available_quantity: 0
-            },
-            {
-                id: 4,
-                name: "Finished Product B",
-                code: "FP-002",
-                product_type: "finished",
-                unit_of_measure: "units",
-                cost_price: "22.00",
-                sale_price: "45.00",
-                available_quantity: 8
-            }
-        ];
+
         
         const product = mockProducts.find(p => p.id == productId);
         if (product) {
@@ -303,36 +285,7 @@ $(function () {
         
         // In a real app, this would be an AJAX call with filters
         // For demo, we'll just filter the existing mock data
-        const mockProducts = [
-            {
-                id: 1,
-                name: "Finished Product A",
-                code: "FP-001",
-                product_type: "finished",
-                available_quantity: 25
-            },
-            {
-                id: 2,
-                name: "Raw Material X",
-                code: "RM-001",
-                product_type: "raw",
-                available_quantity: 150.5
-            },
-            {
-                id: 3,
-                name: "Component Y",
-                code: "CP-001",
-                product_type: "component",
-                available_quantity: 0
-            },
-            {
-                id: 4,
-                name: "Finished Product B",
-                code: "FP-002",
-                product_type: "finished",
-                available_quantity: 8
-            }
-        ];
+        
         
         const filteredProducts = mockProducts.filter(product => {
             const matchesSearch = searchTerm === '' || 
@@ -391,12 +344,12 @@ $(function () {
         type: 'get',
         dataType: 'json',
         beforeSend: function () {
-          $("#modal-company").modal("show");
+          $("#product-form-modal").modal("show");
         },
         success: function (data) {
-          console.log(data);
+          
 
-          $("#modal-company .modal-content").html(data.html_failure_form);
+          $("#product-form-modal .modal-content").html(data.html_product_form);
 
 
         }
@@ -417,10 +370,10 @@ $(function () {
        success: function (data) {
 
          if (data.form_is_valid) {
-           console.log(data);
-           $("#tbody_company").empty();
-           $("#tbody_company").html(data.html_failure_list);
-           $("#modal-company").modal("hide");
+           $("#product-form-modal").modal("hide");
+           loadProducts();
+
+            console.log("success");
          }
          else {
 
@@ -476,7 +429,7 @@ $(function () {
 }
 
   $("#create-product-btn").click(myWoLoader);
-  $("#modal-company").on("submit", ".js-failure-create-form", saveForm);
+  $("#product-form-modal").on("submit", ".js-product-create-form", saveForm);
 
   // Update book
   $("#company-table").on("click", ".js-update-failure", myWoLoader);

@@ -144,9 +144,16 @@ urlpatterns = [
     url(r'^Supplier/GetSuplier$', wo_getSuppliers, name='wo_getSuppliers'),
     url(r'^Asset/GetAssets$', asset_getAssets2, name='asset_getAssets2'),
     url(r'^BOM/Create$', bom_create, name='bom_create'),
+
     url(r'^Product/$', product_list, name='product_list'),
     path('Product/List', views.ProductListView.as_view(), name='product_list'),
+    url(r'^Product/Create$', create_product, name='create_product'),
+
     path('api/products/', product_list_api, name='product-list-api'),
+
+
+
+
     url(r'^MOrder/Create$', manufacture_order_create, name='manufacture_order_create'),
     url(r'^MOrder/Detaile$', manufacture_order_detail, name='manufacture_order_detail'),
     url(r'^Workcenter/Create$', workcenter_create, name='workcenter_create'),

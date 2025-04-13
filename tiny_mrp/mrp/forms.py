@@ -136,11 +136,11 @@ class ProductForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Product name'
+                'placeholder': 'نام محصول'
             }),
             'code': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Product code'
+                'placeholder': 'کد محصول'
             }),
             'product_type': forms.Select(attrs={
                 'class': 'form-select'
@@ -165,11 +165,11 @@ class ProductForm(forms.ModelForm):
             }),
         }
         labels = {
-            'product_type': 'Type',
-            'unit_of_measure': 'Unit of Measure',
-            'cost_price': 'Cost Price ($)',
-            'sale_price': 'Sale Price ($)',
-            'available_quantity': 'Available Quantity'
+            'product_type': 'نوع',
+            'unit_of_measure': 'واحد اندازه گیری',
+            'cost_price': 'هزینه تمام شده',
+            'sale_price': 'قیمت فروش',
+            'available_quantity': 'موجودی'
         }
     
     def clean(self):
