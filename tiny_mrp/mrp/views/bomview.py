@@ -24,10 +24,11 @@ from mrp.serializers import BillOfMaterialsSerializer
 def bom_create(request):
     return render(request,"mrp/bom/partialBOMCreate.html",{})
 class BOMListView(generics.ListAPIView):
-    queryset = BillOfMaterials.objects.all().prefetch_related('components')
     serializer_class = BillOfMaterialsSerializer
     
     def get_queryset(self):
-        # You can add filtering here if needed
-        return super().get_queryset().order_by('reference')
+        return BillOfMaterials.objects.select_related('product')\
+                                     .prefetch_related('bomcomponent_set__product', 
+                                                     'bomcomponent_set__uom')\
+                                     .order_by('reference')
 

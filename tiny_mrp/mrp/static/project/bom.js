@@ -23,70 +23,8 @@ const mockComponents = [
     { id: 206, name: "Component C" }
 ];
 
-const mockBoms = [
-    {
-        id: 1,
-        reference: "BOM-001",
-        product: { id: 101, name: "Finished Product A" },
-        operation_time: 45.5,
-        updated_at: "2023-06-15T14:30:00Z",
-        components: [
-            { id: 201, product: { id: 201, name: "Component X" }, quantity: 2, uom: "units" },
-            { id: 202, product: { id: 202, name: "Component Y" }, quantity: 1.5, uom: "kg" }
-        ]
-    },
-    {
-        id: 2,
-        reference: "BOM-002",
-        product: { id: 102, name: "Finished Product B" },
-        operation_time: 30.0,
-        updated_at: "2023-06-10T09:15:00Z",
-        components: [
-            { id: 203, product: { id: 203, name: "Component Z" }, quantity: 3, uom: "units" }
-        ]
-    },
-    {
-        id: 3,
-        reference: "BOM-003",
-        product: { id: 103, name: "Finished Product C" },
-        operation_time: 60.0,
-        updated_at: "2023-06-18T10:20:00Z",
-        components: [
-            { id: 204, product: { id: 204, name: "Component A" }, quantity: 4, uom: "units" },
-            { id: 205, product: { id: 205, name: "Component B" }, quantity: 2.5, uom: "kg" },
-            { id: 206, product: { id: 206, name: "Component C" }, quantity: 1, uom: "l" }
-        ]
-    },
-    {
-        id: 4,
-        reference: "BOM-004",
-        product: { id: 104, name: "Finished Product D" },
-        operation_time: 25.0,
-        updated_at: "2023-06-20T08:45:00Z",
-        components: [
-            { id: 207, product: { id: 207, name: "Component D" }, quantity: 2, uom: "units" }
-        ]
-    },
-    {
-        id: 5,
-        reference: "BOM-005",
-        product: { id: 105, name: "Finished Product E" },
-        operation_time: 35.5,
-        updated_at: "2023-06-22T16:10:00Z",
-        components: []
-    },
-    {
-        id: 6,
-        reference: "BOM-006",
-        product: { id: 106, name: "Finished Product F" },
-        operation_time: 42.0,
-        updated_at: "2023-06-25T11:30:00Z",
-        components: [
-            { id: 208, product: { id: 208, name: "Component E" }, quantity: 3, uom: "units" },
-            { id: 209, product: { id: 209, name: "Component F" }, quantity: 1.2, uom: "kg" }
-        ]
-    }
-];
+let mockBoms = [];
+
 
 // Initialize the page
 $(document).ready(function() {
@@ -311,10 +249,10 @@ function renderBomGrid(boms) {
                     <h5 class="card-title mb-0">${bom.reference}</h5>
                 </div>
                 <div class="card-body">
-                    <p class="card-text"><strong>Product:</strong> ${bom.product.name}</p>
-                    <p class="card-text"><strong>Components:</strong> ${bom.components.length}</p>
-                    <p class="card-text"><strong>Operation Time:</strong> ${bom.operation_time} min</p>
-                    <p class="card-text"><small class="text-muted">Last updated: ${formatDate(bom.updated_at)}</small></p>
+                    <p class="card-text"><strong>محصول:</strong> ${bom.product.name}</p>
+                    <p class="card-text"><strong>اجزا:</strong> ${bom.components.length}</p>
+                    <p class="card-text"><strong>زمان عملیاتی:</strong> ${bom.operation_time} min</p>
+                    <p class="card-text"><small class="text-muted">آخرین بروز رسانی: ${formatDate(bom.updated_at)}</small></p>
                 </div>
                 <div class="card-footer bg-transparent">
                     <button class="btn btn-sm btn-outline-primary view-bom-btn" data-bom-id="${bom.id}">
