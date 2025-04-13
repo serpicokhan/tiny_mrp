@@ -17,6 +17,115 @@ from mrp.business.tolid_util import *
 import datetime
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
+from mrp.forms import ProductForm, ProductFilterForm
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView
+from django.contrib import messages
+from django.views.decorators.http import require_GET
+class ProductListView(ListView):
+    model = Product
+    template_name = 'mrp/product/partialProductList.html'
+    context_object_name = 'products'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        filter_form = ProductFilterForm(self.request.GET or None)
+        
+        if filter_form.is_valid():
+            queryset = filter_form.filter_queryset(queryset)
+        
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filter_form'] = ProductFilterForm(self.request.GET or None)
+        return context
 
-def product_create(request):
-    return render(request,"mrp/product/partialProductCreate.html",{})
+def product_list(request):
+    return render(request,"mrp/product/partialProductList.html",{})
+def save_product_form(request, form, template_name):
+
+
+    data = dict()
+    if (request.method == 'POST'):
+        if form.is_valid():
+            bts=form.save()
+            data['form_is_valid'] = True
+            books = Failure.objects.all()
+            data['html_failure_list'] = render_to_string('mrp/product/partialproductList.html', {
+                'products': books,
+                'perms': PermWrapper(request.user)
+            })
+        else:
+            data['form_is_valid'] = False
+            print(form.errors)
+
+    context = {'form': form}
+
+
+    data['html_failure_form'] = render_to_string(template_name, context, request=request)
+    return JsonResponse(data)
+def assetFailure_create(request):
+    if (request.method == 'POST'):
+        pass
+  
+    else:
+        
+        form = ProductForm()
+        return save_product_form(request, form, 'mrp/product/partialProductCreate.html')
+@require_GET
+def product_list_api(request):
+    # This is your mock data converted to Python format
+    mock_products = [
+        {
+            "id": 1,
+            "name": "محصول الف",
+            "code": "FP-001",
+            "product_type": "finished",
+            "unit_of_measure": "units",
+            "cost_price": "15.50",
+            "sale_price": "29.99",
+            "available_quantity": 25,
+            "created_at": "2023-06-10T09:15:00Z",
+            "updated_at": "2023-06-15T14:30:00Z"
+        },
+        {
+            "id": 2,
+            "name": "محصول ب",
+            "code": "RM-001",
+            "product_type": "raw",
+            "unit_of_measure": "kg",
+            "cost_price": "8.75",
+            "sale_price": "12.50",
+            "available_quantity": 150.5,
+            "created_at": "2023-05-20T11:20:00Z",
+            "updated_at": "2023-06-12T16:45:00Z"
+        },
+        {
+            "id": 3,
+            "name": "محصول پ",
+            "code": "CP-001",
+            "product_type": "component",
+            "unit_of_measure": "units",
+            "cost_price": "3.20",
+            "sale_price": "5.99",
+            "available_quantity": 0,
+            "created_at": "2023-06-01T08:30:00Z",
+            "updated_at": "2023-06-18T10:15:00Z"
+        },
+        {
+            "id": 4,
+            "name": "محصول ث",
+            "code": "FP-002",
+            "product_type": "finished",
+            "unit_of_measure": "units",
+            "cost_price": "22.00",
+            "sale_price": "45.00",
+            "available_quantity": 8,
+            "created_at": "2023-06-05T14:00:00Z",
+            "updated_at": "2023-06-16T09:30:00Z"
+        }
+    ]
+    
+    return JsonResponse(mock_products, safe=False)

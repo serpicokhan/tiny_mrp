@@ -7,5 +7,5 @@ from mrp.models.assetfailure import *
 from mrp.models.part import *
 from mrp.models.purchase import *
 
-
+from mrp.models.mrp import *
 
