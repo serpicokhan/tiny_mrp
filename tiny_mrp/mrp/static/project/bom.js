@@ -324,7 +324,7 @@ function renderBomGrid(boms) {
     boms.forEach(bom => {
         const bomCard = $(`
             <div class="card bom-card" data-bom-id="${bom.id}">
-                <div class="card-header">
+                <div class="card-header bg-primary">
                     <h5 class="card-title mb-0">${bom.reference}</h5>
                 </div>
                 <div class="card-body">
