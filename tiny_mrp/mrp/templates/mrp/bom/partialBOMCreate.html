@@ -9,34 +9,74 @@
         padding: 15px;
         margin-bottom: 20px;
     }
-    .component-list {
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
+    
+    .operation-time {
+        font-weight: bold;
+        color: #0d6efd;
     }
+    
+    .action-buttons .btn {
+        margin-right: 5px;
+    }
+    
+    .search-box {
+        margin-bottom: 20px;
+    }
+    
+    .view-toggle {
+        cursor: pointer;
+    }
+    
+    .view-toggle.active {
+        color: #0d6efd;
+    }
+    
+    .bom-card {
+        height: 100%;
+        transition: transform 0.2s;
+    }
+    
+    .bom-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .bom-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 15px;
+    }
+    
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    
+    .table-responsive {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+    
+    .table thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        z-index: 10;
+    }
+    
     .component-item {
         padding: 10px;
         border-bottom: 1px solid #dee2e6;
         transition: background-color 0.2s;
     }
+    
     .component-item:last-child {
         border-bottom: none;
     }
+    
     .component-item:hover {
         background-color: #f8f9fa;
-    }
-    .operation-time {
-        font-weight: bold;
-        color: #0d6efd;
-    }
-    .action-buttons .btn {
-        margin-right: 5px;
-    }
-    .search-box {
-        margin-bottom: 20px;
-    }
-    .list-group .list-group-item.active {
-        background: #b7c1cd;
-        border-color: transparent;
     }
 </style>
 {% endblock %}
@@ -48,7 +88,7 @@
     </div>
     <div class="">
         <button class="btn btn-primary" id="create-bom-btn">
-            <i class="fas fa-plus me-1"></i> BOM جدید
+            <i class="fas fa-plus me-1"></i> ایجاد BOM جدید
         </button>
     </div>
 </div>
@@ -57,530 +97,259 @@
 <div class="row search-box">
     <div class="col-md-4">
         <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search BOMs..." id="bom-search">
+            <input type="text" class="form-control" placeholder="جستجو در BOM" id="bom-search">
             <button class="btn btn-outline-secondary" type="button">
                 <i class="fas fa-search"></i>
             </button>
         </div>
     </div>
     <div class="col-md-4">
-        <select class="form-select" id="product-filter">
-            <option value="">Filter by Product</option>
-            <!-- Options will be populated via AJAX -->
+        <select class="form-control" id="product-filter">
+            <option value="">فیلتر بر اساس محصول</option>
         </select>
+    </div>
+    <div class="col-md-4 text-end">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-secondary view-toggle active" id="table-view-btn" data-view="table">
+                <i class="fas fa-table"></i> 
+            </button>
+            <button type="button" class="btn btn-outline-secondary view-toggle" id="grid-view-btn" data-view="grid">
+                <i class="fas fa-th-large"></i> 
+            </button>
+        </div>
     </div>
 </div>
 
-<!-- BOM List -->
+<!-- BOM List Container -->
 <div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">BOM List</h5>
+    <div class="col-12">
+        <!-- Table View -->
+        <div id="table-view" class="view-content">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">لیست BOM</h5>
+                    <small class="text-muted" id="table-count-info"> 0 of 0 BOMs</small>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>کد</th>
+                                <th>محصول</th>
+                                <th>اجزا</th>
+                                <th>زمان عملیات</th>
+                                <th>آخرین بروز رسانی</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bom-table-body">
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted" id="empty-bom-table">
+                                    No BOMs found. Click "Create BOM" to add one.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <div class="pagination-container">
+                        <nav>
+                            <ul class="pagination" id="table-pagination">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">قبلی</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
             </div>
-            <div class="list-group list-group-flush" id="bom-list">
-                <!-- BOM items will be loaded here -->
-                <div class="list-group-item text-center py-5 text-muted" id="empty-bom-list">
+        </div>
+
+        <!-- Grid View -->
+        <div id="grid-view" class="view-content" style="display: none;">
+            <div class="bom-grid" id="bom-grid">
+                <div class="text-center py-5 text-muted w-100" id="empty-bom-grid">
                     No BOMs found. Click "Create BOM" to add one.
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- BOM Detail View -->
-    <div class="col-md-8">
-        <div class="card" id="bom-detail-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">BOM Details</h5>
-                <div class="action-buttons">
-                    <button class="btn btn-sm btn-outline-secondary" id="edit-bom-btn">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" id="delete-bom-btn">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                </div>
-            </div>
-            <div class="card-body" id="bom-detail-content">
-                <div class="text-center py-5 text-muted" id="empty-bom-detail">
-                    Select a BOM from the list to view details
-                </div>
-                <div id="bom-detail-view" style="display: none;">
-                    <div class="bom-header mb-4">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>Reference:</strong> <span id="bom-reference"></span></p>
-                                <p><strong>Product:</strong> <span id="bom-product"></span></p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Operation Time:</strong> <span class="operation-time" id="bom-operation-time"></span> minutes</p>
-                                <p><strong>Last Updated:</strong> <span id="bom-updated-at"></span></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h5 class="mb-3">Components</h5>
-                    <div class="component-list mb-4" id="component-list">
-                        <!-- Components will be loaded here -->
-                        <div class="text-center py-3 text-muted" id="empty-components">
-                            No components added to this BOM
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <button class="btn btn-outline-primary" id="add-component-btn">
-                            <i class="fas fa-plus me-1"></i> Add Component
-                        </button>
-                        <button class="btn btn-success" id="print-bom-btn">
-                            <i class="fas fa-print me-1"></i> Print BOM
-                        </button>
-                    </div>
-                </div>
+            <div class="pagination-container mt-4">
+                <nav>
+                    <ul class="pagination" id="grid-pagination">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
 </div>
- <!-- Modals -->
-    <!-- Create/Edit BOM Modal -->
-    <div class="modal fade" id="bom-form-modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="bom-modal-title">Create New BOM</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="bom-form">
-                        <input type="hidden" id="bom-id">
-                        <div class="mb-3">
-                            <label for="reference" class="form-label">Reference</label>
-                            <input type="text" class="form-control" id="reference" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="product" class="form-label">Product</label>
-                            <select class="form-select" id="product" required>
-                                <option value="">Select a product</option>
-                                <!-- Products will be populated via AJAX -->
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="operation-time" class="form-label">Operation Time (minutes)</label>
-                            <input type="number" step="0.01" min="0" class="form-control" id="operation-time" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="save-bom-btn">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Add Component Modal -->
-    <div class="modal fade" id="component-form-modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Component</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="component-form">
-                        <input type="hidden" id="component-bom-id">
-                        <div class="mb-3">
-                            <label for="component-product" class="form-label">Component</label>
-                            <select class="form-select" id="component-product" required>
-                                <option value="">Select a component</option>
-                                <!-- Components will be populated via AJAX -->
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="quantity" class="form-label">Quantity</label>
-                            <input type="number" step="0.01" min="0.01" class="form-control" id="quantity" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="uom" class="form-label">Unit of Measure</label>
-                            <select class="form-select" id="uom" required>
-                                <option value="units">Units</option>
-                                <option value="kg">Kilograms</option>
-                                <option value="g">Grams</option>
-                                <option value="l">Liters</option>
-                                <option value="ml">Milliliters</option>
-                                <option value="m">Meters</option>
-                                <option value="cm">Centimeters</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="save-component-btn">Add Component</button>
-                </div>
+<!-- BOM Detail Modal -->
+<div class="modal fade" id="bom-detail-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزییات BOM</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </div>
-    </div>
+            <div class="modal-body" id="bom-detail-content">
+                <div class="bom-header mb-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>کد:</strong> <span id="bom-reference"></span></p>
+                            <p><strong>محصول:</strong> <span id="bom-product"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>زمان عملیات:</strong> <span class="operation-time" id="bom-operation-time"></span> دقیقه</p>
+                            <p><strong>آخرین بروزرسانی:</strong> <span id="bom-updated-at"></span></p>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="delete-confirm-modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">اجزا</h5>
+                    <button class="btn btn-sm btn-primary" id="add-component-btn">
+                        <i class="fas fa-plus me-1"></i> افزودن اجزا
+                    </button>
                 </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete this BOM? This action cannot be undone.</p>
+                
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>جزء</th>
+                                <th>تعداد</th>
+                                <th>واحد اندازه گیری</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="component-table-body">
+                            <tr id="empty-components">
+                                <td colspan="4" class="text-center py-3 text-muted">
+                                    No components added to this BOM
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="print-bom-btn">
+                    <i class="fas fa-print me-1"></i> 
+                </button>
+                <button class="btn btn-primary" id="edit-bom-btn">
+                    <i class="fas fa-edit me-1"></i> 
+                </button>
+                <button class="btn btn-outline-danger" id="delete-bom-btn">
+                    <i class="fas fa-trash me-1"></i> 
+                </button>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Create/Edit BOM Modal -->
+<div class="modal fade" id="bom-form-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bom-modal-title">BOM جدید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="bom-form">
+                    <input type="hidden" id="bom-id">
+                    <div class="mb-3">
+                        <label for="reference" class="form-label">کد</label>
+                        <input type="text" class="form-control" id="reference" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product" class="form-label">محصول</label>
+                        <select class="form-control" id="product" required>
+                            <option value="">انتخاب محصول</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="operation-time" class="form-label">زمان عملیات (دقیقه)</label>
+                        <input type="number" step="0.01" min="0" class="form-control" id="operation-time" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary" id="save-bom-btn">ذخیره</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Component Modal -->
+<div class="modal fade" id="component-form-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">افزودن جزء</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="component-form">
+                    <input type="hidden" id="component-bom-id">
+                    <div class="mb-3">
+                        <label for="component-product" class="form-label">جزء</label>
+                        <select class="form-control" id="component-product" required>
+                            <option value="">انتخاب جزء</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">تعداد</label>
+                        <input type="number" step="0.01" min="0.01" class="form-control" id="quantity" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="uom" class="form-label">واحد اندازه گیری</label>
+                        <select class="form-control" id="uom" required>
+                            <option value="units">Units</option>
+                            <option value="kg">Kilograms</option>
+                            <option value="g">Grams</option>
+                            <option value="l">Liters</option>
+                            <option value="ml">Milliliters</option>
+                            <option value="m">Meters</option>
+                            <option value="cm">Centimeters</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary" id="save-component-btn">افزودن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="delete-confirm-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this BOM? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock%}
 {% block javascript %}
-<script src="{% static 'project/product.js' %}"></script>
+<script src="{% static 'project/bom.js' %}"></script>
 
-<script>
-    $(document).ready(function() {
-        // Global variables
-        let currentBomId = null;
-        
-        // Initialize the page
-        loadBomList();
-        loadProductFilter();
-        
-        // Event handlers
-        $('#create-bom-btn').click(showCreateBomModal);
-        $('#edit-bom-btn').click(showEditBomModal);
-        $('#delete-bom-btn').click(showDeleteConfirmModal);
-        $('#save-bom-btn').click(saveBom);
-        $('#add-component-btn').click(showAddComponentModal);
-        $('#save-component-btn').click(saveComponent);
-        $('#confirm-delete-btn').click(deleteBom);
-        $('#print-bom-btn').click(printBom);
-        $('#bom-search').on('keyup', filterBoms);
-        $('#product-filter').change(filterBoms);
-        
-        // Load BOM list from server
-        function loadBomList() {
-            // In a real app, this would be an AJAX call to your Django backend
-            // For demo purposes, we'll use mock data
-            const mockBoms = [
-                {
-                    id: 1,
-                    reference: "BOM-001",
-                    product: { id: 101, name: "Finished Product A" },
-                    operation_time: 45.5,
-                    updated_at: "2023-06-15T14:30:00Z",
-                    components: [
-                        { id: 201, product: { id: 201, name: "Component X" }, quantity: 2, uom: "units" },
-                        { id: 202, product: { id: 202, name: "Component Y" }, quantity: 1.5, uom: "kg" }
-                    ]
-                },
-                {
-                    id: 2,
-                    reference: "BOM-002",
-                    product: { id: 102, name: "Finished Product B" },
-                    operation_time: 30.0,
-                    updated_at: "2023-06-10T09:15:00Z",
-                    components: [
-                        { id: 203, product: { id: 203, name: "Component Z" }, quantity: 3, uom: "units" }
-                    ]
-                }
-            ];
-            
-            if (mockBoms.length > 0) {
-                $('#empty-bom-list').hide();
-                $('#bom-list').empty();
-                
-                mockBoms.forEach(bom => {
-                    const bomItem = $(`
-                        <a href="#" class="list-group-item list-group-item-action bom-item" data-bom-id="${bom.id}">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">${bom.reference}</h6>
-                                <small>${formatDate(bom.updated_at)}</small>
-                            </div>
-                            <p class="mb-1">${bom.product.name}</p>
-                            <small>${bom.components.length} components</small>
-                        </a>
-                    `);
-                    
-                    bomItem.click(function(e) {
-                        e.preventDefault();
-                        loadBomDetails(bom.id);
-                    });
-                    
-                    $('#bom-list').append(bomItem);
-                });
-                
-                // Load the first BOM by default
-                loadBomDetails(mockBoms[0].id);
-            } else {
-                $('#empty-bom-list').show();
-            }
-        }
-        
-        // Load product filter options
-        function loadProductFilter() {
-            // In a real app, this would be an AJAX call to get finished products
-            const mockProducts = [
-                { id: 101, name: "Finished Product A" },
-                { id: 102, name: "Finished Product B" },
-                { id: 103, name: "Finished Product C" }
-            ];
-            
-            mockProducts.forEach(product => {
-                $('#product-filter').append(`<option value="${product.id}">${product.name}</option>`);
-            });
-        }
-        
-        // Load BOM details
-        function loadBomDetails(bomId) {
-            currentBomId = bomId;
-            
-            // In a real app, this would be an AJAX call
-            const mockBoms = [
-                {
-                    id: 1,
-                    reference: "BOM-001",
-                    product: { id: 101, name: "Finished Product A" },
-                    operation_time: 45.5,
-                    updated_at: "2023-06-15T14:30:00Z",
-                    components: [
-                        { id: 201, product: { id: 201, name: "Component X" }, quantity: 2, uom: "units" },
-                        { id: 202, product: { id: 202, name: "Component Y" }, quantity: 1.5, uom: "kg" }
-                    ]
-                },
-                {
-                    id: 2,
-                    reference: "BOM-002",
-                    product: { id: 102, name: "Finished Product B" },
-                    operation_time: 30.0,
-                    updated_at: "2023-06-10T09:15:00Z",
-                    components: [
-                        { id: 203, product: { id: 203, name: "Component Z" }, quantity: 3, uom: "units" }
-                    ]
-                }
-            ];
-            
-            const bom = mockBoms.find(b => b.id == bomId);
-            if (bom) {
-                $('#empty-bom-detail').hide();
-                $('#bom-detail-view').show();
-                
-                // Update header info
-                $('#bom-reference').text(bom.reference);
-                $('#bom-product').text(bom.product.name);
-                $('#bom-operation-time').text(bom.operation_time);
-                $('#bom-updated-at').text(formatDate(bom.updated_at));
-                
-                // Update components list
-                if (bom.components.length > 0) {
-                    $('#empty-components').hide();
-                    $('#component-list').empty();
-                    
-                    bom.components.forEach(component => {
-                        const componentItem = $(`
-                            <div class="component-item" data-component-id="${component.id}">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>${component.product.name}</strong>
-                                        <div class="text-muted">Quantity: ${component.quantity} ${component.uom}</div>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-danger remove-component-btn">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `);
-                        
-                        componentItem.find('.remove-component-btn').click(function() {
-                            removeComponent(component.id);
-                        });
-                        
-                        $('#component-list').append(componentItem);
-                    });
-                } else {
-                    $('#empty-components').show();
-                }
-                
-                // Highlight selected BOM in list
-                $('.bom-item').removeClass('active');
-                $(`.bom-item[data-bom-id="${bomId}"]`).addClass('active');
-            }
-        }
-        
-        // Show create BOM modal
-        function showCreateBomModal() {
-            $('#bom-modal-title').text('Create New BOM');
-            $('#bom-id').val('');
-            $('#bom-form')[0].reset();
-            $('#bom-form-modal').modal('show');
-        }
-        
-        // Show edit BOM modal
-        function showEditBomModal() {
-            if (!currentBomId) return;
-            
-            // In a real app, you would fetch the BOM data via AJAX
-            const mockBoms = [
-                {
-                    id: 1,
-                    reference: "BOM-001",
-                    product: { id: 101, name: "Finished Product A" },
-                    operation_time: 45.5
-                },
-                {
-                    id: 2,
-                    reference: "BOM-002",
-                    product: { id: 102, name: "Finished Product B" },
-                    operation_time: 30.0
-                }
-            ];
-            
-            const bom = mockBoms.find(b => b.id == currentBomId);
-            if (bom) {
-                $('#bom-modal-title').text('Edit BOM');
-                $('#bom-id').val(bom.id);
-                $('#reference').val(bom.reference);
-                $('#product').val(bom.product.id);
-                $('#operation-time').val(bom.operation_time);
-                $('#bom-form-modal').modal('show');
-            }
-        }
-        
-        // Save BOM (create or update)
-        function saveBom() {
-            const form = $('#bom-form')[0];
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-            
-            const bomData = {
-                id: $('#bom-id').val(),
-                reference: $('#reference').val(),
-                product_id: $('#product').val(),
-                operation_time: $('#operation-time').val()
-            };
-            
-            // In a real app, this would be an AJAX call to your Django backend
-            console.log('Saving BOM:', bomData);
-            
-            // Simulate success
-            $('#bom-form-modal').modal('hide');
-            loadBomList(); // Refresh the list
-            
-            if (bomData.id) {
-                showToast('BOM updated successfully!', 'success');
-            } else {
-                showToast('BOM created successfully!', 'success');
-            }
-        }
-        
-        // Show add component modal
-        function showAddComponentModal() {
-            if (!currentBomId) return;
-            
-            $('#component-bom-id').val(currentBomId);
-            $('#component-form')[0].reset();
-            $('#component-form-modal').modal('show');
-        }
-        
-        // Save component
-        function saveComponent() {
-            const form = $('#component-form')[0];
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-            
-            const componentData = {
-                bom_id: $('#component-bom-id').val(),
-                product_id: $('#component-product').val(),
-                quantity: $('#quantity').val(),
-                uom: $('#uom').val()
-            };
-            
-            // In a real app, this would be an AJAX call to your Django backend
-            console.log('Adding component:', componentData);
-            
-            // Simulate success
-            $('#component-form-modal').modal('hide');
-            loadBomDetails(currentBomId); // Refresh the BOM details
-            showToast('Component added successfully!', 'success');
-        }
-        
-        // Remove component
-        function removeComponent(componentId) {
-            if (!confirm('Are you sure you want to remove this component?')) return;
-            
-            // In a real app, this would be an AJAX call to your Django backend
-            console.log('Removing component:', componentId);
-            
-            // Simulate success
-            loadBomDetails(currentBomId); // Refresh the BOM details
-            showToast('Component removed successfully!', 'success');
-        }
-        
-        // Show delete confirmation modal
-        function showDeleteConfirmModal() {
-            if (!currentBomId) return;
-            $('#delete-confirm-modal').modal('show');
-        }
-        
-        // Delete BOM
-        function deleteBom() {
-            $('#delete-confirm-modal').modal('hide');
-            
-            // In a real app, this would be an AJAX call to your Django backend
-            console.log('Deleting BOM:', currentBomId);
-            
-            // Simulate success
-            currentBomId = null;
-            loadBomList(); // Refresh the list
-            showToast('BOM deleted successfully!', 'success');
-        }
-        
-        // Print BOM
-        function printBom() {
-            if (!currentBomId) return;
-            window.print(); // In a real app, you might generate a more print-friendly version
-        }
-        
-        // Filter BOMs
-        function filterBoms() {
-            const searchTerm = $('#bom-search').val().toLowerCase();
-            const productId = $('#product-filter').val();
-            
-            $('.bom-item').each(function() {
-                const text = $(this).text().toLowerCase();
-                const matchesSearch = searchTerm === '' || text.includes(searchTerm);
-                // In a real app, you would also check the product filter
-                
-                if (matchesSearch) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            });
-        }
-        
-        // Helper function to format date
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-        }
-        
-        // Helper function to show toast messages
-        function showToast(message, type = 'success') {
-            // In a real app, you would use a proper toast library
-            alert(`${type.toUpperCase()}: ${message}`);
-        }
-    });
-</script>
+
+
 {% endblock %}

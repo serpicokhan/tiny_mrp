@@ -162,40 +162,56 @@ function initComponentForm() {
     });
 }
 
-// Load BOM list
+
 function loadBomList() {
     // Apply filtering if any
-    const filteredBoms = filterBomData(mockBoms);
-    const totalItems = filteredBoms.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    
-    // Paginate the data
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedBoms = filteredBoms.slice(startIndex, startIndex + itemsPerPage);
-    
-    // Update count info
-    const startItem = startIndex + 1;
-    const endItem = Math.min(startIndex + itemsPerPage, totalItems);
-    $('#table-count-info').text(`Showing ${startItem}-${endItem} of ${totalItems} BOMs`);
-    
-    // Update pagination controls
-    updatePagination(totalPages);
-    
-    if (paginatedBoms.length > 0) {
-        if (currentView === 'table') {
-            renderBomTable(paginatedBoms);
-        } else {
-            renderBomGrid(paginatedBoms);
+    $.ajax({
+        url: '/api/boms/',  // Your Django endpoint
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            // Process the response data (similar to your mockProducts)
+            // console.log('Received products:', response);
+            mockBoms=response
+            const filteredBoms = filterBomData(mockBoms);
+            const totalItems = filteredBoms.length; 
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            // Paginate the data
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedBoms = filteredBoms.slice(startIndex, startIndex + itemsPerPage);
+            
+            // Update count info
+            const startItem = startIndex + 1;
+            const endItem = Math.min(startIndex + itemsPerPage, totalItems);
+            $('#table-count-info').text(`نمایش ${startItem}-${endItem} از ${totalItems} BOMs`);
+            
+            // Update pagination controls
+            updatePagination(totalPages);
+            
+            if (paginatedBoms.length > 0) {
+                if (currentView === 'table') {
+                    renderBomTable(paginatedBoms);
+                } else {
+                    renderBomGrid(paginatedBoms);
+                }
+            } else {
+                if (currentView === 'table') {
+                    $('#empty-bom-table').show();
+                    $('#bom-table-body').empty();
+                } else {
+                    $('#empty-bom-grid').show();
+                    $('#bom-grid').empty();
+                }
+            }
+            // Example: Display products in a table
+           
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching products:', error);
         }
-    } else {
-        if (currentView === 'table') {
-            $('#empty-bom-table').show();
-            $('#bom-table-body').empty();
-        } else {
-            $('#empty-bom-grid').show();
-            $('#bom-grid').empty();
-        }
-    }
+    });
+    
 }
 
 // Filter BOM data based on search and product filter
@@ -256,12 +272,12 @@ function renderBomTable(boms) {
             <tr data-bom-id="${bom.id}">
                 <td><strong>${bom.reference}</strong></td>
                 <td>${bom.product.name}</td>
-                <td>${bom.components.length} components</td>
-                <td>${bom.operation_time} min</td>
+                <td>${bom.components.length} مولفه‌ای</td>
+                <td>${bom.operation_time} دقیقه</td>
                 <td>${formatDate(bom.updated_at)}</td>
                 <td>
                     <button class="btn btn-sm btn-outline-primary view-bom-btn" data-bom-id="${bom.id}">
-                        <i class="fas fa-eye"></i> View
+                        <i class="fas fa-eye"></i> 
                     </button>
                     <button class="btn btn-sm btn-outline-secondary edit-bom-btn" data-bom-id="${bom.id}">
                         <i class="fas fa-edit"></i>
@@ -302,10 +318,10 @@ function renderBomGrid(boms) {
                 </div>
                 <div class="card-footer bg-transparent">
                     <button class="btn btn-sm btn-outline-primary view-bom-btn" data-bom-id="${bom.id}">
-                        <i class="fas fa-eye"></i> View
+                        <i class="fas fa-eye"></i> 
                     </button>
                     <button class="btn btn-sm btn-outline-secondary edit-bom-btn" data-bom-id="${bom.id}">
-                        <i class="fas fa-edit"></i> Edit
+                        <i class="fas fa-edit"></i> 
                     </button>
                 </div>
             </div>
@@ -378,13 +394,13 @@ function loadBomDetails(bomId) {
 
 // Show create BOM modal
 function showCreateBomModal() {
-    $('#bom-modal-title').text('Create New BOM');
+    $('#bom-modal-title').text('BOM جدید');
     $('#bom-id').val('');
     $('#bom-form')[0].reset();
     
     // Populate product dropdown
     const $productSelect = $('#product');
-    $productSelect.empty().append('<option value="">Select a product</option>');
+    $productSelect.empty().append('<option value="">انتخاب یک محصول</option>');
     mockProducts.forEach(product => {
         $productSelect.append(`<option value="${product.id}">${product.name}</option>`);
     });
@@ -406,7 +422,7 @@ function showEditBomModal(bomId = null) {
         
         // Populate product dropdown
         const $productSelect = $('#product');
-        $productSelect.empty().append('<option value="">Select a product</option>');
+        $productSelect.empty().append('<option value="">انتخاب یک محصول</option>');
         mockProducts.forEach(product => {
             $productSelect.append(`<option value="${product.id}" ${product.id === bom.product.id ? 'selected' : ''}>${product.name}</option>`);
         });

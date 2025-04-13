@@ -17,6 +17,17 @@ from mrp.business.tolid_util import *
 import datetime
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
+from rest_framework import generics
+from mrp.models import BillOfMaterials
+from mrp.serializers import BillOfMaterialsSerializer
 
 def bom_create(request):
-    return render(request,"mrp/bom/bom3.html",{})
+    return render(request,"mrp/bom/partialBOMCreate.html",{})
+class BOMListView(generics.ListAPIView):
+    queryset = BillOfMaterials.objects.all().prefetch_related('components')
+    serializer_class = BillOfMaterialsSerializer
+    
+    def get_queryset(self):
+        # You can add filtering here if needed
+        return super().get_queryset().order_by('reference')
+

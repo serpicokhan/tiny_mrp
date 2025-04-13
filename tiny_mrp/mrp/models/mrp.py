@@ -68,7 +68,13 @@ class Product(models.Model):
         # Ensure sale price is greater than cost price
         if self.sale_price <= self.cost_price:
             raise ValidationError("Sale price must be greater than cost price.")
-        
+
+class UnitOfMeasure(models.Model):
+    name = models.CharField(max_length=20)
+    abbreviation = models.CharField(max_length=10)
+    
+    def __str__(self):
+        return self.abbreviation     
 class BOMComponent(models.Model):
     """Through model for Bill of Materials components with quantity."""
     bom = models.ForeignKey('BillOfMaterials', on_delete=models.CASCADE)
@@ -76,6 +82,7 @@ class BOMComponent(models.Model):
     quantity = models.FloatField(validators=[MinValueValidator(0.0)])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    uom = models.ForeignKey(UnitOfMeasure, on_delete=models.PROTECT)
 
     class Meta:
         ordering = ['product__name']

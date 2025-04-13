@@ -144,6 +144,7 @@ urlpatterns = [
     url(r'^Supplier/GetSuplier$', wo_getSuppliers, name='wo_getSuppliers'),
     url(r'^Asset/GetAssets$', asset_getAssets2, name='asset_getAssets2'),
     url(r'^BOM/Create$', bom_create, name='bom_create'),
+    path('api/boms/', BOMListView.as_view(), name='bom-list'),
 
     url(r'^Product/$', product_list, name='product_list'),
     path('Product/List', views.ProductListView.as_view(), name='product_list'),
