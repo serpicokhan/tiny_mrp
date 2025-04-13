@@ -1,3 +1,5 @@
+$(function () {
+
 // Global variables
 let currentBomId = null;
 let currentPage = 1;
@@ -5,14 +7,33 @@ const itemsPerPage = 5;
 let currentView = 'table'; // 'table' or 'grid'
 
 // Mock data
-const mockProducts = [
-    { id: 101, name: "Finished Product A" },
-    { id: 102, name: "Finished Product B" },
-    { id: 103, name: "Finished Product C" },
-    { id: 104, name: "Finished Product D" },
-    { id: 105, name: "Finished Product E" },
-    { id: 106, name: "Finished Product F" }
+let mockProducts = [
+    
 ];
+function loadProducts() {
+
+    // In a real app, this would be an AJAX call to your Django backend
+    // For demo purposes, we'll use mock data
+    $.ajax({
+        url: '/api/products/',  // Your Django endpoint
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            // Process the response data (similar to your mockProducts)
+            // console.log('Received products:', response);
+            mockProducts=response;
+            initProductFilter();
+            
+            // Example: Display products in a table
+           
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching products:', error);
+        }
+    });
+    
+   
+}
 
 const mockComponents = [
     { id: 201, name: "Component X" },
@@ -26,17 +47,74 @@ const mockComponents = [
 let mockBoms = [];
 
 
-// Initialize the page
-$(document).ready(function() {
+
+
+    var loadForm =function (btn1) {
+        var btn=0;
+        if($(btn1).attr("type")=="click")
+         btn=$(this);
+        else {
+          btn=btn1;
+        }
+    
+        return $.ajax({
+          url: btn.attr("data-url"),
+          type: 'get',
+          dataType: 'json',
+          beforeSend: function () {
+            
+            $("#bom-form-modal").modal("show");
+          },
+          success: function (data) {
+            
+    
+            $("#bom-form-modal .modal-content").html(data.html_bom_form);
+            $(".select2").select2();
+    
+    
+          }
+        });
+    
+    
+    
+    };
+    var saveForm= function () {
+        alert("!23");
+        var form = $(this);
+   
+   
+        $.ajax({
+          url: form.attr("action"),
+          data: form.serialize(),
+          type: form.attr("method"),
+          dataType: 'json',
+          success: function (data) {
+   
+            if (data.form_is_valid) {
+              $("#bom-form-modal").modal("hide");
+              loadBomList();
+   
+               console.log("success");
+            }
+            else {
+   
+              $("#company-table tbody").html(data.html_assetFailure_list);
+              $("#modal-company .modal-content").html(data.html_assetFailure_form);
+            }
+          }
+        });
+        return false;
+      };
+    loadProducts();
     loadBomList();
-    initProductFilter();
+    // initProductFilter();
     initComponentForm();
     
     // Event handlers
-    $('#create-bom-btn').click(showCreateBomModal);
+    $('#create-bom-btn').click(loadForm);
     $('#edit-bom-btn').click(showEditBomModal);
     $('#delete-bom-btn').click(showDeleteConfirmModal);
-    $('#save-bom-btn').click(saveBom);
+    // $('#save-bom-btn').click(saveBom);
     $('#add-component-btn').click(showAddComponentModal);
     $('#save-component-btn').click(saveComponent);
     $('#confirm-delete-btn').click(deleteBom);
@@ -55,10 +133,10 @@ $(document).ready(function() {
         e.preventDefault();
         const pageText = $(this).text().toLowerCase();
         
-        if (pageText === 'previous' && currentPage > 1) {
+        if (pageText === 'قبلی' && currentPage > 1) {
             currentPage--;
             loadBomList();
-        } else if (pageText === 'next') {
+        } else if (pageText === 'بعدی') {
             currentPage++;
             loadBomList();
         } else if (!isNaN(pageText)) {
@@ -66,7 +144,7 @@ $(document).ready(function() {
             loadBomList();
         }
     });
-});
+
 
 // Set the current view (table or grid)
 function setView(view) {
@@ -83,7 +161,8 @@ function setView(view) {
 // Initialize product filter dropdown
 function initProductFilter() {
     const $productFilter = $('#product-filter');
-    $productFilter.empty().append('<option value="">Filter by Product</option>');
+    $productFilter.empty().append('<option value="">فیلتر بر اساس محصول</option>');
+    
     
     mockProducts.forEach(product => {
         $productFilter.append(`<option value="${product.id}">${product.name}</option>`);
@@ -179,7 +258,7 @@ function updatePagination(totalPages) {
 function generatePaginationHtml(totalPages) {
     let html = `
         <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-            <a class="page-link" href="#" tabindex="-1">Previous</a>
+            <a class="page-link" href="#" tabindex="-1">قبلی</a>
         </li>
     `;
     
@@ -193,7 +272,7 @@ function generatePaginationHtml(totalPages) {
     
     html += `
         <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-            <a class="page-link" href="#">Next</a>
+            <a class="page-link" href="#">بعدی</a>
         </li>
     `;
     
@@ -251,7 +330,7 @@ function renderBomGrid(boms) {
                 <div class="card-body">
                     <p class="card-text"><strong>محصول:</strong> ${bom.product.name}</p>
                     <p class="card-text"><strong>اجزا:</strong> ${bom.components.length}</p>
-                    <p class="card-text"><strong>زمان عملیاتی:</strong> ${bom.operation_time} min</p>
+                    <p class="card-text"><strong>زمان عملیاتی:</strong> ${bom.operation_time} دقیقه</p>
                     <p class="card-text"><small class="text-muted">آخرین بروز رسانی: ${formatDate(bom.updated_at)}</small></p>
                 </div>
                 <div class="card-footer bg-transparent">
@@ -535,3 +614,5 @@ function showToast(message, type = 'success') {
     // In a real app, you would use a proper toast library
     alert(`${type.toUpperCase()}: ${message}`);
 }
+$("#bom-form-modal").on("submit", ".js-bom-create-form", saveForm);
+});

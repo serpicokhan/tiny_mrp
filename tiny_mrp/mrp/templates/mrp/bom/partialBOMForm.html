@@ -1,0 +1,23 @@
+
+{% load widget_tweaks %}
+
+<input type="hidden" id="bom-id">
+        <div class="mb-3">
+            <label>{{form.reference.label}}</label>
+            {% render_field form.reference  class='form-control' %}
+
+
+        </div>
+        <div class="mb-3">
+            <label>{{form.product.label}}</label>
+            
+            {% render_field form.product  class='form-control select2' %}
+
+            
+        </div>
+        <div class="mb-3">
+            <label>{{form.operation_time.label}}</label>
+            {% render_field form.operation_time  class='form-control' %}
+
+
+        </div>

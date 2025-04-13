@@ -93,15 +93,15 @@ class BOMComponent(models.Model):
 
 class BillOfMaterials(models.Model):
     """Model representing a Bill of Materials for manufacturing a product."""
-    reference = models.CharField(max_length=50, unique=True)
+    reference = models.CharField("کد",max_length=50, unique=True)
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='boms',
+        related_name='boms',verbose_name="محصول",
         limit_choices_to={'product_type': 'finished'}
     )
-    components = models.ManyToManyField(Product, through=BOMComponent, related_name='used_in_boms')
-    operation_time = models.FloatField(
+    components = models.ManyToManyField(Product, through=BOMComponent, related_name='used_in_boms',null=True,blank=True)
+    operation_time = models.FloatField("زمان عملیات",
         validators=[MinValueValidator(0.0)],
         help_text="Time in minutes"
     )

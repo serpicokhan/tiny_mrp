@@ -143,7 +143,8 @@ urlpatterns = [
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
     url(r'^Supplier/GetSuplier$', wo_getSuppliers, name='wo_getSuppliers'),
     url(r'^Asset/GetAssets$', asset_getAssets2, name='asset_getAssets2'),
-    url(r'^BOM/Create$', bom_create, name='bom_create'),
+    url(r'^BOM/$', bom_list, name='bom_list'),
+    url(r'^BOM/Create$', create_bom, name='create_bom'),
     path('api/boms/', BOMListView.as_view(), name='bom-list'),
 
     url(r'^Product/$', product_list, name='product_list'),

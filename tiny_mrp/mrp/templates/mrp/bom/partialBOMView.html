@@ -1,0 +1,56 @@
+<div class="modal-header">
+    <h5 class="modal-title">جزییات BOM</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body" id="bom-detail-content">
+    <div class="bom-header mb-4">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>کد:</strong> <span id="bom-reference"></span></p>
+                <p><strong>محصول:</strong> <span id="bom-product"></span></p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>زمان عملیات:</strong> <span class="operation-time" id="bom-operation-time"></span> دقیقه</p>
+                <p><strong>آخرین بروزرسانی:</strong> <span id="bom-updated-at"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">اجزا</h5>
+        <button class="btn btn-sm btn-primary" id="add-component-btn">
+            <i class="fas fa-plus me-1"></i> افزودن اجزا
+        </button>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-sm table-hover">
+            <thead>
+                <tr>
+                    <th>جزء</th>
+                    <th>تعداد</th>
+                    <th>واحد اندازه گیری</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody id="component-table-body">
+                <tr id="empty-components">
+                    <td colspan="4" class="text-center py-3 text-muted">
+                        No components added to this BOM
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-success" id="print-bom-btn">
+        <i class="fas fa-print me-1"></i> 
+    </button>
+    <button class="btn btn-primary" id="edit-bom-btn">
+        <i class="fas fa-edit me-1"></i> 
+    </button>
+    <button class="btn btn-outline-danger" id="delete-bom-btn">
+        <i class="fas fa-trash me-1"></i> 
+    </button>
+</div>

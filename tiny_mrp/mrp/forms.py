@@ -253,3 +253,7 @@ class ProductFilterForm(forms.Form):
                 queryset = queryset.filter(available_quantity__lte=0)
         
         return queryset
+class BOMForm(forms.ModelForm):
+    class Meta:
+         model = BillOfMaterials
+         fields = '__all__'
