@@ -192,62 +192,7 @@
 <div class="modal fade" id="bom-detail-modal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">جزییات BOM</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="bom-detail-content">
-                <div class="bom-header mb-4">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>کد:</strong> <span id="bom-reference"></span></p>
-                            <p><strong>محصول:</strong> <span id="bom-product"></span></p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>زمان عملیات:</strong> <span class="operation-time" id="bom-operation-time"></span> دقیقه</p>
-                            <p><strong>آخرین بروزرسانی:</strong> <span id="bom-updated-at"></span></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">اجزا</h5>
-                    <button class="btn btn-sm btn-primary" id="add-component-btn">
-                        <i class="fas fa-plus me-1"></i> افزودن اجزا
-                    </button>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-sm table-hover">
-                        <thead>
-                            <tr>
-                                <th>جزء</th>
-                                <th>تعداد</th>
-                                <th>واحد اندازه گیری</th>
-                                <th>عملیات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="component-table-body">
-                            <tr id="empty-components">
-                                <td colspan="4" class="text-center py-3 text-muted">
-                                    No components added to this BOM
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-success" id="print-bom-btn">
-                    <i class="fas fa-print me-1"></i> 
-                </button>
-                <button class="btn btn-primary" id="edit-bom-btn">
-                    <i class="fas fa-edit me-1"></i> 
-                </button>
-                <button class="btn btn-outline-danger" id="delete-bom-btn">
-                    <i class="fas fa-trash me-1"></i> 
-                </button>
-            </div>
+           
         </div>
     </div>
 </div>
@@ -265,41 +210,7 @@
 <div class="modal fade" id="component-form-modal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">افزودن جزء</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="component-form">
-                    <input type="hidden" id="component-bom-id">
-                    <div class="mb-3">
-                        <label for="component-product" class="form-label">جزء</label>
-                        <select class="form-control" id="component-product" required>
-                            <option value="">انتخاب جزء</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="quantity" class="form-label">تعداد</label>
-                        <input type="number" step="0.01" min="0.01" class="form-control" id="quantity" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="uom" class="form-label">واحد اندازه گیری</label>
-                        <select class="form-control" id="uom" required>
-                            <option value="units">Units</option>
-                            <option value="kg">Kilograms</option>
-                            <option value="g">Grams</option>
-                            <option value="l">Liters</option>
-                            <option value="ml">Milliliters</option>
-                            <option value="m">Meters</option>
-                            <option value="cm">Centimeters</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
-                <button type="button" class="btn btn-primary" id="save-component-btn">افزودن</button>
-            </div>
+            
         </div>
     </div>
 </div>

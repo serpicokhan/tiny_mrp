@@ -78,6 +78,36 @@ let mockBoms = [];
     
     
     };
+    var loadFormComponent =function (btn1) {
+        var btn=0;
+        if($(btn1).attr("type")=="click")
+         btn=$(this);
+        else {
+          btn=btn1;
+        }
+        console.log(btn.attr("data-url"));
+        return $.ajax({
+          url: btn.attr("data-url"),
+          type: 'get',
+          dataType: 'json',
+          beforeSend: function () {
+            
+            $("#component-form-modal").modal("show");
+          },
+          success: function (data) {
+            console.log(data);
+            
+    
+            $("#component-form-modal .modal-content").html(data.html_bom_component_form);
+            $(".select2").select2();
+    
+    
+          }
+        });
+    
+    
+    
+    };
     var saveForm= function () {
         alert("!23");
         var form = $(this);
@@ -115,7 +145,6 @@ let mockBoms = [];
     $('#edit-bom-btn').click(showEditBomModal);
     $('#delete-bom-btn').click(showDeleteConfirmModal);
     // $('#save-bom-btn').click(saveBom);
-    $('#add-component-btn').click(showAddComponentModal);
     $('#save-component-btn').click(saveComponent);
     $('#confirm-delete-btn').click(deleteBom);
     $('#print-bom-btn').click(printBom);
@@ -364,48 +393,60 @@ function loadBomDetails(bomId) {
     
     if (bom) {
         // Update header info
-        $('#bom-reference').text(bom.reference);
-        $('#bom-product').text(bom.product.name);
-        $('#bom-operation-time').text(bom.operation_time);
-        $('#bom-updated-at').text(formatDate(bom.updated_at));
+        // $('#bom-reference').text(bom.reference);
+        // $('#bom-product').text(bom.product.name);
+        // $('#bom-operation-time').text(bom.operation_time);
+        // $('#bom-updated-at').text(formatDate(bom.updated_at));
         
-        // Update components table
-        if (bom.components.length > 0) {
-            $('#empty-components').hide();
-            $('#component-table-body').empty();
+        // // Update components table
+        // if (bom.components.length > 0) {
+        //     $('#empty-components').hide();
+        //     $('#component-table-body').empty();
             
-            bom.components.forEach(component => {
-                const componentRow = $(`
-                    <tr data-component-id="${component.id}">
-                        <td>${component.product.name}</td>
-                        <td>${component.quantity}</td>
-                        <td>${component.uom}</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-danger remove-component-btn">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `);
+        //     bom.components.forEach(component => {
+        //         const componentRow = $(`
+        //             <tr data-component-id="${component.id}">
+        //                 <td>${component.product.name}</td>
+        //                 <td>${component.quantity}</td>
+        //                 <td>${component.uom}</td>
+        //                 <td>
+        //                     <button class="btn btn-sm btn-outline-danger remove-component-btn">
+        //                         <i class="fas fa-trash"></i>
+        //                     </button>
+        //                 </td>
+        //             </tr>
+        //         `);
                 
-                componentRow.find('.remove-component-btn').click(function() {
-                    if (confirm('Are you sure you want to remove this component?')) {
-                        // In a real app, AJAX call to delete from backend
-                        console.log('Removing component:', component.id);
-                        componentRow.remove();
+        //         componentRow.find('.remove-component-btn').click(function() {
+        //             if (confirm('Are you sure you want to remove this component?')) {
+        //                 // In a real app, AJAX call to delete from backend
+        //                 console.log('Removing component:', component.id);
+        //                 componentRow.remove();
                         
-                        if ($('#component-table-body tr:not(#empty-components)').length === 0) {
-                            $('#empty-components').show();
-                        }
-                    }
-                });
+        //                 if ($('#component-table-body tr:not(#empty-components)').length === 0) {
+        //                     $('#empty-components').show();
+        //                 }
+        //             }
+        //         });
                 
-                $('#component-table-body').append(componentRow);
-            });
-        } else {
-            $('#empty-components').show();
-            $('#component-table-body').empty();
-        }
+        //         $('#component-table-body').append(componentRow);
+        //     });
+        // } else {
+        //     $('#empty-components').show();
+        //     $('#component-table-body').empty();
+        // }
+        $.ajax({
+            url: `/BOM/${bomId}/view`,  // Your Django endpoint
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+               $("#bom-detail-modal .modal-content").html(response.html_bom_view_form);
+               
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching products:', error);
+            }
+        });
     }
 }
 
@@ -615,4 +656,6 @@ function showToast(message, type = 'success') {
     alert(`${type.toUpperCase()}: ${message}`);
 }
 $("#bom-form-modal").on("submit", ".js-bom-create-form", saveForm);
+$(document).on("click",".add-component-btn",loadFormComponent);
+
 });

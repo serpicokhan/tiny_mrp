@@ -6,19 +6,19 @@
     <div class="bom-header mb-4">
         <div class="row">
             <div class="col-md-6">
-                <p><strong>کد:</strong> <span id="bom-reference"></span></p>
-                <p><strong>محصول:</strong> <span id="bom-product"></span></p>
+                <p><strong>کد:</strong> <span id="bom-reference">{{bom.reference}}</span></p>
+                <p><strong>محصول:</strong> <span id="bom-product">{{bom.product}}</span></p>
             </div>
             <div class="col-md-6">
-                <p><strong>زمان عملیات:</strong> <span class="operation-time" id="bom-operation-time"></span> دقیقه</p>
-                <p><strong>آخرین بروزرسانی:</strong> <span id="bom-updated-at"></span></p>
+                <p><strong>زمان عملیات:</strong> <span class="operation-time" id="bom-operation-time"></span>{{bom.operation_time}} دقیقه</p>
+                <p><strong>آخرین بروزرسانی:</strong> <span id="bom-updated-at">{{bom.updated_at}}</span></p>
             </div>
         </div>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">اجزا</h5>
-        <button class="btn btn-sm btn-primary" id="add-component-btn">
+        <button class="btn btn-sm btn-primary add-component-btn" id="add-component-btn" data-url="{% url 'create_bom_component' %}">
             <i class="fas fa-plus me-1"></i> افزودن اجزا
         </button>
     </div>
@@ -34,11 +34,27 @@
                 </tr>
             </thead>
             <tbody id="component-table-body">
+                {% for c in components %}
+                <tr>
+                    <td>
+                        {{c.product}}
+                       
+                    </td>
+                    <td>{{c.quantity}}</td>
+                    <td>{{c.uom}}</td>
+                    <td><button class="btn btn-sm btn-outline-danger remove-component-btn">
+                                                 <i class="fas fa-trash"></i>
+                                            </button></td>
+
+                </tr>
+
+                {%empty%}
                 <tr id="empty-components">
                     <td colspan="4" class="text-center py-3 text-muted">
-                        No components added to this BOM
+                       لیست خالی
                     </td>
                 </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

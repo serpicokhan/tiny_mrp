@@ -257,3 +257,7 @@ class BOMForm(forms.ModelForm):
     class Meta:
          model = BillOfMaterials
          fields = '__all__'
+class BomComponentForm(forms.ModelForm):
+    class Meta:
+         model = BOMComponent
+         fields = '__all__'

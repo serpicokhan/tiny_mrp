@@ -20,7 +20,7 @@ from django.core.exceptions import ValidationError
 from rest_framework import generics
 from mrp.models import BillOfMaterials
 from mrp.serializers import BillOfMaterialsSerializer
-from mrp.forms import BOMForm
+from mrp.forms import BOMForm,BomComponentForm
 
 def bom_list(request):
     return render(request,"mrp/bom/partialBOMList.html",{})
@@ -51,6 +51,24 @@ def save_bom_form(request, form, template_name):
 
     data['html_bom_form'] = render_to_string(template_name, context, request=request)
     return JsonResponse(data)
+def save_bom_component_form(request, form, template_name):
+
+
+    data = dict()
+    if (request.method == 'POST'):
+        if form.is_valid():
+            bts=form.save()
+            data['form_is_valid'] = True
+            
+        else:
+            data['form_is_valid'] = False
+            
+
+    context = {'form': form}
+
+
+    data['html_bom_component_form'] = render_to_string(template_name, context, request=request)
+    return JsonResponse(data)
 def create_bom(request):
     if (request.method == 'POST'):
         form = BOMForm(request.POST)
@@ -60,3 +78,19 @@ def create_bom(request):
         
         form = BOMForm()
         return save_bom_form(request, form, 'mrp/bom/partialBOMCreate.html')
+def create_bom_component(request):
+    if (request.method == 'POST'):
+        form = BomComponentForm(request.POST)
+        return save_bom_component_form(request, form, 'mrp/bom/component/partialBomComponentCreate.html')
+  
+    else:
+        
+        form = BomComponentForm()
+        return save_bom_component_form(request, form, 'mrp/bom/component/partialBomComponentCreate.html')
+def view_bom(request,id):
+    data=dict()
+    bom=BillOfMaterials.objects.get(id=id)
+    components=BOMComponent.objects.filter(bom=bom)
+    # print(bom.reference,"!!!!!!!!!!!")
+    data["html_bom_view_form"]=render_to_string('mrp/bom/partialBOMView.html',{'bom_id':id,'bom':bom,'components':components}, request=request)
+    return JsonResponse(data)
