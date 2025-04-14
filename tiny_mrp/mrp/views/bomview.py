@@ -91,6 +91,7 @@ def view_bom(request,id):
     data=dict()
     bom=BillOfMaterials.objects.get(id=id)
     components=BOMComponent.objects.filter(bom=bom)
+    print(components)
     # print(bom.reference,"!!!!!!!!!!!")
     data["html_bom_view_form"]=render_to_string('mrp/bom/partialBOMView.html',{'bom_id':id,'bom':bom,'components':components}, request=request)
     return JsonResponse(data)

@@ -655,7 +655,17 @@ function showToast(message, type = 'success') {
     // In a real app, you would use a proper toast library
     alert(`${type.toUpperCase()}: ${message}`);
 }
+var remove_component_btn=function() {
+                if (confirm('از عمل حذف این مولفه مطمین هستید؟')) {
+                    // In a real app, AJAX call to delete from backend
+                    $(this).closest('tr').remove();
+                    if ($('#component-table-body tr:not(#empty-components)').length === 0) {
+                                            $('#empty-components').show();
+                                        }
+                }
+            }
 $("#bom-form-modal").on("submit", ".js-bom-create-form", saveForm);
 $(document).on("click",".add-component-btn",loadFormComponent);
+$(document).on("click",".remove-component-btn",remove_component_btn);
 
 });
