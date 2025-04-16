@@ -261,3 +261,7 @@ class BomComponentForm(forms.ModelForm):
     class Meta:
          model = BOMComponent
          fields = '__all__'
+class WorkCenterForm(forms.ModelForm):
+    class Meta:
+         model = WorkCenter
+         fields = '__all__'

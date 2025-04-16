@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from mrp.models import Product,BOMComponent,BillOfMaterials,UnitOfMeasure
+from mrp.models import Product,BOMComponent,BillOfMaterials,UnitOfMeasure,WorkCenter
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,3 +21,9 @@ class BillOfMaterialsSerializer(serializers.ModelSerializer):
     class Meta:
         model = BillOfMaterials
         fields = ['id', 'reference', 'product', 'operation_time', 'updated_at', 'components']
+
+class WorkCenterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkCenter
+        fields = ['id', 'code', 'name', 'capacity_per_hour', 'active', 'updated_at']
+        read_only_fields = ['id', 'updated']

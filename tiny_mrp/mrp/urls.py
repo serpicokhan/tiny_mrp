@@ -160,7 +160,10 @@ urlpatterns = [
 
     url(r'^MOrder/Create$', manufacture_order_create, name='manufacture_order_create'),
     url(r'^MOrder/Detaile$', manufacture_order_detail, name='manufacture_order_detail'),
-    url(r'^Workcenter/Create$', workcenter_create, name='workcenter_create'),
+    url(r'^Workcenter/$', workcenter_list, name='workcenter_list'),
+    url(r'^Workcenter/Create$', create_workcenter, name='create_workcenter'),
+    path('api/workcenter/', WorkcenterListView.as_view(), name='workcenter-list'),
+
     url(r'^Workorder/Create$', workorder_create, name='workorder_create'),
     url(r'^Workorder/Detail$', workorder_detail, name='workorder_detail'),
     

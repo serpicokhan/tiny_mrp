@@ -115,10 +115,10 @@ class BillOfMaterials(models.Model):
         return self.reference
 class WorkCenter(models.Model):
     """Model representing a work center where manufacturing operations occur."""
-    name = models.CharField(max_length=200)
-    code = models.CharField(max_length=50, unique=True)
-    capacity_per_hour = models.FloatField(validators=[MinValueValidator(0.0)])
-    active = models.BooleanField(default=True)
+    name = models.CharField("نام",max_length=200)
+    code = models.CharField("کد",max_length=50, unique=True)
+    capacity_per_hour = models.FloatField("ظرفیت بر ساعت",validators=[MinValueValidator(0.0)])
+    active = models.BooleanField("فعال",default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

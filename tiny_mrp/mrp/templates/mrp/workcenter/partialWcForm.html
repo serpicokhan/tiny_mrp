@@ -1,0 +1,22 @@
+{% load widget_tweaks %}
+
+<div class="mb-3">
+
+    <label>{{form.name.label}}</label>
+            {% render_field form.name  class='form-control' %}
+</div>
+<div class="mb-3">
+
+    <label>{{form.code.label}}</label>
+            {% render_field form.code  class='form-control' %}
+</div>
+<div class="mb-3">
+
+    <label>{{form.capacity_per_hour.label}}</label>
+            {% render_field form.capacity_per_hour  class='form-control' %}
+</div>
+<div class="mb-3 form-check">
+    {% render_field form.active  class='form-check-label' %}
+
+    <label>{{form.active.label}}</label>
+</div>
