@@ -321,4 +321,6 @@ $(function () {
         }
     
 $(".create-new-workcenter").click(loadForm);
+$("#newWorkCenterModal").on("submit", ".js-workcenter-create-form", saveForm);
+
 });
