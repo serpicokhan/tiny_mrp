@@ -1,7 +1,9 @@
 {% load widget_tweaks %}
 
-<form id="component-form">
-    {{ form.bom.as_hidden }}
+<form id="component-form" method="post" action="{% url 'create_bom_component' bom_id   %}" class="js-component-create-form" autocomplete="off">
+    {% csrf_token %}
+
+    {{ form.bom.as_hidden}}
     <div class="mb-3">
         
         <label>{{form.product.label}}</label>

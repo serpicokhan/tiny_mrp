@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Centers</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Status badges */
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-active {
+            background-color: #d1e7dd;
+            color: #198754;
+        }
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+        
+        /* Table styling */
+        .workcenters-table thead {
+            background-color: #f8f9fa;
+        }
+        .workcenters-table tbody tr:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+        
+        /* Kanban card styling */
+        .kanban-card {
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        .kanban-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .kanban-card-header {
+            border-bottom: 1px solid #eee;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+        }
+        .kanban-card-body {
+            padding: 15px;
+        }
+        .kanban-card-footer {
+            border-top: 1px solid #eee;
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        /* Search and filter bar */
+        .search-bar {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        /* Action buttons */
+        .action-buttons .btn {
+            margin-right: 5px;
+        }
+        
+        /* View switcher */
+        .view-switcher .btn {
+            border-radius: 0;
+        }
+        .view-switcher .btn:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+        .view-switcher .btn:last-child {
+            border-radius: 0 4px 4px 0;
+        }
+        .view-switcher .btn.active {
+            background-color: #e9ecef;
+        }
+        
+        /* Odoo-like control panel */
+        .control-panel {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .kanban-card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-cogs me-2"></i>Work Centers</h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newWorkCenterModal">
+                <i class="fas fa-plus me-1"></i> New Work Center
+            </button>
+        </div>
+
+        <!-- Control Panel (Odoo-style) -->
+        <div class="control-panel">
+            <div class="row align-items-center">
+                <div class="col-md-4 mb-2 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Search work centers..." id="workCenterSearch">
+                    </div>
+                </div>
+                <div class="col-md-4 mb-2 mb-md-0">
+                    <div class="btn-group w-100" id="filterButtons">
+                        <button class="btn btn-sm btn-outline-secondary active" id="filterAll">All</button>
+                        <button class="btn btn-sm btn-outline-secondary" id="filterActive">Active</button>
+                        <button class="btn btn-sm btn-outline-secondary" id="filterInactive">Inactive</button>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="btn-group view-switcher">
+                        <button class="btn btn-sm btn-outline-secondary active" id="tableViewBtn" data-view="table">
+                            <i class="fas fa-list"></i> List
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" id="kanbanViewBtn" data-view="kanban">
+                            <i class="fas fa-th-large"></i> Kanban
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Centers Table View (default) -->
+        <div class="card" id="tableView">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover workcenters-table">
+                        <thead>
+                            <tr>
+                                <th width="15%">Code</th>
+                                <th width="25%">Name</th>
+                                <th width="15%">Capacity/Hour</th>
+                                <th width="15%">Status</th>
+                                <th width="20%">Last Updated</th>
+                                <th width="10%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="workCentersTableBody">
+                            <!-- Work centers will be loaded here from JSON -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Work Centers Kanban View (hidden by default) -->
+        <div class="row" id="kanbanView" style="display: none;">
+            <!-- Work centers will be loaded here from JSON -->
+        </div>
+    </div>
+
+    <!-- New Work Center Modal -->
+    <div class="modal fade" id="newWorkCenterModal" tabindex="-1" aria-labelledby="newWorkCenterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newWorkCenterModalLabel">Create New Work Center</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="workCenterForm">
+                        <div class="mb-3">
+                            <label for="workCenterName" class="form-label">Name *</label>
+                            <input type="text" class="form-control" id="workCenterName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="workCenterCode" class="form-label">Code *</label>
+                            <input type="text" class="form-control" id="workCenterCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="workCenterCapacity" class="form-label">Capacity per Hour *</label>
+                            <input type="number" class="form-control" id="workCenterCapacity" min="0" step="0.1" value="1.0" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="workCenterActive" checked>
+                            <label class="form-check-label" for="workCenterActive">Active</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="createWorkCenterBtn">Create Work Center</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Work Center Modal -->
+    <div class="modal fade" id="editWorkCenterModal" tabindex="-1" aria-labelledby="editWorkCenterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editWorkCenterModalLabel">Edit Work Center</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editWorkCenterForm">
+                        <input type="hidden" id="editWorkCenterId">
+                        <div class="mb-3">
+                            <label for="editWorkCenterName" class="form-label">Name *</label>
+                            <input type="text" class="form-control" id="editWorkCenterName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editWorkCenterCode" class="form-label">Code *</label>
+                            <input type="text" class="form-control" id="editWorkCenterCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editWorkCenterCapacity" class="form-label">Capacity per Hour *</label>
+                            <input type="number" class="form-control" id="editWorkCenterCapacity" min="0" step="0.1" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="editWorkCenterActive">
+                            <label class="form-check-label" for="editWorkCenterActive">Active</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="updateWorkCenterBtn">Update Work Center</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        // Define work centers in JSON format
+        const workCentersData = {
+            "workCenters": [
+                {
+                    "id": 1,
+                    "code": "WC-001",
+                    "name": "Assembly Line 1",
+                    "capacity": "5.0",
+                    "active": true,
+                    "updated": "2023-06-10 14:30"
+                },
+                {
+                    "id": 2,
+                    "code": "WC-002",
+                    "name": "Painting Station",
+                    "capacity": "3.5",
+                    "active": true,
+                    "updated": "2023-06-12 09:15"
+                },
+                {
+                    "id": 3,
+                    "code": "WC-003",
+                    "name": "Packaging Area",
+                    "capacity": "8.0",
+                    "active": false,
+                    "updated": "2023-05-28 16:45"
+                },
+                {
+                    "id": 4,
+                    "code": "WC-004",
+                    "name": "Quality Control",
+                    "capacity": "4.0",
+                    "active": true,
+                    "updated": "2023-06-14 11:20"
+                }
+            ]
+        };
+
+        $(document).ready(function() {
+            // Initialize the application with data from JSON
+            initializeWorkCenters();
+
+            // View switcher
+            $('.view-switcher button').click(function() {
+                const view = $(this).data('view');
+                $('.view-switcher button').removeClass('active');
+                $(this).addClass('active');
+                
+                if(view === 'table') {
+                    $('#tableView').show();
+                    $('#kanbanView').hide();
+                } else {
+                    $('#tableView').hide();
+                    $('#kanbanView').show();
+                }
+            });
+
+            // Filter buttons
+            $('#filterButtons button').click(function() {
+                $('#filterButtons button').removeClass('active');
+                $(this).addClass('active');
+                filterWorkCenters();
+            });
+
+            // Search functionality
+            $('#workCenterSearch').on('input', function() {
+                filterWorkCenters();
+            });
+
+            // Create new work center
+            $('#createWorkCenterBtn').click(function() {
+                if($('#workCenterForm')[0].checkValidity()) {
+                    const newWorkCenter = {
+                        id: Date.now(), // Temporary ID
+                        code: $('#workCenterCode').val(),
+                        name: $('#workCenterName').val(),
+                        capacity: $('#workCenterCapacity').val(),
+                        active: $('#workCenterActive').is(':checked'),
+                        updated: new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    };
+                    
+                    // Add to our JSON data
+                    workCentersData.workCenters.unshift(newWorkCenter);
+                    
+                    // Refresh views
+                    refreshWorkCenters();
+                    
+                    $('#newWorkCenterModal').modal('hide');
+                    $('#workCenterForm')[0].reset();
+                    alert('Work center created successfully!');
+                } else {
+                    $('#workCenterForm')[0].reportValidity();
+                }
+            });
+
+            // Edit work center
+            $(document).on('click', '.edit-workcenter', function() {
+                const workCenterId = parseInt($(this).data('id'));
+                const workCenter = workCentersData.workCenters.find(wc => wc.id === workCenterId);
+                
+                if(workCenter) {
+                    $('#editWorkCenterId').val(workCenter.id);
+                    $('#editWorkCenterName').val(workCenter.name);
+                    $('#editWorkCenterCode').val(workCenter.code);
+                    $('#editWorkCenterCapacity').val(workCenter.capacity);
+                    $('#editWorkCenterActive').prop('checked', workCenter.active);
+                    
+                    $('#editWorkCenterModal').modal('show');
+                }
+            });
+
+            // Update work center
+            $('#updateWorkCenterBtn').click(function() {
+                if($('#editWorkCenterForm')[0].checkValidity()) {
+                    const workCenterId = parseInt($('#editWorkCenterId').val());
+                    const workCenterIndex = workCentersData.workCenters.findIndex(wc => wc.id === workCenterId);
+                    
+                    if(workCenterIndex !== -1) {
+                        // Update the work center in our JSON data
+                        workCentersData.workCenters[workCenterIndex] = {
+                            id: workCenterId,
+                            code: $('#editWorkCenterCode').val(),
+                            name: $('#editWorkCenterName').val(),
+                            capacity: $('#editWorkCenterCapacity').val(),
+                            active: $('#editWorkCenterActive').is(':checked'),
+                            updated: new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                        };
+                        
+                        // Refresh views
+                        refreshWorkCenters();
+                        
+                        $('#editWorkCenterModal').modal('hide');
+                        alert('Work center updated successfully!');
+                    }
+                } else {
+                    $('#editWorkCenterForm')[0].reportValidity();
+                }
+            });
+
+            // Toggle work center status
+            $(document).on('click', '.toggle-status', function() {
+                const workCenterId = parseInt($(this).data('id'));
+                const currentStatus = $(this).data('status');
+                const newStatus = !currentStatus;
+                
+                if(confirm(`Are you sure you want to ${newStatus ? 'activate' : 'deactivate'} this work center?`)) {
+                    const workCenterIndex = workCentersData.workCenters.findIndex(wc => wc.id === workCenterId);
+                    
+                    if(workCenterIndex !== -1) {
+                        // Update status in our JSON data
+                        workCentersData.workCenters[workCenterIndex].active = newStatus;
+                        workCentersData.workCenters[workCenterIndex].updated = 
+                            new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        
+                        // Refresh views
+                        refreshWorkCenters();
+                        
+                        alert(`Work center ${newStatus ? 'activated' : 'deactivated'} successfully!`);
+                    }
+                }
+            });
+
+            // Initialize work centers from JSON data
+            function initializeWorkCenters() {
+                refreshWorkCenters();
+            }
+
+            // Refresh both table and kanban views from JSON data
+            function refreshWorkCenters() {
+                // Clear existing views
+                $('#workCentersTableBody').empty();
+                $('#kanbanView').empty();
+                
+                // Rebuild views from JSON data
+                workCentersData.workCenters.forEach(workCenter => {
+                    addWorkCenterToTable(workCenter);
+                    addWorkCenterToKanban(workCenter);
+                });
+                
+                // Reapply any active filters
+                filterWorkCenters();
+            }
+
+            // Helper function to filter work centers
+            function filterWorkCenters() {
+                const searchTerm = $('#workCenterSearch').val().toLowerCase();
+                const activeFilter = $('#filterButtons .btn.active').attr('id');
+                
+                // Filter table view
+                $('#workCentersTableBody tr').each(function() {
+                    const name = $(this).find('td:nth-child(2)').text().toLowerCase();
+                    const code = $(this).find('td:nth-child(1)').text().toLowerCase();
+                    const status = $(this).find('.status-badge').text().toLowerCase();
+                    
+                    const matchesSearch = name.includes(searchTerm) || code.includes(searchTerm);
+                    let matchesFilter = true;
+                    
+                    if(activeFilter === 'filterActive') {
+                        matchesFilter = status === 'active';
+                    } else if(activeFilter === 'filterInactive') {
+                        matchesFilter = status === 'inactive';
+                    }
+                    
+                    $(this).toggle(matchesSearch && matchesFilter);
+                });
+                
+                // Filter kanban view
+                $('.kanban-card').each(function() {
+                    const name = $(this).find('h5').text().toLowerCase();
+                    const code = $(this).find('.kanban-card-header strong').text().toLowerCase();
+                    const status = $(this).find('.status-badge').text().toLowerCase();
+                    
+                    const matchesSearch = name.includes(searchTerm) || code.includes(searchTerm);
+                    let matchesFilter = true;
+                    
+                    if(activeFilter === 'filterActive') {
+                        matchesFilter = status === 'active';
+                    } else if(activeFilter === 'filterInactive') {
+                        matchesFilter = status === 'inactive';
+                    }
+                    
+                    $(this).closest('.col-xl-3').toggle(matchesSearch && matchesFilter);
+                });
+            }
+
+            // Helper function to add work center to table
+            function addWorkCenterToTable(workCenter) {
+                const newRow = `
+                    <tr>
+                        <td><strong>${workCenter.code}</strong></td>
+                        <td>${workCenter.name}</td>
+                        <td>${workCenter.capacity} units</td>
+                        <td><span class="status-badge ${workCenter.active ? 'status-active' : 'status-inactive'}">
+                            ${workCenter.active ? 'Active' : 'Inactive'}
+                        </span></td>
+                        <td>${workCenter.updated}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary edit-workcenter" data-id="${workCenter.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm ${workCenter.active ? 'btn-outline-danger' : 'btn-outline-success'} toggle-status" 
+                                    data-id="${workCenter.id}" data-status="${workCenter.active}">
+                                <i class="fas fa-power-off"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                
+                $('#workCentersTableBody').append(newRow);
+            }
+
+            // Helper function to add work center to kanban
+            function addWorkCenterToKanban(workCenter) {
+                const newCard = `
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="kanban-card">
+                            <div class="kanban-card-header d-flex justify-content-between align-items-center">
+                                <strong>${workCenter.code}</strong>
+                                <span class="status-badge ${workCenter.active ? 'status-active' : 'status-inactive'}">
+                                    ${workCenter.active ? 'Active' : 'Inactive'}
+                                </span>
+                            </div>
+                            <div class="kanban-card-body">
+                                <h5>${workCenter.name}</h5>
+                                <p class="mb-1"><i class="fas fa-tachometer-alt me-2"></i> Capacity: ${workCenter.capacity} units/hour</p>
+                                <p class="mb-0"><i class="far fa-clock me-2"></i> Updated: ${workCenter.updated}</p>
+                            </div>
+                            <div class="kanban-card-footer d-flex justify-content-end">
+                                <button class="btn btn-sm btn-outline-primary edit-workcenter" data-id="${workCenter.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm ${workCenter.active ? 'btn-outline-danger' : 'btn-outline-success'} toggle-status ms-2" 
+                                        data-id="${workCenter.id}" data-status="${workCenter.active}">
+                                    <i class="fas fa-power-off"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                $('#kanbanView').append(newCard);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -18,7 +18,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">اجزا</h5>
-        <button class="btn btn-sm btn-primary add-component-btn" id="add-component-btn" data-url="{% url 'create_bom_component' %}">
+        <button class="btn btn-sm btn-primary add-component-btn" id="add-component-btn" data-url="{% url 'create_bom_component' bom_id %}">
             <i class="fas fa-plus me-1"></i> افزودن اجزا
         </button>
     </div>
@@ -35,27 +35,7 @@
             </thead>
             
             <tbody id="component-table-body">
-                {% for c in components %}
-                <tr>
-                    <td>
-                        {{c.product}}
-                       
-                    </td>
-                    <td>{{c.quantity}}</td>
-                    <td>{{c.uom}}</td>
-                    <td><button class="btn btn-sm btn-outline-danger remove-component-btn">
-                                                 <i class="fas fa-trash"></i>
-                                            </button></td>
-
-                </tr>
-
-                {%empty%}
-                <tr id="empty-components">
-                    <td colspan="4" class="text-center py-3 text-muted">
-                       لیست خالی
-                    </td>
-                </tr>
-                {% endfor %}
+               {% include 'mrp/bom/component/partialComponentList.html' %}
             </tbody>
         </table>
     </div>

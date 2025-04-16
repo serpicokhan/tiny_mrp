@@ -51,7 +51,7 @@ def save_bom_form(request, form, template_name):
 
     data['html_bom_form'] = render_to_string(template_name, context, request=request)
     return JsonResponse(data)
-def save_bom_component_form(request, form, template_name):
+def save_bom_component_form(request, form, template_name,bom_id):
 
 
     data = dict()
@@ -59,12 +59,20 @@ def save_bom_component_form(request, form, template_name):
         if form.is_valid():
             bts=form.save()
             data['form_is_valid'] = True
+            components=BOMComponent.objects.filter(bom__id=bom_id)
+            data["html_component_list"]=render_to_string('mrp/bom/component/partialComponentList.html', {
+                'components': components,
+                'perms': PermWrapper(request.user)
+            })
             
         else:
             data['form_is_valid'] = False
+            print(form.errors)
+    
+
             
 
-    context = {'form': form}
+    context = {'form': form,'bom_id':bom_id}
 
 
     data['html_bom_component_form'] = render_to_string(template_name, context, request=request)
@@ -78,15 +86,15 @@ def create_bom(request):
         
         form = BOMForm()
         return save_bom_form(request, form, 'mrp/bom/partialBOMCreate.html')
-def create_bom_component(request):
+def create_bom_component(request,id):
     if (request.method == 'POST'):
         form = BomComponentForm(request.POST)
-        return save_bom_component_form(request, form, 'mrp/bom/component/partialBomComponentCreate.html')
+        return save_bom_component_form(request, form, 'mrp/bom/component/partialBomComponentCreate.html',id)
   
     else:
         
-        form = BomComponentForm()
-        return save_bom_component_form(request, form, 'mrp/bom/component/partialBomComponentCreate.html')
+        form = BomComponentForm(initial={'bom': id})
+        return save_bom_component_form(request,form, 'mrp/bom/component/partialBomComponentCreate.html',id)
 def view_bom(request,id):
     data=dict()
     bom=BillOfMaterials.objects.get(id=id)

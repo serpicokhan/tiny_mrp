@@ -145,7 +145,7 @@ urlpatterns = [
     url(r'^Asset/GetAssets$', asset_getAssets2, name='asset_getAssets2'),
     url(r'^BOM/$', bom_list, name='bom_list'),
     url(r'^BOM/Create$', create_bom, name='create_bom'),
-    url(r'^BOM/Component/Create$', create_bom_component, name='create_bom_component'),
+    url(r'^BOM/Component/(?P<id>\d+)/Create$', create_bom_component, name='create_bom_component'),
     url(r'^BOM/(?P<id>\d+)/view$', view_bom, name='view_bom'),
     path('api/boms/', BOMListView.as_view(), name='bom-list'),
 

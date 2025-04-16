@@ -109,7 +109,7 @@ let mockBoms = [];
     
     };
     var saveForm= function () {
-        alert("!23");
+        
         var form = $(this);
    
    
@@ -125,6 +125,34 @@ let mockBoms = [];
               loadBomList();
    
                console.log("success");
+            }
+            else {
+   
+              $("#company-table tbody").html(data.html_assetFailure_list);
+              $("#modal-company .modal-content").html(data.html_assetFailure_form);
+            }
+          }
+        });
+        return false;
+      };
+    var saveComponentForm= function () {
+        
+        
+        var form = $("#component-form");
+   
+   
+        $.ajax({
+          url: form.attr("action"),
+          data: form.serialize(),
+          type: form.attr("method"),
+          dataType: 'json',
+          success: function (data) {
+   
+            if (data.form_is_valid) {
+            $("#component-table-body").empty();
+            $("#component-table-body").html(data.html_component_list);
+              $("#component-form-modal").modal("hide");
+            
             }
             else {
    
@@ -665,6 +693,7 @@ var remove_component_btn=function() {
                 }
             }
 $("#bom-form-modal").on("submit", ".js-bom-create-form", saveForm);
+$("#component-form-modal").on("click", "#save-component-btn", saveComponentForm);
 $(document).on("click",".add-component-btn",loadFormComponent);
 $(document).on("click",".remove-component-btn",remove_component_btn);
 
