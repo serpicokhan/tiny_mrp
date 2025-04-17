@@ -265,3 +265,7 @@ class WorkCenterForm(forms.ModelForm):
     class Meta:
          model = WorkCenter
          fields = '__all__'
+class ManufacturingOrderForm(forms.ModelForm):
+    class Meta:
+         model = ManufacturingOrder
+         fields = '__all__'

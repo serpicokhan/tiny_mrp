@@ -1,6 +1,21 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from datetime import datetime, timedelta
 
+MO_STATUS = [
+    ('draft', 'Draft'),
+    ('confirmed', 'Confirmed'),
+    ('in_progress', 'In Progress'),
+    ('done', 'Done'),
+    ('cancelled', 'Cancelled'),
+]
+
+WO_STATUS = [
+    ('planned', 'Planned'),
+    ('in_progress', 'In Progress'),
+    ('done', 'Done'),
+    ('cancelled', 'Cancelled'),
+]
 class Product(models.Model):
     """Model representing products (raw materials or finished goods) in the MRP system."""
     
@@ -127,3 +142,166 @@ class WorkCenter(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.code})"
+    
+
+    
+class WorkOrderTemplate(models.Model):
+    """Model representing a reusable template for work orders."""
+    name = models.CharField(max_length=200)
+    code = models.CharField(max_length=50, unique=True)
+    bom = models.ForeignKey(
+        BillOfMaterials,
+        on_delete=models.CASCADE,
+        related_name='work_order_templates',
+        help_text="BoM this template is associated with"
+    )
+    description = models.TextField(blank=True, help_text="Optional description of the template")
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(fields=['bom', 'code'], name='unique_template_per_bom')
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.code}) - {self.bom}"
+
+class Operation(models.Model):
+    """Model representing an operation within a work order template."""
+    work_order_template = models.ForeignKey(
+        WorkOrderTemplate,
+        on_delete=models.CASCADE,
+        related_name='operations'
+    )
+    work_center = models.ForeignKey(WorkCenter, on_delete=models.CASCADE)
+    sequence = models.PositiveIntegerField(
+        help_text="Order in which this operation is performed"
+    )
+    name = models.CharField(max_length=200, help_text="Name of the operation")
+    duration = models.FloatField(
+        validators=[MinValueValidator(0.0)],
+        help_text="Expected duration in hours"
+    )
+    instructions = models.TextField(
+        blank=True,
+        help_text="Instructions for the operator"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['sequence', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['work_order_template', 'sequence'],
+                name='unique_sequence_per_template'
+            ),
+            models.CheckConstraint(
+                check=models.Q(duration__gt=0),
+                name='duration_positive'
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.name} (Seq: {self.sequence}) - {self.work_order_template}"
+class ManufacturingOrder(models.Model):
+    """Model representing a manufacturing order in the MRP system."""
+    reference = models.CharField(max_length=50, unique=True)
+    product_to_manufacture = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        limit_choices_to={'product_type': 'finished'}
+    )
+    quantity_to_produce = models.FloatField(validators=[MinValueValidator(0.0)])
+    bom = models.ForeignKey(BillOfMaterials, on_delete=models.CASCADE)
+    work_order_template = models.ForeignKey(
+        'WorkOrderTemplate',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Template for generating work orders"
+    )  # Added to link to template
+    status = models.CharField(max_length=20, choices=MO_STATUS, default='draft')
+    scheduled_date = models.DateTimeField()
+    responsible = models.ForeignKey(
+        'SysUser',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-scheduled_date', 'reference']
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(quantity_to_produce__gt=0),
+                name='quantity_to_produce_positive'
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.reference} - {self.product_to_manufacture}"
+
+    def generate_work_orders(self):
+        """Generate work orders based on the linked work order template."""
+        if not self.work_order_template:
+            return  # No template linked, skip generation
+        # Delete existing work orders to avoid duplicates (optional, based on your logic)
+        self.work_orders.all().delete()
+        # Get operations from the template
+        operations = self.work_order_template.operations.order_by('sequence')
+        for operation in operations:
+            # Calculate start and end dates (simplified logic; adjust as needed)
+            start_date = self.scheduled_date
+            duration_hours = operation.duration
+            end_date = start_date + timedelta(hours=duration_hours)
+            WorkOrder.objects.create(
+                manufacturing_order=self,
+                work_center=operation.work_center,
+                operation=operation,  # Link to operation for traceability
+                duration=duration_hours,
+                start_date=start_date,
+                end_date=end_date,
+                status='planned'
+            )
+class WorkOrder(models.Model):
+    """Model representing a specific work order within a manufacturing order."""
+    manufacturing_order = models.ForeignKey(
+        ManufacturingOrder,
+        on_delete=models.CASCADE,
+        related_name='work_orders'
+    )
+    work_center = models.ForeignKey(WorkCenter, on_delete=models.CASCADE)
+    operation = models.ForeignKey(
+        Operation,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Operation from template this work order is based on"
+    )  # Added to link to template operation
+    duration = models.FloatField(
+        validators=[MinValueValidator(0.0)],
+        help_text="Duration in hours"
+    )
+    status = models.CharField(max_length=20, choices=WO_STATUS, default='planned')
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['start_date']
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(duration__gt=0),
+                name='work_order_duration_positive'
+            )
+        ]
+
+    def __str__(self):
+        return f"WO for {self.manufacturing_order.reference} - {self.work_center}"

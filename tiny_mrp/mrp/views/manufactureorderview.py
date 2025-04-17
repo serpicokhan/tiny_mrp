@@ -17,8 +17,39 @@ from mrp.business.tolid_util import *
 import datetime
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
+from mrp.models import ManufacturingOrder
+from mrp.forms import ManufacturingOrderForm
 
 def manufacture_order_list(request):
     return render(request,"mrp/manufactureorder/mOrderList.html",{})
 def manufacture_order_detail(request):
     return render(request,"mrp/manufactureorder/dgrok2.html",{})
+
+def save_morder_form(request, form, template_name):
+
+
+    data = dict()
+    if (request.method == 'POST'):
+        if form.is_valid():
+            bts=form.save()
+            data['form_is_valid'] = True
+            
+        else:
+            data['form_is_valid'] = False
+            print(form.errors)
+
+    context = {'form': form}
+
+
+    data['html_morder_form'] = render_to_string(template_name, context, request=request)
+    return JsonResponse(data)
+
+def create_morder(request):
+    if (request.method == 'POST'):
+        form = ManufacturingOrderForm(request.POST)
+        return save_morder_form(request, form, 'mrp/manufactureorder/partialMOrderCreate.html')
+  
+    else:
+        print("!!!!!!!!!!!")
+        form = ManufacturingOrderForm()
+        return save_morder_form(request, form, 'mrp/manufactureorder/partialMOrderCreate.html')

@@ -1,0 +1,113 @@
+{% load widget_tweaks %}
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label for="productSelect" class="form-label">Product to Manufacture *</label>
+            <select class="form-control" id="productSelect" required>
+                <option value="" selected disabled>Select a product</option>
+                <!-- Options will be loaded from JSON -->
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="bomSelect" class="form-label">Bill of Materials *</label>
+            <select class="form-control" id="bomSelect" required>
+                <option value="" selected disabled>Select a BOM</option>
+                <!-- Options will be loaded from JSON -->
+            </select>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <label for="quantityInput" class="form-label">Quantity *</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-calculator"></i></span>
+                <input type="number" class="form-control" id="quantityInput" min="0.1" step="0.1" value="1.0" required>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label for="dateInput" class="form-label">Scheduled Date *</label>
+            <input type="datetime-local" class="form-control" id="dateInput" required>
+        </div>
+        <div class="col-md-4">
+            <label for="customerSelect" class="form-label">Customer</label>
+            <select class="form-control" id="customerSelect">
+                <option value="" selected>No customer</option>
+                <!-- Options will be loaded from JSON -->
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="responsibleSelect" class="form-label">Responsible</label>
+            <select class="form-control" id="responsibleSelect">
+                <option value="" selected>No responsible</option>
+                <!-- Options will be loaded from JSON -->
+            </select>
+        </div>
+    </div>
+
+    <!-- Tabs for Components and Work Orders -->
+    <ul class="nav nav-tabs mb-3" id="moTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="components-tab" data-bs-toggle="tab" data-bs-target="#components" type="button" role="tab" aria-controls="components" aria-selected="true">Components</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="workorders-tab" data-bs-toggle="tab" data-bs-target="#workorders" type="button" role="tab" aria-controls="workorders" aria-selected="false">Work Orders</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="moTabContent">
+        <!-- Components Tab -->
+        <div class="tab-pane fade show active" id="components" role="tabpanel" aria-labelledby="components-tab">
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Quantity</th>
+                            <th>Unit of Measure</th>
+                            <th>Available</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bomPreviewBody">
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Select a product and BOM to see components</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Work Orders Tab -->
+        <div class="tab-pane fade" id="workorders" role="tabpanel" aria-labelledby="workorders-tab">
+            <div class="d-flex justify-content-between mb-3">
+                <h6 class="mb-0 fw-bold">Work Orders</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="addWorkOrderBtn">
+                    <i class="fas fa-plus me-1"></i> Add Work Order
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm work-order-table">
+                    <thead>
+                        <tr>
+                            <th>Work Order</th>
+                            <th>Work Center</th>
+                            <th>Duration (hours)</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workOrderTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No work orders added</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <label for="notesTextarea" class="form-label">Notes</label>
+        <textarea class="form-control" id="notesTextarea" rows="4"></textarea>
+    </div>

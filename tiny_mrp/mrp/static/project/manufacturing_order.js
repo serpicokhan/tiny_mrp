@@ -180,7 +180,7 @@ const workCenters = [
 let workOrderList = [];
 let componentChart = null;
 
-$(document).ready(function() {
+
     // Load data into views
     loadOrdersTable();
     loadGridView();
@@ -398,7 +398,7 @@ $(document).ready(function() {
         showForecast(bomId, quantity);
         $('#forecastModal').modal('show');
     });
-});
+
 
 // Function to load orders into the table
 function loadOrdersTable() {
@@ -794,4 +794,42 @@ function showForecast(bomId, quantity) {
     ` : '<p class="text-muted">No components defined for this BOM.</p>';
     $('#stockStatus').html(stockStatusHtml);
 }
+var loadForm =function (btn1) {
+    var btn=0;
+    if($(btn1).attr("type")=="click")
+     btn=$(this);
+    else {
+      btn=btn1;
+    }
+    console.log(btn.attr("data-url"));
+
+    return $.ajax({
+      url: btn.attr("data-url"),
+      type: 'get',
+      dataType: 'json',
+      beforeSend: function () {
+        
+        $("#newOrderModal").modal("show");
+      },
+      success: function (data) {
+        
+
+        $("#newOrderModal .modal-content").html(data.html_morder_form);
+        loadOrdersTable();
+        loadGridView();
+        
+        // Load dropdown options
+        loadProductOptions();
+        loadCustomerOptions();
+        loadResponsibleOptions();
+        // $(".select2").select2();
+
+
+      }
+    });
+
+
+
+};
+$("#createNewMorder").click(loadForm);
 });
