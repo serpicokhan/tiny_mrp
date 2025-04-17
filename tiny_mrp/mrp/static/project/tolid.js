@@ -197,7 +197,12 @@ $(function () {
         $('#search').pDatepicker({
                 format: 'YYYY-MM-DD',
                 autoClose: true,
-                initialValueType: 'gregorian'
+                initialValueType: 'gregorian',
+                calendar:{
+                  persian: {
+                      leapYearMode: 'astronomical'
+                  }
+                }
               });
 
 //$("#company-table").on("click", ".js-update-wo", initxLoad);

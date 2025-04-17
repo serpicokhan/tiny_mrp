@@ -2,7 +2,12 @@ $(function () {
     $('.pdate').pDatepicker({
             format: 'YYYY-MM-DD',
             autoClose: true,
-            initialValueType: 'gregorian'
+            initialValueType: 'gregorian',
+            calendar:{
+              persian: {
+                  leapYearMode: 'astronomical'
+              }
+            }
           });
           xxxDate1=new persianDate();
           dt1=xxxDate1.year().toString()+"-"+("0" + xxxDate1.month()).slice(-2)+"-01";
