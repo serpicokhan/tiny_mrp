@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturing Orders</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .container-fluid {
+            max-width: 1400px;
+        }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+        .status-draft {
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
+        .status-confirmed {
+            background-color: #d1e7fd;
+            color: #0d6efd;
+        }
+        .status-progress {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+        .status-done {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-canceled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .orders-table {
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .orders-table thead {
+            background-color: #f8f9fa;
+        }
+        .orders-table tbody tr:hover {
+            background-color: #f1f3f5;
+        }
+        .product-image {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+        .search-bar {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .action-buttons .btn {
+            margin-right: 5px;
+        }
+        .filter-buttons .btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+        /* Grid View styles */
+        #gridView {
+            display: none;
+        }
+        .grid-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            perspective: 1200px;
+        }
+        .grid-card {
+            width: calc(25% - 20px);
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+        .grid-card:hover {
+            transform: translateZ(30px) rotateX(3deg) rotateY(3deg);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        @media (max-width: 1200px) {
+            .grid-card {
+                width: calc(33.33% - 20px);
+            }
+        }
+        @media (max-width: 992px) {
+            .grid-card {
+                width: calc(50% - 20px);
+            }
+        }
+        @media (max-width: 768px) {
+            .grid-card {
+                width: 100%;
+            }
+        }
+        .grid-card-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #212529;
+        }
+        .grid-card-details {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 12px;
+        }
+        .grid-card-details div {
+            margin-bottom: 6px;
+        }
+        .view-toggle .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+        .status-filter-container {
+            margin-bottom: 20px;
+        }
+        /* Modal styles (Odoo-like) */
+        .modal-content {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .modal-title {
+            font-weight: 600;
+            color: #212529;
+        }
+        .nav-tabs {
+            border-bottom: 1px solid #dee2e6;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #6c757d;
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+        .nav-tabs .nav-link.active {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            background-color: transparent;
+        }
+        .nav-tabs .nav-link:hover {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+        }
+        .tab-content {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 0 0 8px 8px;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #212529;
+            margin-bottom: 6px;
+        }
+        .form-control, .form-select {
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        .work-order-table {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+        }
+        .work-order-table th,
+        .work-order-table td {
+            vertical-align: middle;
+            padding: 12px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .btn-outline-secondary {
+            border-radius: 6px;
+        }
+        .forecast-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #007bff;
+            cursor: pointer;
+        }
+        .forecast-btn:hover {
+            color: #0056b3;
+        }
+        .forecast-btn:disabled {
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+        .forecast-chart {
+            max-height: 300px;
+        }
+        .input-group-text {
+            background-color: #f8f9fa;
+            border-radius: 6px 0 0 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-dark"><i class="fas fa-industry me-2"></i>Manufacturing Orders</h1>
+            <div>
+                <div class="btn-group view-toggle">
+                    <button class="btn btn-sm btn-outline-secondary active" id="tableViewBtn" title="Table View">
+                        <i class="fas fa-table"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" id="gridViewBtn" title="Grid View">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                </div>
+                <button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#newOrderModal">
+                    <i class="fas fa-plus me-1"></i> New Order
+                </button>
+            </div>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="search-bar">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Search orders..." id="searchInput">
+                        <button class="btn btn-outline-secondary" type="button" id="searchBtn">Search</button>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="filter-buttons">
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-secondary active" data-filter="all">All</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-filter="draft">Draft</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-filter="confirmed">Confirmed</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-filter="progress">In Progress</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-filter="done">Done</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-filter="canceled">Canceled</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table View -->
+        <div id="tableView" class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover orders-table mb-0">
+                        <thead>
+                            <tr>
+                                <th width="10%">Reference</th>
+                                <th width="15%">Product</th>
+                                <th width="10%">Quantity</th>
+                                <th width="10%">BOM</th>
+                                <th width="10%">Work Orders</th>
+                                <th width="10%">Status</th>
+                                <th width="15%">Scheduled Date</th>
+                                <th width="10%">Customer</th>
+                                <th width="10%">Responsible</th>
+                                <th width="10%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <!-- Data will be loaded from JSON -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-4 px-3 pb-3">
+                    <ul class="pagination justify-content-center" id="pagination">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Grid View -->
+        <div id="gridView">
+            <div class="status-filter-container">
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-secondary active" data-grid-filter="all">All</button>
+                    <button class="btn btn-sm btn-outline-secondary" data-grid-filter="draft">Draft</button>
+                    <button class="btn btn-sm btn-outline-secondary" data-grid-filter="confirmed">Confirmed</button>
+                    <button class="btn btn-sm btn-outline-secondary" data-grid-filter="progress">In Progress</button>
+                    <button class="btn btn-sm btn-outline-secondary" data-grid-filter="done">Done</button>
+                    <button class="btn btn-sm btn-outline-secondary" data-grid-filter="canceled">Canceled</button>
+                </div>
+            </div>
+            <div class="grid-container" id="gridContainer">
+                <!-- Cards will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- New Order Modal -->
+    <div class="modal fade" id="newOrderModal" tabindex="-1" aria-labelledby="newOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newOrderModalLabel">Create New Manufacturing Order</h5>
+                    <button type="button" class="forecast-btn me-2" id="forecastBtn" title="View Forecast" disabled>
+                        <i class="fas fa-chart-line"></i>
+                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="moForm">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="productSelect" class="form-label">Product to Manufacture *</label>
+                                <select class="form-select" id="productSelect" required>
+                                    <option value="" selected disabled>Select a product</option>
+                                    <!-- Options will be loaded from JSON -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="bomSelect" class="form-label">Bill of Materials *</label>
+                                <select class="form-select" id="bomSelect" required>
+                                    <option value="" selected disabled>Select a BOM</option>
+                                    <!-- Options will be loaded from JSON -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <label for="quantityInput" class="form-label">Quantity *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calculator"></i></span>
+                                    <input type="number" class="form-control" id="quantityInput" min="0.1" step="0.1" value="1.0" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label for="dateInput" class="form-label">Scheduled Date *</label>
+                                <input type="datetime-local" class="form-control" id="dateInput" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="customerSelect" class="form-label">Customer</label>
+                                <select class="form-select" id="customerSelect">
+                                    <option value="" selected>No customer</option>
+                                    <!-- Options will be loaded from JSON -->
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="responsibleSelect" class="form-label">Responsible</label>
+                                <select class="form-select" id="responsibleSelect">
+                                    <option value="" selected>No responsible</option>
+                                    <!-- Options will be loaded from JSON -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Tabs for Components and Work Orders -->
+                        <ul class="nav nav-tabs mb-3" id="moTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="components-tab" data-bs-toggle="tab" data-bs-target="#components" type="button" role="tab" aria-controls="components" aria-selected="true">Components</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="workorders-tab" data-bs-toggle="tab" data-bs-target="#workorders" type="button" role="tab" aria-controls="workorders" aria-selected="false">Work Orders</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="moTabContent">
+                            <!-- Components Tab -->
+                            <div class="tab-pane fade show active" id="components" role="tabpanel" aria-labelledby="components-tab">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Component</th>
+                                                <th>Quantity</th>
+                                                <th>Unit of Measure</th>
+                                                <th>Available</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bomPreviewBody">
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted">Select a product and BOM to see components</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Work Orders Tab -->
+                            <div class="tab-pane fade" id="workorders" role="tabpanel" aria-labelledby="workorders-tab">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <h6 class="mb-0 fw-bold">Work Orders</h6>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="addWorkOrderBtn">
+                                        <i class="fas fa-plus me-1"></i> Add Work Order
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm work-order-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Work Order</th>
+                                                <th>Work Center</th>
+                                                <th>Duration (hours)</th>
+                                                <th>Description</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="workOrderTableBody">
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">No work orders added</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label for="notesTextarea" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notesTextarea" rows="4"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="createMoBtn">Create Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forecast Modal -->
+    <div class="modal fade" id="forecastModal" tabindex="-1" aria-labelledby="forecastModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="forecastModalLabel">Manufacturing Forecast</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="fw-bold mb-3">Component Availability</h6>
+                    <canvas id="componentChart" class="forecast-chart mb-4"></canvas>
+                    <h6 class="fw-bold mb-3">Production Timeline</h6>
+                    <div id="timelineInfo" class="mb-4">
+                        <p class="text-muted">Select a product, BOM, and add work orders to see timeline details.</p>
+                    </div>
+                    <h6 class="fw-bold mb-3">Stock Status</h6>
+                    <div id="stockStatus" class="mb-4">
+                        <p class="text-muted">Select a product and BOM to see stock status.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Chart.js (UMD version for non-module compatibility) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <script>
+        // Sample JSON data
+        const manufacturingOrders = [
+            {
+                id: 1,
+                reference: "MO/2023/0001",
+                product: { id: 1, name: "Office Desk", code: "OD-1001", image: "/media/products/office-desk.jpg" },
+                quantity: 10.0,
+                bom: "BOM-OD-1001",
+                workOrders: [{ id: "WO-2023-001", workCenter: "Assembly Line 1", duration: 2.5, description: "Assemble desk frame" }],
+                status: "draft",
+                scheduledDate: "2023-06-15",
+                customer: { id: 1, name: "Acme Corp" },
+                responsible: { id: 1, name: "John Doe" },
+                notes: "Urgent order for client XYZ"
+            },
+            {
+                id: 2,
+                reference: "MO/2023/0002",
+                product: { id: 2, name: "Office Chair", code: "OC-2001", image: "/media/products/office-chair.jpg" },
+                quantity: 15.0,
+                bom: "BOM-OC-2001",
+                workOrders: [{ id: "WO-2023-002", workCenter: "Assembly Line 2", duration: 3.0, description: "Chair assembly and upholstery" }],
+                status: "confirmed",
+                scheduledDate: "2023-06-16",
+                customer: { id: 2, name: "Beta Industries" },
+                responsible: { id: 2, name: "Jane Smith" },
+                notes: "Standard production"
+            },
+            {
+                id: 3,
+                reference: "MO/2023/0003",
+                product: { id: 3, name: "Bookshelf", code: "BS-3001", image: "/media/products/bookshelf.jpg" },
+                quantity: 5.0,
+                bom: "BOM-BS-3001",
+                workOrders: [{ id: "WO-2023-003", workCenter: "Finishing Station", duration: 4.0, description: "Apply custom color finish" }],
+                status: "progress",
+                scheduledDate: "2023-06-14",
+                customer: { id: 3, name: "Gamma Retail" },
+                responsible: { id: 3, name: "Mike Johnson" },
+                notes: "Custom color requested"
+            },
+            {
+                id: 4,
+                reference: "MO/2023/0004",
+                product: { id: 4, name: "Coffee Table", code: "CT-4001", image: "/media/products/coffee-table.jpg" },
+                quantity: 8.0,
+                bom: "BOM-CT-4001",
+                workOrders: [],
+                status: "done",
+                scheduledDate: "2023-06-10",
+                customer: null,
+                responsible: { id: 4, name: "Sarah Williams" },
+                notes: "Completed ahead of schedule"
+            },
+            {
+                id: 5,
+                reference: "MO/2023/0005",
+                product: { id: 1, name: "Office Desk", code: "OD-1001", image: "/media/products/office-desk.jpg" },
+                quantity: 12.0,
+                bom: "BOM-OD-1001",
+                workOrders: [{ id: "WO-2023-004", workCenter: "Packaging", duration: 1.5, description: "Pack desks for shipping" }],
+                status: "canceled",
+                scheduledDate: "2023-06-12",
+                customer: { id: 1, name: "Acme Corp" },
+                responsible: { id: 1, name: "John Doe" },
+                notes: "Client canceled order"
+            },
+            {
+                id: 6,
+                reference: "MO/2023/0006",
+                product: { id: 2, name: "Office Chair", code: "OC-2001", image: "/media/products/office-chair.jpg" },
+                quantity: 20.0,
+                bom: "BOM-OC-2001",
+                workOrders: [{ id: "WO-2023-002", workCenter: "Assembly Line 2", duration: 3.0, description: "Bulk chair assembly" }],
+                status: "confirmed",
+                scheduledDate: "2023-06-18",
+                customer: { id: 2, name: "Beta Industries" },
+                responsible: { id: 2, name: "Jane Smith" },
+                notes: "Bulk order for new office"
+            },
+            {
+                id: 7,
+                reference: "MO/2023/0007",
+                product: { id: 3, name: "Bookshelf", code: "BS-3001", image: "/media/products/bookshelf.jpg" },
+                quantity: 3.0,
+                bom: "BOM-BS-3001",
+                workOrders: [{ id: "WO-2023-003", workCenter: "Finishing Station", duration: 4.0, description: "Glass door installation" }],
+                status: "progress",
+                scheduledDate: "2023-06-17",
+                customer: { id: 3, name: "Gamma Retail" },
+                responsible: { id: 3, name: "Mike Johnson" },
+                notes: "Special edition with glass doors"
+            },
+            {
+                id: 8,
+                reference: "MO/2023/0008",
+                product: { id: 4, name: "Coffee Table", code: "CT-4001", image: "/media/products/coffee-table.jpg" },
+                quantity: 6.0,
+                bom: "BOM-CT-4001",
+                workOrders: [{ id: "WO-2023-001", workCenter: "Assembly Line 1", duration: 2.0, description: "Table frame assembly" }],
+                status: "draft",
+                scheduledDate: "2023-06-20",
+                customer: null,
+                responsible: { id: 4, name: "Sarah Williams" },
+                notes: "Waiting for client confirmation"
+            }
+        ];
+
+        const products = [
+            { id: 1, name: "Office Desk", code: "OD-1001", image: "/media/products/office-desk.jpg" },
+            { id: 2, name: "Office Chair", code: "OC-2001", image: "/media/products/office-chair.jpg" },
+            { id: 3, name: "Bookshelf", code: "BS-3001", image: "/media/products/bookshelf.jpg" },
+            { id: 4, name: "Coffee Table", code: "CT-4001", image: "/media/products/coffee-table.jpg" }
+        ];
+
+        const boms = [
+            { id: 1, name: "BOM-OD-1001", productId: 1, description: "Office Desk" },
+            { id: 2, name: "BOM-OC-2001", productId: 2, description: "Office Chair" },
+            { id: 3, name: "BOM-BS-3001", productId: 3, description: "Bookshelf" },
+            { id: 4, name: "BOM-CT-4001", productId: 4, description: "Coffee Table" }
+        ];
+
+        const bomComponents = [
+            { 
+                bomId: 1, 
+                components: [
+                    { name: 'Wood Plank (120cm)', qty: 2, uom: 'Units', available: 25 },
+                    { name: 'Metal Bracket', qty: 4, uom: 'Units', available: 60 },
+                    { name: 'Wood Screw 3x40mm', qty: 12, uom: 'Units', available: 200 }
+                ]
+            },
+            { 
+                bomId: 2, 
+                components: [
+                    { name: 'Plastic Seat', qty: 1, uom: 'Units', available: 15 },
+                    { name: 'Metal Legs', qty: 4, uom: 'Units', available: 40 },
+                    { name: 'Wheels', qty: 5, uom: 'Units', available: 35 }
+                ]
+            },
+            { 
+                bomId: 3, 
+                components: [
+                    { name: 'Wood Panel (60x180cm)', qty: 3, uom: 'Units', available: 12 },
+                    { name: 'Shelf Bracket', qty: 8, uom: 'Units', available: 45 },
+                    { name: 'Wood Screw 3x30mm', qty: 24, uom: 'Units', available: 180 }
+                ]
+            },
+            { 
+                bomId: 4, 
+                components: [
+                    { name: 'Glass Top (80x80cm)', qty: 1, uom: 'Units', available: 8 },
+                    { name: 'Metal Frame', qty: 1, uom: 'Units', available: 10 },
+                    { name: 'Rubber Feet', qty: 4, uom: 'Units', available: 32 }
+                ]
+            }
+        ];
+
+        const responsibles = [
+            { id: 1, name: "John Doe" },
+            { id: 2, name: "Jane Smith" },
+            { id: 3, name: "Mike Johnson" },
+            { id: 4, name: "Sarah Williams" }
+        ];
+
+        const customers = [
+            { id: 1, name: "Acme Corp" },
+            { id: 2, name: "Beta Industries" },
+            { id: 3, name: "Gamma Retail" },
+            { id: 4, name: "Delta Enterprises" }
+        ];
+
+        const workCenters = [
+            { id: 1, name: "Assembly Line 1" },
+            { id: 2, name: "Assembly Line 2" },
+            { id: 3, name: "Finishing Station" },
+            { id: 4, name: "Packaging" }
+        ];
+
+        let workOrderList = [];
+        let componentChart = null;
+
+        $(document).ready(function() {
+            // Load data into views
+            loadOrdersTable();
+            loadGridView();
+            
+            // Load dropdown options
+            loadProductOptions();
+            loadCustomerOptions();
+            loadResponsibleOptions();
+            
+            // View toggle buttons
+            $('#tableViewBtn').click(function() {
+                $('#tableView').show();
+                $('#gridView').hide();
+                $(this).addClass('active');
+                $('#gridViewBtn').removeClass('active');
+            });
+            
+            $('#gridViewBtn').click(function() {
+                $('#tableView').hide();
+                $('#gridView').show();
+                $(this).addClass('active');
+                $('#tableViewBtn').removeClass('active');
+            });
+            
+            // Filter buttons (table view)
+            $('.filter-buttons .btn').click(function() {
+                $('.filter-buttons .btn').removeClass('active');
+                $(this).addClass('active');
+                const filter = $(this).data('filter');
+                filterTableOrders(filter);
+            });
+            
+            // Filter buttons (grid view)
+            $('[data-grid-filter]').click(function() {
+                $('[data-grid-filter]').removeClass('active');
+                $(this).addClass('active');
+                const filter = $(this).data('grid-filter');
+                filterGridOrders(filter);
+            });
+            
+            // Search functionality
+            $('#searchBtn').click(function() {
+                const searchTerm = $('#searchInput').val().toLowerCase();
+                filterTableOrders('all', searchTerm);
+                filterGridOrders('all', searchTerm);
+            });
+            
+            $('#searchInput').keypress(function(e) {
+                if(e.which === 13) {
+                    $('#searchBtn').click();
+                }
+            });
+
+            // Product select change - update BOM options
+            $('#productSelect').change(function() {
+                const productId = $(this).val();
+                loadBomOptions(productId);
+                $('#bomSelect').val('');
+                $('#bomPreviewBody').html(`
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Select a product and BOM to see components</td>
+                    </tr>
+                `);
+                $('#forecastBtn').prop('disabled', true);
+            });
+
+            // BOM select change - update component preview and enable forecast
+            $('#bomSelect').change(function() {
+                const bomId = $(this).val();
+                if(bomId) {
+                    $('#bomPreviewBody').html(`
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                Loading BOM components...
+                            </td>
+                        </tr>
+                    `);
+                    setTimeout(function() {
+                        updateBomPreview(bomId);
+                    }, 800);
+                    $('#forecastBtn').prop('disabled', false);
+                } else {
+                    $('#bomPreviewBody').html(`
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Select a BOM to see components</td>
+                        </tr>
+                    `);
+                    $('#forecastBtn').prop('disabled', true);
+                }
+            });
+
+            // Quantity change - update BOM preview quantities
+            $('#quantityInput').change(function() {
+                const bomId = $('#bomSelect').val();
+                if(bomId) {
+                    updateBomPreview(bomId);
+                }
+            });
+
+            // Add Work Order button
+            $('#addWorkOrderBtn').click(function() {
+                const workOrderId = `WO-2023-${(workOrderList.length + 1).toString().padStart(3, '0')}`;
+                workOrderList.push({
+                    id: workOrderId,
+                    workCenter: workCenters[0].name,
+                    duration: 1.0,
+                    description: ""
+                });
+                updateWorkOrderTable();
+            });
+
+            // Delete Work Order
+            $(document).on('click', '.delete-work-order', function() {
+                const index = $(this).data('index');
+                workOrderList.splice(index, 1);
+                updateWorkOrderTable();
+            });
+
+            // Update Work Order
+            $(document).on('change', '.work-order-select, .duration-input, .description-input', function() {
+                const index = $(this).data('index');
+                const field = $(this).data('field');
+                workOrderList[index][field] = $(this).val();
+            });
+
+            // Create MO button
+            $('#createMoBtn').click(function() {
+                if($('#moForm')[0].checkValidity()) {
+                    // Create new order object
+                    const newOrder = {
+                        id: manufacturingOrders.length + 1,
+                        reference: "MO/2023/" + (manufacturingOrders.length + 1).toString().padStart(4, '0'),
+                        product: products.find(p => p.id == $('#productSelect').val()),
+                        quantity: parseFloat($('#quantityInput').val()),
+                        bom: $('#bomSelect option:selected').text(),
+                        workOrders: [...workOrderList],
+                        status: "draft",
+                        scheduledDate: $('#dateInput').val().split('T')[0],
+                        customer: customers.find(c => c.id == $('#customerSelect').val()) || null,
+                        responsible: responsibles.find(r => r.id == $('#responsibleSelect').val()) || null,
+                        notes: $('#notesTextarea').val()
+                    };
+                    
+                    // Add to orders array
+                    manufacturingOrders.unshift(newOrder);
+                    
+                    // Reset work order list
+                    workOrderList = [];
+                    
+                    // Refresh views
+                    loadOrdersTable();
+                    loadGridView();
+                    updateWorkOrderTable();
+                    
+                    // Close modal and reset form
+                    alert('Manufacturing order created successfully!');
+                    $('#newOrderModal').modal('hide');
+                    $('#moForm')[0].reset();
+                    $('#bomPreviewBody').html(`
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Select a product and BOM to see components</td>
+                        </tr>
+                    `);
+                } else {
+                    $('#moForm')[0].reportValidity();
+                }
+            });
+
+            // Reset form when modal is closed
+            $('#newOrderModal').on('hidden.bs.modal', function() {
+                $('#moForm')[0].reset();
+                workOrderList = [];
+                updateWorkOrderTable();
+                $('#bomPreviewBody').html(`
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Select a product and BOM to see components</td>
+                    </tr>
+                `);
+                $('#forecastBtn').prop('disabled', true);
+            });
+
+            // Forecast button click
+            $('#forecastBtn').click(function() {
+                console.log('Forecast button clicked');
+                const bomId = $('#bomSelect').val();
+                const quantity = parseFloat($('#quantityInput').val()) || 1;
+                if(bomId) {
+                    console.log('Showing forecast for BOM ID:', bomId, 'Quantity:', quantity);
+                    showForecast(bomId, quantity);
+                    $('#forecastModal').modal('show');
+                } else {
+                    console.log('No BOM selected');
+                    alert('Please select a Bill of Materials to view the forecast.');
+                }
+            });
+        });
+        
+        // Function to load orders into the table
+        function loadOrdersTable() {
+            const tbody = $('#ordersTableBody');
+            tbody.empty();
+            
+            manufacturingOrders.forEach(order => {
+                const statusClass = `status-${order.status}`;
+                let statusText = '';
+                
+                switch(order.status) {
+                    case 'draft': statusText = 'Draft'; break;
+                    case 'confirmed': statusText = 'Confirmed'; break;
+                    case 'progress': statusText = 'In Progress'; break;
+                    case 'done': statusText = 'Done'; break;
+                    case 'canceled': statusText = 'Canceled'; break;
+                }
+                
+                const workOrderText = order.workOrders.length > 0 ? order.workOrders.map(wo => wo.id).join(', ') : '-';
+                
+                const row = `
+                    <tr data-id="${order.id}" data-status="${order.status}">
+                        <td><strong>${order.reference}</strong></td>
+                        <td>
+                            <img src="${order.product.image}" class="product-image me-2">
+                            ${order.product.name} (${order.product.code})
+                        </td>
+                        <td>${order.quantity.toFixed(1)}</td>
+                        <td>${order.bom}</td>
+                        <td>${workOrderText}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${order.scheduledDate}</td>
+                        <td>${order.customer ? order.customer.name : '-'}</td>
+                        <td>${order.responsible ? order.responsible.name : '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" title="View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                
+                tbody.append(row);
+            });
+        }
+        
+        // Function to load grid view
+        function loadGridView() {
+            const container = $('#gridContainer');
+            container.empty();
+            
+            manufacturingOrders.forEach(order => {
+                const statusClass = `status-${order.status}`;
+                let statusText = '';
+                
+                switch(order.status) {
+                    case 'draft': statusText = 'Draft'; break;
+                    case 'confirmed': statusText = 'Confirmed'; break;
+                    case 'progress': statusText = 'In Progress'; break;
+                    case 'done': statusText = 'Done'; break;
+                    case 'canceled': statusText = 'Canceled'; break;
+                }
+                
+                const workOrderText = order.workOrders.length > 0 ? order.workOrders.map(wo => wo.id).join(', ') : 'None';
+                
+                const card = `
+                    <div class="grid-card" data-id="${order.id}" data-status="${order.status}">
+                        <div class="grid-card-title">${order.reference}</div>
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="${order.product.image}" class="product-image me-2">
+                            <div>${order.product.name} (${order.product.code})</div>
+                        </div>
+                        <div class="grid-card-details">
+                            <div><strong>Quantity:</strong> ${order.quantity.toFixed(1)}</div>
+                            <div><strong>BOM:</strong> ${order.bom}</div>
+                            <div><strong>Work Orders:</strong> ${workOrderText}</div>
+                            <div><strong>Scheduled Date:</strong> ${order.scheduledDate}</div>
+                            <div><strong>Customer:</strong> ${order.customer ? order.customer.name : 'None'}</div>
+                            <div><strong>Responsible:</strong> ${order.responsible ? order.responsible.name : 'None'}</div>
+                            <div class="mt-3"><span class="status-badge ${statusClass}">${statusText}</span></div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button class="btn btn-sm btn-outline-primary me-1" title="View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                container.append(card);
+            });
+        }
+        
+        // Function to filter table orders
+        function filterTableOrders(statusFilter, searchTerm = '') {
+            if (statusFilter === 'all' && !searchTerm) {
+                $('tr[data-id]').show();
+                return;
+            }
+            
+            $('tr[data-id]').each(function() {
+                const $row = $(this);
+                const rowStatus = $row.data('status');
+                const rowText = $row.text().toLowerCase();
+                
+                const statusMatch = statusFilter === 'all' || rowStatus === statusFilter;
+                const searchMatch = !searchTerm || rowText.includes(searchTerm);
+                
+                if (statusMatch && searchMatch) {
+                    $row.show();
+                } else {
+                    $row.hide();
+                }
+            });
+        }
+        
+        // Function to filter grid orders
+        function filterGridOrders(statusFilter, searchTerm = '') {
+            if (statusFilter === 'all' && !searchTerm) {
+                $('.grid-card').show();
+                return;
+            }
+            
+            $('.grid-card').each(function() {
+                const $card = $(this);
+                const cardStatus = $card.data('status');
+                const cardText = $card.text().toLowerCase();
+                
+                const statusMatch = statusFilter === 'all' || cardStatus === statusFilter;
+                const searchMatch = !searchTerm || cardText.includes(searchTerm);
+                
+                if (statusMatch && searchMatch) {
+                    $card.show();
+                } else {
+                    $card.hide();
+                }
+            });
+        }
+        
+        // Function to load product options
+        function loadProductOptions() {
+            const select = $('#productSelect');
+            select.empty();
+            select.append('<option value="" selected disabled>Select a product</option>');
+            
+            products.forEach(product => {
+                select.append(`<option value="${product.id}">${product.name} (${product.code})</option>`);
+            });
+        }
+        
+        // Function to load customer options
+        function loadCustomerOptions() {
+            const select = $('#customerSelect');
+            select.empty();
+            select.append('<option value="" selected>No customer</option>');
+            
+            customers.forEach(customer => {
+                select.append(`<option value="${customer.id}">${customer.name}</option>`);
+            });
+        }
+        
+        // Function to load responsible options
+        function loadResponsibleOptions() {
+            const select = $('#responsibleSelect');
+            select.empty();
+            select.append('<option value="" selected>No responsible</option>');
+            
+            responsibles.forEach(responsible => {
+                select.append(`<option value="${responsible.id}">${responsible.name}</option>`);
+            });
+        }
+
+        // Function to load BOM options based on product
+        function loadBomOptions(productId) {
+            const select = $('#bomSelect');
+            select.empty();
+            select.append('<option value="" selected disabled>Select a BOM</option>');
+            
+            if (!productId) return;
+            
+            const productBoms = boms.filter(bom => bom.productId == productId);
+            
+            if (productBoms.length === 0) {
+                select.append('<option value="" disabled>No BOMs available for this product</option>');
+            } else {
+                productBoms.forEach(bom => {
+                    select.append(`<option value="${bom.id}">${bom.name} - ${bom.description}</option>`);
+                });
+            }
+        }
+
+        // Function to update BOM preview
+        function updateBomPreview(bomId) {
+            const quantity = parseFloat($('#quantityInput').val()) || 1;
+            
+            if(!bomId) {
+                $('#bomPreviewBody').html(`
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Select a BOM to see components</td>
+                    </tr>
+                `);
+                return;
+            }
+            
+            const bomData = bomComponents.find(bc => bc.bomId == bomId);
+            let components = [];
+            
+            if(bomData) {
+                components = bomData.components;
+            }
+            
+            if(components.length === 0) {
+                $('#bomPreviewBody').html(`
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No components defined for this BOM</td>
+                    </tr>
+                `);
+                return;
+            }
+            
+            // Generate the BOM preview rows
+            let bomRows = '';
+            components.forEach(component => {
+                const totalQty = component.qty * quantity;
+                const statusClass = totalQty <= component.available ? 'bg-success' : 'bg-danger';
+                
+                bomRows += `
+                    <tr>
+                        <td>${component.name}</td>
+                        <td>${totalQty.toFixed(1)}</td>
+                        <td>${component.uom}</td>
+                        <td><span class="badge ${statusClass}">${component.available.toFixed(1)}</span></td>
+                    </tr>
+                `;
+            });
+            
+            $('#bomPreviewBody').html(bomRows);
+        }
+
+        // Function to update work order table
+        function updateWorkOrderTable() {
+            const tbody = $('#workOrderTableBody');
+            tbody.empty();
+            
+            workOrderList.forEach((wo, index) => {
+                const row = `
+                    <tr>
+                        <td>${wo.id}</td>
+                        <td>
+                            <select class="form-select work-order-select" data-index="${index}" data-field="workCenter">
+                                ${workCenters.map(wc => `
+                                    <option value="${wc.name}" ${wc.name === wo.workCenter ? 'selected' : ''}>
+                                        ${wc.name}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control duration-input" data-index="${index}" data-field="duration" 
+                                   value="${wo.duration}" min="0.1" step="0.1">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control description-input" data-index="${index}" data-field="description" 
+                                   value="${wo.description}">
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger delete-work-order" data-index="${index}" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+            
+            if (workOrderList.length === 0) {
+                tbody.append(`
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No work orders added</td>
+                    </tr>
+                `);
+            }
+        }
+
+        // Function to show forecast
+        function showForecast(bomId, quantity) {
+            console.log('Generating forecast for BOM ID:', bomId);
+            const bomData = bomComponents.find(bc => bc.bomId == bomId);
+            const components = bomData ? bomData.components : [];
+            
+            // Destroy previous chart if it exists
+            if (componentChart) {
+                componentChart.destroy();
+            }
+
+            // Component Availability Chart
+            const labels = components.map(c => c.name);
+            const requiredData = components.map(c => c.qty * quantity);
+            const availableData = components.map(c => c.available);
+
+            const ctx = document.getElementById('componentChart').getContext('2d');
+            try {
+                componentChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Required Quantity',
+                                data: requiredData,
+                                backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                                borderColor: 'rgba(0, 123, 255, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Available Quantity',
+                                data: availableData,
+                                backgroundColor: 'rgba(40, 167, 69, 0.5)',
+                                borderColor: 'rgba(40, 167, 69, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Quantity'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Components'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Component Availability Forecast'
+                            }
+                        }
+                    }
+                });
+                console.log('Chart created successfully');
+            } catch (e) {
+                console.error('Error creating chart:', e);
+            }
+
+            // Production Timeline
+            const totalDuration = workOrderList.reduce((sum, wo) => sum + parseFloat(wo.duration), 0);
+            const timelineHtml = workOrderList.length > 0 ? `
+                <p><strong>Total Duration:</strong> ${totalDuration.toFixed(1)} hours</p>
+                <ul>
+                    ${workOrderList.map(wo => `
+                        <li>${wo.id} (${wo.workCenter}): ${wo.duration} hours - ${wo.description || 'No description'}</li>
+                    `).join('')}
+                </ul>
+            ` : '<p class="text-muted">No work orders added to estimate production timeline.</p>';
+            $('#timelineInfo').html(timelineHtml);
+
+            // Stock Status
+            const allSufficient = components.every(c => c.qty * quantity <= c.available);
+            const stockStatusHtml = components.length > 0 ? `
+                <p><strong>Stock Sufficiency:</strong> 
+                    <span class="${allSufficient ? 'text-success' : 'text-danger'}">
+                        ${allSufficient ? 'Sufficient stock for all components' : 'Insufficient stock for some components'}
+                    </span>
+                </p>
+                <ul>
+                    ${components.map(c => `
+                        <li>${c.name}: ${c.qty * quantity.toFixed(1)} required, ${c.available.toFixed(1)} available 
+                            <span class="${c.qty * quantity <= c.available ? 'text-success' : 'text-danger'}">
+                                (${c.qty * quantity <= c.available ? 'OK' : 'Shortage'})
+                            </span>
+                        </li>
+                    `).join('')}
+                </ul>
+            ` : '<p class="text-muted">No components defined for this BOM.</p>';
+            $('#stockStatus').html(stockStatusHtml);
+        }
+    </script>
+</body>
+</html>

@@ -158,7 +158,7 @@ urlpatterns = [
 
 
 
-    url(r'^MOrder/Create$', manufacture_order_create, name='manufacture_order_create'),
+    url(r'^MOrder/$', manufacture_order_list, name='manufacture_order_list'),
     url(r'^MOrder/Detaile$', manufacture_order_detail, name='manufacture_order_detail'),
     url(r'^Workcenter/$', workcenter_list, name='workcenter_list'),
     url(r'^Workcenter/Create$', create_workcenter, name='create_workcenter'),

@@ -18,7 +18,7 @@ import datetime
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 
-def manufacture_order_create(request):
-    return render(request,"mrp/manufactureorder/manufactureorder_create.html",{})
+def manufacture_order_list(request):
+    return render(request,"mrp/manufactureorder/mOrderList.html",{})
 def manufacture_order_detail(request):
-    return render(request,"mrp/manufactureorder/manufactureorder_detaile.html",{})
+    return render(request,"mrp/manufactureorder/dgrok2.html",{})

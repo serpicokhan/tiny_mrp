@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturing Orders</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-draft {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+        .status-confirmed {
+            background-color: #e2f0fd;
+            color: #0d6efd;
+        }
+        .status-progress {
+            background-color: #fff3cd;
+            color: #ffc107;
+        }
+        .status-done {
+            background-color: #d1e7dd;
+            color: #198754;
+        }
+        .status-canceled {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+        .orders-table thead {
+            background-color: #f8f9fa;
+        }
+        .orders-table tbody tr:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+        .product-image {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+        .search-bar {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .action-buttons .btn {
+            margin-right: 5px;
+        }
+        .filter-buttons .btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        
+        /* Kanban styles */
+        .kanban-container {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 15px;
+        }
+        .kanban-column {
+            min-width: 300px;
+            width: 300px;
+            margin-right: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .kanban-column-header {
+            padding: 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 10px;
+        }
+        .kanban-card {
+            background-color: white;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .kanban-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .kanban-card-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .kanban-card-details {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        .view-toggle {
+            margin-left: 10px;
+        }
+        .view-toggle .btn {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-industry me-2"></i>Manufacturing Orders</h1>
+            <div>
+                <div class="btn-group view-toggle">
+                    <button class="btn btn-sm btn-outline-secondary active" id="tableViewBtn" title="Table View">
+                        <i class="fas fa-table"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" id="kanbanViewBtn" title="Kanban View">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newOrderModal">
+                    <i class="fas fa-plus me-1"></i> New Order
+                </button>
+            </div>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="search-bar">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Search orders..." id="searchInput">
+                        <button class="btn btn-outline-secondary" type="button" id="searchBtn">Search</button>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="filter-buttons">
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-secondary active" data-filter="all">All</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-filter="draft">Draft</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-filter="confirmed">Confirmed</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-filter="progress">In Progress</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-filter="done">Done</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-filter="canceled">Canceled</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table View -->
+        <div id="tableView" class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover orders-table">
+                        <thead>
+                            <tr>
+                                <th width="10%">Reference</th>
+                                <th width="20%">Product</th>
+                                <th width="10%">Quantity</th>
+                                <th width="15%">BOM</th>
+                                <th width="10%">Work Order</th>
+                                <th width="10%">Status</th>
+                                <th width="15%">Scheduled Date</th>
+                                <th width="10%">Responsible</th>
+                                <th width="10%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <!-- Data will be loaded from JSON -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center" id="pagination">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Kanban View -->
+        <div id="kanbanView" class="d-none">
+            <div class="kanban-container">
+                <div class="kanban-column">
+                    <div class="kanban-column-header">
+                        <span class="status-badge status-draft">Draft</span>
+                        <span class="badge bg-secondary float-end" id="draftCount">0</span>
+                    </div>
+                    <div id="draftColumn" class="kanban-column-content">
+                        <!-- Draft orders will be loaded here -->
+                    </div>
+                </div>
+                <div class="kanban-column">
+                    <div class="kanban-column-header">
+                        <span class="status-badge status-confirmed">Confirmed</span>
+                        <span class="badge bg-secondary float-end" id="confirmedCount">0</span>
+                    </div>
+                    <div id="confirmedColumn" class="kanban-column-content">
+                        <!-- Confirmed orders will be loaded here -->
+                    </div>
+                </div>
+                <div class="kanban-column">
+                    <div class="kanban-column-header">
+                        <span class="status-badge status-progress">In Progress</span>
+                        <span class="badge bg-secondary float-end" id="progressCount">0</span>
+                    </div>
+                    <div id="progressColumn" class="kanban-column-content">
+                        <!-- In Progress orders will be loaded here -->
+                    </div>
+                </div>
+                <div class="kanban-column">
+                    <div class="kanban-column-header">
+                        <span class="status-badge status-done">Done</span>
+                        <span class="badge bg-secondary float-end" id="doneCount">0</span>
+                    </div>
+                    <div id="doneColumn" class="kanban-column-content">
+                        <!-- Done orders will be loaded here -->
+                    </div>
+                </div>
+                <div class="kanban-column">
+                    <div class="kanban-column-header">
+                        <span class="status-badge status-canceled">Canceled</span>
+                        <span class="badge bg-secondary float-end" id="canceledCount">0</span>
+                    </div>
+                    <div id="canceledColumn" class="kanban-column-content">
+                        <!-- Canceled orders will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Order Modal -->
+    <div class="modal fade" id="newOrderModal" tabindex="-1" aria-labelledby="newOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newOrderModalLabel">Create New Manufacturing Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="moForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="productSelect" class="form-label">Product to Manufacture *</label>
+                                <select class="form-select" id="productSelect" required>
+                                    <option value="" selected disabled>Select a product</option>
+                                    <!-- Options will be loaded from JSON -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="quantityInput" class="form-label">Quantity *</label>
+                                <input type="number" class="form-control" id="quantityInput" min="0.1" step="0.1" value="1.0" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="bomSelect" class="form-label">Bill of Materials *</label>
+                                <select class="form-select" id="bomSelect" required>
+                                    <option value="" selected disabled>Select a BOM</option>
+                                    <!-- Options will be loaded from JSON -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="workOrderSelect" class="form-label">Work Order</label>
+                                <select class="form-select" id="workOrderSelect">
+                                    <option value="" selected>No work order</option>
+                                    <option value="WO-2023-001">WO-2023-001 - Assembly Line 1</option>
+                                    <option value="WO-2023-002">WO-2023-002 - Assembly Line 2</option>
+                                    <option value="WO-2023-003">WO-2023-003 - Finishing Station</option>
+                                    <option value="WO-2023-004">WO-2023-004 - Packaging</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="dateInput" class="form-label">Scheduled Date *</label>
+                                <input type="datetime-local" class="form-control" id="dateInput" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="responsibleSelect" class="form-label">Responsible</label>
+                                <select class="form-select" id="responsibleSelect">
+                                    <option value="" selected>No responsible</option>
+                                    <!-- Options will be loaded from JSON -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notesTextarea" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notesTextarea" rows="3"></textarea>
+                        </div>
+                    </form>
+
+                    <!-- BOM Preview -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">BOM Preview</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Component</th>
+                                            <th>Quantity</th>
+                                            <th>UoM</th>
+                                            <th>Available</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bomPreviewBody">
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">Select a product and BOM to see components</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="createMoBtn">Create Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        // Sample JSON data
+        const manufacturingOrders = [
+            {
+                id: 1,
+                reference: "MO/2023/0001",
+                product: {
+                    id: 1,
+                    name: "Office Desk",
+                    code: "OD-1001",
+                    image: "/media/products/office-desk.jpg"
+                },
+                quantity: 10.0,
+                bom: "BOM-OD-1001",
+                workOrder: "WO-2023-001",
+                status: "draft",
+                scheduledDate: "2023-06-15",
+                responsible: {
+                    id: 1,
+                    name: "John Doe"
+                },
+                notes: "Urgent order for client XYZ"
+            },
+            {
+                id: 2,
+                reference: "MO/2023/0002",
+                product: {
+                    id: 2,
+                    name: "Office Chair",
+                    code: "OC-2001",
+                    image: "/media/products/office-chair.jpg"
+                },
+                quantity: 15.0,
+                bom: "BOM-OC-2001",
+                workOrder: "WO-2023-002",
+                status: "confirmed",
+                scheduledDate: "2023-06-16",
+                responsible: {
+                    id: 2,
+                    name: "Jane Smith"
+                },
+                notes: "Standard production"
+            },
+            {
+                id: 3,
+                reference: "MO/2023/0003",
+                product: {
+                    id: 3,
+                    name: "Bookshelf",
+                    code: "BS-3001",
+                    image: "/media/products/bookshelf.jpg"
+                },
+                quantity: 5.0,
+                bom: "BOM-BS-3001",
+                workOrder: "WO-2023-003",
+                status: "progress",
+                scheduledDate: "2023-06-14",
+                responsible: {
+                    id: 3,
+                    name: "Mike Johnson"
+                },
+                notes: "Custom color requested"
+            },
+            {
+                id: 4,
+                reference: "MO/2023/0004",
+                product: {
+                    id: 4,
+                    name: "Coffee Table",
+                    code: "CT-4001",
+                    image: "/media/products/coffee-table.jpg"
+                },
+                quantity: 8.0,
+                bom: "BOM-CT-4001",
+                workOrder: "",
+                status: "done",
+                scheduledDate: "2023-06-10",
+                responsible: {
+                    id: 4,
+                    name: "Sarah Williams"
+                },
+                notes: "Completed ahead of schedule"
+            },
+            {
+                id: 5,
+                reference: "MO/2023/0005",
+                product: {
+                    id: 1,
+                    name: "Office Desk",
+                    code: "OD-1001",
+                    image: "/media/products/office-desk.jpg"
+                },
+                quantity: 12.0,
+                bom: "BOM-OD-1001",
+                workOrder: "WO-2023-004",
+                status: "canceled",
+                scheduledDate: "2023-06-12",
+                responsible: {
+                    id: 1,
+                    name: "John Doe"
+                },
+                notes: "Client canceled order"
+            }
+        ];
+
+        const products = [
+            { id: 1, name: "Office Desk", code: "OD-1001", image: "/media/products/office-desk.jpg" },
+            { id: 2, name: "Office Chair", code: "OC-2001", image: "/media/products/office-chair.jpg" },
+            { id: 3, name: "Bookshelf", code: "BS-3001", image: "/media/products/bookshelf.jpg" },
+            { id: 4, name: "Coffee Table", code: "CT-4001", image: "/media/products/coffee-table.jpg" }
+        ];
+
+        const boms = [
+            { id: 1, name: "BOM-OD-1001", productId: 1, description: "Office Desk" },
+            { id: 2, name: "BOM-OC-2001", productId: 2, description: "Office Chair" },
+            { id: 3, name: "BOM-BS-3001", productId: 3, description: "Bookshelf" },
+            { id: 4, name: "BOM-CT-4001", productId: 4, description: "Coffee Table" }
+        ];
+
+        const responsibles = [
+            { id: 1, name: "John Doe" },
+            { id: 2, name: "Jane Smith" },
+            { id: 3, name: "Mike Johnson" },
+            { id: 4, name: "Sarah Williams" }
+        ];
+
+        $(document).ready(function() {
+            // Load data into the table
+            loadOrdersTable();
+            loadKanbanView();
+            
+            // Load dropdown options
+            loadProductOptions();
+            loadResponsibleOptions();
+            
+            // View toggle buttons
+            $('#tableViewBtn').click(function() {
+                $('#tableView').removeClass('d-none');
+                $('#kanbanView').addClass('d-none');
+                $(this).addClass('active');
+                $('#kanbanViewBtn').removeClass('active');
+            });
+            
+            $('#kanbanViewBtn').click(function() {
+                $('#tableView').addClass('d-none');
+                $('#kanbanView').removeClass('d-none');
+                $(this).addClass('active');
+                $('#tableViewBtn').removeClass('active');
+            });
+            
+            // Filter buttons
+            $('.filter-buttons .btn').click(function() {
+                $('.filter-buttons .btn').removeClass('active');
+                $(this).addClass('active');
+                const filter = $(this).data('filter');
+                filterOrders(filter);
+            });
+            
+            // Search functionality
+            $('#searchBtn').click(function() {
+                const searchTerm = $('#searchInput').val().toLowerCase();
+                filterOrders('all', searchTerm);
+            });
+            
+            $('#searchInput').keypress(function(e) {
+                if(e.which === 13) {
+                    $('#searchBtn').click();
+                }
+            });
+
+            // Product select change - update BOM options
+            $('#productSelect').change(function() {
+                const productId = $(this).val();
+                loadBomOptions(productId);
+                
+                // Simulate BOM loading
+                if(productId) {
+                    $('#bomPreviewBody').html(`
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                Loading BOM components...
+                            </td>
+                        </tr>
+                    `);
+                    
+                    // Simulate AJAX delay
+                    setTimeout(function() {
+                        updateBomPreview(productId);
+                    }, 800);
+                } else {
+                    $('#bomPreviewBody').html(`
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Select a product and BOM to see components</td>
+                        </tr>
+                    `);
+                }
+            });
+
+            // BOM select change - update preview
+            $('#bomSelect').change(function() {
+                const productId = $('#productSelect').val();
+                if(productId) {
+                    updateBomPreview(productId);
+                }
+            });
+
+            // Quantity change - update BOM preview quantities
+            $('#quantityInput').change(function() {
+                const productId = $('#productSelect').val();
+                if(productId && $('#bomSelect').val()) {
+                    updateBomPreview(productId);
+                }
+            });
+
+            // Create MO button
+            $('#createMoBtn').click(function() {
+                if($('#moForm')[0].checkValidity()) {
+                    // Create new order object
+                    const newOrder = {
+                        id: manufacturingOrders.length + 1,
+                        reference: "MO/2023/" + (manufacturingOrders.length + 1).toString().padStart(4, '0'),
+                        product: products.find(p => p.id == $('#productSelect').val()),
+                        quantity: parseFloat($('#quantityInput').val()),
+                        bom: $('#bomSelect option:selected').text(),
+                        workOrder: $('#workOrderSelect').val(),
+                        status: "draft",
+                        scheduledDate: $('#dateInput').val().split('T')[0],
+                        responsible: responsibles.find(r => r.id == $('#responsibleSelect').val()),
+                        notes: $('#notesTextarea').val()
+                    };
+                    
+                    // Add to orders array
+                    manufacturingOrders.unshift(newOrder);
+                    
+                    // Refresh views
+                    loadOrdersTable();
+                    loadKanbanView();
+                    
+                    // Close modal and reset form
+                    alert('Manufacturing order created successfully!');
+                    $('#newOrderModal').modal('hide');
+                    $('#moForm')[0].reset();
+                } else {
+                    $('#moForm')[0].reportValidity();
+                }
+            });
+        });
+        
+        // Function to load orders into the table
+        function loadOrdersTable() {
+            const tbody = $('#ordersTableBody');
+            tbody.empty();
+            
+            manufacturingOrders.forEach(order => {
+                const statusClass = `status-${order.status}`;
+                let statusText = '';
+                
+                switch(order.status) {
+                    case 'draft': statusText = 'Draft'; break;
+                    case 'confirmed': statusText = 'Confirmed'; break;
+                    case 'progress': statusText = 'In Progress'; break;
+                    case 'done': statusText = 'Done'; break;
+                    case 'canceled': statusText = 'Canceled'; break;
+                }
+                
+                const row = `
+                    <tr data-id="${order.id}" data-status="${order.status}">
+                        <td><strong>${order.reference}</strong></td>
+                        <td>
+                            <img src="${order.product.image}" class="product-image me-2">
+                            ${order.product.name} (${order.product.code})
+                        </td>
+                        <td>${order.quantity}</td>
+                        <td>${order.bom}</td>
+                        <td>${order.workOrder || '-'}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${order.scheduledDate}</td>
+                        <td>${order.responsible ? order.responsible.name : '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                
+                tbody.append(row);
+            });
+        }
+        
+        // Function to load kanban view
+        function loadKanbanView() {
+            const statusColumns = {
+                draft: $('#draftColumn'),
+                confirmed: $('#confirmedColumn'),
+                progress: $('#progressColumn'),
+                done: $('#doneColumn'),
+                canceled: $('#canceledColumn')
+            };
+            
+            // Clear all columns
+            Object.values(statusColumns).forEach(col => col.empty());
+            
+            // Count orders per status
+            const statusCounts = {
+                draft: 0,
+                confirmed: 0,
+                progress: 0,
+                done: 0,
+                canceled: 0
+            };
+            
+            // Add orders to appropriate columns
+            manufacturingOrders.forEach(order => {
+                statusCounts[order.status]++;
+                
+                const statusClass = `status-${order.status}`;
+                let statusText = '';
+                
+                switch(order.status) {
+                    case 'draft': statusText = 'Draft'; break;
+                    case 'confirmed': statusText = 'Confirmed'; break;
+                    case 'progress': statusText = 'In Progress'; break;
+                    case 'done': statusText = 'Done'; break;
+                    case 'canceled': statusText = 'Canceled'; break;
+                }
+                
+                const card = `
+                    <div class="kanban-card" data-id="${order.id}">
+                        <div class="kanban-card-title">${order.reference}: ${order.product.name}</div>
+                        <div class="kanban-card-details">
+                            <div><strong>Qty:</strong> ${order.quantity}</div>
+                            <div><strong>BOM:</strong> ${order.bom}</div>
+                            <div><strong>Work Order:</strong> ${order.workOrder || 'None'}</div>
+                            <div><strong>Date:</strong> ${order.scheduledDate}</div>
+                            <div class="mt-2"><span class="status-badge ${statusClass}">${statusText}</span></div>
+                        </div>
+                    </div>
+                `;
+                
+                statusColumns[order.status].append(card);
+            });
+            
+            // Update counts
+            $('#draftCount').text(statusCounts.draft);
+            $('#confirmedCount').text(statusCounts.confirmed);
+            $('#progressCount').text(statusCounts.progress);
+            $('#doneCount').text(statusCounts.done);
+            $('#canceledCount').text(statusCounts.canceled);
+        }
+        
+        // Function to filter orders
+        function filterOrders(statusFilter, searchTerm = '') {
+            if (statusFilter === 'all' && !searchTerm) {
+                // Show all orders
+                $('tr[data-id]').removeClass('d-none');
+                $('.kanban-card').removeClass('d-none');
+                return;
+            }
+            
+            // Table view filtering
+            $('tr[data-id]').each(function() {
+                const $row = $(this);
+                const rowStatus = $row.data('status');
+                const rowText = $row.text().toLowerCase();
+                
+                const statusMatch = statusFilter === 'all' || rowStatus === statusFilter;
+                const searchMatch = !searchTerm || rowText.includes(searchTerm);
+                
+                if (statusMatch && searchMatch) {
+                    $row.removeClass('d-none');
+                } else {
+                    $row.addClass('d-none');
+                }
+            });
+            
+            // Kanban view filtering
+            $('.kanban-card').each(function() {
+                const $card = $(this);
+                const cardStatus = $card.closest('.kanban-column-content').attr('id').replace('Column', '');
+                const cardText = $card.text().toLowerCase();
+                
+                const statusMatch = statusFilter === 'all' || cardStatus === statusFilter;
+                const searchMatch = !searchTerm || cardText.includes(searchTerm);
+                
+                if (statusMatch && searchMatch) {
+                    $card.removeClass('d-none');
+                } else {
+                    $card.addClass('d-none');
+                }
+            });
+        }
+        
+        // Function to load product options
+        function loadProductOptions() {
+            const select = $('#productSelect');
+            select.empty();
+            select.append('<option value="" selected disabled>Select a product</option>');
+            
+            products.forEach(product => {
+                select.append(`<option value="${product.id}">${product.name} (${product.code})</option>`);
+            });
+        }
+        
+        // Function to load BOM options based on product
+        function loadBomOptions(productId) {
+            const select = $('#bomSelect');
+            select.empty();
+            select.append('<option value="" selected disabled>Select a BOM</option>');
+            
+            if (!productId) return;
+            
+            const productBoms = boms.filter(bom => bom.productId == productId);
+            
+            if (productBoms.length === 0) {
+                select.append('<option value="" disabled>No BOMs available for this product</option>');
+            } else {
+                productBoms.forEach(bom => {
+                    select.append(`<option value="${bom.id}">${bom.name} - ${bom.description}</option>`);
+                });
+            }
+        }
+        
+        // Function to load responsible options
+        function loadResponsibleOptions() {
+            const select = $('#responsibleSelect');
+            select.empty();
+            select.append('<option value="" selected>No responsible</option>');
+            
+            responsibles.forEach(responsible => {
+                select.append(`<option value="${responsible.id}">${responsible.name}</option>`);
+            });
+        }
+
+        // Function to update BOM preview
+        function updateBomPreview(productId) {
+            const quantity = parseFloat($('#quantityInput').val()) || 1;
+            const bomId = $('#bomSelect').val();
+            
+            if(!bomId) {
+                $('#bomPreviewBody').html(`
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Select a BOM to see components</td>
+                    </tr>
+                `);
+                return;
+            }
+            
+            // Simulated BOM data - in a real app this would come from AJAX
+            let bomComponents = [];
+            
+            if(productId == "1") { // Office Desk
+                bomComponents = [
+                    { name: 'Wood Plank (120cm)', qty: 2, uom: 'Units', available: 25 },
+                    { name: 'Metal Bracket', qty: 4, uom: 'Units', available: 60 },
+                    { name: 'Wood Screw 3x40mm', qty: 12, uom: 'Units', available: 200 }
+                ];
+            } else if(productId == "2") { // Office Chair
+                bomComponents = [
+                    { name: 'Plastic Seat', qty: 1, uom: 'Units', available: 15 },
+                    { name: 'Metal Legs', qty: 4, uom: 'Units', available: 40 },
+                    { name: 'Wheels', qty: 5, uom: 'Units', available: 35 }
+                ];
+            } else if(productId == "3") { // Bookshelf
+                bomComponents = [
+                    { name: 'Wood Panel (60x180cm)', qty: 3, uom: 'Units', available: 12 },
+                    { name: 'Shelf Bracket', qty: 8, uom: 'Units', available: 45 },
+                    { name: 'Wood Screw 3x30mm', qty: 24, uom: 'Units', available: 180 }
+                ];
+            } else if(productId == "4") { // Coffee Table
+                bomComponents = [
+                    { name: 'Glass Top (80x80cm)', qty: 1, uom: 'Units', available: 8 },
+                    { name: 'Metal Frame', qty: 1, uom: 'Units', available: 10 },
+                    { name: 'Rubber Feet', qty: 4, uom: 'Units', available: 32 }
+                ];
+            }
+            
+            // Generate the BOM preview rows
+            let bomRows = '';
+            bomComponents.forEach(component => {
+                const totalQty = component.qty * quantity;
+                const statusClass = totalQty <= component.available ? 'bg-success' : 'bg-danger';
+                
+                bomRows += `
+                    <tr>
+                        <td>${component.name}</td>
+                        <td>${totalQty.toFixed(1)}</td>
+                        <td>${component.uom}</td>
+                        <td><span class="badge ${statusClass}">${component.available.toFixed(1)}</span></td>
+                    </tr>
+                `;
+            });
+            
+            $('#bomPreviewBody').html(bomRows);
+        }
+    </script>
+</body>
+</html>
