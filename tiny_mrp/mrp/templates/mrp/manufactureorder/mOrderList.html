@@ -260,12 +260,12 @@
         <div class="col-md-4 text-md-end">
             <div class="filter-buttons">
                 <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-secondary active" data-filter="all">همه</button>
-                    <button class="btn btn-sm btn-outline-secondary" data-filter="draft">پیش نویس</button>
-                    <button class="btn btn-sm btn-outline-secondary" data-filter="confirmed">تایید شده</button>
-                    <button class="btn btn-sm btn-outline-secondary" data-filter="progress">در حال پیشرفت</button>
-                    <button class="btn btn-sm btn-outline-secondary" data-filter="done">انجام شده</button>
-                    <button class="btn btn-sm btn-outline-secondary" data-filter="canceled">کنسل شده</button>
+                    <button class="btn btn-sm btn-outline-secondary active" data-filter="all" data-grid-filter="all" >همه</button>
+                    <button class="btn btn-sm btn-outline-secondary" data-filter="draft" data-grid-filter="draft">پیش نویس</button>
+                    <button class="btn btn-sm btn-outline-secondary" data-filter="confirmed" data-grid-filter="confirmed">تایید شده</button>
+                    <button class="btn btn-sm btn-outline-secondary" data-filter="progress" data-grid-filter="progress">در حال پیشرفت</button>
+                    <button class="btn btn-sm btn-outline-secondary" data-filter="done" data-grid-filter="done">انجام شده</button>
+                    <button class="btn btn-sm btn-outline-secondary" data-filter="canceled" data-grid-filter="canceled">کنسل شده</button>
                 </div>
             </div>
         </div>
@@ -316,16 +316,7 @@
 
 <!-- Grid View -->
 <div id="gridView">
-    <div class="status-filter-container">
-        <div class="btn-group">
-            <button class="btn btn-sm btn-outline-secondary active" data-grid-filter="all">All</button>
-            <button class="btn btn-sm btn-outline-secondary" data-grid-filter="draft">Draft</button>
-            <button class="btn btn-sm btn-outline-secondary" data-grid-filter="confirmed">Confirmed</button>
-            <button class="btn btn-sm btn-outline-secondary" data-grid-filter="progress">In Progress</button>
-            <button class="btn btn-sm btn-outline-secondary" data-grid-filter="done">Done</button>
-            <button class="btn btn-sm btn-outline-secondary" data-grid-filter="canceled">Canceled</button>
-        </div>
-    </div>
+ 
     <div class="grid-container" id="gridContainer">
         <!-- Cards will be loaded here -->
     </div>
