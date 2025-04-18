@@ -244,7 +244,7 @@ let componentChart = null;
     }
 
     // Product select change - update BOM options
-    $('#productSelect').change(function() {
+    $('#newOrderModal').on('change','#productSelect',function() {
         const productId = $(this).val();
         loadBomOptions(productId);
         $('#bomSelect').val('');
@@ -257,14 +257,14 @@ let componentChart = null;
     });
 
     // BOM select change - update component preview
-    $('#bomSelect').change(function() {
+    $('#newOrderModal').on('change','#bomSelect',function() {
         const bomId = $(this).val();
         if(bomId) {
             $('#bomPreviewBody').html(`
                 <tr>
                     <td colspan="4" class="text-center">
                         <div class="spinner-border spinner-border-sm" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                            <span class="visually-hidden"></span>
                         </div>
                         Loading BOM components...
                     </td>
