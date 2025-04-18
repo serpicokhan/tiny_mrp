@@ -19,6 +19,7 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from mrp.models import ManufacturingOrder
 from mrp.forms import ManufacturingOrderForm
+from django.views.decorators.http import require_GET
 
 def manufacture_order_list(request):
     return render(request,"mrp/manufactureorder/mOrderList.html",{})
@@ -53,3 +54,22 @@ def create_morder(request):
         print("!!!!!!!!!!!")
         form = ManufacturingOrderForm()
         return save_morder_form(request, form, 'mrp/manufactureorder/partialMOrderCreate.html')
+@require_GET
+def manufacturing_orders_api(request):
+    manufacturing_orders = [
+        {
+            'id': 1,
+            'reference': 'MO/2023/0001',
+            'product': {'id': 1, 'name': 'Office Desk', 'code': 'OD-1001', 'image': '/media/products/office-desk.jpg'},
+            'quantity': 10.0,
+            'bom': 'BOM-OD-1001',
+            'workOrders': [{'id': 'WO-2023-001', 'workCenter': 'Assembly Line 1', 'duration': 2.5, 'description': 'Assemble desk frame'}],
+            'status': 'draft',
+            'scheduledDate': '2023-06-15',
+            'customer': {'id': 1, 'name': 'Acme Corp'},
+            'responsible': {'id': 1, 'name': 'John Doe'},
+            'notes': 'Urgent order for client XYZ'
+        },
+        # Add the rest of the manufacturing orders here (or fetch from a model)
+    ]
+    return JsonResponse({'manufacturingOrders': manufacturing_orders})

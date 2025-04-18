@@ -32,7 +32,19 @@ class BOMListView(generics.ListAPIView):
                                      .prefetch_related('bomcomponent_set__product', 
                                                      'bomcomponent_set__uom')\
                                      .order_by('reference')
+class BOMDetailedListView(generics.ListAPIView):
+    serializer_class = BillOfMaterialsSerializer
 
+    def get_queryset(self):
+        # Get product_id from URL kwargs
+        product_id = self.kwargs.get('product_id')
+        
+        # Filter BOMs by product_id and optimize queries
+        return BillOfMaterials.objects.filter(product__id=product_id)\
+                                     .select_related('product')\
+                                     .prefetch_related('bomcomponent_set__product', 
+                                                      'bomcomponent_set__uom')\
+                                     .order_by('reference')
 def save_bom_form(request, form, template_name):
 
 

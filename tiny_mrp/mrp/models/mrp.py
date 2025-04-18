@@ -234,6 +234,7 @@ class ManufacturingOrder(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    notes=models.TextField(null=True,blank=True)
 
     class Meta:
         ordering = ['-scheduled_date', 'reference']

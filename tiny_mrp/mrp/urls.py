@@ -148,6 +148,7 @@ urlpatterns = [
     url(r'^BOM/Component/(?P<id>\d+)/Create$', create_bom_component, name='create_bom_component'),
     url(r'^BOM/(?P<id>\d+)/view$', view_bom, name='view_bom'),
     path('api/boms/', BOMListView.as_view(), name='bom-list'),
+    path('api/<int:product_id>/boms/', BOMDetailedListView.as_view(), name='bom-list-detail'),
 
     url(r'^Product/$', product_list, name='product_list'),
     path('Product/List', views.ProductListView.as_view(), name='product_list'),
@@ -161,6 +162,7 @@ urlpatterns = [
     url(r'^MOrder/$', manufacture_order_list, name='manufacture_order_list'),
     url(r'^MOrder/Create$', create_morder, name='create_morder'),
     url(r'^MOrder/Detail$', manufacture_order_detail, name='manufacture_order_detail'),
+    path('api/MOrder/', manufacturing_orders_api, name='manufacturing_orders_api'),
     url(r'^Workcenter/$', workcenter_list, name='workcenter_list'),
     url(r'^Workcenter/Create$', create_workcenter, name='create_workcenter'),
     path('api/workcenter/', WorkcenterListView.as_view(), name='workcenter-list'),

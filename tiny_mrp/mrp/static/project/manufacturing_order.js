@@ -1,124 +1,18 @@
 $(function () {
 // Sample JSON data
-const manufacturingOrders = [
-    {
-        id: 1,
-        reference: "MO/2023/0001",
-        product: { id: 1, name: "Office Desk", code: "OD-1001", image: "/media/products/office-desk.jpg" },
-        quantity: 10.0,
-        bom: "BOM-OD-1001",
-        workOrders: [{ id: "WO-2023-001", workCenter: "Assembly Line 1", duration: 2.5, description: "Assemble desk frame" }],
-        status: "draft",
-        scheduledDate: "2023-06-15",
-        customer: { id: 1, name: "Acme Corp" },
-        responsible: { id: 1, name: "John Doe" },
-        notes: "Urgent order for client XYZ"
-    },
-    {
-        id: 2,
-        reference: "MO/2023/0002",
-        product: { id: 2, name: "Office Chair", code: "OC-2001", image: "/media/products/office-chair.jpg" },
-        quantity: 15.0,
-        bom: "BOM-OC-2001",
-        workOrders: [{ id: "WO-2023-002", workCenter: "Assembly Line 2", duration: 3.0, description: "Chair assembly and upholstery" }],
-        status: "confirmed",
-        scheduledDate: "2023-06-16",
-        customer: { id: 2, name: "Beta Industries" },
-        responsible: { id: 2, name: "Jane Smith" },
-        notes: "Standard production"
-    },
-    {
-        id: 3,
-        reference: "MO/2023/0003",
-        product: { id: 3, name: "Bookshelf", code: "BS-3001", image: "/media/products/bookshelf.jpg" },
-        quantity: 5.0,
-        bom: "BOM-BS-3001",
-        workOrders: [{ id: "WO-2023-003", workCenter: "Finishing Station", duration: 4.0, description: "Apply custom color finish" }],
-        status: "progress",
-        scheduledDate: "2023-06-14",
-        customer: { id: 3, name: "Gamma Retail" },
-        responsible: { id: 3, name: "Mike Johnson" },
-        notes: "Custom color requested"
-    },
-    {
-        id: 4,
-        reference: "MO/2023/0004",
-        product: { id: 4, name: "Coffee Table", code: "CT-4001", image: "/media/products/coffee-table.jpg" },
-        quantity: 8.0,
-        bom: "BOM-CT-4001",
-        workOrders: [],
-        status: "done",
-        scheduledDate: "2023-06-10",
-        customer: null,
-        responsible: { id: 4, name: "Sarah Williams" },
-        notes: "Completed ahead of schedule"
-    },
-    {
-        id: 5,
-        reference: "MO/2023/0005",
-        product: { id: 1, name: "Office Desk", code: "OD-1001", image: "/media/products/office-desk.jpg" },
-        quantity: 12.0,
-        bom: "BOM-OD-1001",
-        workOrders: [{ id: "WO-2023-004", workCenter: "Packaging", duration: 1.5, description: "Pack desks for shipping" }],
-        status: "canceled",
-        scheduledDate: "2023-06-12",
-        customer: { id: 1, name: "Acme Corp" },
-        responsible: { id: 1, name: "John Doe" },
-        notes: "Client canceled order"
-    },
-    {
-        id: 6,
-        reference: "MO/2023/0006",
-        product: { id: 2, name: "Office Chair", code: "OC-2001", image: "/media/products/office-chair.jpg" },
-        quantity: 20.0,
-        bom: "BOM-OC-2001",
-        workOrders: [{ id: "WO-2023-002", workCenter: "Assembly Line 2", duration: 3.0, description: "Bulk chair assembly" }],
-        status: "confirmed",
-        scheduledDate: "2023-06-18",
-        customer: { id: 2, name: "Beta Industries" },
-        responsible: { id: 2, name: "Jane Smith" },
-        notes: "Bulk order for new office"
-    },
-    {
-        id: 7,
-        reference: "MO/2023/0007",
-        product: { id: 3, name: "Bookshelf", code: "BS-3001", image: "/media/products/bookshelf.jpg" },
-        quantity: 3.0,
-        bom: "BOM-BS-3001",
-        workOrders: [{ id: "WO-2023-003", workCenter: "Finishing Station", duration: 4.0, description: "Glass door installation" }],
-        status: "progress",
-        scheduledDate: "2023-06-17",
-        customer: { id: 3, name: "Gamma Retail" },
-        responsible: { id: 3, name: "Mike Johnson" },
-        notes: "Special edition with glass doors"
-    },
-    {
-        id: 8,
-        reference: "MO/2023/0008",
-        product: { id: 4, name: "Coffee Table", code: "CT-4001", image: "/media/products/coffee-table.jpg" },
-        quantity: 6.0,
-        bom: "BOM-CT-4001",
-        workOrders: [{ id: "WO-2023-001", workCenter: "Assembly Line 1", duration: 2.0, description: "Table frame assembly" }],
-        status: "draft",
-        scheduledDate: "2023-06-20",
-        customer: null,
-        responsible: { id: 4, name: "Sarah Williams" },
-        notes: "Waiting for client confirmation"
-    }
+let  manufacturingOrders = [];
+let products = [
+    // { id: 1, name: "Office Desk", code: "OD-1001", image: "/media/products/office-desk.jpg" },
+    // { id: 2, name: "Office Chair", code: "OC-2001", image: "/media/products/office-chair.jpg" },
+    // { id: 3, name: "Bookshelf", code: "BS-3001", image: "/media/products/bookshelf.jpg" },
+    // { id: 4, name: "Coffee Table", code: "CT-4001", image: "/media/products/coffee-table.jpg" }
 ];
 
-const products = [
-    { id: 1, name: "Office Desk", code: "OD-1001", image: "/media/products/office-desk.jpg" },
-    { id: 2, name: "Office Chair", code: "OC-2001", image: "/media/products/office-chair.jpg" },
-    { id: 3, name: "Bookshelf", code: "BS-3001", image: "/media/products/bookshelf.jpg" },
-    { id: 4, name: "Coffee Table", code: "CT-4001", image: "/media/products/coffee-table.jpg" }
-];
-
-const boms = [
-    { id: 1, name: "BOM-OD-1001", productId: 1, description: "Office Desk" },
-    { id: 2, name: "BOM-OC-2001", productId: 2, description: "Office Chair" },
-    { id: 3, name: "BOM-BS-3001", productId: 3, description: "Bookshelf" },
-    { id: 4, name: "BOM-CT-4001", productId: 4, description: "Coffee Table" }
+let boms = [
+    // { id: 1, name: "BOM-OD-1001", productId: 1, description: "Office Desk" },
+    // { id: 2, name: "BOM-OC-2001", productId: 2, description: "Office Chair" },
+    // { id: 3, name: "BOM-BS-3001", productId: 3, description: "Bookshelf" },
+    // { id: 4, name: "BOM-CT-4001", productId: 4, description: "Coffee Table" }
 ];
 
 const bomComponents = [
@@ -182,11 +76,14 @@ let componentChart = null;
 
 
     // Load data into views
-    loadOrdersTable();
-    loadGridView();
+    load_morders();
+    loadProducts();
+    load_boms();
+
+   
     
     // Load dropdown options
-    loadProductOptions();
+    // loadProductOptions();
     loadCustomerOptions();
     loadResponsibleOptions();
     
@@ -233,6 +130,19 @@ let componentChart = null;
             $('#searchBtn').click();
         }
     });
+
+    function load_morders(){
+        // Fetch data from the API
+        fetch('/api/MOrder/')
+            .then(response => response.json())
+            .then(data => {
+                manufacturingOrders = data.manufacturingOrders;
+                loadOrdersTable();
+                loadGridView();
+                // Use the data as needed
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
 
     // Function to update forecast button state
     function updateForecastButtonState() {
@@ -545,14 +455,42 @@ function filterGridOrders(statusFilter, searchTerm = '') {
 }
 
 // Function to load product options
+function loadProducts() {
+    $.ajax({
+        url: '/api/products/',  // Your Django endpoint
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            // Process the response data (similar to your mockProducts)
+            // console.log('Received products:', response);
+            // Example: Display products in a table
+            
+            
+            if (response.length > 0) {
+                products=response;
+                
+               
+                
+            } else {
+               
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching products:', error);
+        }
+    });
+
+}
 function loadProductOptions() {
     const select = $('#productSelect');
     select.empty();
     select.append('<option value="" selected disabled>Select a product</option>');
     
+    
     products.forEach(product => {
         select.append(`<option value="${product.id}">${product.name} (${product.code})</option>`);
     });
+
 }
 
 // Function to load customer options
@@ -578,24 +516,51 @@ function loadResponsibleOptions() {
 }
 
 // Function to load BOM options based on product
+function load_boms(productId) {
+    $.ajax({
+        url: `/api/boms`,  // Your Django endpoint
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            // Process the response data (similar to your mockProducts)
+            // console.log('Received products:', response);
+            // Example: Display products in a table
+            if (response.length > 0) {
+                
+                
+                
+                boms =response; 
+                // boms.filter(bom => bom.productId == productId);
+                
+                
+
+            } else {
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching products:', error);
+        }
+    });
+    
+}
+// Function to load BOM options based on product
 function loadBomOptions(productId) {
     const select = $('#bomSelect');
     select.empty();
     select.append('<option value="" selected disabled>Select a BOM</option>');
     
     if (!productId) return;
-    
-    const productBoms = boms.filter(bom => bom.productId == productId);
+    const productBoms = boms.filter(bom => bom.product.id == productId);
     
     if (productBoms.length === 0) {
         select.append('<option value="" disabled>No BOMs available for this product</option>');
     } else {
         productBoms.forEach(bom => {
-            select.append(`<option value="${bom.id}">${bom.name} - ${bom.description}</option>`);
+            select.append(`<option value="${bom.id}">${bom.reference} - ${bom.product}</option>`);
         });
-    }
+     }
+    
 }
-
 // Function to update BOM preview
 function updateBomPreview(bomId) {
     const quantity = parseFloat($('#quantityInput').val()) || 1;
@@ -815,7 +780,6 @@ var loadForm =function (btn1) {
         
 
         $("#newOrderModal .modal-content").html(data.html_morder_form);
-
         loadOrdersTable();
         loadGridView();
         
