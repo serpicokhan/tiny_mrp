@@ -293,7 +293,7 @@ let componentChart = null;
     });
 
     // Add Work Order button
-    $('#addWorkOrderBtn').click(function() {
+    $('#newOrderModal').on('click','#addWorkOrderBtn',function() {
         const workOrderId = `WO-2023-${(workOrderList.length + 1).toString().padStart(3, '0')}`;
         workOrderList.push({
             id: workOrderId,
@@ -375,7 +375,7 @@ let componentChart = null;
     });
 
     // Forecast button click with validation
-    $('#forecastBtn').click(function() {
+    $('#newOrderModal').on('click','#forecastBtn',function() {
         console.log('Forecast button clicked');
         const productId = $('#productSelect').val();
         const bomId = $('#bomSelect').val();
@@ -654,7 +654,7 @@ function updateWorkOrderTable() {
             <tr>
                 <td>${wo.id}</td>
                 <td>
-                    <select class="form-select work-order-select" data-index="${index}" data-field="workCenter">
+                    <select class="form-control work-order-select" data-index="${index}" data-field="workCenter">
                         ${workCenters.map(wc => `
                             <option value="${wc.name}" ${wc.name === wo.workCenter ? 'selected' : ''}>
                                 ${wc.name}
@@ -815,6 +815,7 @@ var loadForm =function (btn1) {
         
 
         $("#newOrderModal .modal-content").html(data.html_morder_form);
+
         loadOrdersTable();
         loadGridView();
         
@@ -822,6 +823,7 @@ var loadForm =function (btn1) {
         loadProductOptions();
         loadCustomerOptions();
         loadResponsibleOptions();
+        
         // $(".select2").select2();
 
 
