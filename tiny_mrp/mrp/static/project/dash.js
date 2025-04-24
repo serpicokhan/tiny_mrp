@@ -490,7 +490,7 @@ $(function () {
   
   
   // draw_zayeat();
-  // draw_line_asset_failure($("#startdate").val(),$("#enddate").val());
+  draw_line_asset_failure($("#startdate").val(),$("#enddate").val());
   // draw_pie_asset_failure();
   
   // current_year_zayeatvazn_data();

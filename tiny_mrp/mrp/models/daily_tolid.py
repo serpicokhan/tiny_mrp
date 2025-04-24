@@ -51,6 +51,7 @@ class DailyProduction(models.Model):
     counter1 = models.FloatField()
     counter2 = models.FloatField()
     vahed = models.FloatField()
+    tab = models.FloatField(default=1)
     zayeat = models.FloatField(default=0)
     production_value = models.FloatField(blank=True, null=True)  # Result of the formula
     daf_num = models.FloatField(null=True, blank=True)
@@ -81,7 +82,8 @@ class DailyProduction(models.Model):
                 parameters = {
                     'Q': self.speed,
                     'P': self.nomre,
-                    'Z':self.vahed
+                    'Z':self.vahed,
+                    'W':self.tab
                 }
 
                 # Replace parameters in the formula with actual values

@@ -53,11 +53,11 @@
 
               <td contenteditable="true" class="editable-cell btc counter1 selectable1">{{c.amar.counter1}}</td>
               <td contenteditable="true" class="editable-cell btc counter2 selectable1">{{c.amar.counter2}}</td>
-              <td contenteditable="true" class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}" >{{c.amar.eval_max_tolid|floatformat:0}}</td>
+              <td contenteditable="true" class="editable-cell3 production_full selectable1 editable-cell" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}" >{{c.amar.eval_max_tolid|floatformat:0}}</td>
 
 
-              <td contenteditable="true" data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
-              <td contenteditable="true"  class='waste'>{{c.amar.zayeat}}</td>
+              <td contenteditable="true" data-formula="{{c.formula}}" class='production editable-cell'>{{c.amar.production_value}}</td>
+              <td contenteditable="true"  class='waste editable-cell'>{{c.amar.zayeat}}</td>
 
             </tr>
             {% endif %}

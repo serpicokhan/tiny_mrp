@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاهده دستور کار | سیستم CMMS</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap RTL -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Tahoma', 'Arial', sans-serif;
+            background-color: #f5f5f5;
+        }
+        .work-order-card {
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .work-order-header {
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .priority-high {
+            border-right: 4px solid #dc3545;
+        }
+        .priority-medium {
+            border-right: 4px solid #ffc107;
+        }
+        .priority-low {
+            border-right: 4px solid #28a745;
+        }
+        .task-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s;
+        }
+        .task-item:hover {
+            background-color: #f8f9fa;
+        }
+        .task-checkbox {
+            transform: scale(1.3);
+            margin-left: 10px;
+        }
+        .attachment-thumbnail {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        .comment-box {
+            border-left: 3px solid #0d6efd;
+            background-color: #f8f9fa;
+        }
+        .timer-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <!-- هدر صفحه -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">
+                        <i class="fas fa-clipboard-list ms-2 text-primary"></i>
+                        دستور کار #WO-2023-158
+                    </h2>
+                    <div>
+                        <span class="badge bg-secondary status-badge me-2">
+                            <i class="fas fa-circle me-1"></i> در حال انجام
+                        </span>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-print ms-1"></i> چاپ
+                        </button>
+                    </div>
+                </div>
+                <hr>
+            </div>
+        </div>
+
+        <!-- کارت اصلی دستور کار -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card work-order-card priority-medium mb-4">
+                    <div class="card-header bg-primary text-white work-order-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">تعمیرات ماهانه دستگاه CNC شماره 1</h4>
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-exclamation-triangle me-1"></i> متوسط
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- اطلاعات پایه -->
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <h5><i class="fas fa-info-circle ms-2 text-info"></i> اطلاعات پایه</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <strong><i class="fas fa-tag ms-2"></i> نوع:</strong> 
+                                        نگهداری پیشگیرانه (PM)
+                                    </li>
+                                    <li class="mb-2">
+                                        <strong><i class="fas fa-calendar-alt ms-2"></i> تاریخ ایجاد:</strong> 
+                                        1402/05/15 - 10:30
+                                    </li>
+                                    <li class="mb-2">
+                                        <strong><i class="fas fa-user ms-2"></i> ایجاد کننده:</strong> 
+                                        مهندس محمدی
+                                    </li>
+                                    <li>
+                                        <strong><i class="fas fa-clock ms-2"></i> مهلت انجام:</strong> 
+                                        1402/05/18 - 16:00
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <h5><i class="fas fa-cogs ms-2 text-info"></i> مشخصات تجهیز</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <strong><i class="fas fa-microchip ms-2"></i> نام تجهیز:</strong> 
+                                        دستگاه CNC شماره 1
+                                    </li>
+                                    <li class="mb-2">
+                                        <strong><i class="fas fa-map-marker-alt ms-2"></i> محل استقرار:</strong> 
+                                        سالن تولید A - خط 3
+                                    </li>
+                                    <li class="mb-2">
+                                        <strong><i class="fas fa-barcode ms-2"></i> کد تجهیز:</strong> 
+                                        EQ-CNC-001
+                                    </li>
+                                    <li>
+                                        <strong><i class="fas fa-industry ms-2"></i> سازنده:</strong> 
+                                        شرکت فناوران صنعت
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- توضیحات -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-align-left ms-2 text-info"></i> توضیحات</h5>
+                            <div class="alert alert-light border">
+                                <p class="mb-0">
+                                    انجام تعمیرات دوره‌ای ماهانه شامل روغن‌کاری بلبرینگ‌ها، بررسی سطوح هیدرولیک، 
+                                    کالیبراسیون محورها و بررسی سیستم خنک‌کننده دستگاه.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- دستورالعمل‌های ایمنی -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-shield-alt ms-2 text-danger"></i> دستورالعمل‌های ایمنی</h5>
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    <li>استفاده از عینک ایمنی و دستکش الزامی است</li>
+                                    <li>قبل از شروع کار دستگاه را از برق جدا کنید</li>
+                                    <li>از تماس با قطعات متحرک خودداری شود</li>
+                                    <li>در صورت نشت روغن، فوراً به سرپرست اطلاع دهید</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- وظایف -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0"><i class="fas fa-tasks ms-2 text-info"></i> وظایف</h5>
+                                <div class="timer-display">
+                                    <i class="fas fa-stopwatch me-2"></i>
+                                    <span id="taskTimer">00:00:00</span>
+                                    <button class="btn btn-sm btn-outline-primary me-2" id="timerControl">
+                                        <i class="fas fa-play me-1"></i> شروع
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="list-group">
+                                <!-- وظیفه تک‌گزینه‌ای -->
+                                <div class="list-group-item task-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input task-checkbox" type="checkbox" id="task1">
+                                        <label class="form-check-label" for="task1">
+                                            <strong>بررسی سطح روغن هیدرولیک</strong>
+                                            <p class="text-muted small mb-0 mt-1">
+                                                سطح روغن باید بین علامت MIN و MAX باشد. در صورت نیاز روغن مناسب اضافه شود.
+                                            </p>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- چک لیست -->
+                                <div class="list-group-item task-item">
+                                    <div class="mb-2">
+                                        <strong><i class="fas fa-list-check ms-2"></i> چک لیست روغن‌کاری بلبرینگ‌ها</strong>
+                                    </div>
+                                    <div class="form-check ms-4 mb-2">
+                                        <input class="form-check-input task-checkbox" type="checkbox" id="checklist1">
+                                        <label class="form-check-label" for="checklist1">
+                                            بلبرینگ محور X
+                                        </label>
+                                    </div>
+                                    <div class="form-check ms-4 mb-2">
+                                        <input class="form-check-input task-checkbox" type="checkbox" id="checklist2">
+                                        <label class="form-check-label" for="checklist2">
+                                            بلبرینگ محور Y
+                                        </label>
+                                    </div>
+                                    <div class="form-check ms-4">
+                                        <input class="form-check-input task-checkbox" type="checkbox" id="checklist3">
+                                        <label class="form-check-label" for="checklist3">
+                                            بلبرینگ محور Z
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- گروه وظایف -->
+                                <div class="list-group-item task-item">
+                                    <div class="mb-3">
+                                        <strong><i class="fas fa-layer-group ms-2"></i> بررسی سیستم خنک‌کننده</strong>
+                                    </div>
+                                    <div class="ms-4">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input task-checkbox" type="checkbox" id="groupTask1">
+                                            <label class="form-check-label" for="groupTask1">
+                                                بررسی سطح مایع خنک‌کننده
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input task-checkbox" type="checkbox" id="groupTask2">
+                                            <label class="form-check-label" for="groupTask2">
+                                                تمیز کردن فیلترهای سیستم
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input task-checkbox" type="checkbox" id="groupTask3">
+                                            <label class="form-check-label" for="groupTask3">
+                                                بررسی عملکرد پمپ گردش مایع
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ابزار و قطعات مورد نیاز -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-tools ms-2 text-info"></i> ابزار و قطعات مورد نیاز</h5>
+                            <div class="alert alert-light border">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <ul class="mb-0">
+                                            <li>روغن هیدرولیک ISO 32 (2 لیتر)</li>
+                                            <li>گریس مخصوص بلبرینگ</li>
+                                            <li>ست ابزار دقیق</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="mb-0">
+                                            <li>دستمال بدون پرز</li>
+                                            <li>فیلتر هوا ‌AC-205</li>
+                                            <li>مایع خنک‌کننده CNC</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- مستندات -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-file-alt ms-2 text-info"></i> مستندات ضمیمه</h5>
+                            <div class="d-flex flex-wrap">
+                                <img src="https://via.placeholder.com/150" alt="تصویر دستگاه" class="attachment-thumbnail mb-2">
+                                <img src="https://via.placeholder.com/150" alt="نقشه جانمایی" class="attachment-thumbnail mb-2">
+                                <img src="https://via.placeholder.com/150" alt="دستورالعمل" class="attachment-thumbnail mb-2">
+                            </div>
+                        </div>
+
+                        <!-- ثبت توضیحات -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-comment-alt ms-2 text-info"></i> ثبت توضیحات تکمیلی</h5>
+                            <div class="comment-box p-3 mb-3">
+                                <div class="d-flex mb-3">
+                                    <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3" width="40" height="40">
+                                    <div>
+                                        <strong>تکنسین احمدی</strong>
+                                        <small class="text-muted"> - 1402/05/15 11:45</small>
+                                        <p class="mb-0">سطح روغن هیدرولیک پایین بود و حدود 500 سی سی روغن اضافه شد.</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex">
+                                    <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3" width="40" height="40">
+                                    <div>
+                                        <strong>سرپرست محمدی</strong>
+                                        <small class="text-muted"> - 1402/05/15 12:30</small>
+                                        <p class="mb-0">لطفاً وضعیت بلبرینگ محور Y را با دقت بیشتری بررسی کنید.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-floating">
+                                <textarea class="form-control" placeholder="توضیحات خود را وارد کنید" id="commentText" style="height: 100px"></textarea>
+                                <label for="commentText">توضیحات تکمیلی</label>
+                            </div>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-secondary me-2">
+                                    <i class="fas fa-paperclip ms-1"></i> افزودن فایل
+                                </button>
+                                <button class="btn btn-sm btn-primary">
+                                    <i class="fas fa-paper-plane ms-1"></i> ارسال نظر
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ستون کناری -->
+            <div class="col-lg-4">
+                <!-- وضعیت پیشرفت -->
+                <div class="card work-order-card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-line ms-2"></i> وضعیت پیشرفت</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: 45%;" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">45%</div>
+                        </div>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success ms-2"></i>
+                                <span>2 از 7 وظیفه تکمیل شده</span>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-stopwatch text-warning ms-2"></i>
+                                <span>زمان سپری شده: 1 ساعت و 25 دقیقه</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-clock text-danger ms-2"></i>
+                                <span>زمان باقیمانده: 2 روز و 5 ساعت</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- تیم اجرایی -->
+                <div class="card work-order-card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-users ms-2"></i> تیم اجرایی</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">تکنسین علی احمدی</h6>
+                                <small class="text-muted">تکنسین ارشد مکانیک</small>
+                            </div>
+                            <span class="badge bg-primary me-auto">مسئول اجرا</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">تکنسین رضا محمدی</h6>
+                                <small class="text-muted">تکنسین الکترونیک</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">مهندس زهرا حسینی</h6>
+                                <small class="text-muted">ناظر فنی</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- اقدامات -->
+                <div class="card work-order-card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-play-circle ms-2"></i> اقدامات</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-success w-100 mb-2">
+                            <i class="fas fa-check-circle ms-1"></i> تکمیل دستور کار
+                        </button>
+                        <button class="btn btn-warning w-100 mb-2">
+                            <i class="fas fa-pause ms-1"></i> متوقف کردن
+                        </button>
+                        <button class="btn btn-danger w-100 mb-2">
+                            <i class="fas fa-times-circle ms-1"></i> لغو دستور کار
+                        </button>
+                        <button class="btn btn-outline-primary w-100">
+                            <i class="fas fa-question-circle ms-1"></i> درخواست کمک
+                        </button>
+                    </div>
+                </div>
+
+                <!-- تاریخچه -->
+                <div class="card work-order-card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-history ms-2"></i> تاریخچه</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item mb-3">
+                                <div class="timeline-badge bg-success"></div>
+                                <div class="timeline-content">
+                                    <small class="text-muted">1402/05/15 - 10:35</small>
+                                    <p class="mb-0">دستور کار توسط مهندس محمدی ایجاد شد</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item mb-3">
+                                <div class="timeline-badge bg-primary"></div>
+                                <div class="timeline-content">
+                                    <small class="text-muted">1402/05/15 - 10:40</small>
+                                    <p class="mb-0">به تکنسین احمدی اختصاص یافت</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item mb-3">
+                                <div class="timeline-badge bg-info"></div>
+                                <div class="timeline-content">
+                                    <small class="text-muted">1402/05/15 - 11:00</small>
+                                    <p class="mb-0">کار شروع شد</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-badge bg-warning"></div>
+                                <div class="timeline-content">
+                                    <small class="text-muted">1402/05/15 - 11:45</small>
+                                    <p class="mb-0">توضیحات تکنسین احمدی ثبت شد</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal برای نمایش تصاویر -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">مشاهده تصویر</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="" id="modalImage" class="img-fluid" alt="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- اسکریپت‌های سفارشی -->
+    <script>
+        $(document).ready(function() {
+            // تایمر وظیفه
+            let timerInterval;
+            let seconds = 0;
+            let isRunning = false;
+            
+            // کنترل تایمر
+            $('#timerControl').click(function() {
+                if (isRunning) {
+                    clearInterval(timerInterval);
+                    $(this).html('<i class="fas fa-play me-1"></i> شروع');
+                    isRunning = false;
+                } else {
+                    timerInterval = setInterval(updateTimer, 1000);
+                    $(this).html('<i class="fas fa-pause me-1"></i> توقف');
+                    isRunning = true;
+                }
+            });
+            
+            // به‌روزرسانی تایمر
+            function updateTimer() {
+                seconds++;
+                let hours = Math.floor(seconds / 3600);
+                let minutes = Math.floor((seconds % 3600) / 60);
+                let secs = seconds % 60;
+                
+                hours = hours < 10 ? '0' + hours : hours;
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                secs = secs < 10 ? '0' + secs : secs;
+                
+                $('#taskTimer').text(hours + ':' + minutes + ':' + secs);
+            }
+            
+            // نمایش تصاویر در مدال
+            $('.attachment-thumbnail').click(function() {
+                $('#modalImage').attr('src', $(this).attr('src'));
+                var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+                imageModal.show();
+            });
+            
+            // تغییر وضعیت چک باکس‌ها
+            $('.task-checkbox').change(function() {
+                updateProgress();
+            });
+            
+            // محاسبه پیشرفت
+            function updateProgress() {
+                let totalTasks = $('.task-checkbox').length;
+                let completedTasks = $('.task-checkbox:checked').length;
+                let progress = Math.round((completedTasks / totalTasks) * 100);
+                
+                $('.progress-bar').css('width', progress + '%').attr('aria-valuenow', progress).text(progress + '%');
+                
+                // به‌روزرسانی وضعیت در ستون کناری
+                $('.progress-info').html(completedTasks + ' از ' + totalTasks + ' وظیفه تکمیل شده');
+            }
+            
+            // شبیه‌سازی داده‌های اولیه
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

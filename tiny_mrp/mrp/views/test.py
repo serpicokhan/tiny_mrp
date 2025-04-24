@@ -143,6 +143,7 @@ def register_daily_amar(request):
                 "asset_category_id": asset.asset_category.id,  
                 "nomre": asset.nomre,
                 "speed": asset.speed,
+                "tab":asset.tab
             }
             for asset in entry.asset_details.all()
         ]

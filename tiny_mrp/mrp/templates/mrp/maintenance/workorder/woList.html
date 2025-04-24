@@ -1,0 +1,617 @@
+<script type="text/javascript">
+    var gk_isXlsx = false;
+    var gk_xlsxFileLookup = {};
+    var gk_fileData = {};
+    function filledCell(cell) {
+      return cell !== '' && cell != null;
+    }
+    function loadFileData(filename) {
+    if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+        try {
+            var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+            var firstSheetName = workbook.SheetNames[0];
+            var worksheet = workbook.Sheets[firstSheetName];
+
+            // Convert sheet to JSON to filter blank rows
+            var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+            // Filter out blank rows (rows where all cells are empty, null, or undefined)
+            var filteredData = jsonData.filter(row => row.some(filledCell));
+
+            // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+            var headerRowIndex = filteredData.findIndex((row, index) =>
+              row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+            );
+            // Fallback
+            if (headerRowIndex === -1 || headerRowIndex > 25) {
+              headerRowIndex = 0;
+            }
+
+            // Convert filtered JSON back to CSV
+            var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+            csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+            return csv;
+        } catch (e) {
+            console.error(e);
+            return "";
+        }
+    }
+    return gk_fileData[filename] || "";
+    }
+    </script><!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مدیریت دستور کار | سیستم مدیریت نگهداری و تعمیرات</title>
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<style>
+    .workorder-card {
+        transition: all 0.3s ease;
+        border-right: 4px solid; /* تغییر border-left به border-right برای سازگازی با RTL */
+    }
+    .workorder-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+    .priority-high {
+        border-right-color: #dc3545; /* تغییر border-left به border-right */
+    }
+    .priority-medium {
+        border-right-color: #ffc107;
+    }
+    .priority-low {
+        border-right-color: #28a745;
+    }
+    .status-new {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+    .status-assigned {
+        background-color: #e2e3e5;
+        color: #383d41;
+    }
+    .status-inprogress {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    .status-completed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .status-overdue {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    .filter-section {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .badge-type {
+        background-color: #6c757d;
+        color: white;
+    }
+    .table-responsive {
+        overflow-x: auto;
+    }
+    /* تنظیمات برای راست‌به‌چپ */
+    body {
+        font-family: 'Vazirmatn', 'Tahoma', sans-serif; /* استفاده از فونت مناسب فارسی */
+        text-align: right;
+    }
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "\\00ab"; /* تغییر جهت فلش در breadcrumb */
+    }
+    .btn-group .btn {
+        margin-left: 0;
+        margin-right: 2px; /* تنظیم فاصله دکمه‌ها برای RTL */
+    }
+</style>
+</head>
+<body>
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-clipboard-list me-2"></i>مدیریت دستور کار</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">دستورات کار</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createWoModal">
+                <i class="fas fa-plus me-2"></i>ایجاد دستور کار
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section mb-4">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label for="statusFilter" class="form-label">وضعیت</label>
+                <select id="statusFilter" class="form-select">
+                    <option value="">همه وضعیت‌ها</option>
+                    <option value="New">جدید</option>
+                    <option value="Assigned">اختصاص‌یافته</option>
+                    <option value="In Progress">در حال انجام</option>
+                    <option value="Completed">تکمیل‌شده</option>
+                    <option value="Overdue">سررسید گذشته</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="priorityFilter" class="form-label">اولویت</label>
+                <select id="priorityFilter" class="form-select">
+                    <option value="">همه اولویت‌ها</option>
+                    <option value="High">بالا</option>
+                    <option value="Medium">متوسط</option>
+                    <option value="Low">پایین</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="typeFilter" class="form-label">نوع</label>
+                <select id="typeFilter" class="form-select">
+                    <option value="">همه انواع</option>
+                    <option value="Preventive">پیشگیرانه</option>
+                    <option value="Corrective">اصلاحی</option>
+                    <option value="Inspection">بازرسی</option>
+                    <option value="Breakdown">خرابی</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="assignedToFilter" class="form-label">اختصاص به</label>
+                <select id="assignedToFilter" class="form-select">
+                    <option value="">همه تکنسین‌ها</option>
+                    <option value="John Smith">جان اسمیت</option>
+                    <option value="Sarah Johnson">سارا جانسون</option>
+                    <option value="Mike Brown">مایک براون</option>
+                    <option value="Lisa Wong">لیزا وانگ</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="dateRangeFilter" class="form-label">بازه زمانی</label>
+                <select id="dateRangeFilter" class="form-select">
+                    <option value="">همه تاریخ‌ها</option>
+                    <option value="today">امروز</option>
+                    <option value="week">این هفته</option>
+                    <option value="month">این ماه</option>
+                    <option value="overdue">سررسید گذشته</option>
+                    <option value="custom">بازه دلخواه</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="equipmentFilter" class="form-label">تجهیزات</label>
+                <select id="equipmentFilter" class="form-select">
+                    <option value="">همه تجهیزات</option>
+                    <option value="CNC Machine #1">دستگاه CNC شماره 1</option>
+                    <option value="Hydraulic Press">پرس هیدرولیک</option>
+                    <option value="Conveyor Belt A">نوار نقاله A</option>
+                    <option value="Injection Molder">دستگاه تزریق پلاستیک</option>
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button id="resetFilters" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-undo me-1"></i>بازنشانی
+                </button>
+                <button id="applyFilters" class="btn btn-primary">
+                    <i class="fas fa-filter me-1"></i>اعمال فیلترها
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Work Order List -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">همه دستورات کار</h5>
+            <div class="d-flex">
+                <div class="input-group me-2" style="width: 250px;">
+                    <input type="text" id="searchWorkOrders" class="form-control" placeholder="جستجوی دستورات کار...">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-start"> <!-- تغییر dropdown-menu-end به dropdown-menu-start -->
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-file-export me-2"></i>صادر کردن</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-columns me-2"></i>ستون‌ها</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-sync-alt me-2"></i>بازخوانی</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="workOrdersTable" class="table table-hover" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>شماره دستور</th>
+                            <th>عنوان</th>
+                            <th>تجهیزات</th>
+                            <th>نوع</th>
+                            <th>اولویت</th>
+                            <th>وضعیت</th>
+                            <th>اختصاص به</th>
+                            <th>تاریخ سررسید</th>
+                            <th>تاریخ ایجاد</th>
+                            <th>اقدامات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>WO-2023-00145</td>
+                            <td>روانکاری ماهانه بلبرینگ</td>
+                            <td>دستگاه CNC شماره 1</td>
+                            <td><span class="badge badge-type">پیشگیرانه</span></td>
+                            <td><span class="badge bg-warning text-dark">متوسط</span></td>
+                            <td><span class="status-badge status-completed">تکمیل‌شده</span></td>
+                            <td>جان اسمیت</td>
+                            <td>1402-07-23</td>
+                            <td>1402-07-18</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" title="مشاهده">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" title="ویرایش">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success" title="تکمیل">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>WO-2023-00146</td>
+                            <td>بازرسی سیستم هیدرولیک</td>
+                            <td>پرس هیدرولیک</td>
+                            <td><span class="badge badge-type">بازرسی</span></td>
+                            <td><span class="badge bg-success">پایین</span></td>
+                            <td><span class="status-badge status-assigned">اختصاص‌یافته</span></td>
+                            <td>سارا جانسون</td>
+                            <td>1402-07-28</td>
+                            <td>1402-07-20</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" title="مشاهده">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" title="ویرایش">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success" title="تکمیل">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>WO-2023-00147</td>
+                            <td>تعویض موتور</td>
+                            <td>نوار نقاله A</td>
+                            <td><span class="badge badge-type">اصلاحی</span></td>
+                            <td><span class="badge bg-danger">بالا</span></td>
+                            <td><span class="status-badge status-inprogress">در حال انجام</span></td>
+                            <td>مایک براون</td>
+                            <td>1402-07-26</td>
+                            <td>1402-07-23</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" title="مشاهده">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" title="ویرایش">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success" title="تکمیل">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>WO-2023-00148</td>
+                            <td>بررسی ایمنی - توقف اضطراری</td>
+                            <td>ماشین بسته‌بندی</td>
+                            <td><span class="badge badge-type">بررسی ایمنی</span></td>
+                            <td><span class="badge bg-warning text-dark">متوسط</span></td>
+                            <td><span class="status-badge status-new">جدید</span></td>
+                            <td>-</td>
+                            <td>1402-08-03</td>
+                            <td>1402-07-24</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" title="مشاهده">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" title="ویرایش">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-info" title="اختصاص">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>WO-2023-00149</td>
+                            <td>کالیبراسیون فصلی</td>
+                            <td>دستگاه تزریق پلاستیک</td>
+                            <td><span class="badge badge-type">کالیبراسیون</span></td>
+                            <td><span class="badge bg-success">پایین</span></td>
+                            <td><span class="status-badge status-overdue">سررسید گذشته</span></td>
+                            <td>لیزا وانگ</td>
+                            <td>1402-07-18</td>
+                            <td>1402-06-10</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" title="مشاهده">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" title="ویرایش">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success" title="تکمیل">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>WO-2023-00150</td>
+                            <td>تنظیم کشش تسمه</td>
+                            <td>نوار نقاله A</td>
+                            <td><span class="badge badge-type">پیشگیرانه</span></td>
+                            <td><span class="badge bg-warning text-dark">متوسط</span></td>
+                            <td><span class="status-badge status-completed">تکمیل‌شده</span></td>
+                            <td>دیوید میلر</td>
+                            <td>1402-07-25</td>
+                            <td>1402-07-22</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" title="مشاهده">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" title="ویرایش">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success" title="تکمیل">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>WO-2023-00151</td>
+                            <td>بازرسی پنل الکتریکی</td>
+                            <td>دستگاه CNC شماره 1</td>
+                            <td><span class="badge badge-type">بازرسی</span></td>
+                            <td><span class="badge bg-success">پایین</span></td>
+                            <td><span class="status-badge status-assigned">اختصاص‌یافته</span></td>
+                            <td>سارا جانسون</td>
+                            <td>1402-07-30</td>
+                            <td>1402-07-26</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" title="مشاهده">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" title="ویرایش">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success" title="تکمیل">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>WO-2023-00152</td>
+                            <td>تعویض مهر و موم پمپ</td>
+                            <td>پرس هیدرولیک</td>
+                            <td><span class="badge badge-type">اصلاحی</span></td>
+                            <td><span class="badge bg-danger">بالا</span></td>
+                            <td><span class="status-badge status-inprogress">در حال انجام</span></td>
+                            <td>مایک براون</td>
+                            <td>1402-07-27</td>
+                            <td>1402-07-25</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" title="مشاهده">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" title="ویرایش">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success" title="تکمیل">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Work Order Modal -->
+<div class="modal fade" id="createWoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>ایجاد دستور کار جدید</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    نوع دستور کاری که می‌خواهید ایجاد کنید را انتخاب کنید
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-wrench fa-3x text-primary mb-3"></i>
+                                <h5>دستور کار دستی</h5>
+                                <p class="small">ایجاد یک دستور کار یک‌بار مصرف با جزئیات دلخواه</p>
+                                <button class="btn btn-primary" onclick="location.href='create-workorder.html'">
+                                    <i class="fas fa-pen me-1"></i>ایجاد دستور کار دستی
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar-plus fa-3x text-success mb-3"></i>
+                                <h5>برنامه دوره‌ای</h5>
+                                <p class="small">تنظیم یک برنامه نگهداری دوره‌ای</p>
+                                <button class="btn btn-success" onclick="location.href='create-recurring.html'">
+                                    <i class="fas fa-calendar-alt me-1"></i>ایجاد برنامه دوره‌ای
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-tasks fa-3x text-warning mb-3"></i>
+                                <h5>از قالب</h5>
+                                <p class="small">ایجاد از قالب‌های نگهداری از پیش تعریف‌شده</p>
+                                <button class="btn btn-warning text-white" onclick="location.href='from-template.html'">
+                                    <i class="fas fa-file-alt me-1"></i>استفاده از قالب
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-bolt fa-3x text-danger mb-3"></i>
+                                <h5>تعمیر خرابی</h5>
+                                <p class="small">ایجاد سریع یک دستور کار تعمیر اضطراری</p>
+                                <button class="btn btn-danger" onclick="location.href='breakdown.html'">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>ایجاد دستور تعمیر
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- Custom JavaScript -->
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable
+        var table = $('#workOrdersTable').DataTable({
+            responsive: true,
+            dom: '<"top"f>rt<"bottom"lip><"clear">',
+            pageLength: 10,
+            order: [[7, 'asc']], // Default sort by Due Date
+            columnDefs: [
+                { orderable: false, targets: [9] }, // Disable sorting for Actions column
+                { type: 'date', targets: [7, 8] } // Proper date sorting for date columns
+            ],
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "جستجوی دستورات کار...",
+                lengthMenu: "نمایش _MENU_ دستور کار در هر صفحه",
+                info: "نمایش _START_ تا _END_ از _TOTAL_ دستور کار",
+                infoEmpty: "هیچ دستور کاری یافت نشد",
+                infoFiltered: "(فیلتر شده از _MAX_ دستور کار کل)",
+                paginate: {
+                    first: "اولین",
+                    last: "آخرین",
+                    next: "بعدی",
+                    previous: "قبلی"
+                }
+            }
+        });
+
+        // Apply filters
+        $('#applyFilters').click(function() {
+            table.column(4).search($('#priorityFilter').val()).draw();
+            table.column(5).search($('#statusFilter').val()).draw();
+            table.column(3).search($('#typeFilter').val()).draw();
+            table.column(6).search($('#assignedToFilter').val()).draw();
+            table.column(2).search($('#equipmentFilter').val()).draw();
+            
+            // Handle date range filter
+            var dateRange = $('#dateRangeFilter').val();
+            if (dateRange === 'today') {
+                var today = new Date().toISOString().split('T')[0];
+                table.column(7).search(today).draw();
+            } else if (dateRange === 'overdue') {
+                var today = new Date().toISOString().split('T')[0];
+                table.column(7).search('^' + today + '|^\\d{4}-\\d{2}-\\d{2}$', true, false).draw();
+            } else {
+                table.column(7).search('').draw();
+            }
+        });
+
+        // Reset filters
+        $('#resetFilters').click(function() {
+            $('.filter-section select').val('');
+            table.search('').columns().search('').draw();
+        });
+
+        // Search box
+        $('#searchWorkOrders').keyup(function() {
+            table.search(this.value).draw();
+        });
+
+        // Status badge click handler
+        $(document).on('click', '.status-badge', function() {
+            var currentStatus = $(this).text();
+            var newStatus = prompt("تغییر وضعیت از " + currentStatus + " به:", currentStatus);
+            if (newStatus && newStatus !== currentStatus) {
+                $(this).text(newStatus);
+                // Remove all status classes
+                $(this).removeClass(function(index, className) {
+                    return (className.match(/(^|\s)status-\S+/g) || []).join(' ');
+                });
+                // Add new status class based on new status
+                var statusClass = newStatus.toLowerCase().replace(/\s+/g, '');
+                $(this).addClass('status-' + statusClass);
+                alert("وضعیت به " + newStatus + " تغییر یافت");
+            }
+        });
+    });
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'934dfe8a0ccfc000',t:'MTc0NTQxNzk0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body>
+</html>
