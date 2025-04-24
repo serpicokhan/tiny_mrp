@@ -38,6 +38,7 @@
                     <th>نام ماشین</th>
                     <th>نمره</th>
                     <th>سرعت</th>
+                    <th>تاب</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,6 +50,9 @@
                         </td>
                         <td>
                             <input type="number" class="form-control" name="speed_{{ category.id }}" step="0.01" placeholder="سرعت">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control" name="tab_{{ category.id }}" step="0.01" placeholder="تاب">
                         </td>
                     </tr>
                 {% endfor %}

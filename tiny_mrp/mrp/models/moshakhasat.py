@@ -21,4 +21,5 @@ class AssetDetail(models.Model):
     asset_category = models.ForeignKey(AssetCategory2, on_delete=models.CASCADE)
     nomre = models.FloatField()
     speed = models.FloatField()
+    tab = models.FloatField(default=0)
     

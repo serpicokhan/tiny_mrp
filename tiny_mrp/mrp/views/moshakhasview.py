@@ -22,6 +22,7 @@ def create_entry_form(request):
         for category in asset_categories:
             nomre = request.POST.get(f'nomre_{category.id}')
             speed = request.POST.get(f'speed_{category.id}')
+            tab = request.POST.get(f'speed_{category.id}')
 
             # Save AssetDetail for the entry
             if nomre and speed:  # Validate input
@@ -29,7 +30,9 @@ def create_entry_form(request):
                     entry=entry_form,
                     asset_category=category,
                     nomre=float(nomre),
-                    speed=float(speed)
+                    speed=float(speed),
+                    tab=float(tab),
+
                 )
 
         return redirect('list_entry_form')  # Replace with your success URL
@@ -56,11 +59,13 @@ def update_entry_form(request, entry_id):
         for category in AssetCategory2.objects.all():
             nomre = request.POST.get(f'nomre_{category.id}')
             speed = request.POST.get(f'speed_{category.id}')
+            tab = request.POST.get(f'tab_{category.id}')
             if nomre is not None and speed is not None:
                 updated_details.append({
                     'asset_category': category,
                     'nomre': nomre,
                     'speed': speed,
+                    'tab': tab,
                 })
 
         if entry_form.is_valid():
@@ -75,6 +80,7 @@ def update_entry_form(request, entry_id):
                     defaults={
                         'nomre': detail['nomre'],
                         'speed': detail['speed'],
+                        'tab': detail['tab'],
                     }
                 )
 
@@ -92,6 +98,7 @@ def update_entry_form(request, entry_id):
                 'category': category,
                 'nomre': asset_detail.nomre if asset_detail else '',
                 'speed': asset_detail.speed if asset_detail else '',
+                'tab': asset_detail.tab if asset_detail else '',
             })
     return render(request, 'mrp/moshakhase/update_entry_form.html', {
         'entry_form': entry_form,
