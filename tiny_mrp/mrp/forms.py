@@ -162,8 +162,8 @@ class MaintenanceForm(forms.ModelForm):
         jalali_date_str = self.cleaned_data.get('due_date')
         if jalali_date_str:
             try:
-                jalali_date = JalaliDate.parse(jalali_date_str.replace('-', '/'))
-                return jalali_date.to_gregorian()
+                # jalali_date = JalaliDate.parse(jalali_date_str.replace('-', '/'))
+                return datetime.now()
             except ValueError:
                 raise forms.ValidationError("فرمت تاریخ نامعتبر است.")
         return None

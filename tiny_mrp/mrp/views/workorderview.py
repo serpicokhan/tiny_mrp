@@ -60,21 +60,28 @@ def create_work_order(request):
         tool_formset = ToolFormSet(prefix='tools')
         spare_part_formset = SparePartFormSet(prefix='spare_parts')
 
-        # Prepare checklist and group task formsets for existing tasks
-        task_formset_formsets = []
-        for task_form in task_formset:
-            task_type = task_form.initial.get('task_type') or task_form.cleaned_data.get('task_type') if task_form.is_bound else None
-            checklist_formset = None
-            group_task_formset = None
-            if task_type == 'checklist':
-                checklist_formset = ChecklistItemFormSet(prefix=f'task_{task_form.prefix}_checklist')
-            elif task_type == 'group':
-                group_task_formset = GroupTaskFormSet(prefix=f'task_{task_form.prefix}_group')
-            task_formset_formsets.append({
-                'task_form': task_form,
-                'checklist_formset': checklist_formset,
-                'group_task_formset': group_task_formset,
-            })
+    # Prepare checklist and group task formsets for both GET and POST requests
+    task_formset_formsets = []
+    for task_form in task_formset:
+        task_type = None
+        if task_form.is_bound:
+            task_type = task_form.cleaned_data.get('task_type')
+        else:
+            task_type = task_form.initial.get('task_type')
+            
+        checklist_formset = None
+        group_task_formset = None
+        
+        if task_type == 'checklist':
+            checklist_formset = ChecklistItemFormSet(prefix=f'task_{task_form.prefix}_checklist')
+        elif task_type == 'group':
+            group_task_formset = GroupTaskFormSet(prefix=f'task_{task_form.prefix}_group')
+            
+        task_formset_formsets.append({
+            'task_form': task_form,
+            'checklist_formset': checklist_formset,
+            'group_task_formset': group_task_formset,
+        })
 
     context = {
         'form': form,

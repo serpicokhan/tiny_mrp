@@ -222,98 +222,127 @@
                                     <!-- فرم‌ست وظایف -->
                                     <div id="tasksContainer">
                                         {{ task_formset.management_form }}
-                                        {% for task_formset_entry in task_formset_formsets %}
-                                            {% with task_form=task_formset_entry.task_form checklist_formset=task_formset_entry.checklist_formset group_task_formset=task_formset_entry.group_task_formset %}
-                                                <div class="card task-card">
-                                                    <div class="card-header d-flex justify-content-between align-items-center bg-light">
-                                                        <div>
-                                                            <i class="fas {% if task_form.task_type.value == 'single' %}fa-check-square{% elif task_form.task_type.value == 'checklist' %}fa-list-check{% else %}fa-layer-group{% endif %} task-type-icon"></i>
-                                                            <strong class="task-title">{% if task_form.task_type.value == 'single' %}وظیفه تک‌گزینه‌ای{% elif task_form.task_type.value == 'checklist' %}چک لیست{% else %}گروه وظایف{% endif %}</strong>
+                                        {% if task_formset_formsets %}
+                                            {% for task_formset_entry in task_formset_formsets %}
+                                                {% with task_form=task_formset_entry.task_form checklist_formset=task_formset_entry.checklist_formset group_task_formset=task_formset_entry.group_task_formset %}
+                                                    <div class="card task-card">
+                                                        <div class="card-header d-flex justify-content-between align-items-center bg-light">
+                                                            <div>
+                                                                <i class="fas {% if task_form.task_type.value == 'single' %}fa-check-square{% elif task_form.task_type.value == 'checklist' %}fa-list-check{% else %}fa-layer-group{% endif %} task-type-icon"></i>
+                                                                <strong class="task-title">{% if task_form.task_type.value == 'single' %}وظیفه تک‌گزینه‌ای{% elif task_form.task_type.value == 'checklist' %}چک لیست{% else %}گروه وظایف{% endif %}</strong>
+                                                            </div>
+                                                            <div>
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary sortable-handle ms-1">
+                                                                    <i class="fas fa-arrows-alt"></i>
+                                                                </button>
+                                                                <button type="button" class="btn btn-sm btn-outline-danger delete-task">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <button type="button" class="btn btn-sm btn-outline-secondary sortable-handle ms-1">
-                                                                <i class="fas fa-arrows-alt"></i>
-                                                            </button>
-                                                            <button type="button" class="btn btn-sm btn-outline-danger delete-task">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="card-body">
-                                                        {{ task_form.id }}
-                                                        {{ task_form.task_type }}
-                                                        {{ task_form.order }}
-                                                        {% if task_form.task_type.value == 'single' %}
-                                                            <div class="mb-3">
-                                                                <label class="form-label required-field">توضیحات وظیفه</label>
-                                                                {{ task_form.description }}
-                                                                {% if task_form.description.errors %}
-                                                                    <div class="invalid-feedback">{{ task_form.description.errors }}</div>
-                                                                {% endif %}
-                                                            </div>
-                                                        {% elif task_form.task_type.value == 'checklist' %}
-                                                            <div class="mb-3">
-                                                                <label class="form-label">عنوان چک لیست</label>
-                                                                {{ task_form.title }}
-                                                                {% if task_form.title.errors %}
-                                                                    <div class="invalid-feedback">{{ task_form.title.errors }}</div>
-                                                                {% endif %}
-                                                            </div>
-                                                            <div class="checklist-items">
-                                                                {% if checklist_formset %}
-                                                                    {{ checklist_formset.management_form }}
-                                                                    {% for checklist_form in checklist_formset %}
-                                                                        <div class="checklist-item input-group mb-2">
-                                                                            {{ checklist_form.id }}
-                                                                            {{ checklist_form.description }}
-                                                                            {{ checklist_form.order }}
-                                                                            <button class="btn btn-outline-danger" type="button" onclick="removeChecklistItem(this)"><i class="fas fa-times"></i></button>
-                                                                            {% if checklist_form.description.errors %}
-                                                                                <div class="invalid-feedback">{{ checklist_form.description.errors }}</div>
-                                                                            {% endif %}
-                                                                        </div>
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            </div>
-                                                            <button type="button" class="btn btn-sm btn-outline-secondary add-checklist-item">
-                                                                <i class="fas fa-plus ms-1"></i>افزودن آیتم
-                                                            </button>
-                                                        {% else %}
-                                                            <div class="mb-3">
-                                                                <label class="form-label">عنوان گروه</label>
-                                                                {{ task_form.title }}
-                                                                {% if task_form.title.errors %}
-                                                                    <div class="invalid-feedback">{{ task_form.title.errors }}</div>
-                                                                {% endif %}
-                                                            </div>
-                                                            <div class="task-group-items">
-                                                                {% if group_task_formset %}
-                                                                    {{ group_task_formset.management_form }}
-                                                                    {% for group_task_form in group_task_formset %}
-                                                                        <div class="task-group-item mb-3">
-                                                                            {{ group_task_form.id }}
-                                                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                                                <strong>وظیفه {{ forloop.counter }}</strong>
-                                                                                <button class="btn btn-sm btn-outline-danger" type="button" onclick="removeTaskFromGroup(this)"><i class="fas fa-times"></i></button>
+                                                        <div class="card-body">
+                                                            {{ task_form.id }}
+                                                            {{ task_form.task_type }}
+                                                            {{ task_form.order }}
+                                                            {% if task_form.task_type.value == 'single' %}
+                                                                <div class="mb-3">
+                                                                    <label class="form-label required-field">توضیحات وظیفه</label>
+                                                                    <input type="text" 
+                                                                           class="form-control" 
+                                                                           id="{{ task_form.description.id_for_label }}" 
+                                                                           name="{{ task_form.description.html_name }}" 
+                                                                           value="{{ task_form.description.value|default:'' }}"
+                                                                           {% if task_form.description.field.required %}required{% endif %}>
+                                                                    {% if task_form.description.errors %}
+                                                                        <div class="invalid-feedback">{{ task_form.description.errors }}</div>
+                                                                    {% endif %}
+                                                                </div>
+                                                            {% elif task_form.task_type.value == 'checklist' %}
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">عنوان چک لیست</label>
+                                                                    <input type="text" 
+                                                                           class="form-control" 
+                                                                           id="{{ task_form.title.id_for_label }}" 
+                                                                           name="{{ task_form.title.html_name }}" 
+                                                                           value="{{ task_form.title.value|default:'' }}">
+                                                                    {% if task_form.title.errors %}
+                                                                        <div class="invalid-feedback">{{ task_form.title.errors }}</div>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="checklist-items">
+                                                                    {% if checklist_formset %}
+                                                                        {{ checklist_formset.management_form }}
+                                                                        {% for checklist_form in checklist_formset %}
+                                                                            <div class="checklist-item input-group mb-2">
+                                                                                {{ checklist_form.id }}
+                                                                                <input type="text" 
+                                                                                       class="form-control" 
+                                                                                       id="{{ checklist_form.description.id_for_label }}" 
+                                                                                       name="{{ checklist_form.description.html_name }}" 
+                                                                                       value="{{ checklist_form.description.value|default:'' }}">
+                                                                                {{ checklist_form.order }}
+                                                                                <button class="btn btn-outline-danger remove-checklist-item" type="button"><i class="fas fa-times"></i></button>
+                                                                                {% if checklist_form.description.errors %}
+                                                                                    <div class="invalid-feedback">{{ checklist_form.description.errors }}</div>
+                                                                                {% endif %}
                                                                             </div>
-                                                                            {{ group_task_form.description }}
-                                                                            {{ group_task_form.subtask_type }}
-                                                                            {{ group_task_form.order }}
-                                                                            {% if group_task_form.description.errors %}
-                                                                                <div class="invalid-feedback">{{ group_task_form.description.errors }}</div>
-                                                                            {% endif %}
-                                                                        </div>
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            </div>
-                                                            <button type="button" class="btn btn-sm btn-outline-secondary add-task-to-group">
-                                                                <i class="fas fa-plus ms-1"></i>افزودن وظیفه به گروه
-                                                            </button>
-                                                        {% endif %}
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                </div>
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary add-checklist-item">
+                                                                    <i class="fas fa-plus ms-1"></i>افزودن آیتم
+                                                                </button>
+                                                            {% else %}
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">عنوان گروه</label>
+                                                                    <input type="text" 
+                                                                           class="form-control" 
+                                                                           id="{{ task_form.title.id_for_label }}" 
+                                                                           name="{{ task_form.title.html_name }}" 
+                                                                           value="{{ task_form.title.value|default:'' }}">
+                                                                    {% if task_form.title.errors %}
+                                                                        <div class="invalid-feedback">{{ task_form.title.errors }}</div>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="task-group-items">
+                                                                    {% if group_task_formset %}
+                                                                        {{ group_task_formset.management_form }}
+                                                                        {% for group_task_form in group_task_formset %}
+                                                                            <div class="task-group-item mb-3">
+                                                                                {{ group_task_form.id }}
+                                                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                                    <strong>وظیفه {{ forloop.counter }}</strong>
+                                                                                    <button class="btn btn-sm btn-outline-danger remove-task-from-group" type="button"><i class="fas fa-times"></i></button>
+                                                                                </div>
+                                                                                <input type="text" 
+                                                                                       class="form-control mb-2" 
+                                                                                       id="{{ group_task_form.description.id_for_label }}" 
+                                                                                       name="{{ group_task_form.description.html_name }}" 
+                                                                                       value="{{ group_task_form.description.value|default:'' }}">
+                                                                                <select class="form-control" 
+                                                                                        id="{{ group_task_form.subtask_type.id_for_label }}" 
+                                                                                        name="{{ group_task_form.subtask_type.html_name }}">
+                                                                                    {% for value, label in group_task_form.subtask_type.field.choices %}
+                                                                                        <option value="{{ value }}" {% if group_task_form.subtask_type.value == value %}selected{% endif %}>{{ label }}</option>
+                                                                                    {% endfor %}
+                                                                                </select>
+                                                                                {{ group_task_form.order }}
+                                                                                {% if group_task_form.description.errors %}
+                                                                                    <div class="invalid-feedback">{{ group_task_form.description.errors }}</div>
+                                                                                {% endif %}
+                                                                            </div>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                </div>
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary add-task-to-group">
+                                                                    <i class="fas fa-plus ms-1"></i>افزودن وظیفه به گروه
+                                                                </button>
+                                                            {% endif %}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            {% endwith %}
-                                        {% endfor %}
+                                                {% endwith %}
+                                            {% endfor %}
+                                        {% endif %}
                                     </div>
 
                                     <div class="d-flex justify-content-between mt-3">
