@@ -70,22 +70,41 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                {{ form.title.label_tag }}
-                                                {{ form.title }}
+                                                <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                                                <input type="text" 
+                                                       class="form-control" 
+                                                       id="{{ form.title.id_for_label }}" 
+                                                       name="{{ form.title.html_name }}" 
+                                                       value="{{ form.title.value|default:'' }}"
+                                                       {% if form.title.field.required %}required{% endif %}>
                                                 {% if form.title.errors %}
                                                     <div class="invalid-feedback">{{ form.title.errors }}</div>
                                                 {% endif %}
                                             </div>
                                             <div class="mb-3">
-                                                {{ form.equipment.label_tag }}
-                                                {{ form.equipment }}
+                                                <label for="{{ form.equipment.id_for_label }}" class="form-label">{{ form.equipment.label }}</label>
+                                                <select class="form-control" 
+                                                        id="{{ form.equipment.id_for_label }}" 
+                                                        name="{{ form.equipment.html_name }}"
+                                                        {% if form.equipment.field.required %}required{% endif %}>
+                                                    {% for value, label in form.equipment.field.choices %}
+                                                        <option value="{{ value }}" {% if form.equipment.value == value %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
                                                 {% if form.equipment.errors %}
                                                     <div class="invalid-feedback">{{ form.equipment.errors }}</div>
                                                 {% endif %}
                                             </div>
                                             <div class="mb-3">
-                                                {{ form.assigned_to.label_tag }}
-                                                {{ form.assigned_to }}
+                                                <label for="{{ form.assigned_to.id_for_label }}" class="form-label">{{ form.assigned_to.label }}</label>
+                                                <select class="form-control" 
+                                                        id="{{ form.assigned_to.id_for_label }}" 
+                                                        name="{{ form.assigned_to.html_name }}"
+                                                        {% if form.assigned_to.field.required %}required{% endif %}>
+                                                    {% for value, label in form.assigned_to.field.choices %}
+                                                        <option value="{{ value }}" {% if form.assigned_to.value == value %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
                                                 {% if form.assigned_to.errors %}
                                                     <div class="invalid-feedback">{{ form.assigned_to.errors }}</div>
                                                 {% endif %}
@@ -93,22 +112,41 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                {{ form.operation_type.label_tag }}
-                                                {{ form.operation_type }}
+                                                <label for="{{ form.operation_type.id_for_label }}" class="form-label">{{ form.operation_type.label }}</label>
+                                                <select class="form-control" 
+                                                        id="{{ form.operation_type.id_for_label }}" 
+                                                        name="{{ form.operation_type.html_name }}"
+                                                        {% if form.operation_type.field.required %}required{% endif %}>
+                                                    {% for value, label in form.operation_type.field.choices %}
+                                                        <option value="{{ value }}" {% if form.operation_type.value == value %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
                                                 {% if form.operation_type.errors %}
                                                     <div class="invalid-feedback">{{ form.operation_type.errors }}</div>
                                                 {% endif %}
                                             </div>
                                             <div class="mb-3">
-                                                {{ form.priority.label_tag }}
-                                                {{ form.priority }}
+                                                <label for="{{ form.priority.id_for_label }}" class="form-label">{{ form.priority.label }}</label>
+                                                <select class="form-control" 
+                                                        id="{{ form.priority.id_for_label }}" 
+                                                        name="{{ form.priority.html_name }}"
+                                                        {% if form.priority.field.required %}required{% endif %}>
+                                                    {% for value, label in form.priority.field.choices %}
+                                                        <option value="{{ value }}" {% if form.priority.value == value %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
                                                 {% if form.priority.errors %}
                                                     <div class="invalid-feedback">{{ form.priority.errors }}</div>
                                                 {% endif %}
                                             </div>
                                             <div class="mb-3">
-                                                {{ form.due_date.label_tag }}
-                                                {{ form.due_date }}
+                                                <label for="{{ form.due_date.id_for_label }}" class="form-label">{{ form.due_date.label }}</label>
+                                                <input type="date" 
+                                                       class="form-control" 
+                                                       id="{{ form.due_date.id_for_label }}" 
+                                                       name="{{ form.due_date.html_name }}" 
+                                                       value="{{ form.due_date.value|date:'Y-m-d'|default:'' }}"
+                                                       {% if form.due_date.field.required %}required{% endif %}>
                                                 {% if form.due_date.errors %}
                                                     <div class="invalid-feedback">{{ form.due_date.errors }}</div>
                                                 {% endif %}
@@ -116,8 +154,12 @@
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        {{ form.description.label_tag }}
-                                        {{ form.description }}
+                                        <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                                        <textarea class="form-control" 
+                                                  id="{{ form.description.id_for_label }}" 
+                                                  name="{{ form.description.html_name }}" 
+                                                  rows="3"
+                                                  {% if form.description.field.required %}required{% endif %}>{{ form.description.value|default:'' }}</textarea>
                                         {% if form.description.errors %}
                                             <div class="invalid-feedback">{{ form.description.errors }}</div>
                                         {% endif %}
@@ -129,169 +171,172 @@
                                     </div>
                                 </div>
 
-<!-- تب وظایف مرتبط -->
-<div class="tab-pane fade" id="tasks" role="tabpanel">
-    <div class="mb-3">
-        <label class="form-label required-field">نوع وظیفه</label>
-        <div class="alert alert-info p-2 small mb-3">
-            <i class="fas fa-info-circle ms-2"></i>
-            تعیین کنید تکنسین‌ها چگونه این وظیفه را انجام دهند: چک باکس ساده، چک لیست یا گروه وظایف
-        </div>
-        <div class="row g-3">
-            <div class="col-md-4">
-                <div class="card h-100 task-type-card" data-type="single">
-                    <div class="card-body text-center">
-                        <i class="fas fa-check-square fa-3x text-primary mb-3"></i>
-                        <h5>وظیفه تک‌گزینه‌ای</h5>
-                        <p class="small">تکنسین وظیفه را به صورت کامل شده علامت می‌زند</p>
-                        <button type="button" class="btn btn-sm btn-outline-primary add-task-btn" data-type="single">
-                            <i class="fas fa-plus ms-1"></i>افزودن وظیفه
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 task-type-card" data-type="checklist">
-                    <div class="card-body text-center">
-                        <i class="fas fa-list-check fa-3x text-success mb-3"></i>
-                        <h5>چک لیست</h5>
-                        <p class="small">تکنسین چندین آیتم چک لیست را تکمیل می‌کند</p>
-                        <button type="button" class="btn btn-sm btn-outline-success add-task-btn" data-type="checklist">
-                            <i class="fas fa-plus ms-1"></i>افزودن چک لیست
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 task-type-card" data-type="group">
-                    <div class="card-body text-center">
-                        <i class="fas fa-layer-group fa-3x text-warning mb-3"></i>
-                        <h5>گروه وظایف</h5>
-                        <p class="small">مجموعه‌ای از وظایف مرتبط برای تکمیل</p>
-                        <button type="button" class="btn btn-sm btn-outline-warning add-task-btn" data-type="group">
-                            <i class="fas fa-plus ms-1"></i>افزودن گروه
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- فرم‌ست وظایف -->
-    <div id="tasksContainer">
-        {{ task_formset.management_form }}
-        {% for task_formset_entry in task_formset_formsets %}
-            {% with task_form=task_formset_entry.task_form checklist_formset=task_formset_entry.checklist_formset group_task_formset=task_formset_entry.group_task_formset %}
-                <div class="card task-card">
-                    <div class="card-header d-flex justify-content-between align-items-center bg-light">
-                        <div>
-                            <i class="fas {% if task_form.task_type.value == 'single' %}fa-check-square{% elif task_form.task_type.value == 'checklist' %}fa-list-check{% else %}fa-layer-group{% endif %} task-type-icon"></i>
-                            <strong class="task-title">{% if task_form.task_type.value == 'single' %}وظیفه تک‌گزینه‌ای{% elif task_form.task_type.value == 'checklist' %}چک لیست{% else %}گروه وظایف{% endif %}</strong>
-                        </div>
-                        <div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary sortable-handle ms-1">
-                                <i class="fas fa-arrows-alt"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger delete-task">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        {{ task_form.id }}
-                        {{ task_form.task_type }}
-                        {{ task_form.order }}
-                        {% if task_form.task_type.value == 'single' %}
-                            <div class="mb-3">
-                                <label class="form-label required-field">توضیحات وظیفه</label>
-                                {{ task_form.description }}
-                                {% if task_form.description.errors %}
-                                    <div class="invalid-feedback">{{ task_form.description.errors }}</div>
-                                {% endif %}
-                            </div>
-                        {% elif task_form.task_type.value == 'checklist' %}
-                            <div class="mb-3">
-                                <label class="form-label">عنوان چک لیست</label>
-                                {{ task_form.title }}
-                                {% if task_form.title.errors %}
-                                    <div class="invalid-feedback">{{ task_form.title.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="checklist-items">
-                                {% if checklist_formset %}
-                                    {{ checklist_formset.management_form }}
-                                    {% for checklist_form in checklist_formset %}
-                                        <div class="checklist-item input-group mb-2">
-                                            {{ checklist_form.id }}
-                                            {{ checklist_form.description }}
-                                            {{ checklist_form.order }}
-                                            <button class="btn btn-outline-danger" type="button" onclick="removeChecklistItem(this)"><i class="fas fa-times"></i></button>
-                                            {% if checklist_form.description.errors %}
-                                                <div class="invalid-feedback">{{ checklist_form.description.errors }}</div>
-                                            {% endif %}
+                                <!-- تب وظایف مرتبط -->
+                                <div class="tab-pane fade" id="tasks" role="tabpanel">
+                                    <div class="mb-3">
+                                        <label class="form-label required-field">نوع وظیفه</label>
+                                        <div class="alert alert-info p-2 small mb-3">
+                                            <i class="fas fa-info-circle ms-2"></i>
+                                            تعیین کنید تکنسین‌ها چگونه این وظیفه را انجام دهند: چک باکس ساده، چک لیست یا گروه وظایف
                                         </div>
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary add-checklist-item">
-                                <i class="fas fa-plus ms-1"></i>افزودن آیتم
-                            </button>
-                        {% else %}
-                            <div class="mb-3">
-                                <label class="form-label">عنوان گروه</label>
-                                {{ task_form.title }}
-                                {% if task_form.title.errors %}
-                                    <div class="invalid-feedback">{{ task_form.title.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="task-group-items">
-                                {% if group_task_formset %}
-                                    {{ group_task_formset.management_form }}
-                                    {% for group_task_form in group_task_formset %}
-                                        <div class="task-group-item mb-3">
-                                            {{ group_task_form.id }}
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <strong>وظیفه {{ forloop.counter }}</strong>
-                                                <button class="btn btn-sm btn-outline-danger" type="button" onclick="removeTaskFromGroup(this)"><i class="fas fa-times"></i></button>
+                                        <div class="row g-3">
+                                            <div class="col-md-4">
+                                                <div class="card h-100 task-type-card" data-type="single">
+                                                    <div class="card-body text-center">
+                                                        <i class="fas fa-check-square fa-3x text-primary mb-3"></i>
+                                                        <h5>وظیفه تک‌گزینه‌ای</h5>
+                                                        <p class="small">تکنسین وظیفه را به صورت کامل شده علامت می‌زند</p>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary add-task-btn" data-type="single">
+                                                            <i class="fas fa-plus ms-1"></i>افزودن وظیفه
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            {{ group_task_form.description }}
-                                            {{ group_task_form.subtask_type }}
-                                            {{ group_task_form.order }}
-                                            {% if group_task_form.description.errors %}
-                                                <div class="invalid-feedback">{{ group_task_form.description.errors }}</div>
-                                            {% endif %}
+                                            <div class="col-md-4">
+                                                <div class="card h-100 task-type-card" data-type="checklist">
+                                                    <div class="card-body text-center">
+                                                        <i class="fas fa-list-check fa-3x text-success mb-3"></i>
+                                                        <h5>چک لیست</h5>
+                                                        <p class="small">تکنسین چندین آیتم چک لیست را تکمیل می‌کند</p>
+                                                        <button type="button" class="btn btn-sm btn-outline-success add-task-btn" data-type="checklist">
+                                                            <i class="fas fa-plus ms-1"></i>افزودن چک لیست
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card h-100 task-type-card" data-type="group">
+                                                    <div class="card-body text-center">
+                                                        <i class="fas fa-layer-group fa-3x text-warning mb-3"></i>
+                                                        <h5>گروه وظایف</h5>
+                                                        <p class="small">مجموعه‌ای از وظایف مرتبط برای تکمیل</p>
+                                                        <button type="button" class="btn btn-sm btn-outline-warning add-task-btn" data-type="group">
+                                                            <i class="fas fa-plus ms-1"></i>افزودن گروه
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary add-task-to-group">
-                                <i class="fas fa-plus ms-1"></i>افزودن وظیفه به گروه
-                            </button>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endwith %}
-        {% endfor %}
-    </div>
+                                    </div>
 
-    <div class="d-flex justify-content-between mt-3">
-        <button type="button" class="btn btn-outline-secondary prev-tab" data-target="#basic-tab">
-            <i class="fas fa-arrow-right me-2"></i> قبلی
-        </button>
-        <button type="button" class="btn btn-primary next-tab" data-target="#instructions-tab">
-            بعدی <i class="fas fa-arrow-left ms-2"></i>
-        </button>
-    </div>
-</div>
+                                    <!-- فرم‌ست وظایف -->
+                                    <div id="tasksContainer">
+                                        {{ task_formset.management_form }}
+                                        {% for task_formset_entry in task_formset_formsets %}
+                                            {% with task_form=task_formset_entry.task_form checklist_formset=task_formset_entry.checklist_formset group_task_formset=task_formset_entry.group_task_formset %}
+                                                <div class="card task-card">
+                                                    <div class="card-header d-flex justify-content-between align-items-center bg-light">
+                                                        <div>
+                                                            <i class="fas {% if task_form.task_type.value == 'single' %}fa-check-square{% elif task_form.task_type.value == 'checklist' %}fa-list-check{% else %}fa-layer-group{% endif %} task-type-icon"></i>
+                                                            <strong class="task-title">{% if task_form.task_type.value == 'single' %}وظیفه تک‌گزینه‌ای{% elif task_form.task_type.value == 'checklist' %}چک لیست{% else %}گروه وظایف{% endif %}</strong>
+                                                        </div>
+                                                        <div>
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary sortable-handle ms-1">
+                                                                <i class="fas fa-arrows-alt"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-sm btn-outline-danger delete-task">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        {{ task_form.id }}
+                                                        {{ task_form.task_type }}
+                                                        {{ task_form.order }}
+                                                        {% if task_form.task_type.value == 'single' %}
+                                                            <div class="mb-3">
+                                                                <label class="form-label required-field">توضیحات وظیفه</label>
+                                                                {{ task_form.description }}
+                                                                {% if task_form.description.errors %}
+                                                                    <div class="invalid-feedback">{{ task_form.description.errors }}</div>
+                                                                {% endif %}
+                                                            </div>
+                                                        {% elif task_form.task_type.value == 'checklist' %}
+                                                            <div class="mb-3">
+                                                                <label class="form-label">عنوان چک لیست</label>
+                                                                {{ task_form.title }}
+                                                                {% if task_form.title.errors %}
+                                                                    <div class="invalid-feedback">{{ task_form.title.errors }}</div>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="checklist-items">
+                                                                {% if checklist_formset %}
+                                                                    {{ checklist_formset.management_form }}
+                                                                    {% for checklist_form in checklist_formset %}
+                                                                        <div class="checklist-item input-group mb-2">
+                                                                            {{ checklist_form.id }}
+                                                                            {{ checklist_form.description }}
+                                                                            {{ checklist_form.order }}
+                                                                            <button class="btn btn-outline-danger" type="button" onclick="removeChecklistItem(this)"><i class="fas fa-times"></i></button>
+                                                                            {% if checklist_form.description.errors %}
+                                                                                <div class="invalid-feedback">{{ checklist_form.description.errors }}</div>
+                                                                            {% endif %}
+                                                                        </div>
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            </div>
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary add-checklist-item">
+                                                                <i class="fas fa-plus ms-1"></i>افزودن آیتم
+                                                            </button>
+                                                        {% else %}
+                                                            <div class="mb-3">
+                                                                <label class="form-label">عنوان گروه</label>
+                                                                {{ task_form.title }}
+                                                                {% if task_form.title.errors %}
+                                                                    <div class="invalid-feedback">{{ task_form.title.errors }}</div>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="task-group-items">
+                                                                {% if group_task_formset %}
+                                                                    {{ group_task_formset.management_form }}
+                                                                    {% for group_task_form in group_task_formset %}
+                                                                        <div class="task-group-item mb-3">
+                                                                            {{ group_task_form.id }}
+                                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                                <strong>وظیفه {{ forloop.counter }}</strong>
+                                                                                <button class="btn btn-sm btn-outline-danger" type="button" onclick="removeTaskFromGroup(this)"><i class="fas fa-times"></i></button>
+                                                                            </div>
+                                                                            {{ group_task_form.description }}
+                                                                            {{ group_task_form.subtask_type }}
+                                                                            {{ group_task_form.order }}
+                                                                            {% if group_task_form.description.errors %}
+                                                                                <div class="invalid-feedback">{{ group_task_form.description.errors }}</div>
+                                                                            {% endif %}
+                                                                        </div>
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            </div>
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary add-task-to-group">
+                                                                <i class="fas fa-plus ms-1"></i>افزودن وظیفه به گروه
+                                                            </button>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </div>
 
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <button type="button" class="btn btn-outline-secondary prev-tab" data-target="#basic-tab">
+                                            <i class="fas fa-arrow-right me-2"></i> قبلی
+                                        </button>
+                                        <button type="button" class="btn btn-primary next-tab" data-target="#instructions-tab">
+                                            بعدی <i class="fas fa-arrow-left ms-2"></i>
+                                        </button>
+                                    </div>
+                                </div>
 
                                 <!-- تب دستورالعمل‌ها -->
                                 <div class="tab-pane fade" id="instructions" role="tabpanel">
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                {{ form.safety_instructions.label_tag }}
-                                                {{ form.safety_instructions }}
+                                                <label for="{{ form.safety_instructions.id_for_label }}" class="form-label">{{ form.safety_instructions.label }}</label>
+                                                <textarea class="form-control" 
+                                                          id="{{ form.safety_instructions.id_for_label }}" 
+                                                          name="{{ form.safety_instructions.html_name }}" 
+                                                          rows="3"
+                                                          {% if form.safety_instructions.field.required %}required{% endif %}>{{ form.safety_instructions.value|default:'' }}</textarea>
                                                 {% if form.safety_instructions.errors %}
                                                     <div class="invalid-feedback">{{ form.safety_instructions.errors }}</div>
                                                 {% endif %}
@@ -305,15 +350,20 @@
                                                     {% for tool_form in tool_formset %}
                                                         <div class="input-group mb-2">
                                                             {{ tool_form.id }}
-                                                            {{ tool_form.name }}
-                                                            <button class="btn btn-outline-danger" type="button" onclick="removeTool(this)"><i class="fas fa-times"></i></button>
+                                                            <input type="text" 
+                                                                   class="form-control" 
+                                                                   id="{{ tool_form.name.id_for_label }}" 
+                                                                   name="{{ tool_form.name.html_name }}" 
+                                                                   value="{{ tool_form.name.value|default:'' }}"
+                                                                   placeholder="نام ابزار">
+                                                            <button class="btn btn-outline-danger remove-tool" type="button"><i class="fas fa-times"></i></button>
                                                             {% if tool_form.name.errors %}
                                                                 <div class="invalid-feedback">{{ tool_form.name.errors }}</div>
                                                             {% endif %}
                                                         </div>
                                                     {% endfor %}
                                                 </div>
-                                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addToolField()">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" id="addToolBtn">
                                                     <i class="fas fa-plus ms-1"></i>افزودن ابزار
                                                 </button>
                                             </div>
@@ -324,9 +374,25 @@
                                                     {% for spare_part_form in spare_part_formset %}
                                                         <div class="input-group mb-2">
                                                             {{ spare_part_form.id }}
-                                                            {{ spare_part_form.name }}
-                                                            {{ spare_part_form.part_code }}
-                                                            {{ spare_part_form.quantity }}
+                                                            <input type="text" 
+                                                                   class="form-control" 
+                                                                   id="{{ spare_part_form.name.id_for_label }}" 
+                                                                   name="{{ spare_part_form.name.html_name }}" 
+                                                                   value="{{ spare_part_form.name.value|default:'' }}"
+                                                                   placeholder="نام قطعه">
+                                                            <input type="text" 
+                                                                   class="form-control" 
+                                                                   id="{{ spare_part_form.part_code.id_for_label }}" 
+                                                                   name="{{ spare_part_form.part_code.html_name }}" 
+                                                                   value="{{ spare_part_form.part_code.value|default:'' }}"
+                                                                   placeholder="کد قطعه">
+                                                            <input type="number" 
+                                                                   class="form-control" 
+                                                                   id="{{ spare_part_form.quantity.id_for_label }}" 
+                                                                   name="{{ spare_part_form.quantity.html_name }}" 
+                                                                   value="{{ spare_part_form.quantity.value|default:'' }}"
+                                                                   placeholder="تعداد" 
+                                                                   min="1">
                                                             <button class="btn btn-outline-danger" type="button" onclick="removeSparePart(this)"><i class="fas fa-times"></i></button>
                                                             {% if spare_part_form.name.errors %}
                                                                 <div class="invalid-feedback">{{ spare_part_form.name.errors }}</div>
@@ -341,8 +407,12 @@
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        {{ form.completion_notes.label_tag }}
-                                        {{ form.completion_notes }}
+                                        <label for="{{ form.completion_notes.id_for_label }}" class="form-label">{{ form.completion_notes.label }}</label>
+                                        <textarea class="form-control" 
+                                                  id="{{ form.completion_notes.id_for_label }}" 
+                                                  name="{{ form.completion_notes.html_name }}" 
+                                                  rows="3"
+                                                  {% if form.completion_notes.field.required %}required{% endif %}>{{ form.completion_notes.value|default:'' }}</textarea>
                                         {% if form.completion_notes.errors %}
                                             <div class="invalid-feedback">{{ form.completion_notes.errors }}</div>
                                         {% endif %}
@@ -364,13 +434,24 @@
                                             <div class="mb-3">
                                                 <label class="form-label">نیاز به تأیید</label>
                                                 <div class="form-check form-switch">
-                                                    {{ form.approval_required }}
+                                                    <input type="checkbox" 
+                                                           class="form-check-input" 
+                                                           id="{{ form.approval_required.id_for_label }}" 
+                                                           name="{{ form.approval_required.html_name }}" 
+                                                           {% if form.approval_required.value %}checked{% endif %}>
                                                     <label class="form-check-label" for="{{ form.approval_required.id_for_label }}">نیاز به تأیید سرپرست پس از اتمام</label>
                                                 </div>
                                             </div>
                                             <div class="mb-3">
-                                                {{ form.approval_role.label_tag }}
-                                                {{ form.approval_role }}
+                                                <label for="{{ form.approval_role.id_for_label }}" class="form-label">{{ form.approval_role.label }}</label>
+                                                <select class="form-control" 
+                                                        id="{{ form.approval_role.id_for_label }}" 
+                                                        name="{{ form.approval_role.html_name }}"
+                                                        {% if form.approval_role.field.required %}required{% endif %}>
+                                                    {% for value, label in form.approval_role.field.choices %}
+                                                        <option value="{{ value }}" {% if form.approval_role.value == value %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
                                                 {% if form.approval_role.errors %}
                                                     <div class="invalid-feedback">{{ form.approval_role.errors }}</div>
                                                 {% endif %}
@@ -378,8 +459,16 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                {{ form.documentation.label_tag }}
-                                                {{ form.documentation }}
+                                                <label for="{{ form.documentation.id_for_label }}" class="form-label">{{ form.documentation.label }}</label>
+                                                <select class="form-control" 
+                                                        id="{{ form.documentation.id_for_label }}" 
+                                                        name="{{ form.documentation.html_name }}"
+                                                        multiple
+                                                        {% if form.documentation.field.required %}required{% endif %}>
+                                                    {% for value, label in form.documentation.field.choices %}
+                                                        <option value="{{ value }}" {% if value in form.documentation.value %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
                                                 <div class="form-text">برای انتخاب چندگانه کلید Ctrl/Cmd را نگه دارید</div>
                                                 {% if form.documentation.errors %}
                                                     <div class="invalid-feedback">{{ form.documentation.errors }}</div>
@@ -607,7 +696,9 @@
                     );
                 });
             }
-
+            $("#addToolBtn").click(function() {
+                addToolField();
+            });
             function addToolField() {
                 var newTool = `<div class="input-group mb-2">
                     <input type="text" class="form-control tool-input" placeholder="نام ابزار">
