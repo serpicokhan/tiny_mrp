@@ -1518,6 +1518,7 @@ def list_amar_daily_info(request):
                     "asset_category_id": asset.asset_category.id,  
                     "nomre": asset.nomre,
                     "speed": asset.speed,
+                    "tab": asset.tab,
                 }
                 for asset in entry.asset_details.all()
             ]

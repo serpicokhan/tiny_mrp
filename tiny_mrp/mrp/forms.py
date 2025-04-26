@@ -1,6 +1,8 @@
 from django import forms
 from django.forms import modelformset_factory
 from mrp.models import *
+from persiantools.jdatetime import JalaliDate
+from django.forms import inlineformset_factory
 class ZayeatVaznForm(forms.ModelForm):
     class Meta:
          model = ZayeatVaz
@@ -127,3 +129,110 @@ class PurchaseRequestFileForm(forms.ModelForm):
     class Meta:
         model = PurchaseRequestFile
         fields = ['purchase_request', 'file']
+# class MaintenanceForm(forms.ModelForm):
+#     due_date = forms.CharField(
+#         widget=forms.TextInput(attrs={'type': 'date'}),
+#         label='تاریخ سررسید',
+#         required=True
+#     )
+
+#     class Meta:
+#         model = Maintenance
+#         fields = [
+#             'title', 'equipment', 'operation_type', 'priority',
+#             'assigned_to', 'due_date', 'description',
+#             'safety_instructions', 'completion_notes',
+#             'approval_required', 'approval_role', 'documentation'
+#         ]
+#         widgets = {
+#             'description': forms.Textarea(attrs={'rows': 2}),
+#             'safety_instructions': forms.Textarea(attrs={'rows': 3}),
+#             'completion_notes': forms.Textarea(attrs={'rows': 2}),
+#             'equipment': forms.Select(attrs={'class': 'form-select'}),
+#             'operation_type': forms.Select(attrs={'class': 'form-select'}),
+#             'priority': forms.Select(attrs={'class': 'form-select'}),
+#             'assigned_to': forms.Select(attrs={'class': 'form-select'}),
+#             'approval_role': forms.Select(attrs={'class': 'form-select'}),
+#             'documentation': forms.SelectMultiple(attrs={'class': 'form-select'}),
+#             'approval_required': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+#         }
+
+#     def clean_due_date(self):
+#         jalali_date_str = self.cleaned_data.get('due_date')
+#         if jalali_date_str:
+#             try:
+#                 jalali_date = JalaliDate.parse(jalali_date_str.replace('-', '/'))
+#                 return jalali_date.to_gregorian()
+#             except ValueError:
+#                 raise forms.ValidationError("فرمت تاریخ نامعتبر است.")
+#         return None
+
+#     def clean(self):
+#         cleaned_data = super().clean()
+#         cleaned_data['maintenance_type'] = 'manual'  # تنظیم نوع به دستی
+#         return cleaned_data
+
+# class TaskForm(forms.ModelForm):
+#     class Meta:
+#         model = Task
+#         fields = ['task_type', 'title', 'description', 'order']
+#         widgets = {
+#             'task_type': forms.Select(attrs={'class': 'form-select'}),
+#             'title': forms.TextInput(attrs={'class': 'form-control'}),
+#             'description': forms.TextInput(attrs={'class': 'form-control'}),
+#             'order': forms.HiddenInput(),
+#         }
+
+# class ChecklistItemForm(forms.ModelForm):
+#     class Meta:
+#         model = ChecklistItem
+#         fields = ['description', 'order']
+#         widgets = {
+#             'description': forms.TextInput(attrs={'class': 'form-control'}),
+#             'order': forms.HiddenInput(),
+#         }
+
+# class GroupTaskForm(forms.ModelForm):
+#     class Meta:
+#         model = GroupTask
+#         fields = ['description', 'subtask_type', 'order']
+#         widgets = {
+#             'description': forms.TextInput(attrs={'class': 'form-control'}),
+#             'subtask_type': forms.Select(attrs={'class': 'form-select'}),
+#             'order': forms.HiddenInput(),
+#         }
+
+# class ToolForm(forms.ModelForm):
+#     class Meta:
+#         model = Tool
+#         fields = ['name']
+#         widgets = {
+#             'name': forms.TextInput(attrs={'class': 'form-control'}),
+#         }
+
+# class SparePartForm(forms.ModelForm):
+#     class Meta:
+#         model = SparePart
+#         fields = ['name', 'part_code', 'quantity']
+#         widgets = {
+#             'name': forms.TextInput(attrs={'class': 'form-control'}),
+#             'part_code': forms.TextInput(attrs={'class': 'form-control'}),
+#             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+#         }
+
+# # فرم‌ست‌ها برای روابط چندگانه
+# TaskFormSet = inlineformset_factory(
+#     Maintenance, Task, form=TaskForm, extra=0, can_delete=True
+# )
+# ChecklistItemFormSet = inlineformset_factory(
+#     Task, ChecklistItem, form=ChecklistItemForm, extra=0, can_delete=True
+# )
+# GroupTaskFormSet = inlineformset_factory(
+#     Task, GroupTask, form=GroupTaskForm, extra=0, can_delete=True
+# )
+# ToolFormSet = inlineformset_factory(
+#     Maintenance, Tool, form=ToolForm, extra=0, can_delete=True
+# )
+# SparePartFormSet = inlineformset_factory(
+#     Maintenance, SparePart, form=SparePartForm, extra=0, can_delete=True
+# )

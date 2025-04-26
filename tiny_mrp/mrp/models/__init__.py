@@ -9,4 +9,4 @@ from mrp.models.moshakhasat import *
 from mrp.models.part import *
 
 from mrp.models.purchase import *
-
+from mrp.models.maintenance import *

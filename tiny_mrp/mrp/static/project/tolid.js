@@ -116,7 +116,7 @@ $(function () {
             var z = parseFloat(row.find(".speed").text()) || 0;
             var p = parseFloat(row.find(".nomre").text()) || 0;
             var q = parseFloat(row.find(".vahed").text()) || 0;
-            var w = row.find(".nomre").data("tab")||1;
+            var w = row.find(".nomre").attr("data-tab")||1;
 
             
             var q1 = parseFloat(row.find(".vahed").data("vahed")) || 0;
@@ -571,7 +571,9 @@ $(".tab-content").on("keydown", ".editable-cell, .editable-cell2", function(e) {
             var z = parseFloat(row.find(".speed").text()) || 0;
             var p = parseFloat(row.find(".nomre").text()) || 0;
             var q = parseFloat(row.find(".vahed").text()) || 0;
-            var w = row.find(".nomre").data("tab")||1;
+            var w = row.find(".nomre").attr("data-tab")||1;
+            
+            
 
             var q1 = parseFloat(row.find(".vahed").data("vahed")) || 0;
             var formula2 = row.find("[data-maxformula]").data("maxformula");
