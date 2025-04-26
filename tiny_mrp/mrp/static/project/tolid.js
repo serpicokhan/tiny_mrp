@@ -224,6 +224,7 @@ var tableDataToJSON=function(tableId){
         var dayOfIssue = $("#search").val();
         var speed = $(this).find('td.speed').text()||0;        
         var nomre = parseFloat($(this).find('td.nomre').text());
+        var tab = parseFloat($(this).find('td.nomre').attr("data-tab"))||1;
         // var nomre=100;
         // console.log($(this).find('td.nomre').text());
         var counter1 = $(this).find('td.counter1').text()||0;
@@ -242,7 +243,7 @@ var tableDataToJSON=function(tableId){
 
 
         data.push({id:amar_id, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
-          , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed,moshakhase:moshakhase,waste:wastage
+          , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed,moshakhase:moshakhase,waste:wastage,tab:tab
            });
          }
       });

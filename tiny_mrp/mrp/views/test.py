@@ -287,6 +287,7 @@ def saveAmarTableInfo(request):
                 x.counter1=float(i["counter1"])
                 x.counter2=float(i["counter2"])
                 x.vahed=int(i["vahed"])
+                x.tab=float(i["tab"])
                 x.production_value=float(i["production_value"])
                 if(i["moshakhase"]!="-1"):
                     x.moshakhase=EntryForm.objects.get(id=i["moshakhase"]) #if i["production_value"]!="-1" else None
@@ -313,6 +314,7 @@ def saveAmarTableInfo(request):
                 amar.counter1=float(i["counter1"])
                 amar.counter2=float(i["counter2"])
                 amar.vahed=float(i["vahed"])
+                amar.tab=float(i["tab"])
                 
                 amar.production_value=float(i["production_value"])
                 amar.zayeat=float(i["waste"])
