@@ -595,6 +595,29 @@ $(".tab-content").on("keydown", ".editable-cell, .editable-cell2", function(e) {
           }
         // }
     });
+    function updateWasteSum() {
+      $('.tab-pane').each(function() {
+        var sum = 0;
+        $(this).find('.waste').each(function() {
+          var value = parseFloat($(this).text()) || 0;
+          sum += value;
+        });
+        $(this).find('.sum-waste').text(sum.toFixed(2));
+      });
+    }
+
+    // Update sum when waste values change 
+    $('.tblrows').on('input', '.waste', function() {
+      // Only update sum for the active tab containing this waste input
+      var activeTab = $(this).closest('.tab-pane');
+      var sum = 0;
+      activeTab.find('.waste').each(function() {
+        var value = parseFloat($(this).text()) || 0;
+        sum += value;
+      });
+      activeTab.find('.sum-waste').text(sum.toFixed(2));
+    });
+ 
 
 
 });
