@@ -1,89 +1,87 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-# from mrp.forms import MaintenanceForm, TaskFormSet, ChecklistItemFormSet, GroupTaskFormSet, ToolFormSet, SparePartFormSet
-# from mrp.models import Maintenance, Task
+from mrp.forms import MaintenanceForm, TaskFormSet, ChecklistItemFormSet, GroupTaskFormSet, ToolFormSet, SparePartFormSet
+from mrp.models import Maintenance, Task
 
 def list_workorder(request):
     return render(request,"mrp/maintenance/workorder/woList.html",{})
 
-# @login_required
-# def create_work_order(request):
-#     if request.method == 'POST':
-#         form = MaintenanceForm(request.POST)
-#         task_formset = TaskFormSet(request.POST, prefix='tasks')
-#         tool_formset = ToolFormSet(request.POST, prefix='tools')
-#         spare_part_formset = SparePartFormSet(request.POST, prefix='spare_parts')
+@login_required
+def create_work_order(request):
+    if request.method == 'POST':
+        form = MaintenanceForm(request.POST)
+        task_formset = TaskFormSet(request.POST, prefix='tasks')
+        tool_formset = ToolFormSet(request.POST, prefix='tools')
+        spare_part_formset = SparePartFormSet(request.POST, prefix='spare_parts')
 
-#         # فرم‌ست‌های وظایف پیچیده
-#         checklist_formsets = []
-#         group_task_formsets = []
+        if form.is_valid() and task_formset.is_valid() and tool_formset.is_valid() and spare_part_formset.is_valid():
+            # Save Maintenance
+            maintenance = form.save(commit=False)
+            maintenance.maintenance_type = 'manual'
+            maintenance.save()
+            form.save_m2m()  # Save ManyToMany fields (e.g., documentation)
 
-#         if form.is_valid() and task_formset.is_valid() and tool_formset.is_valid() and spare_part_formset.is_valid():
-#             # ذخیره Maintenance
-#             maintenance = form.save(commit=False)
-#             maintenance.maintenance_type = 'manual'
-#             maintenance.save()
+            # Save Tasks
+            tasks = task_formset.save(commit=False)
+            for task in tasks:
+                task.maintenance = maintenance
+                task.save()
 
-#             # ذخیره وظایف
-#             tasks = task_formset.save(commit=False)
-#             for task in tasks:
-#                 task.maintenance = maintenance
-#                 task.save()
+                # Process ChecklistItemFormSet for checklist tasks
+                if task.task_type == 'checklist':
+                    checklist_formset = ChecklistItemFormSet(
+                        request.POST,
+                        prefix=f'task_{task.id}_checklist',
+                        instance=task
+                    )
+                    if checklist_formset.is_valid():
+                        checklist_formset.save()
 
-#                 # پردازش فرم‌ست‌های ChecklistItem و GroupTask
-#                 if task.task_type == 'checklist':
-#                     checklist_formset = ChecklistItemFormSet(
-#                         request.POST,
-#                         prefix=f'task_{task.id}_checklist',
-#                         instance=task
-#                     )
-#                     if checklist_formset.is_valid():
-#                         checklist_formset.save()
-#                     else:
-#                         checklist_formset = None  # برای جلوگیری از خطا
+                # Process GroupTaskFormSet for group tasks
+                elif task.task_type == 'group':
+                    group_task_formset = GroupTaskFormSet(
+                        request.POST,
+                        prefix=f'task_{task.id}_group',
+                        instance=task
+                    )
+                    if group_task_formset.is_valid():
+                        group_task_formset.save()
 
-#                 elif task.task_type == 'group':
-#                     group_task_formset = GroupTaskFormSet(
-#                         request.POST,
-#                         prefix=f'task_{task.id}_group',
-#                         instance=task
-#                     )
-#                     if group_task_formset.is_valid():
-#                         group_task_formset.save()
-#                     else:
-#                         group_task_formset = None
+            # Save Tools and Spare Parts
+            tool_formset.instance = maintenance
+            tool_formset.save()
+            spare_part_formset.instance = maintenance
+            spare_part_formset.save()
 
-#             # ذخیره ابزارها و قطعات
-#             tool_formset.instance = maintenance
-#             tool_formset.save()
-#             spare_part_formset.instance = maintenance
-#             spare_part_formset.save()
+            return redirect('home')  # Replace with actual URL
+    else:
+        form = MaintenanceForm()
+        task_formset = TaskFormSet(prefix='tasks')
+        tool_formset = ToolFormSet(prefix='tools')
+        spare_part_formset = SparePartFormSet(prefix='spare_parts')
 
-#             # ذخیره مستندات (به‌صورت دستی، چون multiple select است)
-#             form.save_m2m()
+        # Prepare checklist and group task formsets for existing tasks
+        task_formset_formsets = []
+        for task_form in task_formset:
+            task_type = task_form.initial.get('task_type') or task_form.cleaned_data.get('task_type') if task_form.is_bound else None
+            checklist_formset = None
+            group_task_formset = None
+            if task_type == 'checklist':
+                checklist_formset = ChecklistItemFormSet(prefix=f'task_{task_form.prefix}_checklist')
+            elif task_type == 'group':
+                group_task_formset = GroupTaskFormSet(prefix=f'task_{task_form.prefix}_group')
+            task_formset_formsets.append({
+                'task_form': task_form,
+                'checklist_formset': checklist_formset,
+                'group_task_formset': group_task_formset,
+            })
 
-#             return redirect('home')  # تغییر به URL مقصد واقعی
-#     else:
-#         form = MaintenanceForm()
-#         task_formset = TaskFormSet(prefix='tasks')
-#         tool_formset = ToolFormSet(prefix='tools')
-#         spare_part_formset = SparePartFormSet(prefix='spare_parts')
-
-#     context = {
-#         'form': form,
-#         'task_formset': task_formset,
-#         'tool_formset': tool_formset,
-#         'spare_part_formset': spare_part_formset,
-#     }
-#     return render(request, 'maintenance/create_work_order.html', context)
-
-# def edit_workorder(request):
-#     return render(request,"mrp/maintenance/workorder/woEdit.html",{})
-
-# def delete_workorder(request):
-#     return render(request,"mrp/maintenance/workorder/woDelete.html",{})
-
-# def view_workorder(request):
-#     return render(request,"mrp/maintenance/workorder/woView.html",{})
-
+    context = {
+        'form': form,
+        'task_formset': task_formset,
+        'task_formset_formsets': task_formset_formsets,
+        'tool_formset': tool_formset,
+        'spare_part_formset': spare_part_formset,
+    }
+    return render(request, 'mrp/maintenance/workorder/create_work_order.html', context)
 

@@ -134,6 +134,7 @@ urlpatterns = [
     url(r'^Tolid/Moshakhase/(?P<entry_id>\d+)/Update/$', update_entry_form, name='update_entry_form'),
     url(r'^Tolid/Moshakhase$', list_entry_form, name='list_entry_form'),
     url(r'^WO/$', list_workorder, name='list_workorder'),
+    url(r'^WO/Create$', create_work_order, name='create_work_order'),
 
 
 

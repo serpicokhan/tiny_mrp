@@ -58,6 +58,13 @@ class Maintenance(models.Model):
         ('yearly', 'سالانه'),
     ]
 
+    DOCUMENTATION_TYPES = [
+        ('photos', 'عکس‌های قبل/بعد'),
+        ('readings', 'قرائت‌های تجهیزات'),
+        ('measurements', 'اندازه‌گیری‌ها'),
+        ('signature', 'امضای تکنسین'),
+    ]
+
     title = models.CharField(max_length=200, verbose_name="عنوان")
     maintenance_type = models.CharField(max_length=20, choices=MAINTENANCE_TYPES, verbose_name="نوع نگهداری")
     operation_type = models.CharField(max_length=50, choices=OPERATION_TYPES, verbose_name="نوع عملیات")
@@ -92,6 +99,7 @@ class Maintenance(models.Model):
     is_visible = models.BooleanField(default=True, verbose_name="قابل مشاهده")
     visible_from = models.DateField(null=True, blank=True, verbose_name="قابل مشاهده از تاریخ")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
+    documentation = models.ManyToManyField('DocumentationType', verbose_name="مستندات", blank=True)
 
     def __str__(self):
         return f"{self.title} ({self.get_maintenance_type_display()})"
@@ -112,6 +120,17 @@ class Maintenance(models.Model):
             models.Index(fields=['maintenance_type', 'is_visible', 'due_date']),
             models.Index(fields=['is_active', 'recurrence']),
         ]
+
+# مدل نوع مستندات
+class DocumentationType(models.Model):
+    name = models.CharField(max_length=50, choices=Maintenance.DOCUMENTATION_TYPES, unique=True, verbose_name="نوع مستند")
+
+    def __str__(self):
+        return self.get_name_display()
+
+    class Meta:
+        verbose_name = "نوع مستند"
+        verbose_name_plural = "انواع مستندات"
 
 # مدل قطعات یدکی
 class SparePart(models.Model):
@@ -210,25 +229,3 @@ class GroupTask(models.Model):
         verbose_name = "زیروظیفه گروه"
         verbose_name_plural = "زیروظایف گروه"
         ordering = ['order']
-
-# مدل مستندات
-class Documentation(models.Model):
-    maintenance = models.ForeignKey(
-        Maintenance,
-        related_name='documentation',
-        on_delete=models.CASCADE,
-        verbose_name="نگهداری"
-    )
-    type = models.CharField(max_length=50, choices=[
-        ('photos', 'عکس‌های قبل/بعد'),
-        ('readings', 'قرائت‌های تجهیزات'),
-        ('measurements', 'اندازه‌گیری‌ها'),
-        ('signature', 'امضای تکنسین'),
-    ], verbose_name="نوع مستند")
-
-    def __str__(self):
-        return self.get_type_display()
-
-    class Meta:
-        verbose_name = "مستند"
-        verbose_name_plural = "مستندات"
