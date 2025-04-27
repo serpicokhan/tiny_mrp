@@ -430,3 +430,19 @@ def get_sum_zayeat_by_date_ztype_makan(z_type,target_date):
     
     ).aggregate(total_vazn=Sum('vazn'))
     return result
+def get_sum_production_by_code(machin_name,moshakhase):
+    result = DailyProduction.objects.filter(
+       
+    machine=machin_name,moshakhase=moshakhase
+    
+    ).aggregate(total_vazn=Sum('production_value'))
+    return result
+
+
+def get_sum_zayeat_by_code(machin_name,moshakhase):
+    result = DailyProduction.objects.filter(
+       
+    machine=machin_name,moshakhase=moshakhase
+    
+    ).aggregate(total_vazn=Sum('zayeat'))
+    return result

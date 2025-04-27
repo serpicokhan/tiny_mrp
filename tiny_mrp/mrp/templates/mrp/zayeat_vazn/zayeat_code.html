@@ -1,0 +1,116 @@
+{% extends 'mrp/blank-page.html' %}
+{% block stylesheet %}
+
+{% endblock %}
+{% block content %}
+{% load static %}
+{% load custom_filters %}
+<div class="row app-block">
+
+    <div class="col-md-12 app-content">
+        <div class="app-content-overlay"></div>
+        <div class="app-action">
+            <div class="action-left">
+              
+                
+            </div>
+            <div class="action-right">
+                <form class="d-flex mr-3">
+                    <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu width-15 height-15"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </a>
+                    <div class="input-group">
+                        <select class="form-control select2" id="code_nakh_select">
+                           {% for i in moshakhasat %}
+                            <option value="{{i.id}}" {% if selected_code == i.id %} selected {% endif %}>{{i}}</option>
+                           {% endfor %}
+                          </select>
+                        
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+
+                <h6 class="card-title">{{title}}</h6>
+
+
+               
+                <hr/>
+                <div class="table-responsive">
+                    <table class="table table-striped" border="1">
+                        <thead>
+                            
+                            <tr class="bg-dark">
+                                <th>کد نخ</th>
+
+                                <th>نام دستگاه</th>
+                                <th>تولید</th>
+                               <th>ضایعات</th>
+                                <th>درصد</th>
+
+                                <!-- Add more headers if needed -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in product %}
+
+                           <tr>
+                            <td>{{i.code_nakh}}</td>
+                            <td>{{i.machine}}</td>
+
+                            <td>{{i.product.total_vazn|default_if_none:'0'}}</td>
+                            <td>{{i.zayeat.total_vazn|floatformat:0| default_if_none:'0'}}</td>
+                            <td>{{i.zayeat.darsad|floatformat:0| default_if_none:'0'}}</td>
+                           </tr>
+                           {% endfor %}
+                            <tr>
+                                <td >{{moshakhase}}</td>
+                                <td>همه دستگاهها</td>
+                                <td>{{sum|floatformat:0}}</td>
+                                <td>{{zayeat|floatformat:0}}</td>
+                                <td>{{overall_darsad}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+{% endblock%}
+{% block javascript %}
+<script type="text/javascript">
+$(document).ready(function() {
+$(".select2").select2();
+  $("#button-addon1").click(function(){
+    if($("#jalaliMonths").val()>0 && $("#year").val()>0){
+    window.location.href=`/Tolid/Zayeat/Monthly?month=${$("#jalaliMonths").val()}&year=${$("#year").val()}&makan_id=${$("#select_makan").val()}`;
+  }
+  else {
+    toastr.error("یک مقدار انتخاب نمایید");
+  }
+  });
+  $('#code_nakh_select').change(function() {
+    var selectedValue = $(this).val();
+    if (selectedValue) { // check if the value is not empty
+        window.location.href = `/Tolid/Overall?code=${selectedValue}`;
+    }
+});
+});
+
+</script>
+{% endblock %}

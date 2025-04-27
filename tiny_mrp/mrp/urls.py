@@ -31,6 +31,8 @@ urlpatterns = [
     url(r'^Tolid/DailyZayeat$',get_daily_zaye,name='get_daily_zaye'),
     url(r'^Tolid/Zayeat/Monthly$',monthly_zayeat_detaild_report,name='monthly_zayeat_detaild_report'),
     url(r'^Tolid/Calendar$',calendar_main,name='calendar_main'),
+    url(r'^Tolid/Overall$',view_overal_code_production,name='view_overal_code_production'),
+
     url(r'^Tolid/Randeman/Calendar$',calendar_randeman,name='calendar_randeman'),
     url(r'^Tolid/Randeman/Brief/Calendar$',calendar_randeman_brief,name='calendar_randeman_brief'),
     url(r'^Tolid/Tahlil/Calendar$',calendar_tahlil,name='calendar_tahlil'),

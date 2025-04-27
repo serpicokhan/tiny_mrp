@@ -171,3 +171,63 @@ def monthly_zayeat_detaild_report(request):
             
     # print(sum_dic)
     return render(request,'mrp/zayeat_vazn/monthly_zayeat.html',{'zayeat':z_types,'sum_s':ts,'sum_shif':tt,'sum':sum_kol,'makan':{},'cats':days,'title':'آمار ماهانه ضایعات','cat_list':cat_list,'shift':salooon_shifts,'month':j_month,'year':j_year,'saloon':{}}) 
+def zayeat_per_code(request):
+    moshakhase_code=request.GET.get("code",False)
+    moshakhase=EntryForm.objects.get(id=moshakhase_code)
+    z_types=Zayeat.objects.all()
+
+
+    machines=Asset.objects.filter(assetCategory=3)
+    product=[]
+    zayeat=[]
+    for m in machines:
+         m_product=get_sum_production_by_code(m,moshakhase)
+         m_zayeat=get_sum_zayeat_by_code(m,moshakhase)
+              
+         product.append({'product':m_product,'zayeat':m_zayeat,'code_nakh':moshakhase})
+    return render(request,'',{'product':product})
+def view_overal_code_production(request):
+    moshakhase_code=request.GET.get("code",False)
+    product=[]
+    moshakhasat=EntryForm.objects.all()
+    sum_tolid=0
+    sum_zayeat=0
+
+
+    if(moshakhase_code):
+         
+        moshakhase=EntryForm.objects.get(id=moshakhase_code)
+
+
+        machines=Asset.objects.all().order_by('assetCategory','assetTavali')
+        for m in machines:
+            m_product=get_sum_production_by_code(m,moshakhase)
+            m_zayeat=get_sum_zayeat_by_code(m,moshakhase)
+            darsad=0
+
+            # Calculate percentage of zayeat relative to total production
+            if m_product['total_vazn'] is not None and m_zayeat['total_vazn'] is not None:
+                total = m_product['total_vazn'] + m_zayeat['total_vazn']
+                if total > 0:
+                    darsad = (m_zayeat['total_vazn'] / total) * 100
+                else:
+                    darsad = 0
+            else:
+                darsad = 0
+            m_zayeat['darsad'] = darsad
+            # darsad=product['total_vazn']/(zayeat['total_vazn']+product['total_vazn'])
+                
+            product.append({'machine':m,'product':m_product,'zayeat':m_zayeat,'code_nakh':moshakhase,'darsad':darsad})
+            if m_product['total_vazn'] is not None:
+                sum_tolid += m_product['total_vazn']
+            if m_zayeat['total_vazn'] is not None:
+                sum_zayeat += m_zayeat['total_vazn']
+    # Calculate overall percentage
+    overall_darsad = 0
+    if sum_tolid > 0 or sum_zayeat > 0:
+        total = sum_tolid + sum_zayeat
+        overall_darsad = (sum_zayeat / total) * 100
+
+    
+    return render(request,"mrp/zayeat_vazn/zayeat_code.html",{'product':product,'moshakhasat':moshakhasat,'selected_code':int(moshakhase_code),'sum':sum_tolid,'zayeat':sum_zayeat,'moshakhase':moshakhase,'overal_darsad':overall_darsad})
+         
