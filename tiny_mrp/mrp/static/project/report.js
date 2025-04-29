@@ -48,7 +48,7 @@ var draw_bar_daily_asset_production=function(start_dt){
                 var machineNamesRow = "<tr>";
 
                 $.each(data[0].machines, function(index, machine) {
-                    machineNamesRow+='<th>' + machine + '</th>';
+                    machineNamesRow+='<th >' + machine + '</th>';
                 });
                 machineNamesRow+='</tr>';
                 $("#productionTable thead").append(machineNamesRow);
@@ -56,7 +56,7 @@ var draw_bar_daily_asset_production=function(start_dt){
                 // Populate production values in the corresponding row
                 var productionValuesRow = "<tr>";
                 $.each(data[0].production_values, function(index, value) {
-                    productionValuesRow+='<td>' + value + '</td>';
+                    productionValuesRow+='<td >' + value + '</td>';
                 });
                 productionValuesRow+='</tr>';
                 $("#productionTable tbody").append(productionValuesRow);
@@ -124,8 +124,10 @@ var draw_bar_daily_asset_production=function(start_dt){
                     columnSums[i] += value;
                 });
                 
+                // Add font-weight-bold class to make text bold
+                
 
-                sumRow = '<tr class="bg-info">';
+                sumRow = '<tr class="font-weight-bold">';
                 columnSums.forEach((sum) => {
                     sumRow += `<td>${sum}</td>`;
                 });
@@ -152,7 +154,7 @@ var draw_bar_daily_asset_production=function(start_dt){
                     type: 'bar',
                     height:400
                 },
-                
+                colors: ['#333333', '#888888', '#CCCCCC'],
                 plotOptions: {
                     bar: {
                         horizontal: false,

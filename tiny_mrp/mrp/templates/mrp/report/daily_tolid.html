@@ -1,4 +1,27 @@
 {% extends 'mrp/blank-page.html' %}
+{% block stylesheet %}
+<style>
+    <style>
+.mytable {
+  table-layout: fixed;
+  width: 100% !important;
+}
+.mytable td, .mytable th {
+  width: 10px !important;  /* Reduced from 150px */
+  height: 50px !important;   /* Reduced from 75px */
+  max-width: 10px !important;
+  max-height: 50px !important;
+  min-width: 10px !important;
+  min-height: 50px !important;
+  padding: 4px !important;   /* Reduce padding to save space */
+  font-size: 12px !important; /* Smaller font if needed */
+  word-wrap: break-word;         /* Break long words if necessary */
+  white-space: normal !important;/* Allow text to wrap */
+  overflow-wrap: break-word;     /* Ensures text breaks properly */
+}
+</style>
+</style>
+{% endblock %}
 {% load static %}
 {% block content %}
 
@@ -83,7 +106,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
-                            <div class="table-responsive" style="overflow: hidden; outline: none;" tabindex="1">
+                            <div class="table-responsive mytable" style="overflow: hidden; outline: none;" tabindex="1">
                                 <table class="table table-striped" id="productionTable">
                                     <thead>
                                     <tr id="machineNames">
@@ -140,8 +163,7 @@
 
 {% endblock %}
 {% block javascript %}
-<!-- Chartjs -->
-<script src="{% static 'vendors/charts/chartjs/chart.min.js' %}"></script>
+
 <!-- Apex chart -->
 <script src="{% static 'vendors/charts/apex/apexcharts.min.js' %}"></script>
 
