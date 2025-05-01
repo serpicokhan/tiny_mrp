@@ -193,7 +193,7 @@ def view_overal_code_production(request):
     sum_tolid=0
     sum_zayeat=0
 
-
+    moshakhase=None
     if(moshakhase_code):
          
         moshakhase=EntryForm.objects.get(id=moshakhase_code)
@@ -219,7 +219,8 @@ def view_overal_code_production(request):
                 
             product.append({'machine':m,'product':m_product,'zayeat':m_zayeat,'code_nakh':moshakhase,'darsad':darsad})
             if m_product['total_vazn'] is not None:
-                sum_tolid += m_product['total_vazn']
+                if (m.assetCategory.id == 7):
+                    sum_tolid += m_product['total_vazn']  
             if m_zayeat['total_vazn'] is not None:
                 sum_zayeat += m_zayeat['total_vazn']
     # Calculate overall percentage

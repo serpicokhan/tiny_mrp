@@ -67,7 +67,7 @@
                             <td>{{i.code_nakh}}</td>
                             <td>{{i.machine}}</td>
 
-                            <td>{{i.product.total_vazn|default_if_none:'0'}}</td>
+                            <td>{{i.product.total_vazn|floatformat:0|default_if_none:'0'}}</td>
                             <td>{{i.zayeat.total_vazn|floatformat:0| default_if_none:'0'}}</td>
                             <td>{{i.zayeat.darsad|floatformat:0| default_if_none:'0'}}</td>
                            </tr>
