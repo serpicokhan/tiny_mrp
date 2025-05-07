@@ -239,6 +239,18 @@
 
         </a>
       </li>
+  {% if perms.mrp.can_view_pb %}
+
+      <li>
+        <a href="{% url 'list_pboard' %}" target="_blank">
+          <span>تابلو خرید</span>
+
+        
+
+        </a>
+      </li>
+      {% endif %}
+
 
    
       

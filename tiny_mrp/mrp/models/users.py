@@ -73,5 +73,7 @@ class SysUser(models.Model):
             ("can_edit_rfq","user can edit rfq"),
             ("can_view_rfq","user can view rfq"),
             ("can_operate_guard","user can operate gaurd"),
+            ("can_view_pb","user can view planning board"),
+
 
         ]

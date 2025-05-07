@@ -19,7 +19,11 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 def list_pboard(request):
-    items=RequestItem.objects.filter(purchase_request__status="Purchased",price=0,supplied_quantity=0 )
+    items = RequestItem.objects.filter(
+    purchase_request__status="Purchased",
+    price=0,
+    supplied_quantity=0
+).select_related('purchase_request').order_by('-id')
     return render(request,'mrp/purchase_planningboard/list.html',{"items":items})
 
 
