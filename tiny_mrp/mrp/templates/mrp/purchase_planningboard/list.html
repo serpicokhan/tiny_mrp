@@ -30,8 +30,8 @@
                     <th>کالا</th>
                     <th>تعداد</th>
                     <th>تامین کننده</th>
-                    {% comment %} <th>Supplied Quantity</th>
-                    <th>Price</th> {% endcomment %}
+                   <th>تعداد تامین شده</th>
+                   {% comment %}<th>Price</th> {% endcomment %}
                     <th>عملیات</th>
                 </tr>
                 <tr>
@@ -42,8 +42,8 @@
                     <th><input type="text" class="form-control form-control-sm column-search" placeholder="جستجو آیتم"></th>
                     <th><input type="text" class="form-control form-control-sm column-search" placeholder="تعداد"></th>
                     <th><input type="text" class="form-control form-control-sm column-search" placeholder="جستجو تامین کننده"></th>
-                    {% comment %} <th></th>
-                    <th></th> {% endcomment %}
+                     <th></th>
+                     {% comment %} <th></th> {% endcomment %}
                     <th></th>
                 </tr>
             </thead>
@@ -57,9 +57,9 @@
                     <td>{{ i.consume_place.assetName }}</td>
                     <td>{{ i.item_name.partName }}</td>
                     <td>{{ i.quantity }}</td>
-                    <td><input type="text" class="form-control supplier-autocomplete" data-id='' placeholder="تامین کننده"></td>
-                    {% comment %} <td><input type="number" class="form-control supplied-qty" placeholder="Enter Qty" min="1" max="10" disabled></td>
-                    <td><input type="number" class="form-control item-price" placeholder="Enter Price" step="0.01" disabled></td> {% endcomment %}
+                    <td><input type="text" class="form-control supplier-autocomplete" data-id='' value="" >{{ i.supplier_assigned }}</td>
+                    <td><input type="number" class="form-control supplied-qty" value="{{ i.supplied_quantity }}" min="1" max="10" disabled></td>
+                 
                     <td><button class="btn btn-primary btn-sm assign-btn" disabled>انتصاب</button></td>
                 </tr>
                 {% endfor %}

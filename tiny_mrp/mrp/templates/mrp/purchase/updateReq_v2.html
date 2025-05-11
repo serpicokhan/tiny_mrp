@@ -36,7 +36,10 @@
             {% endif %}
             <a href="#" class="btn btn-outline-light ml-2 "  data-toggle="tooltip" id="saveButton"
             title="save">
-             <i data-feather="save"></i>
+             <i data-feather="save"></i> 
+             <a href="#" class="btn btn-outline-light ml-2 "  data-toggle="tooltip" id="printBtn" data-id="{% url 'purchase_request_detail_print' company.id %}"
+            title="چاپ">
+             <i data-feather="printer"></i>
          </a>
         
          {% if request.user|in_group:"anbar" %}

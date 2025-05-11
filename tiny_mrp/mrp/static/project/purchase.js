@@ -361,7 +361,19 @@ $(document).ready(function() {
         });
         console.log(params);
     }
+    $(document).on("click", '#printBtn', function () {
+        // Assuming the pk is stored in a data attribute on the button, e.g., data-pk="123"
+        var pk = $(this).attr('data-id');
+        
+        // Construct the URL for the purchase_request_detail view
+        var url = pk;
+        
+        // Open a new window with the constructed URL
+        window.open(url, '_blank');
+    });
+
     $(document).on("click",'#saveButton', function () {
+
         let requestData = [];
         let valid = true;  // Flag to check if all fields are valid
         let errorMessage = '';

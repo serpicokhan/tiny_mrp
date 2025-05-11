@@ -1258,3 +1258,20 @@ def send_purchase_wtf_msg(request):
         headers = {}
         response = rqt.request("POST", url, headers=headers, data=payload, files=files2)
     return JsonResponse({"status":"ok"})
+def purchase_request_detail_print(request, pk):
+    """
+    View to display the details of a specific PurchaseRequest.
+    """
+    # Retrieve the PurchaseRequest or return 404 if not found
+    purchase_request = get_object_or_404(PurchaseRequest, pk=pk)
+    
+    # Optionally, add the current user to the viewed_by list
+    # purchase_request.add_viewer(request.user.username)
+    
+    # Context to pass to the template
+    context = {
+        'purchase_request': purchase_request,
+    }
+    
+    # Render the template with the context
+    return render(request, 'mrp/purchase/print.html', context)

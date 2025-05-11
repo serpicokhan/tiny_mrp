@@ -139,6 +139,7 @@ urlpatterns = [
     url(r'^Purchases/PB/save-suppliers$', save_suppliers_pb, name='save_suppliers_pb'),
 
     url(r'^Purchases/LoadMore/$', load_more_purchaserequest, name='load_more_purchaserequest'),
+    path('/Purchases/Print/<int:pk>/', purchase_request_detail_print, name='purchase_request_detail_print'),
 
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
     url(r'^Supplier/GetSuplier$', wo_getSuppliers, name='wo_getSuppliers'),

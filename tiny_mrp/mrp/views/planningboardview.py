@@ -16,19 +16,18 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.views.decorators.csrf import csrf_exempt
-
+from django.db.models import F
 
 def list_pboard(request):
     items = RequestItem.objects.filter(
-    purchase_request__status="Purchased",
-    price=0,
-    supplied_quantity=0
+    purchase_request__status__in=("Purchased","Ordered"),
+    # price=0,
+    supplied_quantity__lt=F('quantity'),purchase_request__id=1128
 ).select_related('purchase_request').order_by('-id')
     return render(request,'mrp/purchase_planningboard/list.html',{"items":items})
 
 
 @csrf_exempt  # Disable CSRF for testing purposes; ensure proper CSRF handling in production
-
 def save_suppliers_pb(request):
     if request.method == 'POST':
     #     data = json.loads(request.body)
@@ -77,7 +76,7 @@ def save_suppliers_pb(request):
                 # )
                 request_item=RequestItem.objects.get(id=item_id)
                 request_item.supplier_assigned=supplier
-                request_item.supplied_quantity=quantity
+                request_item.supplied_quantity+=float(quantity)
                 request_item.price=price
                 request_item.save()
 
