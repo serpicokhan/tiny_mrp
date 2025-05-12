@@ -22,7 +22,7 @@ def list_pboard(request):
     items = RequestItem.objects.filter(
     purchase_request__status__in=("Purchased","Ordered"),
     # price=0,
-    supplied_quantity__lt=F('quantity'),purchase_request__id=1128
+    supplied_quantity__lt=F('quantity')
 ).select_related('purchase_request').order_by('-id')
     return render(request,'mrp/purchase_planningboard/list.html',{"items":items})
 
