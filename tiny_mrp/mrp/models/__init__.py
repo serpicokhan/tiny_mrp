@@ -8,4 +8,5 @@ from mrp.models.part import *
 from mrp.models.purchase import *
 
 from mrp.models.mrp import *
+from mrp.models.moshakhase import *
 
