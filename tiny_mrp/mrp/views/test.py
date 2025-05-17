@@ -503,6 +503,7 @@ def show_daily_amar_tolid(request):
             asset_types=get_asset_count(m.assetCategory)
             shift_val=[]
             sum=0
+            sum_zayeat=0
 
             max_speed=1
             sum_cat=0
@@ -513,6 +514,7 @@ def show_daily_amar_tolid(request):
                     # total_production2 = amar.aggregate(Sum('production_value'))['production_value__sum'] or 0
                         shift_val.append({'value':amar[0].production_value,'shift':i})
                         sum+=amar[0].production_value
+                        sum_zayeat+=amar[0].zayeat
                         max_speed=amar[0].eval_max_tolid()
                     else:
                         shift_val.append({'value':0,'shift':i})
@@ -528,10 +530,10 @@ def show_daily_amar_tolid(request):
                 # print(f"{sum}/{max_speed}*{shifts.count()}")
                 mx_speed=(sum/(max_speed*shifts.count()))*100
             if(m.id in (1,2,11)):
-                 machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
+                 machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'zayeat':"{:.2f}".format(sum_zayeat),'max_speed':"{:.2f} %".format(mx_speed)})
 
             else:
-                machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
+                machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'zayeat':"{:.2f}".format(sum_zayeat),'max_speed':"{:.2f} %".format(mx_speed)})
 
             if(index<len(machines)):
                 sum_randeman+=mx_speed
@@ -545,7 +547,7 @@ def show_daily_amar_tolid(request):
                     for i in shifts:
                         x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
 
-                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'zayeat':"{:.2f}".format(get_sum_machin_zayeat_by_cat(m,q)),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
                     sum_randeman=0
             except:
 
@@ -554,7 +556,7 @@ def show_daily_amar_tolid(request):
                     x=[]
                     for i in shifts:
                         x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
-                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                    machines_with_amar.append({'machine':"جمع {} ها".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'zayeat':"{:.2f}".format(get_sum_machin_zayeat_by_cat(m,q)),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
                     sum_randeman=0
 
                 pass
@@ -712,7 +714,7 @@ def show_daily_amar_tolid_brief(request):
             if(max_speed>0):
                 mx_speed=(sum/max_speed)*100
             if(m.id in (1,2,11)):
-                 machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
+                 machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed),'zayeat':"{:.2f}".format(get_sum_machin_zayeat_by_cat(m,q))})
 
             # else:
             #     machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
@@ -729,7 +731,7 @@ def show_daily_amar_tolid_brief(request):
                     for i in shifts:
                         x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
 
-                    machines_with_amar.append({'machine':"{}".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                    machines_with_amar.append({'machine':"{}".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100),'zayeat':"{:.2f}".format(get_sum_machin_zayeat_by_cat(m,q))})
                     sum_randeman=0
             except:
 
@@ -738,7 +740,7 @@ def show_daily_amar_tolid_brief(request):
                     x=[]
                     for i in shifts:
                         x.append({'value':get_sum_machine_by_date_shift(m.assetCategory,i,q),'shift':i})
-                    machines_with_amar.append({'machine':"{}".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100)})
+                    machines_with_amar.append({'machine':"{}".format(m.assetCategory) ,'css':'font-weight-bold','shift_amar':x,'sum':get_sum_machin_product_by_cat(m,q),'max_speed':"{:.2f} %".format((get_sum__speed_machine_by_category(m.assetCategory,q))*100),'zayeat':"{:.2f}".format(get_sum_machin_zayeat_by_cat(m,q))})
                     sum_randeman=0
 
                 pass

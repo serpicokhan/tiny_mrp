@@ -73,6 +73,7 @@
                            
 
                             <th>جمع </th>
+                            <th>ضایعات</th>
                             <th>راندمان کل</th> 
                         </tr>
                         </thead>
@@ -82,6 +83,8 @@
                             <td class="{{i.css}}">{{i.machine}}</td>
                            
                             <td class="{{i.css}}">{{i.sum|floatformat:0}}</td>
+                            <td class="{{i.css}}">{{i.zayeat|floatformat:0}}</td>
+
                              <td class="{{i.css}}">{{i.max_speed}}</td> 
                         </tr>
 
@@ -96,6 +99,7 @@
                           {% endfor %} -->
 
                           <th>جمع </th>
+                          <th>ضایعات</th>
                           <th>راندمان کل</th> 
                         </tr>
                         </tfoot>
