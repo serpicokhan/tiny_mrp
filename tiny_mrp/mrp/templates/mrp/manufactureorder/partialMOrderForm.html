@@ -1,16 +1,21 @@
 {% load widget_tweaks %}
+<input type="hidden" name="status" value="draft">
 
+<div class="mb-4">
+    <label for="referenceInput" class="form-label">Reference *</label>
+    <input type="text" class="form-control" id="referenceInput" name="reference" maxlength="50" required placeholder="Enter unique reference">
+</div>
     <div class="row mb-4">
         <div class="col-md-6">
             <label for="productSelect" class="form-label">Product to Manufacture *</label>
-            <select class="form-control" id="productSelect" required>
+            <select class="form-control" id="productSelect" required name="product_to_manufacture">
                 <option value="" selected disabled>Select a product</option>
                 <!-- Options will be loaded from JSON -->
             </select>
         </div>
         <div class="col-md-6">
             <label for="bomSelect" class="form-label">Bill of Materials *</label>
-            <select class="form-control" id="bomSelect" required>
+            <select class="form-control" id="bomSelect" required name="bom">
                 <option value="" selected disabled>Select a BOM</option>
                 <!-- Options will be loaded from JSON -->
             </select>
@@ -21,25 +26,25 @@
             <label for="quantityInput" class="form-label">Quantity *</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-calculator"></i></span>
-                <input type="number" class="form-control" id="quantityInput" min="0.1" step="0.1" value="1.0" required>
+                <input type="number" class="form-control" id="quantityInput" min="0.1" step="0.1" value="1.0" required name="quantity_to_produce">
             </div>
         </div>
     </div>
     <div class="row mb-4">
         <div class="col-md-4">
             <label for="dateInput" class="form-label">Scheduled Date *</label>
-            <input type="datetime-local" class="form-control" id="dateInput" required>
+            <input type="datetime-local" class="form-control" id="dateInput" required name="scheduled_date">
         </div>
         <div class="col-md-4">
             <label for="customerSelect" class="form-label">Customer</label>
-            <select class="form-control" id="customerSelect">
+            <select class="form-control" id="customerSelect" name="customer">
                 <option value="" selected>No customer</option>
                 <!-- Options will be loaded from JSON -->
             </select>
         </div>
         <div class="col-md-4">
             <label for="responsibleSelect" class="form-label">Responsible</label>
-            <select class="form-control" id="responsibleSelect">
+            <select class="form-control" id="responsibleSelect" name="responsible">
                 <option value="" selected>No responsible</option>
                 <!-- Options will be loaded from JSON -->
             </select>
@@ -109,5 +114,7 @@
 
     <div class="mt-4">
         <label for="notesTextarea" class="form-label">Notes</label>
-        <textarea class="form-control" id="notesTextarea" rows="4"></textarea>
+        <textarea class="form-control" id="notesTextarea" rows="4" name="notes"></textarea>
     </div>
+
+  

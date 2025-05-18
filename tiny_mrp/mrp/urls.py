@@ -163,7 +163,11 @@ urlpatterns = [
     url(r'^MOrder/$', manufacture_order_list, name='manufacture_order_list'),
     url(r'^MOrder/Create$', create_morder, name='create_morder'),
     url(r'^MOrder/Detail$', manufacture_order_detail, name='manufacture_order_detail'),
+    path('api/responsible-persons/', get_responsible_persons, name='get_responsible_persons'),
+    path('api/customers/', get_customers, name='get_customers'),
     path('api/MOrder/', manufacturing_orders_api, name='manufacturing_orders_api'),
+    path('Morder/Calendar/', manufacture_order_calendar, name='manufacture_order_calendar'),
+
     url(r'^Workcenter/$', workcenter_list, name='workcenter_list'),
     url(r'^Workcenter/Create$', create_workcenter, name='create_workcenter'),
     path('api/workcenter/', WorkcenterListView.as_view(), name='workcenter-list'),

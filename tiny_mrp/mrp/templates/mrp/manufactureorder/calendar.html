@@ -1,0 +1,323 @@
+{% extends 'mrp/blank-page.html' %}
+{% load static %}
+
+{% block stylesheet %}
+ <link href="{% static 'assets/css/fullcalendar.min.css' %}" rel="stylesheet" type="text/css">
+ <style media="screen">
+   .fc-event {
+  direction: rtl;
+  text-align: right; /* Optional: Align text to the right */
+}
+ </style>
+{% endblock %}
+{% block content %}
+
+        
+
+         
+
+                <div class="row app-block">
+                    <div class="col-md-3 app-sidebar">
+                        <div class="card">
+                            <div class="card-body pb-0">
+                                <button class="btn btn-secondary btn-block" data-toggle="modal"
+                                    data-target="#createEventModal">
+                                    ساخت رویداد
+                                </button>
+                            </div>
+                            <div>
+                                <div class="card-body pb-3">
+                                    <h6 class="mb-0">رویدادها</h6>
+                                    <p class="small text-muted mb-0">رویداد را بکشید و در محل مورد نظر رها کنید</p>
+                                </div>
+                                <div>
+                                    <div class="list-group list-group-flush" id="external-events">
+                                        <div class="list-group-item fc-event">
+                                            <i class="fa fa-circle text-success" data-icon="car"></i> تعطیلات
+                                        </div>
+                                        <div class="list-group-item fc-event">
+                                            <i class="fa fa-circle text-danger" data-icon="users"></i> سفر
+                                        </div>
+                                        <div class="list-group-item fc-event">
+                                            <i class="fa fa-circle text-info" data-icon="coffee"></i> دوستان
+                                        </div>
+                                        <div class="list-group-item fc-event">
+                                            <i class="fa fa-circle text-warning" data-icon="diamond"></i> شرکت
+                                        </div>
+                                        <div class="list-group-item fc-event">
+                                            <i class="fa fa-circle text-primary" data-icon="glass"></i> تیم
+                                        </div>
+                                        <div class="list-group-item fc-event">
+                                            <i class="fa fa-circle text-secondary" data-icon="glass"></i> خانواده
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="drop-remove" checked="">
+                                        <label class="custom-control-label" for="drop-remove">حذف بعد از انداختن</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9 app-content">
+                        <div class="app-content-overlay"></div>
+                        <div class="card app-content-body">
+                            <div class="card-body">
+                                <a href="#" class="app-sidebar-menu-button btn btn-outline-light mb-3">
+                                    <i data-feather="menu"></i>
+                                </a>
+                                <div id="calendar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+           
+
+            <!-- begin::ساخت رویداد Modal -->
+            <div class="modal fade" id="createEventModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">ساخت رویداد</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <i class="ti-close"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form autocomplete="off">
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">عنوان</label>
+                                    <div class="col-sm-9">
+                                        <input id="event-title" type="text" class="form-control" placeholder="عنوان">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">نوع رویداد</label>
+                                    <div class="col-sm-9">
+                                        <div class="mt-2" id="event-type">
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="customRadioInline1" name="customRadioInline1"
+                                                    class="custom-control-input">
+                                                <label class="custom-control-label" for="customRadioInline1">وقت تعيين
+                                                    شده</label>
+                                            </div>
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="customRadioInline2" name="customRadioInline1"
+                                                    class="custom-control-input">
+                                                <label class="custom-control-label"
+                                                    for="customRadioInline2">ملاقات</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row row-sm">
+                                    <label class="col-sm-3 col-form-label">شروع</label>
+                                    <div class="col-sm-5">
+                                        <input id="input1" type="text" class="form-control create-event-datepicker"
+                                            placeholder="تاریخ">
+                                        <span id="span1"></span>
+                                    </div>
+
+                                    <!-- <input type="text" id="input1" /> -->
+
+
+
+                                    <div class="col-sm-4">
+                                        <input id="event-start-time" type="text" class="form-control create-event-demo"
+                                            placeholder="زمان">
+                                    </div>
+                                </div>
+                                <div class="form-group row row-sm">
+                                    <label class="col-sm-3 col-form-label">پایان</label>
+                                    <div class="col-sm-5">
+                                        <input id="input2" type="text" class="form-control create-event-datepicker"
+                                            placeholder="تاریخ">
+                                        <span id="span2"></span>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <input id="event-end-time" type="text" class="form-control create-event-demo"
+                                            placeholder="زمان">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">شرکت‌کنندگان</label>
+                                    <div class="col-sm-9">
+                                        <div class="avatar-group">
+                                            <figure class="avatar avatar-sm">
+                                                <span class="avatar-title bg-success rounded-circle">ک</span>
+                                            </figure>
+                                            <figure class="avatar avatar-sm">
+                                                <span class="avatar-title bg-danger rounded-circle">س</span>
+                                            </figure>
+                                            <figure class="avatar avatar-sm">
+                                                <span class="avatar-title bg-primary rounded-circle">س</span>
+                                            </figure>
+                                            <figure class="avatar avatar-sm">
+                                                <img src="assets/media/image/user/women_avatar3.jpg"
+                                                    class="rounded-circle" alt="image">
+                                            </figure>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-light btn-sm btn-floating">
+                                            <i class="ti-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">توضیحات</label>
+                                    <div class="col-sm-9">
+                                        <textarea id="event-desc" class="form-control" rows="6"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-3"></label>
+                                    <div class="col-sm-9">
+                                        <button type="submit" id="btn-save" class="btn btn-primary">ساخت</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end::ساخت رویداد Modal -->
+
+            <!-- begin::Event Info Modal -->
+            <div class="modal fade" id="viewEventModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <span class="event-icon mr-2"></span>
+                                <span class="event-title">Modal Title</span>
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <i class="ti-close"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="event-body"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end::Event Info Modal -->
+
+            <!-- begin::footer -->
+            <footer>
+                <div class="container-fluid">
+                    <div>© 1400 | قالب مدیریت بورداش ورژن 1.0.0 ارایه از <a href="">AFARIDTEAM</a></div>
+
+                    <div>
+                        <nav class="nav">
+                            <a href="https://www.rtl-theme.com/standard/" class="nav-link">لیسانس</a>
+                            <a href="#" class="nav-link">تغییر لاگ</a>
+                            <a href="#" class="nav-link">راهنمایی</a>
+                        </nav>
+                    </div>
+                </div>
+            </footer>
+            <!-- end::footer -->
+{% endblock %}
+
+{% load static %}
+
+{% block javascript %}
+<script src="{% static 'assets/Cal/cal/js/fullcalendar.min.js' %}"></script>
+<script src="{% static 'assets/Cal/cal/js/fullcalendar.morder.init.js' %}"></script>
+    <!-- App scripts -->
+   
+    <script>
+        $(function () {
+            $(document).on('click', '.app-block .app-content .app-action .action-left input[type="checkbox"]',
+                function () {
+                    $('.app-lists ul li input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+                    if ($(this).prop('checked')) {
+                        $('.app-lists ul li input[type="checkbox"]').closest('li').addClass('active');
+                    } else {
+                        $('.app-lists ul li input[type="checkbox"]').closest('li').removeClass('active');
+                    }
+                });
+
+            $(document).on('click', '.app-lists ul li input[type="checkbox"]', function () {
+                if ($(this).prop('checked')) {
+                    $(this).closest('li').addClass('active');
+                } else {
+                    $(this).closest('li').removeClass('active');
+                }
+            });
+
+            $(document).on('click',
+                '.app-block .app-content .app-content-body .app-lists ul.list-group li.list-group-item',
+                function (e) {
+                    if (!$(e.target).is('.custom-control, .custom-control *, a, a *')) {
+                        $('.app-detail').addClass('show').one(
+                            'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend',
+                            function () {
+                                $('.app-block .app-content .app-content-body .app-detail .app-detail-article')
+                                    .niceScroll().resize();
+                            });
+                    }
+                });
+
+            $(document).on('click', 'a.app-detail-close-button', function () {
+                $('.app-detail').removeClass('show');
+                return false;
+            });
+
+            $(document).on('click', '.app-sidebar-menu-button', function () {
+                $('.app-block .app-sidebar, .app-content-overlay').addClass('show');
+                // $('.app-block .app-sidebar .app-sidebar-menu').niceScroll().resize();
+                return false;
+            });
+
+            $(document).on('click', '.app-content-overlay', function () {
+                $('.app-block .app-sidebar, .app-content-overlay').removeClass('show');
+                return false;
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#input1, #span1", "#input2", "#span2").persianDatepicker();
+        });
+        $("#input1,#input2").persianDatepicker({
+            months: ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی",
+                "بهمن", "اسفند"
+            ],
+            dowTitle: ["شنبه", "یکشنبه", "دوشنبه", "سه شنبه", "چهارشنبه", "پنج شنبه", "جمعه"],
+            shortDowTitle: ["ش", "ی", "د", "س", "چ", "پ", "ج"],
+            showGregorianDate: !1,
+            persianNumbers: !0,
+            formatDate: "YYYY/MM/DD",
+            selectedBefore: !1,
+            selectedDate: null,
+            startDate: null,
+            endDate: null,
+            prevArrow: '\u25c4',
+            nextArrow: '\u25ba',
+            theme: 'default',
+            alwaysShow: !1,
+            selectableYears: null,
+            selectableMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            cellWidth: 25, // by px
+            cellHeight: 20, // by px
+            fontSize: 13, // by px                
+            isRTL: !1,
+            format: 'YYYY/MM/DD',
+
+
+            calendarPosition: {
+                x: 0,
+                y: 0,
+            },
+            onShow: function () {},
+            onHide: function () {},
+            onSelect: function () {},
+            onRender: function () {}
+        });
+    </script>
+
+{% endblock %}

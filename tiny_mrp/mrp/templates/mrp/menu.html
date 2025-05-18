@@ -63,7 +63,7 @@
       {% if request.user.is_superuser%}
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="تنظیمات" data-nav-target="#apps">
-          <i data-feather="command"></i>
+          <i data-feather="tool"></i>
         </a>
       </li>
       {% endif %}
@@ -96,6 +96,11 @@
         </a>
       </li>
       {% endif %}
+      <li>
+        <a href="#" data-toggle="tooltip" data-placement="right" title="سفارش تولید" data-nav-target="#apps6">
+          <i data-feather="command"></i>
+        </a>
+      </li>
 
   </ul>
 </div>
@@ -323,6 +328,35 @@
     
   </div>
   {% endif %}
+  
+  <div id="apps6">
+    <ul>
+      <li class="navigation-divider">سفارش تولید</li>
+      <li>
+        <a href="{% url 'product_list' %}">
+          <span>محصول</span>
+  
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'manufacture_order_list' %}">
+          <span>سفارش ساخت</span>
+  
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'bom_list' %}">
+          <span>BOM</span>
+  
+        </a>
+      </li>
+      
+
+   
+      
+
+    </ul>
+  </div>
 
 </div>
 </div>

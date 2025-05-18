@@ -57,11 +57,11 @@ const responsibles = [
     { id: 4, name: "Sarah Williams" }
 ];
 
-const customers = [
-    { id: 1, name: "Acme Corp" },
-    { id: 2, name: "Beta Industries" },
-    { id: 3, name: "Gamma Retail" },
-    { id: 4, name: "Delta Enterprises" }
+customers = [
+    // { id: 1, name: "Acme Corp" },
+    // { id: 2, name: "Beta Industries" },
+    // { id: 3, name: "Gamma Retail" },
+    // { id: 4, name: "Delta Enterprises" }
 ];
 
 const workCenters = [
@@ -79,6 +79,7 @@ let componentChart = null;
     load_morders();
     loadProducts();
     load_boms();
+    loadCustomers();
 
    
     
@@ -481,6 +482,32 @@ function loadProducts() {
     });
 
 }
+function loadCustomers() {
+    $.ajax({
+        url: '/api/customers/',  // Your Django endpoint
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            // Process the response data (similar to your mockProducts)
+            // console.log('Received products:', response);
+            // Example: Display products in a table
+            
+            
+            if (response.length > 0) {
+                customers=response;
+                
+               
+                
+            } else {
+               
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching products:', error);
+        }
+    });
+
+}
 function loadProductOptions() {
     const select = $('#productSelect');
     select.empty();
@@ -506,12 +533,24 @@ function loadCustomerOptions() {
 
 // Function to load responsible options
 function loadResponsibleOptions() {
-    const select = $('#responsibleSelect');
-    select.empty();
-    select.append('<option value="" selected>No responsible</option>');
-    
-    responsibles.forEach(responsible => {
-        select.append(`<option value="${responsible.id}">${responsible.name}</option>`);
+    $.ajax({
+        url: '/api/responsible-persons/',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            var $responsibleSelect = $('#responsibleSelect');
+            $responsibleSelect.empty();
+            $responsibleSelect.append('<option value="" selected>No responsible</option>');
+            
+            $.each(data.responsible_persons, function(index, person) {
+                $responsibleSelect.append(
+                    $('<option>').val(person.id).text(person.fullName)
+                );
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching responsible persons:', error);
+        }
     });
 }
 
@@ -797,5 +836,38 @@ var loadForm =function (btn1) {
 
 
 };
+var saveForm= function () {
+    var form = $(this);
+
+    console.log(form);
+    
+    $.ajax({
+      url: form.attr("action"),
+      data: form.serialize(),
+      type: form.attr("method"),
+      dataType: 'json',
+      beforeSend:function(){
+        console.log(form.serialize());
+      },
+      success: function (data) {
+        console.log(data);
+
+        if (data.form_is_valid) {
+          $("#newOrderModal").modal("hide");
+          load_morders();
+            
+        }
+        else {
+            
+          $("#company-table tbody").html(data.html_assetFailure_list);
+          $("#modal-company .modal-content").html(data.html_assetFailure_form);
+        }
+      }
+    });
+    return false;
+  };
+
 $("#createNewMorder").click(loadForm);
+$("#newOrderModal").on("submit", ".js-morder-create-form", saveForm);
+
 });

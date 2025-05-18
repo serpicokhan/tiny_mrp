@@ -20,9 +20,19 @@ from django.core.exceptions import ValidationError
 from mrp.models import ManufacturingOrder
 from mrp.forms import ManufacturingOrderForm
 from django.views.decorators.http import require_GET
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from rest_framework.response import Response
+from mrp.serializers import CustomerSerializer
+from rest_framework.decorators import api_view
 
 def manufacture_order_list(request):
-    return render(request,"mrp/manufactureorder/mOrderList.html",{})
+    resposibles=SysUser.objects.all()
+    return render(request,"mrp/manufactureorder/mOrderList.html",{'resposible':resposibles})
+
+def manufacture_order_calendar(request):
+    
+    return render(request,"mrp/manufactureorder/calendar.html",{})
 def manufacture_order_detail(request):
     return render(request,"mrp/manufactureorder/dgrok2.html",{})
 
@@ -56,20 +66,77 @@ def create_morder(request):
         return save_morder_form(request, form, 'mrp/manufactureorder/partialMOrderCreate.html')
 @require_GET
 def manufacturing_orders_api(request):
-    manufacturing_orders = [
-        {
-            'id': 1,
-            'reference': 'MO/2023/0001',
-            'product': {'id': 1, 'name': 'Office Desk', 'code': 'OD-1001', 'image': '/media/products/office-desk.jpg'},
-            'quantity': 10.0,
-            'bom': 'BOM-OD-1001',
-            'workOrders': [{'id': 'WO-2023-001', 'workCenter': 'Assembly Line 1', 'duration': 2.5, 'description': 'Assemble desk frame'}],
-            'status': 'draft',
-            'scheduledDate': '2023-06-15',
-            'customer': {'id': 1, 'name': 'Acme Corp'},
-            'responsible': {'id': 1, 'name': 'John Doe'},
-            'notes': 'Urgent order for client XYZ'
-        },
-        # Add the rest of the manufacturing orders here (or fetch from a model)
-    ]
-    return JsonResponse({'manufacturingOrders': manufacturing_orders})
+    try:
+        # Fetch all manufacturing orders with related data
+        manufacturing_orders = ManufacturingOrder.objects.select_related(
+            'product_to_manufacture', 'bom', 'customer', 'responsible', 'work_order_template'
+        ).prefetch_related('work_orders').all()
+
+        # Serialize the data
+        orders_data = []
+        for order in manufacturing_orders:
+            order_data = {
+                'id': order.id,
+                'reference': order.reference,
+                'product': {
+                    'id': order.product_to_manufacture.id,
+                    'name': order.product_to_manufacture.name,
+                    'code': order.product_to_manufacture.code,
+                    'image': None,  # Product model has no image field
+                } if order.product_to_manufacture else None,
+                'quantity': float(order.quantity_to_produce),
+                'bom': order.bom.reference if order.bom else None,
+                'workOrders': [
+                    {
+                        'id': wo.id,
+                        'workCenter': wo.work_center.name if wo.work_center else None,
+                        'duration': float(wo.duration) if wo.duration else None,
+                        'description': wo.operation.instructions if wo.operation and wo.operation.instructions else None
+                    } for wo in order.work_orders.all()
+                ],
+                'status': order.status,
+                'scheduledDate': order.scheduled_date.strftime('%Y-%m-%d'),
+                'customer': {
+                    'id': order.customer.id,
+                    'name': order.customer.name
+                } if order.customer else None,
+                'responsible': {
+                    'id': order.responsible.id,
+                    'name': order.responsible.fullName  # Adjust if SysUser has a different field (e.g., full_name)
+                } if order.responsible else None,
+                'notes': order.notes
+            }
+            orders_data.append(order_data)
+
+        return JsonResponse({'manufacturingOrders': orders_data})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+@require_GET
+def get_responsible_persons(request):
+    try:
+        group = Group.objects.get(name='managers')
+        print(group,'!!!!!!!!!!!')
+        # Get users in the specified group
+        user_ids = get_user_model().objects.filter(groups=group).values_list('id', flat=True)
+        persons = SysUser.objects.filter(userId__in=user_ids).values('id', 'fullName')
+        print(persons)
+
+        return JsonResponse({
+            'responsible_persons': list(persons)
+        })
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=500)
+    
+@api_view(('GET',))
+def get_customers(request):
+    try:
+        customers = Customer.objects.all()
+        serializer = CustomerSerializer(customers, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=500)

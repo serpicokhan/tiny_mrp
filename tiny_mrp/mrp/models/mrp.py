@@ -232,6 +232,12 @@ class ManufacturingOrder(models.Model):
         null=True,
         blank=True
     )
+    customer = models.ForeignKey(
+        'Customer',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     notes=models.TextField(null=True,blank=True)
@@ -306,3 +312,26 @@ class WorkOrder(models.Model):
 
     def __str__(self):
         return f"WO for {self.manufacturing_order.reference} - {self.work_center}"
+    
+class Customer(models.Model):
+    """Model representing a customer in the MRP system."""
+
+    name = models.CharField(
+        max_length=100,
+        help_text="Full name or company name of the customer"
+    )
+    email = models.EmailField(
+        null=True,
+        blank=True,
+        help_text="Customer's contact email"
+    )
+
+
+    class Meta:
+        ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'email'], name='unique_customer_name_email')
+        ]
+
+    def __str__(self):
+        return f"{self.name} - {self.name}"
