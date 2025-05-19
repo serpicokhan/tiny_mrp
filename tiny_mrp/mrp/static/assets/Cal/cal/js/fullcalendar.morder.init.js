@@ -12,11 +12,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   new Draggable(containerEl, {
       itemSelector: '.fc-event',
-      eventData: function (eventEl) {
-          return {
-              title: eventEl.innerText
-          };
-      }
+    //   eventData: function (eventEl) {
+    //       return {
+    //           title: ''
+    //       };
+    //   }
   });
 
   // initialize the calendar
@@ -34,26 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
       editable: true,
       locale: 'fa',
       events: [
-          {
-              title: 'ناهار کسب و کار',
-              start: '2021-01-03T13:00:00',
-              constraint: 'businessHours'
-          },
-          {
-              title: 'ملاقات',
-              start: '2021-01-13T11:00:00',
-              constraint: 'availableForMeeting', // defined below
-              color: '#53c797'
-          },
-          {
-              title: 'کنفرانس',
-              start: '2021-01-18',
-              end: '2021-01-20'
-          },
-          {
-              title: 'مهمانی - جشن',
-              start: '2021-01-29T20:00:00'
-          },
+  
       ],
 
       customButtons: {
@@ -79,14 +60,54 @@ document.addEventListener('DOMContentLoaded', function () {
       
       editable: true,
       droppable: true, // this allows things to be dropped onto the calendar
-      drop: function (info) {
-          // is the "remove after drop" checkbox checked?
-          if (checkbox.checked) {
-              // if so, remove the element from the "Draggable Events" list
-              info.draggedEl.parentNode.removeChild(info.draggedEl);
-          }
-      }
-  });
 
-  calendar.render();
+
+    drop: function(info) {
+        // Get the dropped element's data
+        var quantity = parseFloat(info.draggedEl.getAttribute('data-quantity'));
+        var orderId = info.draggedEl.getAttribute('data-id');
+        var title = info.draggedEl.innerText;
+        var dropDate = info.date; // Date where the event was dropped
+
+        // Calculate days needed (ceiling division)
+        var daysNeeded = Math.ceil(quantity / dailyLimit);
+        
+        // Generate events for each day
+        for (var i = 0; i < daysNeeded; i++) {
+            var eventDate = new Date(dropDate);
+            eventDate.setDate(dropDate.getDate() + i); // Add i days
+            
+            // Calculate quantity for this day
+            var dayQuantity = (i < daysNeeded - 1) ? dailyLimit : 
+                             (quantity - (dailyLimit * (daysNeeded - 1)));
+            
+            calendar.addEvent({
+                title: `${title} - ${dayQuantity}kg`,
+                start: eventDate,
+                color: '#53c797',
+
+                
+                id: `${orderId}-${i}`,
+                extendedProps: {
+                    quantity: dayQuantity,
+                    orderId: orderId
+                },
+            });
+        }
+
+        // Remove the dragged element if checkbox is checked
+        if (checkbox.checked) {
+            info.draggedEl.parentNode.removeChild(info.draggedEl);
+        }
+    },
+    eventDrop: function(info) {
+        // Handle event drag within calendar
+        console.log('Event moved:', info.event);
+        
+        // Here you can add logic to update other related events if needed
+        // For example, if this is part of a multi-day order
+    }
+});
+
+calendar.render();
 });

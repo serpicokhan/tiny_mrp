@@ -27,12 +27,21 @@ from mrp.serializers import CustomerSerializer
 from rest_framework.decorators import api_view
 
 def manufacture_order_list(request):
-    resposibles=SysUser.objects.all()
-    return render(request,"mrp/manufactureorder/mOrderList.html",{'resposible':resposibles})
+    return render(request,"mrp/manufactureorder/mOrderList.html",{})
 
 def manufacture_order_calendar(request):
+    # morder=ManufacturingOrder.objects.all()
+    # print(morder)
+    morders = [
+        {"id": 1, "title": "Order 1", "quantity": 2000},
+        {"id": 2, "title": "Order 2", "quantity": 1000},
+    ]
+    context = {
+        "morder": morders,
+        "daily_limit": 500  # kg per day, pass to template for JS access
+    }
     
-    return render(request,"mrp/manufactureorder/calendar.html",{})
+    return render(request,"mrp/manufactureorder/calendar.html",context)
 def manufacture_order_detail(request):
     return render(request,"mrp/manufactureorder/dgrok2.html",{})
 

@@ -4,18 +4,19 @@ $(function () {
 
     var loadForm =function (btn1) {
      
-      
+      // alert("123");
       return $.ajax({
         url: $(this).attr("data-url"),
         type: 'get',
         dataType: 'json',
         beforeSend: function () {
-  
-          $("#modal-company").modal({backdrop: 'static', keyboard: false});
+          
+          $("#modal-company").modal("show");
   
         },
         success: function (data) {
-  
+          console.log(data);
+          
           $("#modal-company .modal-content").html(data.html_user_form);
           // var elem = document.querySelector('.js-switch');
           // var init = new Switchery(elem);

@@ -32,24 +32,12 @@
                                 </div>
                                 <div>
                                     <div class="list-group list-group-flush" id="external-events">
-                                        <div class="list-group-item fc-event">
-                                            <i class="fa fa-circle text-success" data-icon="car"></i> تعطیلات
+                                        {% for i in morder %}
+                                        <div class="list-group-item fc-event" data-quantity="{{ i.quantity }}" data-id="{{ i.id }}">
+                                            <i class="fa fa-circle text-success" data-icon="car"></i> {{ i.title }}
                                         </div>
-                                        <div class="list-group-item fc-event">
-                                            <i class="fa fa-circle text-danger" data-icon="users"></i> سفر
-                                        </div>
-                                        <div class="list-group-item fc-event">
-                                            <i class="fa fa-circle text-info" data-icon="coffee"></i> دوستان
-                                        </div>
-                                        <div class="list-group-item fc-event">
-                                            <i class="fa fa-circle text-warning" data-icon="diamond"></i> شرکت
-                                        </div>
-                                        <div class="list-group-item fc-event">
-                                            <i class="fa fa-circle text-primary" data-icon="glass"></i> تیم
-                                        </div>
-                                        <div class="list-group-item fc-event">
-                                            <i class="fa fa-circle text-secondary" data-icon="glass"></i> خانواده
-                                        </div>
+                                        {% endfor %}
+                                        
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -225,8 +213,14 @@
 {% load static %}
 
 {% block javascript %}
+<script>
+    var dailyLimit = {{ daily_limit }}; // Pass daily limit to JS
+    console.log(dailyLimit);
+    
+</script>
 <script src="{% static 'assets/Cal/cal/js/fullcalendar.min.js' %}"></script>
 <script src="{% static 'assets/Cal/cal/js/fullcalendar.morder.init.js' %}"></script>
+
     <!-- App scripts -->
    
     <script>
@@ -279,6 +273,7 @@
             });
         });
     </script>
+
     <script type="text/javascript">
         $(function () {
             $("#input1, #span1", "#input2", "#span2").persianDatepicker();
