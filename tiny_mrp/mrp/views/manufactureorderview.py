@@ -30,18 +30,29 @@ def manufacture_order_list(request):
     return render(request,"mrp/manufactureorder/mOrderList.html",{})
 
 def manufacture_order_calendar(request):
-    # morder=ManufacturingOrder.objects.all()
-    # print(morder)
     morders = [
-        {"id": 1, "title": "Order 1", "quantity": 2000},
-        {"id": 2, "title": "Order 2", "quantity": 1000},
+        {"id": 1, "title": "Order 1", "quantity": 2000, "type": "order"},
+        {"id": 2, "title": "Order 2", "quantity": 1000, "type": "order"},
     ]
-    context = {
-        "morder": morders,
-        "daily_limit": 500  # kg per day, pass to template for JS access
-    }
+    # Vacations
+    vacations = [
+        {"id": "v1", "title": "Team Vacation", "type": "vacation"},
+        {"id": "v2", "title": "Manager Vacation", "type": "vacation"},
+    ]
+    # Off days
+    offdays = [
+        {"id": "o1", "title": "National Holiday", "type": "offday"},
+        {"id": "o2", "title": "Maintenance Day", "type": "offday"},
+    ]
     
-    return render(request,"mrp/manufactureorder/calendar.html",context)
+    # Combine all draggable items
+    draggable_items = morders + vacations + offdays
+    
+    context = {
+        "draggable_items": draggable_items,
+        "daily_limit": 500  # kg/day for orders
+    }
+    return render(request, "mrp/manufactureorder/calendar.html", context)
 def manufacture_order_detail(request):
     return render(request,"mrp/manufactureorder/dgrok2.html",{})
 

@@ -32,11 +32,48 @@
                                 </div>
                                 <div>
                                     <div class="list-group list-group-flush" id="external-events">
-                                        {% for i in morder %}
-                                        <div class="list-group-item fc-event" data-quantity="{{ i.quantity }}" data-id="{{ i.id }}">
-                                            <i class="fa fa-circle text-success" data-icon="car"></i> {{ i.title }}
-                                        </div>
+                                        <h6 class="list-group-item bg-light">سفارشات</h6>
+                                        {% for item in draggable_items %}
+                                            {% if item.type == "order" %}
+                                                <div class="list-group-item fc-event" 
+                                                     data-id="{{ item.id }}" 
+                                                     data-type="{{ item.type }}" 
+                                                     data-quantity="{{ item.quantity }}"
+                                                     style="background-color: #e7f1ff; color: #007bff;">
+                                                    <i class="fa fa-circle text-success" data-icon="car"></i> {{ item.title }}
+                                                </div>
+                                            {% endif %}
                                         {% endfor %}
+                                    <!-- Vacations -->
+                                   
+                                        
+                                    </div>
+                                    <div class="list-group list-group-flush" id="external-events2">
+                                       
+                                    <!-- Vacations -->
+                                    <h6 class="list-group-item bg-light">تعطیلات</h6>
+                                    {% for item in draggable_items %}
+                                        {% if item.type == "vacation" %}
+                                            <div class="list-group-item fc-event" 
+                                                data-id="{{ item.id }}" 
+                                                data-type="{{ item.type }}"
+                                                style="background-color: #ffe7e7; color: #dc3545;">
+                                                <i class="fa fa-circle text-danger" data-icon="plane"></i> {{ item.title }}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <!-- Off Days -->
+                                    <h6 class="list-group-item bg-light">روزهای تعطیل</h6>
+                                    {% for item in draggable_items %}
+                                        {% if item.type == "offday" %}
+                                            <div class="list-group-item fc-event" 
+                                                data-id="{{ item.id }}" 
+                                                data-type="{{ item.type }}"
+                                                style="background-color: #f0f0f0; color: #6c757d;">
+                                                <i class="fa fa-circle text-secondary" data-icon="calendar-times"></i> {{ item.title }}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
                                         
                                     </div>
                                 </div>

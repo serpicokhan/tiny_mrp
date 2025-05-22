@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var Draggable = FullCalendar.Draggable;
 
   var containerEl = document.getElementById('external-events');
+  var containerE2 = document.getElementById('external-events2');
+
   var calendarEl = document.getElementById('calendar');
   var checkbox = document.getElementById('drop-remove');
 
@@ -13,11 +15,32 @@ document.addEventListener('DOMContentLoaded', function () {
   new Draggable(containerEl, {
       itemSelector: '.fc-event',
     //   eventData: function (eventEl) {
+       
+    //     // if(eventEl.attr("data-type") != "order")
+    //     console.log(eventEl.getAttribute('data-type'));
+    //     if(eventEl.getAttribute('data-type')!="order"){
+       
+        
     //       return {
-    //           title: ''
-    //       };
+    //         title: eventEl.innerText
+    //     }
     //   }
+    // }
+        
+      
   });
+  new Draggable(containerE2, {
+    itemSelector: '.fc-event',
+    eventData: function (eventEl) {
+     
+      // if(eventEl.attr("data-type") != "order")
+      return {
+        title: eventEl.innerText
+    }
+  }
+      
+    
+});
 
   // initialize the calendar
   // -----------------------------------------------------------------
@@ -84,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
             calendar.addEvent({
                 title: `${title} - ${dayQuantity}kg`,
                 start: eventDate,
-                color: '#53c797',
+                backgroundColor: 'red',
 
                 
                 id: `${orderId}-${i}`,
