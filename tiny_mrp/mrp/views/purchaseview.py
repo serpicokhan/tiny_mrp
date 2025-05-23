@@ -19,6 +19,8 @@ import requests as rqt
 from django.contrib.auth.models import User
 from django.db.models import Max
 import ast
+from django.contrib.auth.models import User, Permission
+
 
 @login_required
 
@@ -85,6 +87,7 @@ def list_purchase_req(request):
                     'users':SysUser.objects.all(),
                     'start':start_of_month,
                     'end':end_of_month,
+                    
                     })
 @login_required
 @permission_required('mrp.view_all_request',login_url='/Purchases')
@@ -353,14 +356,24 @@ def update_purchase_v2(request,id):
                 'date_':company.created_at.strftime('%Y/%m/%d'),
                 "comments": comments,
                 "notes":notes,
-                "logs":plogs
+                "logs":plogs,
+               
 
 
 
                 
             },request)
         return JsonResponse(data)
-
+def user_input_list():
+    try:
+        # Replace 'myapp.some_permission' with your specific permission codename
+        permission = Permission.objects.get(codename='can_operator_purchase', content_type__app_label='myapp')
+        users = User.objects.filter(user_permissions=permission)
+        sysusers=SysUser.objects.filter(userId__in=users)
+        dict_list = [{'key': user.fullName, 'value': user.id} for user in sysusers]
+    except Permission.DoesNotExist:
+        dict_list = []
+    return dict_list()
 def purchase_dash(request):
     list_items=PurchaseRequest.objects.filter(status='Pending').order_by('-id')
     list_items=PurchaseUtility.doPaging(request,list_items)
