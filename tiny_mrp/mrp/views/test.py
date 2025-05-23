@@ -945,7 +945,9 @@ def get_monthly_workbook_v2(request):
             tolid_rank_v2.append({'mc':m.name,'rank_l':my_dict[tolid_rank.rank],'rank':tolid_rank.rank,
             'mablagh':tolid_rank.price_personnel})
             sum_tolid_v2+=tolid_rank.price_personnel
-        padashe_nezafat_personel=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).price_personnel
+            padashe_nezafat_personel=NezafatRanking.objects.get(asset_randeman_list=randeman_list,shift=i).price_personnel
+            sum_padash_tolid_kol+=tolid_rank.price_personnel
+
         # padashe_tolid_personel=TolidRanking.objects.get(asset_randeman_list=randeman_list,shift=i).price_personnel
         # padashe_tolid_personel=TolidRanking_V2.objects.filter(shift=i) \
         #                         .values('assetMachineCategory') \
@@ -959,7 +961,7 @@ def get_monthly_workbook_v2(request):
         sum=randeman_kol+padashe_nezafat_personel+sum_tolid_v2
         k.append({'randeman_kol':randeman_kol,'shift':i,'nezafat_rank':my_dict[nezafat_rank],'tolid_rank':tolid_rank_v2,'padashe_nezafat':padashe_nezafat_personel,'padashe_tolid':padashe_tolid_personel,'sum':sum})
         sum_randeman_tolid_kol_majmu+=sum
-        sum_padash_tolid_kol+=padashe_tolid_personel
+        # sum_padash_tolid_kol=padashe_tolid_personel
         sum_nezafat_kol+=padashe_nezafat_personel
         sum_randeman_tolid_kol+=randeman_kol
     
