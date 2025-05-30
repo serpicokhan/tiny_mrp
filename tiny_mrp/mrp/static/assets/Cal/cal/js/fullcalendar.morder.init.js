@@ -41,6 +41,23 @@ document.addEventListener('DOMContentLoaded', function () {
       
     
 });
+var trashEl = document.getElementById('trash');
+new Draggable(trashEl, {
+    itemSelector: null, // No specific item selector needed for the drop target
+    drop: function (info) {
+        // Get the dropped event's ID
+        var eventId = info.draggedEl.getAttribute('data-id');
+        var event = calendar.getEventById(eventId);
+
+        if (event) {
+            // Optionally prompt for confirmation
+            if (confirm('Are you sure you want to delete this event?')) {
+                event.remove(); // Remove the event from the calendar
+                console.log('Event removed:', eventId);
+            }
+        }
+    }
+});
 
   // initialize the calendar
   // -----------------------------------------------------------------
@@ -121,6 +138,26 @@ document.addEventListener('DOMContentLoaded', function () {
         // Remove the dragged element if checkbox is checked
         if (checkbox.checked) {
             info.draggedEl.parentNode.removeChild(info.draggedEl);
+        }
+    },
+    eventDragStop: function (info) {
+        // Get the mouse position and trash element position
+        var trashEl = document.getElementById('trash');
+        var trashRect = trashEl.getBoundingClientRect();
+        var x = info.jsEvent.clientX;
+        var y = info.jsEvent.clientY;
+
+        // Check if the event was dropped over the trash area
+        if (
+            x >= trashRect.left &&
+            x <= trashRect.right &&
+            y >= trashRect.top &&
+            y <= trashRect.bottom
+        ) {
+            if (confirm('Are you sure you want to delete this event?')) {
+                info.event.remove(); // Remove the event from the calendar
+                console.log('Event removed:', info.event.id);
+            }
         }
     },
     eventDrop: function(info) {
