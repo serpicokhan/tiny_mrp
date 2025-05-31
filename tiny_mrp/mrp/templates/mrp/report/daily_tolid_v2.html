@@ -1,0 +1,171 @@
+{% extends 'mrp/blank-page.html' %}
+{% block stylesheet %}
+<style>
+
+.mytable {
+  table-layout: fixed;
+  width: 100% !important;
+}
+.mytable td, .mytable th {
+  width: 10px !important;  /* Reduced from 150px */
+  height: 50px !important;   /* Reduced from 75px */
+  max-width: 10px !important;
+  max-height: 50px !important;
+  min-width: 10px !important;
+  min-height: 50px !important;
+  padding: 4px !important;   /* Reduce padding to save space */
+  font-size: 12px !important; /* Smaller font if needed */
+  word-wrap: break-word;         /* Break long words if necessary */
+  white-space: normal !important;/* Allow text to wrap */
+  overflow-wrap: break-word;     /* Ensures text breaks properly */
+}
+
+@media print {
+    @page {
+        size: landscape;
+    }
+}
+
+</style>
+
+{% endblock %}
+{% load static %}
+{% block content %}
+
+<div class="row  app-block">
+      <div class="col-md-12 app-content">
+       
+        <div class="app-action">
+            <div class="action-left">
+                <ul class="list-inline">
+                    <li class="list-inline-item mb-0">
+                        <div class="input-group">
+                            <input type="text" class="form-control pdate" placeholder="تاریخ شروع" aria-describedby="button-addon1" id="startdate" >
+                            <div class="input-group-append">
+                                <span class="btn btn-outline-light" >
+                                    <i class="ti-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                 
+                </ul>
+            </div>
+            <div class="action-right">
+                <form class="d-flex mr-3">
+                    <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </a>
+                    <div class="input-group">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-light" type="button" id="button-addon1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card app-content-body">
+           
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive mytable" style="overflow: hidden; outline: none;" tabindex="1">
+                                <table class="table table-striped" id="productionTable">
+                                    <thead>
+                                    <tr id="machineNames">
+                                        
+                                       
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr id="productionValues"></tr>
+                                   
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+
+                           
+                            
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header d-none">
+                            <h4 class="card-title">مجموع</h4>
+                        </div>
+                        <div class="card-body">
+                            
+                          
+                            
+
+                            <div class="table-responsive" style="overflow: hidden; outline: none;" tabindex="1">
+                                <table class="table table-striped" id="productionTable2">
+                                    
+                                </table>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+
+
+
+
+
+
+
+{% endblock %}
+{% block javascript %}
+
+<!-- Apex chart -->
+<script src="{% static 'vendors/charts/apex/apexcharts.min.js' %}"></script>
+
+<!-- Circle progress -->
+<script src="{% static 'vendors/circle-progress/circle-progress.min.js' %}"></script>
+
+<!-- Peity -->
+<script src="{% static 'vendors/charts/peity/jquery.peity.min.js' %}"></script>
+<script src="{% static 'assets/js/examples/charts/peity.js' %}"></script>
+
+<!-- Datepicker -->
+<script src="{% static 'vendors/datepicker/daterangepicker.js' %}"></script>
+<script src="{% static 'assets/Datepiker/persian-datepicker.js' %}"></script>
+<script src="{% static 'vendors/datepicker/bootstrap-datepicker.fa.min.js' %}"></script>
+
+
+<!-- Slick -->
+<script src="{% static 'vendors/slick/slick.min.js' %}"></script>
+
+<!-- Vamp -->
+<script src="{% static 'vendors/vmap/jquery.vmap.min.js' %}"></script>
+<script src="{% static 'vendors/vmap/maps/jquery.vmap.usa.js' %}"></script>
+<script src="{% static 'assets/js/examples/vmap.js' %}"></script>
+
+
+<!-- a -->
+<script src="{% static 'assets/Cal/moment.js' %}"></script>
+<script src="{% static 'assets/Cal/moment-jalaali.js' %}"></script>
+<script src="{% static 'assets/Cal/fullcalendar.js' %}"></script>
+<script src="{% static 'assets/Cal/fa.js' %}"></script>
+
+
+<!-- Dashboard scripts -->
+
+<!-- App scripts -->
+<script src="{% static 'assets/js/app.min.js' %}"></script>
+<script src="{% static 'project/report.js' %}"></script>
+
+{% endblock %}

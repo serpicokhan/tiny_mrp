@@ -66,3 +66,50 @@ def production_chart_with_table(request):
     # }
     
     return JsonResponse(data,safe=False)
+
+@login_required
+def daily_tolid_with_chart2(request):
+    
+    return render(request,'mrp/report/daily_tolid_v2.html',{})
+def production_chart_with_table2(request):
+    date_str = request.GET.get('date',False) # Modify these dates as needed
+
+    if(not date_str):
+        # Assume 'date' is passed as 'YYYY-MM-DD' format from the front end
+        date_str=DailyProduction.objects.order_by('-dayOfIssue').first().dayOfIssue
+    else:
+        date_str=DateJob.getTaskDate(date_str)
+
+    production_data={}
+    data=[]
+
+    # date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+    
+    # Query to get sum of production_value for each machine for the given date
+    shifts=Shift.objects.all()
+    for i in shifts:
+        production_data1 = DailyProduction.objects.filter(dayOfIssue=date_str,shift=i)\
+                        .values('machine__assetName')\
+                        .annotate(total_production=Sum('production_value'))\
+                        .order_by('machine')
+        production_data2 = DailyProduction.objects.filter(dayOfIssue=date_str,shift=i)\
+                        .values('machine__assetCategory__name')\
+                        .annotate(total_production=Sum('production_value'))\
+                        
+        data.append(
+            {
+        'asset_category':[item['machine__assetCategory__name'] for item in production_data2],
+        'production_values2': [int(item['total_production']) for item in production_data2],
+
+        'machines': [item['machine__assetName'] for item in production_data1],
+        'production_values': [int(item['total_production']) for item in production_data1],
+        'date':str(jdatetime.date.fromgregorian(date=date_str).strftime("%d-%m-%Y")),
+        'lable':f'شیفت {i.name}'
+        
+             }
+        )
+   
+    
+   
+    
+    return JsonResponse(data,safe=False)

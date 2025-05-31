@@ -1,7 +1,9 @@
 {% extends 'mrp/blank-page.html' %}
 {% load static %}
 {% load humanize %}
+{% load custom_filters %}
 {% block stylesheet %}
+
 <style>
   .table-bordered td, .table-bordered th {
     border: 1px solid #000000;
@@ -81,7 +83,7 @@
                               <td colspan="2" class="text-center">
                                 {% for x in randeman_kol %}
                                   {% if i.id == x.shift.id %}
-                                 <b> {{x.randeman_kol|floatformat:0|intcomma}}</b>
+                                 <b> {{x.randeman_kol|round_to_100k|floatformat:0|intcomma}}</b>
                                   {% endif %}
                                   {% endfor %}</td>
                               <td colspan="2"><b>جمع راندمان نظافت</b></td>
@@ -93,7 +95,7 @@
                               <td colspan="2" class="text-center">  {% for x in randeman_kol %}
                                   {% if i.id == x.shift.id %}
                                   <b>
-                                  {{x.padashe_nezafat|floatformat:0|intcomma}}
+                                  {{x.padashe_nezafat|round_to_100k|floatformat:0|intcomma}}
 
                                   </b>
                                   {% endif %}
@@ -124,7 +126,7 @@
                                 {% for x in randeman_kol %}
                                 {% if i.id == x.shift.id %}
 
-                                <b> {{mc.mablagh|floatformat:0|intcomma}}  </b>
+                                <b> {{mc.mablagh|round_to_100k|floatformat:0|intcomma}}  </b>
                                 {% endif %}
                                 {% endfor %}
                               </td>
@@ -139,7 +141,7 @@
                               <td> {% for x in randeman_kol %}
                                 {% if i.id == x.shift.id %}
 
-                                <b>{{x.sum|floatformat:0|intcomma}}</b>
+                                <b>{{x.sum|round_to_100k|floatformat:0|intcomma}}</b>
                                 {% endif %}
                                 {% endfor %}</td>
                             </tr>
@@ -181,10 +183,10 @@
                               </tr>
                               </thead>
                               <tbody>
-                                <td><b>{{sum_randeman_tolid_kol|floatformat:0|intcomma}}</b></td>
-                                <td><b>{{sum_padash_tolid_kol|floatformat:0|intcomma}}</b></td>
-                                <td><b>{{sum_nezafat_kol|floatformat:0|intcomma}}</b></td>
-                                <td><b>{{sum_randeman_tolid_kol_majmu|floatformat:0|intcomma}}</b></td>
+                                <td><b>{{sum_randeman_tolid_kol|round_to_100k|floatformat:0|intcomma}}</b></td>
+                                <td><b>{{sum_padash_tolid_kol|round_to_100k|floatformat:0|intcomma}}</b></td>
+                                <td><b>{{sum_nezafat_kol|round_to_100k|floatformat:0|intcomma}}</b></td>
+                                <td><b>{{sum_randeman_tolid_kol_majmu|round_to_100k|floatformat:0|intcomma}}</b></td>
                               </tbody>
                               </table>
                         </div>
