@@ -194,22 +194,51 @@
             background: "#ddd", // Background of the scrollbar track
             autohidemode: true  // Hide scrollbar when not scrolling
         });
+        // $("#notes").niceScroll({
+        //     cursorcolor: "#00f", // Customize scrollbar color
+        //     cursorwidth: "8px", // Width of the scrollbar
+        //     background: "#ddd", // Background of the scrollbar track
+        //     autohidemode: true  // Hide scrollbar when not scrolling
+        // });
         // Dummy users list
-        // let users1000 = [
-        //     { key: "arzande", value: "arzande" },
-        //     { key: "ezami", value: "ezami" },
+        let users1000 = [
+            // { key: "arzande", value: "arzande" },
+            // { key: "ezami", value: "ezami" },
 
-        //     { key: "torabi", value: "torabi" },
-        //     { key: "abedi", value: "abedi" },
+            // { key: "torabi", value: "torabi" },
+            // { key: "abedi", value: "abedi" },
             
-        // ];
+        ];
+        $.ajax({
+                url: '/api/users/', // Django endpoint
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    let users = data.users;
+                    // let output = '<ul>';
+                    $.each(users, function(index, user) {
+                        // output += `<li>ID: ${user.key} - Full Name: ${user.value}</li>`;
+                        users1000.push({ key: user.value, value: user.key });
+                    });
+                    // output += '</ul>';
+                    // $('#user-list').html(output);
+
+                    // =data.users
+                    console.log(users1000);
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    $('#user-list').html('<p>Error loading data</p>');
+                }
+            });
 
         // Initialize Tribute.js
         let tribute = new Tribute({
             trigger: "@",
             values: users1000,
             selectTemplate: function (item) {
-                return "@" + item.original.key; // Inserts @username into text
+                return "@" + item.original.value; // Inserts @username into text
             }
         });
 

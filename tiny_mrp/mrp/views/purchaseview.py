@@ -20,7 +20,7 @@ from django.contrib.auth.models import User
 from django.db.models import Max
 import ast
 from django.contrib.auth.models import User, Permission
-
+import re
 
 @login_required
 
@@ -324,7 +324,8 @@ def update_purchase_v2(request,id):
     req_items=RequestItem.objects.filter(purchase_request=company)
     files=PurchaseRequestFile.objects.filter(purchase_request=company)
     faktors=PurchaseRequestFaktor.objects.filter(purchase_request=company)
-    comments = company.comments.all() 
+    comments = company.comments.all().filter(Q(to_user=request.user.sysuser) | Q(to_user__isnull=True)| Q(user__userId=request.user))
+
     notes = company.notes.filter(user=request.user.sysuser) 
     plogs=company.plogs.all()
     rfqs=RFQ.objects.filter(items__purchase_request=company)
@@ -1023,6 +1024,17 @@ def add_purchase_comment(request):
         user = request.user.sysuser
         purchase_request = get_object_or_404(PurchaseRequest, id=purchase_request_id)
         parent_comment = Comment.objects.filter(id=parent_id).first() if parent_id else None
+         # Find all @digit patterns and replace with @fullName
+        def replace_user_mention(match):
+            user_id = int(match.group(1))  # Extract digit after @
+            user_obj = SysUser.objects.filter(id=user_id).first()
+            return f"@{user_obj.fullName}" if user_obj else match.group(0)
+        modified_content = re.sub(r'@(\d+)', replace_user_mention, content)
+        user_id_match = re.search(r'@(\d+)', content)
+        to_user = None
+        if user_id_match:
+            user_id = int(user_id_match.group(1))  # Extract the digit after @
+            to_user = SysUser.objects.filter(id=user_id).first()  # Find SysUser with matching id
         if(user.tel1):
             url = "https://app.wallmessage.com/api/sendMessage"
 
@@ -1038,14 +1050,15 @@ def add_purchase_comment(request):
         comment = Comment.objects.create(
             purchase_request=purchase_request,
             user=user,
-            content=content,
+            to_user=to_user,
+            content=modified_content,
             parent=parent_comment
         )
 
         return JsonResponse({
             "status": "success",
             "comment_id": comment.id,
-            "content": comment.content,
+            "content": modified_content,
             "created_at": comment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             "user": str(user.fullName),
             "parent_id": parent_id,

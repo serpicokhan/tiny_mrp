@@ -101,7 +101,7 @@ class PurchaseRequest(models.Model):
             ('Approved', 'تایید انبار'),
             ('Rejected', 'رد شده'),
             ('Ordered', 'سفارش '),
-            ('Approve2', 'تایید مهندس اعزامی'),
+            ('Approve2', 'تایید مدیر تولید'),
             ('Approve3', 'تایید مهندس ارزنده'),
             ('Purchased', 'خریداری شد'),
             ('Approve4', 'تایید بازرگانی'),
@@ -262,6 +262,7 @@ class Comment(models.Model):
         PurchaseRequest, on_delete=models.CASCADE, related_name='comments'
     )
     user = models.ForeignKey(SysUser, on_delete=models.CASCADE)
+    to_user = models.ForeignKey(SysUser, on_delete=models.CASCADE,related_name="to_user",blank=True,null=True)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey(

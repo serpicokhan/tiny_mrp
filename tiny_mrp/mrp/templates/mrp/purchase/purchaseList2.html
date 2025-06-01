@@ -124,7 +124,7 @@
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="?status=Pending{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">درخواست شده</a>
                                 <a class="dropdown-item" href="?status=Approved{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید انبار</a>
-                                <a class="dropdown-item" href="?status=Approve2{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید مهندس اعزامی</a>
+                                <a class="dropdown-item" href="?status=Approve2{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید مدیرتولید</a>
                                 <a class="dropdown-item" href="?status=Approve4{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید بازرگانی</a>
 
                                 <a class="dropdown-item" href="?status=Approve3{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید مهندس ارزنده</a>
@@ -339,7 +339,7 @@
 <script src="{% static 'project/purchaselist.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.min.js"></script>
 <script>
-    var users1000 = {{ json_dict_list|safe }};
+    //var users1000 = {{ json_dict_list|safe }};
 </script>
 
 

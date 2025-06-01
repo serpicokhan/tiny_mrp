@@ -368,3 +368,15 @@ def save_user_token(request):
     return Response()
 def load_org_chart(request):
     return render(request,"mrp/chart/index.html",{})
+def get_users_api(request):
+    if request.method == "GET":
+        users = SysUser.objects.all()
+        users_data = [
+            {
+                "key": user.id,  # Use id as key
+                "value": user.fullName,  # Use fullName as value
+            }
+            for user in users
+        ]
+        return JsonResponse({"users": users_data})
+    return JsonResponse({"error": "Invalid request"}, status=400)
