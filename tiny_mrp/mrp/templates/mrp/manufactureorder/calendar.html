@@ -48,7 +48,7 @@
                                     <p class="small text-muted mb-0">رویداد را بکشید و در محل مورد نظر رها کنید</p>
                                 </div>
                                 <div id="trash" class="card-body text-center" style="background-color: #f8d7da; padding: 10px; margin-top: 10px;">
-                                    <i class="fa fa-trash"></i> Drop here to delete
+                                    <i class="fa fa-trash"></i> رها کردن آیتم انتخابی در اینجا
                                 </div>
                                 <div>
                                     <div class="list-group list-group-flush" id="external-events">
@@ -60,7 +60,7 @@
                                                      data-type="{{ item.type }}" 
                                                      data-quantity="{{ item.quantity }}"
                                                      style="background-color: #e7f1ff; color: #007bff;">
-                                                    <i class="fa fa-circle text-success" data-icon="car"></i> {{ item.title }}
+                                                    <i class="fa fa-circle text-success" data-icon="car"></i> {{ item.title }} - {{item.quantity}} kg
                                                 </div>
                                             {% endif %}
                                         {% endfor %}

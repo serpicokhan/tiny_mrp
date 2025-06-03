@@ -130,7 +130,11 @@ new Draggable(trashEl, {
                 id: `${orderId}-${i}`,
                 extendedProps: {
                     quantity: dayQuantity,
-                    orderId: orderId
+                    orderId: orderId,
+                    type:'order',
+                    originalTitle:title,
+                    originalQuantity:quantity
+
                 },
             });
         }
@@ -155,8 +159,74 @@ new Draggable(trashEl, {
             y <= trashRect.bottom
         ) {
             if (confirm('Are you sure you want to delete this event?')) {
+                var event = info.event;
+                var orderId = event.extendedProps.orderId;
+                var deletedQuantity = event.extendedProps.quantity;
+                var originalTitle = event.extendedProps.originalTitle;
+                var originalQuantity = event.extendedProps.originalQuantity;
                 info.event.remove(); // Remove the event from the calendar
                 console.log('Event removed:', info.event.id);
+                // Calculate remaining quantity for the order
+                var remainingQuantity = 0;
+                var total_val=0;
+                var relatedEvents = calendar.getEvents().filter(function (evt) {
+                    return evt.extendedProps.orderId === orderId;
+                });
+
+                // Sum the quantities of remaining events
+                relatedEvents.forEach(function (evt) {
+                    console.log(evt.extendedProps.quantity);
+                    
+                    remainingQuantity += evt.extendedProps.quantity;
+                });
+                
+                
+
+                // If there are no remaining events, use the original quantity minus deleted quantity
+                if (relatedEvents.length === 0) {
+                    remainingQuantity = originalQuantity ;
+                    total_val=originalQuantity;
+                }
+                else
+                {
+                 total_val=originalQuantity-remainingQuantity;
+
+                    // remainingQuantity=(originalQuantity-remainingQuantity)-deletedQuantity;
+                }
+                
+                
+                if (remainingQuantity > 0 && event.extendedProps.type === 'order') {
+                    var ordersContainer = document.getElementById('external-events');
+                    // console.log(remainingQuantity);
+                      // Check if an order with this orderId already exists
+                    var existingOrderEl = ordersContainer.querySelector(`[data-id="${orderId}"]`);
+                    if (existingOrderEl) {
+                    // Update existing order's quantity
+                    existingOrderEl.setAttribute('data-quantity', remainingQuantity);
+                    existingOrderEl.innerHTML = `<i class="fa fa-circle text-success" data-icon="car"></i> ${originalTitle} - ${total_val}kg`;
+                    } else {
+                    // Create new order element
+                    var newOrderEl = document.createElement('div');
+                    newOrderEl.className = 'list-group-item fc-event';
+                    newOrderEl.setAttribute('data-id', orderId);
+                    newOrderEl.setAttribute('data-type', 'order');
+                    newOrderEl.setAttribute('data-quantity', total_val);
+                    newOrderEl.style.backgroundColor = '#e7f1ff';
+                    newOrderEl.style.color = '#007bff';
+                    newOrderEl.innerHTML = `<i class="fa fa-circle text-success" data-icon="car"></i> ${originalTitle} - ${total_val}kg`;
+
+                    // Append to the Orders section (after the "سفارشات" header)
+                    var ordersHeader = ordersContainer.querySelector('h6');
+                    if (ordersHeader) {
+                        ordersHeader.insertAdjacentElement('afterend', newOrderEl);
+                    } else {
+                        ordersContainer.appendChild(newOrderEl);
+                    }
+                    }
+                }
+                
+
+
             }
         }
     },
