@@ -16,6 +16,13 @@ WO_STATUS = [
     ('done', 'Done'),
     ('cancelled', 'Cancelled'),
 ]
+class Line(models.Model):
+    name = models.CharField(max_length=100)
+    capacity_per_day = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.name
+
 class Product(models.Model):
     """Model representing products (raw materials or finished goods) in the MRP system."""
     

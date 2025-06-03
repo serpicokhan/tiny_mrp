@@ -30,6 +30,13 @@
                     <div class="col-md-3 app-sidebar">
                         <div class="card">
                             <div class="card-body pb-0">
+                               <select name="" id="" class="form-control">
+                                {% for i in lines %}
+                                <option value="{{i.id}}">{{i.name}}</option>
+                                {% endfor %}
+                               </select>
+                            </div>
+                            <div class="card-body pb-0">
                                 <button class="btn btn-secondary btn-block" data-toggle="modal"
                                     data-target="#createEventModal">
                                     ساخت رویداد

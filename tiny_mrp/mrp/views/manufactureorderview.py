@@ -30,10 +30,23 @@ def manufacture_order_list(request):
     return render(request,"mrp/manufactureorder/mOrderList.html",{})
 
 def manufacture_order_calendar(request):
+    lines=Line.objects.all()
+    orders = ManufacturingOrder.objects.all()
+    
+    # Create list of dictionaries in the desired format
     morders = [
-        {"id": 1, "title": "Order 1", "quantity": 2000, "type": "order"},
-        {"id": 2, "title": "Order 2", "quantity": 1000, "type": "order"},
+        {
+            "id": order.id,
+            "title": order.reference,
+            "quantity": order.quantity_to_produce,
+            "type": "order"
+        }
+        for order in orders
     ]
+    # morders = [
+    #     {"id": 1, "title": "Order 1", "quantity": 2000, "type": "order"},
+    #     {"id": 2, "title": "Order 2", "quantity": 1000, "type": "order"},
+    # ]
     # Vacations
     vacations = [
         {"id": "v1", "title": "Team Vacation", "type": "vacation"},
@@ -50,7 +63,8 @@ def manufacture_order_calendar(request):
     
     context = {
         "draggable_items": draggable_items,
-        "daily_limit": 500  # kg/day for orders
+        "lines":lines,
+        "daily_limit": 5000  # kg/day for orders
     }
     return render(request, "mrp/manufactureorder/calendar.html", context)
 def manufacture_order_detail(request):
