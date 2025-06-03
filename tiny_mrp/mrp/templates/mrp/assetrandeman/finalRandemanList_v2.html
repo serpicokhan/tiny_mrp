@@ -3,20 +3,44 @@
 {% load humanize %}
 {% load custom_filters %}
 {% block stylesheet %}
-
 <style>
-  .table-bordered td, .table-bordered th {
-    border: 1px solid #000000;
+/* General table styling */
+#company-table {
+    
+    margin-bottom: 5rem;
+
 }
-  .table thead th {
-    vertical-align: bottom;
-    border-bottom: 2px solid #000000;
+
+table.table-bordered {
+    border: 2px solid #03346E !important; /* Adjust thickness (2px) and color as needed */
 }
-  .table-responsive > .table-bordered {
-    border: 1px solid #000000; /* Adds a 1px solid border with a light gray color */
+
+table.table-bordered th,
+table.table-bordered td {
+    border: 2px solid #03346E !important; /* Ensure cells have the same border thickness */
 }
-  .table-responsive > .table-bordered {
-    border: 1px solid #000000 !important;
+
+/* Print-specific styles */
+@media print {
+    table.table-bordered {
+        border: 2px solid #03346E !important;
+        border-collapse: collapse; /* Ensure borders are not ignored */
+    }
+
+    table.table-bordered th,
+    table.table-bordered td {
+        border: 2px solid #03346E !important;
+    }
+
+    /* Optional: Ensure text and background colors are visible when printing */
+    .bg-info-gradient, .bg-success-gradient {
+        background: none !important; /* Remove gradients for print */
+        color: #000000 !important; /* Ensure text is black for readability */
+    }
+
+    th, td {
+        color: #000000 !important; /* Ensure text is black */
+    }
 }
 </style>
 {% endblock %}
