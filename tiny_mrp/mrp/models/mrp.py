@@ -342,3 +342,22 @@ class Customer(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.name}"
+    
+
+
+class CalendarEvent(models.Model):
+    order = models.ForeignKey(ManufacturingOrder, on_delete=models.CASCADE, related_name='calendar_events', null=True, blank=True)
+    quantity = models.FloatField(default=0)
+    event_date = models.DateField()
+    title = models.CharField(max_length=255)
+    type = models.CharField(max_length=50, default='appointment')
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Calendar Event"
+        verbose_name_plural = "Calendar Events"
+
+    def __str__(self):
+        return f"{self.title} on {self.event_date}"

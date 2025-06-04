@@ -73,9 +73,14 @@ new Draggable(trashEl, {
       businessHours: true, // display business hours
       editable: true,
       locale: 'fa',
-      events: [
-  
-      ],
+      events: {
+        url: '/MOrder/Calendar/GetInfo/', // Replace with your server-side script to fetch events
+        method: 'GET',
+        failure: function() {
+          // Handle failure to fetch events
+          alert('There was an error while fetching events!');
+        }
+      },
 
       customButtons: {
           addEventButton: {
@@ -104,6 +109,8 @@ new Draggable(trashEl, {
 
     drop: function(info) {
         // Get the dropped element's data
+        
+        
         var quantity = parseFloat(info.draggedEl.getAttribute('data-quantity'));
         var orderId = info.draggedEl.getAttribute('data-id');
         var title = info.draggedEl.innerText;
@@ -133,7 +140,8 @@ new Draggable(trashEl, {
                     orderId: orderId,
                     type:'order',
                     originalTitle:title,
-                    originalQuantity:quantity
+                    originalQuantity:quantity,
+                    is_new:true
 
                 },
             });
@@ -240,4 +248,77 @@ new Draggable(trashEl, {
 });
 
 calendar.render();
+$('.save_event').on('click', function (e) {
+    // e.preventDefault(); // Prevent default form submission
+    
+    // Access the calendar instance (assumes 'calendar' is globally defined in fullcalendar.morder.init.js)
+    // var calendar = $('#calendar').fullCalendar('getCalendar');
+    var allEvents = calendar.getEvents().filter(function (evt) {
+    return evt.extendedProps.is_new === true; // Filter unsaved events
+    });
+    
+   
+    
+    if (allEvents.length === 0) {
+    alert('هیچ رویداد جدیدی در تقویم وجود ندارد.');
+    return;
+    }
+    
+    // Optional: Display event details for debugging
+    var eventDetails = allEvents.map(function (evt) {
+    return {
+        id: evt.extendedProps.orderId,
+        title: evt.title,
+        start: evt.start ? evt.start.toISOString().split('T')[0] : 'N/A',
+        quantity: evt.extendedProps.quantity || 0,
+        orderId: evt.extendedProps.orderId || null,
+        type: evt.extendedProps.type || 'unknown'
+    };
+    });
+    $.ajax({
+        url: '/MOrder/bulk-create-events/',
+        type: 'POST',
+        // headers: {
+        //   'X-CSRFToken': getCookie('csrftoken') // Include CSRF token
+        // },
+        contentType: 'application/json',
+        data: JSON.stringify({ events: eventDetails }),
+        success: function (response) {
+          if (response.success) {
+            // Update calendar with saved events
+            allEvents.forEach(function (evt) {
+              evt.remove(); // Remove unsaved event
+            });
+            response.events.forEach(function (savedEvent) {
+              calendar.addEvent({
+                id: savedEvent.id,
+                title: savedEvent.title,
+                start: savedEvent.start,
+                backgroundColor: savedEvent.backgroundColor,
+                extendedProps: {
+                  quantity: savedEvent.extendedProps.quantity,
+                  orderId: savedEvent.extendedProps.orderId,
+                  originalTitle: savedEvent.extendedProps.originalTitle,
+                  originalQuantity: savedEvent.extendedProps.originalQuantity,
+                  type: savedEvent.extendedProps.type,
+                  is_new: false // Mark as saved
+                }
+              });
+            });
+            $('#createEventModal').modal('hide');
+            $('#create-event-form')[0].reset();
+            toastr.success('رویدادها با موفقیت ذخیره شدند.');
+          } else {
+            toastr.error('خطا در ذخیره رویدادها: ' + response.error);
+          }
+        },
+        error: function (xhr) {
+          alert('خطا در ارتباط با سرور: ' + (xhr.responseJSON?.error || 'خطای ناشناخته'));
+        }
+      });
+    
+    
+    
+   
+});
 });

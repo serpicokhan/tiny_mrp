@@ -37,8 +37,7 @@
                                </select>
                             </div>
                             <div class="card-body pb-0">
-                                <button class="btn btn-secondary btn-block" data-toggle="modal"
-                                    data-target="#createEventModal">
+                                <button class="btn btn-secondary btn-block save_event">
                                     ساخت رویداد
                                 </button>
                             </div>
@@ -122,111 +121,7 @@
            
 
             <!-- begin::ساخت رویداد Modal -->
-            <div class="modal fade" id="createEventModal" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">ساخت رویداد</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <i class="ti-close"></i>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form autocomplete="off">
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">عنوان</label>
-                                    <div class="col-sm-9">
-                                        <input id="event-title" type="text" class="form-control" placeholder="عنوان">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">نوع رویداد</label>
-                                    <div class="col-sm-9">
-                                        <div class="mt-2" id="event-type">
-                                            <div class="custom-control custom-radio custom-control-inline">
-                                                <input type="radio" id="customRadioInline1" name="customRadioInline1"
-                                                    class="custom-control-input">
-                                                <label class="custom-control-label" for="customRadioInline1">وقت تعيين
-                                                    شده</label>
-                                            </div>
-                                            <div class="custom-control custom-radio custom-control-inline">
-                                                <input type="radio" id="customRadioInline2" name="customRadioInline1"
-                                                    class="custom-control-input">
-                                                <label class="custom-control-label"
-                                                    for="customRadioInline2">ملاقات</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group row row-sm">
-                                    <label class="col-sm-3 col-form-label">شروع</label>
-                                    <div class="col-sm-5">
-                                        <input id="input1" type="text" class="form-control create-event-datepicker"
-                                            placeholder="تاریخ">
-                                        <span id="span1"></span>
-                                    </div>
-
-                                    <!-- <input type="text" id="input1" /> -->
-
-
-
-                                    <div class="col-sm-4">
-                                        <input id="event-start-time" type="text" class="form-control create-event-demo"
-                                            placeholder="زمان">
-                                    </div>
-                                </div>
-                                <div class="form-group row row-sm">
-                                    <label class="col-sm-3 col-form-label">پایان</label>
-                                    <div class="col-sm-5">
-                                        <input id="input2" type="text" class="form-control create-event-datepicker"
-                                            placeholder="تاریخ">
-                                        <span id="span2"></span>
-                                    </div>
-                                    <div class="col-sm-4">
-                                        <input id="event-end-time" type="text" class="form-control create-event-demo"
-                                            placeholder="زمان">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">شرکت‌کنندگان</label>
-                                    <div class="col-sm-9">
-                                        <div class="avatar-group">
-                                            <figure class="avatar avatar-sm">
-                                                <span class="avatar-title bg-success rounded-circle">ک</span>
-                                            </figure>
-                                            <figure class="avatar avatar-sm">
-                                                <span class="avatar-title bg-danger rounded-circle">س</span>
-                                            </figure>
-                                            <figure class="avatar avatar-sm">
-                                                <span class="avatar-title bg-primary rounded-circle">س</span>
-                                            </figure>
-                                            <figure class="avatar avatar-sm">
-                                                <img src="assets/media/image/user/women_avatar3.jpg"
-                                                    class="rounded-circle" alt="image">
-                                            </figure>
-                                        </div>
-                                        <button type="button" class="btn btn-outline-light btn-sm btn-floating">
-                                            <i class="ti-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">توضیحات</label>
-                                    <div class="col-sm-9">
-                                        <textarea id="event-desc" class="form-control" rows="6"></textarea>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-3"></label>
-                                    <div class="col-sm-9">
-                                        <button type="submit" id="btn-save" class="btn btn-primary">ساخت</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+           
             <!-- end::ساخت رویداد Modal -->
 
             <!-- begin::Event Info Modal -->
@@ -370,6 +265,9 @@
             onSelect: function () {},
             onRender: function () {}
         });
+        $(document).ready(function () {
+          
+            });
     </script>
 
 {% endblock %}

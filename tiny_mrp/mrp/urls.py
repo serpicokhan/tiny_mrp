@@ -179,6 +179,9 @@ urlpatterns = [
     url(r'^api/create-asset/$', create_asset2, name="create_asset2"),
     url(r'^api/create-supplier/$', create_supplier, name="create_supplier"),
     url(r'^api/save-purchase-request/', views.save_purchase_request, name='save-purchase-request'),
+    url(r'^MOrder/bulk-create-events/', bulk_create_events, name='bulk_create_events'),
+    url(r'^MOrder/Calendar/GetInfo/$', get_order_calendar_info, name='get_order_calendar_info'),
+
     
 
 

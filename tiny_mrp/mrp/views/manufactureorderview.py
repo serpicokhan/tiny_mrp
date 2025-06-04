@@ -25,6 +25,8 @@ from django.contrib.auth.models import Group
 from rest_framework.response import Response
 from mrp.serializers import CustomerSerializer
 from rest_framework.decorators import api_view
+import random
+from django.core.cache import cache
 
 def manufacture_order_list(request):
     return render(request,"mrp/manufactureorder/mOrderList.html",{})
@@ -32,17 +34,24 @@ def manufacture_order_list(request):
 def manufacture_order_calendar(request):
     lines=Line.objects.all()
     orders = ManufacturingOrder.objects.all()
+    event_quantities = CalendarEvent.objects.values('order_id').annotate(
+        total_quantity=Sum('quantity')
+    ).filter(order_id__in=[order.id for order in orders])
     
-    # Create list of dictionaries in the desired format
+    # Create a dictionary for quick lookup
+    quantity_map = {item['order_id']: item['total_quantity'] for item in event_quantities}
+
+    # Create list of dictionaries for draggable items
     morders = [
         {
             "id": order.id,
             "title": order.reference,
-            "quantity": order.quantity_to_produce,
+            "quantity": max(0, order.quantity_to_produce - quantity_map.get(order.id, 0)),
             "type": "order"
         }
         for order in orders
     ]
+
     # morders = [
     #     {"id": 1, "title": "Order 1", "quantity": 2000, "type": "order"},
     #     {"id": 2, "title": "Order 2", "quantity": 1000, "type": "order"},
@@ -174,3 +183,125 @@ def get_customers(request):
         return JsonResponse({
             'error': str(e)
         }, status=500)
+    
+@csrf_exempt
+def bulk_create_events(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            events = data.get('events', [])
+            saved_events = []
+
+            for event_data in events:
+                title = event_data.get('title')
+                event_date = event_data.get('start')
+                quantity = event_data.get('quantity', 0)
+                order_id = event_data.get('orderId')
+                event_type = event_data.get('type', 'order')
+                description = event_data.get('description', '')
+                temp_id = event_data.get('tempId')
+                print(title,event_data,'$$$$$$$$$$$$$$$$$$')
+                if not title or not event_date:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'عنوان و تاریخ رویداد الزامی هستند.'
+                    }, status=400)
+
+                event_dict = {
+                    'title': title,
+                    'quantity': float(quantity),
+                    'event_date': datetime.datetime.strptime(event_date, '%Y-%m-%d').date(),
+                    'type': event_type,
+                    'description': description
+                }
+
+                if order_id:
+                    try:
+                        order = ManufacturingOrder.objects.get(id=order_id)
+                        event_dict['order'] = order
+                    except ManufacturingOrder.DoesNotExist:
+                        return JsonResponse({
+                            'success': False,
+                            'error': f'سفارش با شناسه {order_id} یافت نشد.'
+                        }, status=404)
+
+                event = CalendarEvent.objects.create(**event_dict)
+                saved_events.append({
+                    'id': f"event-{event.id}",
+                    'tempId': temp_id,
+                    'title': event.title,
+                    'start': event.event_date.isoformat(),
+                    'backgroundColor': 'red' if event.order else '#e7f1ff',
+                    'extendedProps': {
+                        'quantity': event.quantity,
+                        'orderId': event.order.id if event.order else None,
+                        'originalTitle': event.title.split(" - ")[0] if " - " in event.title else event.title,
+                        'originalQuantity': event.order.quantity_to_produce if event.order else event.quantity,
+                        'type': event_type,
+                        'is_new': False
+                    }
+                })
+
+            return JsonResponse({
+                'success': True,
+                'events': saved_events
+            })
+
+        except ValueError as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'داده نامعتبر: {str(e)}'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'خطای سرور: {str(e)}'
+            }, status=500)
+
+    return JsonResponse({
+        'success': False,
+        'error': 'درخواست نامعتبر'
+    }, status=400)
+def get_order_calendar_info(request):
+    data = []
+    user_info = CalendarEvent.objects.all()
+
+    # Function to generate a random hex color
+    def get_random_color():
+        return "#{:06x}".format(random.randint(0, 0xFFFFFF))
+
+    # Map order IDs to colors
+    
+    non_order_color = get_random_color()  # Single color for non-order events
+
+    # Pre-fetch unique order IDs to assign colors
+    order_ids = set(event.order.id for event in user_info if event.order)
+    order_colors = cache.get('order_colors', {})
+    if not order_colors:
+        order_colors = {order_id: get_random_color() for order_id in order_ids}
+        cache.set('order_colors', order_colors, timeout=3600)  # Cache for 1 hour
+    for order_id in order_ids:
+        order_colors[order_id] = get_random_color()
+
+    for i in user_info:
+        # Assign background color based on order
+        background_color = order_colors.get(i.order.id) if i.order else non_order_color
+
+        event_data = {
+            'id': f"event-{i.id}",
+            'title': i.title,
+            'start': i.event_date.isoformat(),
+            'backgroundColor': background_color,
+            'extendedProps': {
+                'quantity': i.quantity,
+                'orderId': i.order.id if i.order else None,
+                'originalTitle': i.title.split(" - ")[0] if " - " in i.title else i.title,
+                'originalQuantity': i.order.quantity_to_produce if i.order else i.quantity,
+                'type': i.type,
+                'description': i.description,
+                'is_new': False  # Assume all database events are saved
+            }
+        }
+        data.append(event_data)
+
+    return JsonResponse(data, safe=False)
