@@ -84,6 +84,7 @@ def save_morder_form(request, form, template_name):
 
     data = dict()
     if (request.method == 'POST'):
+        print('POST!!!!!!!!!!!')
         if form.is_valid():
             bts=form.save()
             data['form_is_valid'] = True

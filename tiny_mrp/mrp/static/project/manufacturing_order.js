@@ -819,7 +819,7 @@ var loadForm =function (btn1) {
         
 
         $("#newOrderModal .modal-content").html(data.html_morder_form);
-        $('#dateInput').pDatepicker({
+        $('.pdate').pDatepicker({
             format: 'YYYY-MM-DD',
             autoClose: true,
             initialValueType: 'gregorian',
@@ -880,5 +880,7 @@ var saveForm= function () {
 $("#createNewMorder").click(loadForm);
 $("#newOrderModal").on("submit", ".js-morder-create-form", saveForm);
 $("#tableView").on("click", ".js-morder-edit", loadForm);
+$("#newOrderModal").on("submit", ".js-morder-update-form", saveForm);
+
 
 });

@@ -239,7 +239,10 @@ class ManufacturingOrder(models.Model):
         help_text="Template for generating work orders"
     )  # Added to link to template
     status = models.CharField(max_length=20, choices=MO_STATUS, default='draft')
-    scheduled_date = models.DateTimeField()
+    scheduled_date = models.DateField()
+    first_date = models.DateField(null=True,blank=True)
+    second_date = models.DateField(null=True,blank=True)
+    
     responsible = models.ForeignKey(
         'SysUser',
         on_delete=models.SET_NULL,
