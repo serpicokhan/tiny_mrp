@@ -107,6 +107,17 @@ def create_morder(request):
         print("!!!!!!!!!!!")
         form = ManufacturingOrderForm()
         return save_morder_form(request, form, 'mrp/manufactureorder/partialMOrderCreate.html')
+    
+def update_morder(request, id):
+    company= get_object_or_404(ManufacturingOrder, id=id)
+    template=""
+    if (request.method == 'POST'):
+        form = ManufacturingOrderForm(request.POST, instance=company)
+    else:
+        form = ManufacturingOrderForm(instance=company)
+
+
+    return save_morder_form(request, form,"mrp/manufactureorder/partialMOrderUpdate.html")
 @require_GET
 def manufacturing_orders_api(request):
     try:

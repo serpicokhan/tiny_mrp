@@ -162,7 +162,12 @@ urlpatterns = [
 
     url(r'^MOrder/$', manufacture_order_list, name='manufacture_order_list'),
     url(r'^MOrder/Create$', create_morder, name='create_morder'),
+    url(r'^MOrder/(?P<id>\d+)/Update$', update_morder, name='update_morder'),
+    
     url(r'^MOrder/Detail$', manufacture_order_detail, name='manufacture_order_detail'),
+    url(r'^MOrder/bulk-create-events/', bulk_create_events, name='bulk_create_events'),
+    url(r'^MOrder/Calendar/GetInfo/$', get_order_calendar_info, name='get_order_calendar_info'),
+
     path('api/responsible-persons/', get_responsible_persons, name='get_responsible_persons'),
     path('api/customers/', get_customers, name='get_customers'),
     path('api/MOrder/', manufacturing_orders_api, name='manufacturing_orders_api'),
@@ -179,9 +184,7 @@ urlpatterns = [
     url(r'^api/create-asset/$', create_asset2, name="create_asset2"),
     url(r'^api/create-supplier/$', create_supplier, name="create_supplier"),
     url(r'^api/save-purchase-request/', views.save_purchase_request, name='save-purchase-request'),
-    url(r'^MOrder/bulk-create-events/', bulk_create_events, name='bulk_create_events'),
-    url(r'^MOrder/Calendar/GetInfo/$', get_order_calendar_info, name='get_order_calendar_info'),
-
+    
     
 
 

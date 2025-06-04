@@ -13,6 +13,14 @@
             background-color: #f5f5f5;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
+        body {
+            font-family: 'Vazir', 'Arial', sans-serif;
+            direction: rtl;
+            text-align: right;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
         .container-fluid {
             max-width: 1400px;
         }
@@ -160,15 +168,15 @@
         <!-- Page Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <a href="gpt.html" class="back-button"><i class="fas fa-arrow-left me-2"></i>Back to Manufacturing Orders</a>
-                <h1 class="fw-bold text-dark mt-2"><i class="fas fa-industry me-2"></i>Manufacturing Order Details</h1>
+                <!-- <a href="gpt.html" class="back-button"><i class="fas fa-arrow-left me-2"></i>Back to Manufacturing Orders</a> -->
+                <h1 class="fw-bold text-dark mt-2"><i class="fas fa-industry me-2"></i>جزییات سفارش تولید</h1>
             </div>
             <div class="action-buttons">
-                <button class="btn btn-primary" id="confirmBtn" style="display: none;"><i class="fas fa-check me-1"></i>Confirm</button>
-                <button class="btn btn-primary" id="progressBtn" style="display: none;"><i class="fas fa-play me-1"></i>Start Progress</button>
-                <button class="btn btn-primary" id="doneBtn" style="display: none;"><i class="fas fa-flag-checkered me-1"></i>Mark as Done</button>
-                <button class="btn btn-outline-danger" id="cancelBtn" style="display: none;"><i class="fas fa-times me-1"></i>Cancel</button>
-                <button class="btn btn-outline-secondary" id="editBtn"><i class="fas fa-edit me-1"></i>Edit</button>
+                <button class="btn btn-primary" id="confirmBtn" style="display: none;"><i class="fas fa-check me-1"></i>تایید</button>
+                <button class="btn btn-primary" id="progressBtn" style="display: none;"><i class="fas fa-play me-1"></i>شروع</button>
+                <button class="btn btn-primary" id="doneBtn" style="display: none;"><i class="fas fa-flag-checkered me-1"></i>انجام شده</button>
+                <button class="btn btn-outline-danger" id="cancelBtn" style="display: none;"><i class="fas fa-times me-1"></i>انصراف</button>
+                <button class="btn btn-outline-secondary" id="editBtn"><i class="fas fa-edit me-1"></i>ویرایش</button>
             </div>
         </div>
 
@@ -182,15 +190,15 @@
                             <img id="productImage" class="product-image me-2">
                             <h5 id="productName" class="mb-0"></h5>
                         </div>
-                        <p><strong>Status:</strong> <span id="orderStatus" class="status-badge"></span></p>
-                        <p><strong>Quantity:</strong> <span id="orderQuantity"></span></p>
-                        <p><strong>Bill of Materials:</strong> <span id="orderBom"></span></p>
+                        <p><strong>وضعیت:</strong> <span id="orderStatus" class="status-badge"></span></p>
+                        <p><strong>حجم:</strong> <span id="orderQuantity"></span></p>
+                        <p><strong>لیست اجزا:</strong> <span id="orderBom"></span></p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Scheduled Date:</strong> <span id="orderDate"></span></p>
-                        <p><strong>Customer:</strong> <span id="orderCustomer"></span></p>
-                        <p><strong>Responsible:</strong> <span id="orderResponsible"></span></p>
-                        <p><strong>Notes:</strong> <span id="orderNotes" class="text-muted"></span></p>
+                        <p><strong>تاریخ تولید:</strong> <span id="orderDate"></span></p>
+                        <p><strong>مشتری:</strong> <span id="orderCustomer"></span></p>
+                        <p><strong>مسئول:</strong> <span id="orderResponsible"></span></p>
+                        <p><strong>یادداشت:</strong> <span id="orderNotes" class="text-muted"></span></p>
                     </div>
                 </div>
 

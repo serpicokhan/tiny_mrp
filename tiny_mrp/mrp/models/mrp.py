@@ -217,6 +217,13 @@ class Operation(models.Model):
 class ManufacturingOrder(models.Model):
     """Model representing a manufacturing order in the MRP system."""
     reference = models.CharField(max_length=50, unique=True)
+    line = models.ForeignKey(
+        Line,
+        on_delete=models.SET_NULL,
+        blank=True,null=True,
+        
+        related_name="orderd_line"
+    )
     product_to_manufacture = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,

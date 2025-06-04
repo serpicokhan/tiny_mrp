@@ -345,10 +345,10 @@ function loadOrdersTable() {
                 <td>${order.customer ? order.customer.name : '-'}</td>
                 <td>${order.responsible ? order.responsible.name : '-'}</td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary me-1" title="View">
+                    <a class="btn btn-sm btn-outline-primary me-1" href="/MOrder/Detail?orderId=${order.id}" title="View">
                         <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" title="Edit">
+                    </a>
+                    <button class="btn btn-sm btn-outline-secondary js-morder-edit" title="Edit" data-url="/MOrder/${order.id}/Update">
                         <i class="fas fa-edit"></i>
                     </button>
                 </td>
@@ -382,16 +382,16 @@ function loadGridView() {
             <div class="grid-card" data-id="${order.id}" data-status="${order.status}">
                 <div class="grid-card-title">${order.reference}</div>
                 <div class="d-flex align-items-center mb-3">
-                    <img src="${order.product.image}" class="product-image me-2">
+                    <img src="https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img/https://tabseer.co/wp-content/uploads/2021/02/Articles-1593028629.png" class="product-image me-2">
                     <div>${order.product.name} (${order.product.code})</div>
                 </div>
                 <div class="grid-card-details">
-                    <div><strong>Quantity:</strong> ${order.quantity.toFixed(1)}</div>
-                    <div><strong>BOM:</strong> ${order.bom}</div>
-                    <div><strong>Work Orders:</strong> ${workOrderText}</div>
-                    <div><strong>Scheduled Date:</strong> ${order.scheduledDate}</div>
-                    <div><strong>Customer:</strong> ${order.customer ? order.customer.name : 'None'}</div>
-                    <div><strong>Responsible:</strong> ${order.responsible ? order.responsible.name : 'None'}</div>
+                    <div><strong>حجم:</strong> ${order.quantity.toFixed(1)}</div>
+                    <div><strong>لیست مواد:</strong> ${order.bom}</div>
+                    <div><strong>دستور تولید:</strong> ${workOrderText}</div>
+                    <div><strong>تاریخ تولید:</strong> ${order.scheduledDate}</div>
+                    <div><strong>مشتری:</strong> ${order.customer ? order.customer.name : 'None'}</div>
+                    <div><strong>مسئول:</strong> ${order.responsible ? order.responsible.name : 'None'}</div>
                     <div class="mt-3"><span class="status-badge ${statusClass}">${statusText}</span></div>
                 </div>
                 <div class="d-flex justify-content-end mt-3">
@@ -511,7 +511,7 @@ function loadCustomers() {
 function loadProductOptions() {
     const select = $('#productSelect');
     select.empty();
-    select.append('<option value="" selected disabled>Select a product</option>');
+    select.append('<option value="" selected disabled>انتخاب محصول</option>');
     
     
     products.forEach(product => {
@@ -819,6 +819,16 @@ var loadForm =function (btn1) {
         
 
         $("#newOrderModal .modal-content").html(data.html_morder_form);
+        $('#dateInput').pDatepicker({
+            format: 'YYYY-MM-DD',
+            autoClose: true,
+            initialValueType: 'gregorian',
+            calendar:{
+              persian: {
+                  leapYearMode: 'astronomical'
+              }
+          }
+          });
         loadOrdersTable();
         loadGridView();
         
@@ -869,5 +879,6 @@ var saveForm= function () {
 
 $("#createNewMorder").click(loadForm);
 $("#newOrderModal").on("submit", ".js-morder-create-form", saveForm);
+$("#tableView").on("click", ".js-morder-edit", loadForm);
 
 });
