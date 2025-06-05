@@ -819,16 +819,17 @@ var loadForm =function (btn1) {
         
 
         $("#newOrderModal .modal-content").html(data.html_morder_form);
-        $('.pdate').pDatepicker({
-            format: 'YYYY-MM-DD',
-            autoClose: true,
-            initialValueType: 'gregorian',
-            calendar:{
-              persian: {
-                  leapYearMode: 'astronomical'
-              }
-          }
-          });
+        // $('.pdate').pDatepicker({
+        //     format: 'YYYY-MM-DD',
+        //     autoClose: true,
+        //     initialValueType: 'gregorian',
+        //     calendar:{
+        //       persian: {
+        //           leapYearMode: 'astronomical'
+        //       }
+        //   }
+        //   });
+        // $('[data-input-mask="date"]').mask('0000/00/00/');
         loadOrdersTable();
         loadGridView();
         
@@ -881,6 +882,9 @@ $("#createNewMorder").click(loadForm);
 $("#newOrderModal").on("submit", ".js-morder-create-form", saveForm);
 $("#tableView").on("click", ".js-morder-edit", loadForm);
 $("#newOrderModal").on("submit", ".js-morder-update-form", saveForm);
+$("#newOrderModal").on("load", function(){
+    
+});
 
 
 });

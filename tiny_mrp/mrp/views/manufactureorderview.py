@@ -84,8 +84,10 @@ def save_morder_form(request, form, template_name):
 
     data = dict()
     if (request.method == 'POST'):
-        print('POST!!!!!!!!!!!')
+        
+
         if form.is_valid():
+            print(form.cleaned_data)
             bts=form.save()
             data['form_is_valid'] = True
             
@@ -108,11 +110,28 @@ def create_morder(request):
         print("!!!!!!!!!!!")
         form = ManufacturingOrderForm()
         return save_morder_form(request, form, 'mrp/manufactureorder/partialMOrderCreate.html')
-    
+@csrf_exempt  
 def update_morder(request, id):
     company= get_object_or_404(ManufacturingOrder, id=id)
     template=""
     if (request.method == 'POST'):
+        print(request.body)
+        # body =json.loads(request.body)
+        # print(body)
+        
+
+        # data = request.POST.dict()
+        # data['reference']=body['reference']
+        # data['line']=body['line']
+        # data['product_to_manufacture']=body['product_to_manufacture']
+        # data['quantity_to_produce']=body['quantity_to_produce']
+        # data['bom']=body['bom']
+        # data['status']=body['status']
+        # data['responsible']=body['responsible']
+        # data['customer']=body['customer']
+        # data['scheduled_date']=DateJob.getTaskDate(body['scheduled_date'])
+        # data['first_date']=DateJob.getTaskDate(body['first_date'])
+        # data['second_date']=DateJob.getTaskDate(body['second_date'])
         form = ManufacturingOrderForm(request.POST, instance=company)
     else:
         form = ManufacturingOrderForm(instance=company)

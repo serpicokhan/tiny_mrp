@@ -17,6 +17,21 @@
     </div>
 </div>
 <div class="row mb-4">
+    <div class="col-md-4">
+        <label for="dateInput" class="form-label">تاریخ شروع *</label>
+        {% render_field form.scheduled_date data-input-mask="date"  class="form-control pdate" id="dateInput"   %}
+    </div>
+   
+    <div class="col-md-4">
+        <label for="dateInput1" class="form-label">تاریخ ارایه نمونه *</label>
+        {% render_field form.first_date class="form-control pdate" data-input-mask="date"   %}
+    </div>
+    <div class="col-md-4">
+        <label for="dateInput2" class="form-label">تاریخ تحویل نمونه *</label>
+        {% render_field form.second_date class="form-control pdate" data-input-mask="date"   %}
+    </div>
+</div>
+<div class="row mb-4">
     <div class="col-md-3">
         <label for="quantityInput" class="form-label">کمیت *</label>
         <div class="input-group">
@@ -24,20 +39,7 @@
             {% render_field form.quantity_to_produce class="form-control " id="quantityInput" min="0.1" step="0.1" value="1.0" required=""  %}
         </div>
     </div>
-    <div class="col-md-4">
-        <label for="dateInput1" class="form-label">تاریخ ارایه نمونه *</label>
-        {% render_field form.first_date class="form-control pdate"  required=""  %}
-    </div>
-    <div class="col-md-4">
-        <label for="dateInput2" class="form-label">تاریخ تحویل نمونه *</label>
-        {% render_field form.second_date class="form-control pdate"  required=""  %}
-    </div>
-</div>
-<div class="row mb-4">
-    <div class="col-md-4">
-        <label for="dateInput" class="form-label">تاریخ شروع *</label>
-        {% render_field form.scheduled_date class="form-control pdate" id="dateInput" required=""  %}
-    </div>
+   
     <div class="col-md-4">
         <label for="customerSelect" class="form-label">مشتری</label>
         {% render_field form.customer class="form-control"  %}

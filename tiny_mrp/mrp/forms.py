@@ -268,64 +268,55 @@ class WorkCenterForm(forms.ModelForm):
     class Meta:
          model = WorkCenter
          fields = '__all__'
+
+
 class ManufacturingOrderForm(forms.ModelForm):
+    
+    # def clean(self):
+        
+    #     cleaned_data = super().clean()  # Ensure parent clean is called
+        
+    #     scheduled_date = cleaned_data.get('scheduled_date')
+    #     first_date = cleaned_data.get('first_date')
+    #     second_date = cleaned_data.get('second_date')
+    #     print(scheduled_date,first_date,second_date,'!!!!!!!!!!!!')
+
+    #     # Add custom cross-field validation here if needed
+    #     return cleaned_data
+
     class Meta:
         model = ManufacturingOrder
-        fields = [
-            'reference', 'product_to_manufacture', 'bom', 'quantity_to_produce',
-            'scheduled_date', 'first_date', 'second_date', 'customer', 'responsible', 'notes'
-        ]
+        fields='__all__'
         widgets = {
-            'scheduled_date': forms.TextInput(attrs={'class': 'form-control'}),
-            'first_date': forms.TextInput(attrs={'class': 'form-control pdate'}),
-            'second_date': forms.TextInput(attrs={'class': 'form-control pdate'}),
+            'scheduled_date': forms.TextInput(attrs={'class': 'form-control pdate', 'placeholder': '1404-03-14'}),
+            'first_date': forms.TextInput(attrs={'class': 'form-control pdate', 'placeholder': '1404-03-14'}),
+            'second_date': forms.TextInput(attrs={'class': 'form-control pdate', 'placeholder': '1404-03-14'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': '4'}),
         }
+    def _normalize_persian_numerals(self, date_str):
+            """Convert Persian numerals to ASCII numerals."""
+            if not date_str:
+                return date_str
+            persian_to_ascii = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
+            return date_str.translate(persian_to_ascii)
     def clean_scheduled_date(self):
+        print("@@@@@@@@@@@@@@@@@@")
         date_str = self.cleaned_data.get('scheduled_date')
-        print('!!!!!!!!!!!!!!!!!!!!!')
         if not date_str:
             raise forms.ValidationError("تاریخ شروع الزامی است.")
         try:
-            # Parse Jalali date in YYYY-MM-DD format (e.g., ۱۴۰۴-۰۳-۱۴)
-            # jalali_date = jdatetime.date.fromisoformat(date_str)
-            # Convert to Gregorian date
-            # gregorian_date = jalali_date.togregorian()
-            
-            # Convert to datetime with default time 00:00:00
-            gregorian_date =DateJob.getTaskDate(date_str)
-            print(gregorian_date)
-            
-            # gregorian_datetime = datetime.combine(gregorian_date, datetime.min.time())
+           
+            # Try parsing as Gregorian first (since input might be 2025-06-03)
+            try:
+                gregorian_date = date_str
+            except ValueError:
+                # Fallback to Jalali if Gregorian parsing fails
+                jalali_date = jdatetime.date.fromisoformat(date_str)
+                gregorian_date = jalali_date.togregorian()
             return gregorian_date
-        except ValueError:
-            print('!!!!!!!!!!!!!!!!!!')
-            raise forms.ValidationError("فرمت تاریخ شروع نامعتبر است. لطفاً از فرمت ۱۴۰۴-۰۳-۱۴ استفاده کنید.")
+        except ValueError as e:
+            raise forms.ValidationError("فرمت تاریخ شروع نامعتبر است. لطفاً از فرمت ۱۴۰۴-۰۳-۱۴ یا 2025-06-03 استفاده کنید.")
+       
 
-    def clean_first_date(self):
-        date_str = self.cleaned_data.get('first_date')
-        if not date_str:  # Optional field, return None if empty
-            return None
-        try:
-            # jalali_date = jdatetime.date.fromisoformat(date_str)
-            # gregorian_date = jalali_date.togregorian()
-            gregorian_date =DateJob.getTaskDate(date_str)
-            
-            # gregorian_datetime = datetime.combine(gregorian_date, datetime.min.time())
-            return gregorian_date
-        except ValueError:
-            raise forms.ValidationError("فرمت تاریخ ارایه نمونه نامعتبر است. لطفاً از فرمت ۱۴۰۴-۰۳-۱۴ استفاده کنید.")
 
-    def clean_second_date(self):
-        date_str = self.cleaned_data.get('second_date')
-        if not date_str:  # Optional field, return None if empty
-            return None
-        try:
-            # jalali_date = jdatetime.date.fromisoformat(date_str)
-            # gregorian_date = jalali_date.togregorian()
-            gregorian_date =DateJob.getTaskDate(date_str)
-            # gregorian_datetime = datetime.combine(gregorian_date, datetime.min.time())
-            return gregorian_date
-        except ValueError:
-            raise forms.ValidationError("فرمت تاریخ تحویل نمونه نامعتبر است. لطفاً از فرمت ۱۴۰۴-۰۳-۱۴ استفاده کنید.")
-
+    
