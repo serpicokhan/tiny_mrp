@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from datetime import datetime, timedelta
+import jdatetime
 
 MO_STATUS = [
     ('draft', 'Draft'),
@@ -215,6 +216,8 @@ class Operation(models.Model):
     def __str__(self):
         return f"{self.name} (Seq: {self.sequence}) - {self.work_order_template}"
 class ManufacturingOrder(models.Model):
+    def get_dateCreated_jalali(self):
+        return jdatetime.date.fromgregorian(date=self.created_at)
     """Model representing a manufacturing order in the MRP system."""
     reference = models.CharField(max_length=50, unique=True)
     line = models.ForeignKey(
@@ -293,6 +296,7 @@ class ManufacturingOrder(models.Model):
                 end_date=end_date,
                 status='planned'
             )
+
 class WorkOrder(models.Model):
     """Model representing a specific work order within a manufacturing order."""
     manufacturing_order = models.ForeignKey(

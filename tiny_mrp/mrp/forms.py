@@ -287,18 +287,8 @@ class ManufacturingOrderForm(forms.ModelForm):
     class Meta:
         model = ManufacturingOrder
         fields='__all__'
-        widgets = {
-            'scheduled_date': forms.TextInput(attrs={'class': 'form-control pdate', 'placeholder': '1404-03-14'}),
-            'first_date': forms.TextInput(attrs={'class': 'form-control pdate', 'placeholder': '1404-03-14'}),
-            'second_date': forms.TextInput(attrs={'class': 'form-control pdate', 'placeholder': '1404-03-14'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': '4'}),
-        }
-    def _normalize_persian_numerals(self, date_str):
-            """Convert Persian numerals to ASCII numerals."""
-            if not date_str:
-                return date_str
-            persian_to_ascii = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
-            return date_str.translate(persian_to_ascii)
+
+
     def clean_scheduled_date(self):
         print("@@@@@@@@@@@@@@@@@@")
         date_str = self.cleaned_data.get('scheduled_date')
@@ -308,7 +298,45 @@ class ManufacturingOrderForm(forms.ModelForm):
            
             # Try parsing as Gregorian first (since input might be 2025-06-03)
             try:
-                gregorian_date = date_str
+                gregorian_date = DateJob.getTaskDate(date_str)
+                print(gregorian_date,'!!!!!!!!!!!!')
+            except ValueError:
+                # Fallback to Jalali if Gregorian parsing fails
+                jalali_date = jdatetime.date.fromisoformat(date_str)
+                gregorian_date = jalali_date.togregorian()
+            return gregorian_date
+        except ValueError as e:
+            raise forms.ValidationError("فرمت تاریخ شروع نامعتبر است. لطفاً از فرمت ۱۴۰۴-۰۳-۱۴ یا 2025-06-03 استفاده کنید.")
+        
+    def clean_second_date(self):
+        print("@@@@@@@@@@@@@@@@@@")
+        date_str = self.cleaned_data.get('second_date')
+        if not date_str:
+            raise forms.ValidationError("تاریخ شروع الزامی است.")
+        try:
+           
+            # Try parsing as Gregorian first (since input might be 2025-06-03)
+            try:
+                gregorian_date = DateJob.getTaskDate(date_str)
+                print(gregorian_date,'!!!!!!!!!!!!')
+            except ValueError:
+                # Fallback to Jalali if Gregorian parsing fails
+                jalali_date = jdatetime.date.fromisoformat(date_str)
+                gregorian_date = jalali_date.togregorian()
+            return gregorian_date
+        except ValueError as e:
+            raise forms.ValidationError("فرمت تاریخ شروع نامعتبر است. لطفاً از فرمت ۱۴۰۴-۰۳-۱۴ یا 2025-06-03 استفاده کنید.")
+    def clean_first_date(self):
+        print("@@@@@@@@@@@@@@@@@@")
+        date_str = self.cleaned_data.get('first_date')
+        if not date_str:
+            raise forms.ValidationError("تاریخ شروع الزامی است.")
+        try:
+           
+            # Try parsing as Gregorian first (since input might be 2025-06-03)
+            try:
+                gregorian_date = DateJob.getTaskDate(date_str)
+                print(gregorian_date,'!!!!!!!!!!!!')
             except ValueError:
                 # Fallback to Jalali if Gregorian parsing fails
                 jalali_date = jdatetime.date.fromisoformat(date_str)

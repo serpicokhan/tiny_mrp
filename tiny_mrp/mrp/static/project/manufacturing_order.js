@@ -195,7 +195,7 @@ let componentChart = null;
     });
 
     // Quantity change - update BOM preview and button state
-    $('#quantityInput').on('input change', function() {
+    $('#newOrderModal').on('input change','#quantityInput', function() {
         const bomId = $('#bomSelect').val();
         if(bomId) {
             updateBomPreview(bomId);
@@ -819,17 +819,18 @@ var loadForm =function (btn1) {
         
 
         $("#newOrderModal .modal-content").html(data.html_morder_form);
-        // $('.pdate').pDatepicker({
-        //     format: 'YYYY-MM-DD',
-        //     autoClose: true,
-        //     initialValueType: 'gregorian',
-        //     calendar:{
-        //       persian: {
-        //           leapYearMode: 'astronomical'
-        //       }
-        //   }
-        //   });
-        // $('[data-input-mask="date"]').mask('0000/00/00/');
+        $('.pdate').pDatepicker({
+            format: 'YYYY-MM-DD',
+            autoClose: true,
+            initialValueType: 'gregorian',
+            calendar:{
+              persian: {
+                  leapYearMode: 'astronomical'
+              }
+          },
+          persianDigit: false,  // This should disable Persian digits
+          });
+        // $('[data-input-mask="date"]').mask('0000-00-00');
         loadOrdersTable();
         loadGridView();
         
@@ -847,7 +848,23 @@ var loadForm =function (btn1) {
 
 
 };
+function convertPersianToEnglish(str) {
+    if (!str) return str;
+    
+    var persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    var englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    
+    for (var i = 0; i < 10; i++) {
+        str = str.replace(new RegExp(persianNumbers[i], 'g'), englishNumbers[i]);
+    }
+    return str;
+}
 var saveForm= function () {
+    $('.pdate').each(function() {
+        var persianDate = $(this).val();
+        var englishDate = convertPersianToEnglish(persianDate);
+        $(this).val(englishDate);
+    });
     var form = $(this);
 
     console.log(form);
@@ -858,7 +875,9 @@ var saveForm= function () {
       type: form.attr("method"),
       dataType: 'json',
       beforeSend:function(){
+       
         console.log(form.serialize());
+
       },
       success: function (data) {
         console.log(data);

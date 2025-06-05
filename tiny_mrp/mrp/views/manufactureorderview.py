@@ -169,7 +169,7 @@ def manufacturing_orders_api(request):
                     } for wo in order.work_orders.all()
                 ],
                 'status': order.status,
-                'scheduledDate': order.scheduled_date.strftime('%Y-%m-%d'),
+                'scheduledDate': order.get_dateCreated_jalali().strftime('%Y-%m-%d'),
                 'customer': {
                     'id': order.customer.id,
                     'name': order.customer.name
