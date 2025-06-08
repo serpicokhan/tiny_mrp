@@ -19,16 +19,16 @@
 <div class="row mb-4">
     <div class="col-md-4">
         <label for="dateInput" class="form-label">تاریخ شروع *</label>
-        {% render_field form.scheduled_date data-input-mask="date"  class="form-control pdate" id="dateInput"   %}
+        {% render_field form.scheduled_date  class="form-control pdate" id="dateInput"   %}
     </div>
    
     <div class="col-md-4">
         <label for="dateInput1" class="form-label">تاریخ ارایه نمونه *</label>
-        {% render_field form.first_date class="form-control pdate" data-input-mask="date"   %}
+        {% render_field form.first_date class="form-control pdate"    %}
     </div>
     <div class="col-md-4">
         <label for="dateInput2" class="form-label">تاریخ تحویل نمونه *</label>
-        {% render_field form.second_date class="form-control pdate" data-input-mask="date"   %}
+        {% render_field form.second_date class="form-control pdate"    %}
     </div>
 </div>
 <div class="row mb-4">
@@ -53,10 +53,10 @@
 <!-- Tabs for Components and Work Orders -->
 <ul class="nav nav-tabs mb-3" id="moTabs" role="tablist">
     <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="components-tab" data-bs-toggle="tab" data-bs-target="#components" type="button" role="tab" aria-controls="components" aria-selected="true">Components</button>
+        <button class="nav-link active" id="components-tab" data-bs-toggle="tab" data-bs-target="#components" type="button" role="tab" aria-controls="components" aria-selected="true">اجزا</button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="workorders-tab" data-bs-toggle="tab" data-bs-target="#workorders" type="button" role="tab" aria-controls="workorders" aria-selected="false">Work Orders</button>
+        <button class="nav-link" id="workorders-tab" data-bs-toggle="tab" data-bs-target="#workorders" type="button" role="tab" aria-controls="workorders" aria-selected="false">دستور کارها</button>
     </li>
 </ul>
 
