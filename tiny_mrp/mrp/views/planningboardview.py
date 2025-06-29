@@ -20,7 +20,7 @@ from django.db.models import F
 
 def list_pboard(request):
     items = RequestItem.objects.filter(
-    purchase_request__status__in=("Ordered"),
+    purchase_request__status__in=("Purchased"),
     # price=0,
     supplied_quantity__lt=F('quantity')
 ).select_related('purchase_request').order_by('-id')
