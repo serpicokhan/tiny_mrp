@@ -326,7 +326,13 @@ def update_purchase_v2(request,id):
     faktors=PurchaseRequestFaktor.objects.filter(purchase_request=company)
     comments = company.comments.all().filter(Q(to_user=request.user.sysuser) | Q(to_user__isnull=True)| Q(user__userId=request.user))
 
-    notes = company.notes.filter(user=request.user.sysuser) 
+    # notes = company.notes.filter(user=request.user.sysuser) 
+    notes=None
+    user_groups = request.user.groups.all()
+    if user_groups.exists():
+        notes = company.notes.filter(user__userId__groups__in=user_groups)
+    else:
+        notes = company.notes.filter(user=request.user.sysuser)
     plogs=company.plogs.all()
     rfqs=RFQ.objects.filter(items__purchase_request=company)
 
