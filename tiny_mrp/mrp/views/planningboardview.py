@@ -20,7 +20,7 @@ from django.db.models import F
 
 def list_pboard(request):
     items = RequestItem.objects.filter(
-    purchase_request__status__in=("Purchased","Ordered"),
+    purchase_request__status__in=("Ordered"),
     # price=0,
     supplied_quantity__lt=F('quantity')
 ).select_related('purchase_request').order_by('-id')
@@ -30,16 +30,7 @@ def list_pboard(request):
 @csrf_exempt  # Disable CSRF for testing purposes; ensure proper CSRF handling in production
 def save_suppliers_pb(request):
     if request.method == 'POST':
-    #     data = json.loads(request.body)
-    #     suppliers = data.get('suppliers', [])
-        
-    #     for supplier in suppliers:
-
-    #         print(f"Saving supplier {supplier['item_id']}")
-
-    #     return JsonResponse({"message": "Suppliers saved successfully"}, status=200)
-
-    # return JsonResponse({"error": "Invalid request"}, status=400)
+   
     
         try:
             # Get the posted JSON data
@@ -61,19 +52,7 @@ def save_suppliers_pb(request):
 
                 # Get or create the related Supplier, Part, and Asset2 objects
                 supplier = get_object_or_404(Supplier, pk=supplier_id)
-                # part = get_object_or_404(Part, id=item_id)  # Adjust according to your Part model
-                # consume_place = get_object_or_404(Asset2, name=place)  # Adjust according to your Asset2 model
-
-                # Update or create the RequestItem
-                # request_item, created = RequestItem.objects.update_or_create(
-                #     item_name=part,
-                #     defaults={
-                #         'price': price,
-                #         'supplied_quantity': quantity,
-                #         'supplier_assigned': supplier,
-                        
-                #     }
-                # )
+                
                 request_item=RequestItem.objects.get(id=item_id)
                 request_item.supplier_assigned=supplier
                 request_item.supplied_quantity+=float(quantity)
