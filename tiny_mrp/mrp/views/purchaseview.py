@@ -1307,3 +1307,32 @@ def purchase_request_detail_print(request, pk):
     
     # Render the template with the context
     return render(request, 'mrp/purchase/print.html', context)
+@login_required
+@csrf_exempt
+def update_note(request, comment_id):
+    if request.method == 'POST':
+        try:
+            comment = PurchaseNotes.objects.get(id=comment_id)
+            # Check if the user has permission to edit
+            # if request.user != comment.user:
+            #     return JsonResponse({
+            #         'success': False,
+            #         'error': 'شما اجازه ویرایش این یادداشت را ندارید'
+            #     }, status=403)
+            comment.content = request.POST.get('content', '')
+            comment.save()
+            return JsonResponse({'success': True})
+        except Comment.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'یادداشت یافت نشد'
+            }, status=404)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'خطا در ذخیره تغییرات: {str(e)}'
+            }, status=500)
+    return JsonResponse({
+        'success': False,
+        'error': 'درخواست نامعتبر است'
+    }, status=400)

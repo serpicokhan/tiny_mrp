@@ -129,6 +129,8 @@ urlpatterns = [
     url(r'^Purchases/RefereshList$', referesh_purchase_list, name='referesh_purchase_list'),
     url(r'^Purchases/AddComment$', add_purchase_comment, name='add_purchase_comment'),
     url(r'^Purchases/AddNote$', add_purchase_note, name='add_purchase_note'),
+    url(r'^Purchases/UpdateNotes/(?P<comment_id>\d+)/$', update_note, name='update_note'),
+
       url(r'^Purchases/Whatsapp/send_group$',send_purchase_wtf_msg,name='send_purchase_wtf_msg'),
 
     # Gaurd section
