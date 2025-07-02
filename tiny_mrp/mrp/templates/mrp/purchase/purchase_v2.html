@@ -1,4 +1,5 @@
-
+{% load custom_filters %}
+{% load humanize %}
 
 <div class="row">
     
@@ -8,6 +9,61 @@
             <div class="card-body">
                 <h6 class="card-title">{{title}}</h6>
                 <input type="hidden" id="companyId" name="companyId" value="{{company.id}}" />
+                {% if request.user|in_group:"purchase" %}
+
+                <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;" >
+                    <table class="table  table-bordered">
+                        <thead>
+                            <tr  class="bg-dark">
+                                <th>نام کالا</th>
+                                <th>تعداد</th>
+                                <th>قسمت مورد مصرف</th>
+
+                                <th>شرح</th>
+                                <th>تامین کننده</th>
+                                <th>تعداد تامینی</th>
+                                <th>فی</th>
+                               
+                                <th> عملیات</th>
+                                
+
+                                
+                            </tr>
+                        </thead>
+                        <tbody id="table-body-purchase">
+                            
+                            {% for i in items %} 
+                            <tr data-id="{{i.id}}">
+                                <td  class=" part-name" data-id="{{i.item_name.id}}" data-partcode="{{i.item_name.partCode}}">{{i.item_name.partName}}</td>
+                                <td  class="">{{i.quantity}}</td>
+                                <td  class=" machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
+                                <td  class=" " data-id="">{{i.description}}</td>
+                                <td  class=" " data-id="">{{i.supplier_assigned|default_if_none:'مشخص نشده'}}</td>
+                                <td  class=" " data-id="">{{i.supplied_quantity|default_if_none:'مشخص نشده'}}</td>
+                                <td  class=" " data-id="">{{i.price|intcomma}}</td>
+                                <td  class="" data-id=""><a href="#" data-url="{% url 'update_purchase_item' i.id %}" data-toggle="tooltip" title="" data-original-title="جزییات" class="js-purchase-item-update">
+                                    <i class="fa fa-external-link"></i>
+                                </a></td>
+
+                                
+                                
+                            </tr>
+                            {% endfor %}
+                           
+                        </tbody>
+                      
+                       
+                    </table>
+                </div>
+                <div class="modal fade" id="modal-company" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+                    <div class="modal-dialog  modal-lg ">
+           
+                      <div class="modal-content ">
+                      </div>
+                    </div>
+                   </div>
+
+                {% else %}
 
                 <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
                     <table class="table  table-bordered">
@@ -73,6 +129,7 @@
                        
                     </table>
                 </div>
+                {% endif %}
 
             </div>
         </div>

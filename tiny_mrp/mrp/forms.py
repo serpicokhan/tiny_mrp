@@ -253,6 +253,35 @@ class ProductFilterForm(forms.Form):
                 queryset = queryset.filter(available_quantity__lte=0)
         
         return queryset
+
+class RequestItemForm(forms.ModelForm):
+    # item_name = forms.CharField(
+    #     required=True,
+    #     widget=forms.TextInput(attrs={'disabled': 'disabled'}),
+    #     label="Item Name"
+    # )
+    # # Define supplier_assigned as a CharField to render as a text input
+    # supplier_assigned = forms.CharField(
+    #     required=False,
+    #     widget=forms.TextInput(attrs={'disabled': 'disabled'}),
+    #     label="Supplier Assigned",
+    #     help_text="Supplier who can provide this item (optional)"
+    # )
+    # consume_place = forms.CharField(
+    #     required=False,
+    #     widget=forms.TextInput(attrs={'disabled': 'disabled'}),
+    #     label="consume_place",
+    #     help_text="Supplier who can provide this item (optional)"
+    # )
+
+    class Meta:
+        model = RequestItem
+        fields = [ 'description', 'price','supplied_quantity']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4}),
+        }
+
+    
 class BOMForm(forms.ModelForm):
     class Meta:
          model = BillOfMaterials

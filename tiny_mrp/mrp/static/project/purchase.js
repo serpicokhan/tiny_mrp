@@ -371,6 +371,61 @@ $(document).ready(function() {
         // Open a new window with the constructed URL
         window.open(url, '_blank');
     });
+  
+    $(document).on("click",'.js-purchase-item-update', function () {
+        let btn=$(this);
+  
+        return $.ajax({
+          url: btn.attr("data-url"),
+          type: 'get',
+          dataType: 'json',
+          beforeSend: function () {
+            $("#modal-company").modal("show");
+
+          },
+          success: function (data) {
+  
+            $("#modal-company .modal-content").html(data.html_purchase_item_form);
+            
+           
+         
+  
+          },
+          error: function () {
+              $("#modal-company").modal("hide"); // Hide modal on error
+              alert("Failed to load content. Please try again.");
+            $(".modal-backdrop").remove();
+
+          }
+        });
+    });
+    $(document).on("submit",'#modal-company', function () {
+        console.log("test");
+        
+        var form = $(this);
+
+
+        $.ajax({
+        url: form.attr("action"),
+        data: form.serialize(),
+        type: form.attr("method"),
+        dataType: 'json',
+        success: function (data) {
+
+            if (data.form_is_valid) {
+            $("#tbody_company").empty();
+            $("#tbody_company").html(data.html_purchase_item_list);
+            $("#modal-company").modal("hide");
+            }
+            else {
+
+            toastr.error(data.error);
+            }
+        }
+        });
+        return false;
+    });
+
 
     $(document).on("click",'#saveButton', function () {
 

@@ -21,6 +21,7 @@ from django.db.models import Max
 import ast
 from django.contrib.auth.models import User, Permission
 import re
+from mrp.forms import RequestItemForm
 
 @login_required
 
@@ -1336,3 +1337,42 @@ def update_note(request, comment_id):
         'success': False,
         'error': 'درخواست نامعتبر است'
     }, status=400)
+
+@login_required
+def update_purchase_item(request,id):
+    company= get_object_or_404(RequestItem, id=id)
+    template=""
+    if (request.method == 'POST'):
+        form = RequestItemForm(request.POST, instance=company)
+    else:
+        form = RequestItemForm(instance=company)
+
+
+    return save_purchase_item_form(request, form,"mrp/purchase/partialPurchaseItemUpdate.html")
+
+def save_purchase_item_form(request, form, template_name):
+
+
+    data = dict()
+    if (request.method == 'POST'):
+        if form.is_valid():
+            bts=form.save()
+            data['form_is_valid'] = True
+            books= RequestItem.objects.filter(
+    purchase_request=bts.purchase_request,
+    # price=0,
+    
+).select_related('purchase_request').order_by('-id')
+            data['html_purchase_item_list'] = render_to_string('mrp/purchase/partialPurchaseItemList.html', {
+                'shifts': books,
+                'perms': PermWrapper(request.user)
+            })
+        else:
+            data['form_is_valid'] = False
+            print(form.errors)
+
+    context = {'form': form,'item_name':form.instance.item_name.partName}
+
+
+    data['html_purchase_item_form'] = render_to_string(template_name, context, request=request)
+    return JsonResponse(data)

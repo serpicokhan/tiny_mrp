@@ -67,11 +67,6 @@ $(function () {
    }
 
 
-   
-
-
-
-
   // // Update book
   $("#company-table").on("click", ".js-update-shift", myWoLoader);
   $("#modal-company").on("submit", ".js-shift-update-form", saveForm);
