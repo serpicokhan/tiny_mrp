@@ -443,7 +443,8 @@ $(document).ready(function() {
         
 
         // Iterate through each table row
-        $("#table-body tr").each(function () {
+        $("#table-body tr").each(function (index) {
+            const rowNumber = index + 1;
             const partNameCell = $(this).find(".part-name");
             const quantityCell = $(this).find(".editable-cell").eq(1); // Second cell for quantity
             const machineNameCell = $(this).find(".machine-name");
@@ -453,26 +454,26 @@ $(document).ready(function() {
             // Validate fields
             if (!partNameCell.text().trim()) {
                 valid = false;
-                errorMessage += "اسم قطعه ضروری است.\n";
+                errorMessage += `شماره سطر ${rowNumber}:`+"اسم قطعه ضروری است.\n";
             }
             if (!partNameCell.attr("data-id")) {
                 valid = false;
-                errorMessage += "کد قطعه ضرور است.\n";
+                errorMessage += `شماره سطر ${rowNumber}:`+"اسم قطعه را بایستی انتخاب کنید\n";
             }
 
             if (!quantityCell.text().trim() || isNaN(quantityCell.text().trim()) || parseInt(quantityCell.text().trim()) <= 0) {
                 valid = false;
-                errorMessage += "تعداد بایستی عدد مثبت باشد.\n";
+                errorMessage +=`شماره سطر ${rowNumber}:`+ "تعداد بایستی عدد مثبت باشد.\n";
             }
 
             if (!machineNameCell.attr("data-id")) {
                 valid = false;
-                errorMessage += "کد ماشین ضروری است.\n";
+                errorMessage += `شماره سطر ${rowNumber}:`+"نام قسمت مورد مصرف را بایستی انتخاب کنید.\n";
             }
 
             if (!descriptionCell.text().trim()) {
                 valid = false;
-                errorMessage += "شرح ضروری است.\n";
+                errorMessage +=`شماره سطر ${rowNumber}:`+ "شرح ضروری است.\n";
             }
            console.log({
             id:item_id,
