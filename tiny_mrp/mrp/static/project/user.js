@@ -11,7 +11,7 @@ $(function () {
         dataType: 'json',
         beforeSend: function () {
   
-          $("#modal-company").modal({backdrop: 'static', keyboard: false});
+          $("#modal-company").modal('show');
   
         },
         success: function (data) {
