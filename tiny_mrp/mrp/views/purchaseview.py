@@ -502,25 +502,71 @@ def confirm_request(request,id):
 
     return JsonResponse(data)
     # return JsonResponse({"status":"ok",'status':company.status})
+
+@csrf_exempt
 def reject_request(request,id):
-    company=PurchaseRequest.objects.get(id=id)
-    company.status="Rejected"
-    company.save()
-    list_item=list_purchaseRequeset(request)
-    data=dict()
-    data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList_v2.html', {
-                
-                'req':list_item,
-                'perms': PermWrapper(request.user) 
+    if(request.method=="GET"):
+        print("get")
+        data=dict()
+        data["http_status"]="ok"
+        data["parchase_req_html"]=render_to_string('mrp/purchase/partialRejectForm.html', {                    
+                    'id':id,
+                    'perms': PermWrapper(request.user)                     
+                },request)
+        return JsonResponse(data)    
+    elif(request.method=="POST"):
+        
+        purchase_request = get_object_or_404(PurchaseRequest, id=id)        
+        # Permission check
+        if not purchase_request.can_be_rejected_by(request.user):
+            return JsonResponse({
+                'success': False, 
+                'error': 'شما اجازه رد این درخواست را ندارید.'
+            }, status=403)
+        
+        # Status check
+        if purchase_request.status in ['Rejected', 'Completed','Ordered','Purchased']:
+            return JsonResponse({
+                'success': False, 
+                'error': 'این درخواست قبلاً پردازش شده است.'
+            }, status=400)
+        
+        try:
+            
+            rejection_reason = request.POST.get('rejectReason', False)
 
-
-                
-            },request)
-    data["http_status"]="ok"
-    data["status"]=company.get_status_display()
-
-
-    return JsonResponse(data)
+            
+            if not rejection_reason:
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'دلیل رد درخواست الزامی است.'
+                }, status=400)
+            
+            # Reject the request
+            purchase_request.reject_request(
+                rejected_by_user=request.user.sysuser,
+                rejection_reason=rejection_reason
+            )
+            
+            return JsonResponse({
+                'success': True, 
+                'message': f'درخواست خرید شماره {id} با موفقیت رد شد.',
+                'new_status': purchase_request.get_status_display(),
+                'rejected_by': str(purchase_request.rejected_by),
+                'rejected_at': purchase_request.rejected_at.strftime('%Y-%m-%d %H:%M') if purchase_request.rejected_at else None
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False, 
+                'error': 'داده های ارسالی نامعتبر است.'
+            }, status=400)
+        except Exception as e:
+            print(e)
+            return JsonResponse({
+                'success': False, 
+                'error': f'خطا در پردازش درخواست: {str(e)}'
+            }, status=500)
 
 def list_purchaseRequeset(request):
     return filter_request_by(request)
@@ -1376,3 +1422,63 @@ def save_purchase_item_form(request, form, template_name):
 
     data['html_purchase_item_form'] = render_to_string(template_name, context, request=request)
     return JsonResponse(data)
+
+
+@login_required
+def reject_purchase_request_ajax(request, request_id):
+    """
+    AJAX version of rejection view for better UX
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+    
+    purchase_request = get_object_or_404(PurchaseRequest, id=request_id)
+    
+    # Permission check
+    if not purchase_request.can_be_rejected_by(request.user):
+        return JsonResponse({
+            'success': False, 
+            'error': 'شما اجازه رد این درخواست را ندارید.'
+        }, status=403)
+    
+    # Status check
+    if purchase_request.status in ['Rejected', 'Completed']:
+        return JsonResponse({
+            'success': False, 
+            'error': 'این درخواست قبلاً پردازش شده است.'
+        }, status=400)
+    
+    try:
+        data = json.loads(request.body)
+        rejection_reason = data.get('rejection_reason', '').strip()
+        
+        if not rejection_reason:
+            return JsonResponse({
+                'success': False, 
+                'error': 'دلیل رد درخواست الزامی است.'
+            }, status=400)
+        
+        # Reject the request
+        purchase_request.reject_request(
+            rejected_by_user=request.user,
+            rejection_reason=rejection_reason
+        )
+        
+        return JsonResponse({
+            'success': True, 
+            'message': f'درخواست خرید شماره {request_id} با موفقیت رد شد.',
+            'new_status': purchase_request.get_status_display(),
+            'rejected_by': str(purchase_request.rejected_by),
+            'rejected_at': purchase_request.rejected_at.strftime('%Y-%m-%d %H:%M') if purchase_request.rejected_at else None
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False, 
+            'error': 'داده های ارسالی نامعتبر است.'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False, 
+            'error': f'خطا در پردازش درخواست: {str(e)}'
+        }, status=500)

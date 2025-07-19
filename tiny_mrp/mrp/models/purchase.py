@@ -7,6 +7,7 @@ from django.utils.timezone import now
 import os
 import json
 from mrp.models import SysUser,Asset2,Part
+
 class PurchaseRequest(models.Model):
     def has_attachment(self):
         # files
@@ -46,13 +47,6 @@ class PurchaseRequest(models.Model):
             for i, item in enumerate(items)
         ]
         return "\n".join(item_details)
-    # def getItems(self):
-    #     items = self.items.select_related('item_name').all()
-    #     rows = [
-    #         f"<li>Item Name: {item.item_name.partName} (Quantity: {item.quantity}, Consume Place: {item.consume_place})</li>"
-    #         for item in items
-    #     ]
-    #     return f"<ul>{''.join(rows)}</ul>"  # Wrap items in an unordered list
 
     def getItems2(self):
         items = self.items.select_related('item_name').all()
@@ -85,8 +79,83 @@ class PurchaseRequest(models.Model):
             self.save()  # Save the updated PurchaseRequest with the new viewer
     def get_viwer(self):
         return json.loads(self.viewed_by)
-    """Represents a purchase request submitted by an employee."""
 
+    # NEW REJECTION METHODS
+    def reject_request(self, rejected_by_user, rejection_reason):
+        """
+        Method to reject a purchase request with a reason and user tracking
+        """
+        self.status = 'Rejected'
+        self.rejected_by = rejected_by_user
+        self.rejection_reason = rejection_reason
+        self.rejected_at = timezone.now()
+        self.save()
+        
+        # Create activity log for rejection
+        PurchaseActivityLog.objects.create(
+            user=rejected_by_user,
+            purchase_request=self,
+            action=f'رد درخواست با دلیل: {rejection_reason}'
+        )
+
+    def can_be_rejected_by(self, user):
+        """
+        Check if a user has permission to reject this purchase request based on current status
+        """
+        # Define which user roles can reject at which status
+        rejection_permissions = {
+            'Pending': ['anbar', 'admin'],  # انبار دار و ادمین
+            'Approved': ['managers', 'admin'],   # مهندس اعزامی و ادمین  
+            'Approve2': ['director', 'admin'], # مهندس ارزنده و ادمین
+            'Approve3': ['purchase', 'admin'], # بازرگانی و ادمین
+            'Approve4': ['guard', 'admin'],             # نگهبان و ادمین
+            'GuardApproved': ['admin'],                 # فقط ادمین
+        }
+        
+        # You need to implement user role checking based on your user system
+        # This is a placeholder - adjust based on your actual user role implementation
+        user_roles = self.get_user_roles(user)
+        allowed_roles = rejection_permissions.get(self.status, [])
+        print(allowed_roles)
+        # allowed_roles = self.update_allowed_roles(allowed_roles, user)
+        
+        return any(role in allowed_roles for role in user_roles)
+
+    def get_user_roles(self, user):
+        """
+        Helper method to get user roles - implement based on your user system
+        """
+        # This is a placeholder - implement based on your actual user role system
+        # You might have roles stored in user profile, groups, or permissions
+        roles = []
+        
+        # Example implementation - adjust based on your system:
+        if hasattr(user, 'groups'):
+            group_names = user.groups.values_list('name', flat=True)
+            roles.extend(group_names)
+        
+        if hasattr(user, 'role'):
+            roles.append(user.role)
+        roles.append(user.username)
+            
+        return roles
+
+    def is_rejected(self):
+        """Check if the request is rejected"""
+        return self.status == 'Rejected'
+
+    def get_rejection_info(self):
+        """Get rejection information"""
+        if self.is_rejected():
+            return {
+                'rejected_by': self.rejected_by,
+                'rejection_reason': self.rejection_reason,
+                'rejected_at': self.rejected_at,
+                'rejected_at_jalali': jdatetime.datetime.fromgregorian(datetime=self.rejected_at) if self.rejected_at else None
+            }
+        return None
+
+    """Represents a purchase request submitted by an employee."""
 
     user = models.ForeignKey(SysUser, on_delete=models.CASCADE, related_name='purchase_requests')
     created_at = models.DateField(auto_now_add=False, default=timezone.now)
@@ -94,6 +163,27 @@ class PurchaseRequest(models.Model):
     is_tamiri = models.BooleanField(default=False)
     viewed_by = models.TextField(blank=True, default='[]')
     manager_comment = models.TextField(blank=True, default='')
+    
+    # NEW REJECTION FIELDS
+    rejected_by = models.ForeignKey(
+        SysUser, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='rejected_purchase_requests',
+        help_text="کاربری که درخواست را رد کرده"
+    )
+    rejection_reason = models.TextField(
+        blank=True, 
+        null=True,
+        help_text="دلیل رد درخواست"
+    )
+    rejected_at = models.DateTimeField(
+        null=True, 
+        blank=True,
+        help_text="زمان رد درخواست"
+    )
+    
     status = models.CharField(
         max_length=20,
         choices=[
@@ -105,47 +195,47 @@ class PurchaseRequest(models.Model):
             ('Approve3', 'تایید مهندس ارزنده'),
             ('Purchased', 'خریداری شد'),
             ('Approve4', 'تایید بازرگانی'),
-            ('GuardApproved', 'ورود ناقص'),  # وضعیت جدید
-            ('Completed', 'کامل شده')  # وقتی همه آیتم‌ها تأمین و تأیید شدن
-            ],
+            ('GuardApproved', 'ورود ناقص'),
+            ('Completed', 'کامل شده')
+        ],
         default='Pending'
     )
+    
     def is_fully_supplied(self):
         return all(item.is_fully_supplied() for item in self.items.all())
+        
     def update_status(self):
+        # Don't update status if already rejected
+        if self.status == 'Rejected':
+            return
+            
         has_entries = any(
-        item.entries.exists() 
-        for item in self.items.all()
-    )
+            item.entries.exists() 
+            for item in self.items.all()
+        )
         if not has_entries:
-            return  # اگه هیچ ورودی نباشه، هیچ کاری نکن
+            return
+            
         all_guard_approved = all(
             entry.guard_approved 
             for item in self.items.all() 
             for entry in item.entries.all()
         )
     
-        # چک کن که همه آیتم‌ها کامل تأمین شدن یا نه
         fully_supplied = self.is_fully_supplied()
 
         if fully_supplied and all_guard_approved:
             self.status = 'Completed'
-        elif has_entries  and self.status != 'GuardApproved':
-            print("her$$$$$$$")
+        elif has_entries and self.status != 'GuardApproved':
             self.status = 'GuardApproved'
-        else:
-            # print("else$$$$$$$$$",fully_supplied,all_guard_approved,has_entries)
-            print(has_entries,all_guard_approved,'!!!!!!!!!!!!!!')
-            print(has_entries and not all_guard_approved and self.status != 'GuardApproved')
         
         self.save()
-
-    
 
     def __str__(self):
         return f"درخواست {self.id} توسط {self.user}"
 
 
+# REST OF YOUR MODELS REMAIN THE SAME...
 class RequestItem(models.Model):
     """Represents an individual item in a purchase request."""
     purchase_request = models.ForeignKey(PurchaseRequest, on_delete=models.CASCADE, related_name='items')
@@ -203,8 +293,6 @@ class RFQ(models.Model):
     description = models.TextField(blank=True, null=True)
     is_verified = models.BooleanField(default=False)
 
-
-
     def __str__(self):
         return f"RFQ for Supplier {self.supplier.name}"
 
@@ -233,30 +321,26 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order for Supplier {self.supplier.name}"
+
+        
 class PurchaseRequestFile(models.Model):
-    # Foreign Key to the PurchaseRequest model
     purchase_request = models.ForeignKey(PurchaseRequest, on_delete=models.CASCADE, related_name='files')
-
-    # File field to store the uploaded file
     file = models.FileField(upload_to='purchase_requests/files/')
-
-    # Optional: Timestamp when the file was uploaded
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
          return os.path.basename(self.file.name)
+
+         
 class PurchaseRequestFaktor(models.Model):
-    # Foreign Key to the PurchaseRequest model
     purchase_request = models.ForeignKey(PurchaseRequest, on_delete=models.CASCADE, related_name='faktors')
-
-    # File field to store the uploaded file
     file = models.FileField(upload_to='purchase_requests/faktors/')
-
-    # Optional: Timestamp when the file was uploaded
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
          return os.path.basename(self.file.name)
+
+         
 class Comment(models.Model):
     purchase_request = models.ForeignKey(
         PurchaseRequest, on_delete=models.CASCADE, related_name='comments'
@@ -271,7 +355,8 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.user} on {self.purchase_request}"
-    
+
+        
 class PurchaseNotes(models.Model):
     purchase_request = models.ForeignKey(
         PurchaseRequest, on_delete=models.CASCADE, related_name='notes'
@@ -282,6 +367,8 @@ class PurchaseNotes(models.Model):
 
     def __str__(self):
         return f"Comment by {self.user} on {self.purchase_request}"
+
+        
 class PurchaseActivityLog(models.Model):
     user = models.ForeignKey(SysUser, on_delete=models.SET_NULL, null=True, blank=True)
     purchase_request = models.ForeignKey('PurchaseRequest', on_delete=models.CASCADE,related_name='plogs')
@@ -290,8 +377,11 @@ class PurchaseActivityLog(models.Model):
 
     def __str__(self):
         return f"{self.user} {self.action} on {self.purchase_request}"
+        
     def get_dateCreated_jalali(self):
-        return jdatetime.date.fromgregorian(date=self.timestamp) 
+        return jdatetime.date.fromgregorian(date=self.timestamp)
+
+        
 class GoodsEntry(models.Model):
     request_item = models.ForeignKey(RequestItem, on_delete=models.CASCADE, related_name='entries')
     entry_date = models.DateField(default=timezone.now)
@@ -308,13 +398,10 @@ class GoodsEntry(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # به‌روزرسانی supplied_quantity در RequestItem
         total_received = self.request_item.entries.aggregate(total=models.Sum('quantity_received'))['total'] or 0
         self.request_item.supplied_quantity = total_received
         self.request_item.save()
         self.request_item.purchase_request.update_status()
 
-
     def __str__(self):
         return f"ورود {self.quantity_received} عدد از {self.request_item.item_name} در {self.entry_date}"
-

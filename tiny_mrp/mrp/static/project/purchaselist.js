@@ -503,11 +503,76 @@ function isNumeric(str) {
     $(document).on('click', '.rfq', function () {
     loadRFQForm($(this).attr("data-url"));
     });
-    $(document).on('click', '.rejected', function () {
+    $(document).on('click', '.rejected, .reject-purchase-request', function () {
         url=$(this).attr("data-url");
-        reject_request(url);     
-        $(this).hide();
-        return false;
+        console.log(url);
+        
+        // reject_request(url);     
+        // $(this).hide();
+        // return false;
+        // $("#rejectRequestModal").modal("show");
+        return $.ajax({
+          url: url,
+          type: 'get',
+          dataType: 'json',
+          beforeSend: function () {
+           $("#rejectRequestModal").modal("show");
+          },
+          success: function (data) {
+            
+            if(data.http_status=="ok"){
+              
+              $("#rejectRequestModal  .modal-content").html(data.parchase_req_html);
+
+            }
+            
+            
+            
+
+    
+          }
+        });
+
+    });
+    $(document).on('submit','.js-purchase-reject-form',function(){
+      var form = $(this);
+      console.log(form.attr("method"));
+      // const csrfToken = document.querySelector('meta[name="csrf-token"]').content || 
+      //                        document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+      
+
+
+      $.ajax({
+        url: form.attr("action"),
+        data: form.serialize(),
+      //   headers: {
+      //     'X-CSRF-Token': csrfToken, // CSRF token in header (common for Django/Laravel)
+      //     'Accept': 'application/json',
+      // },
+        type: form.attr("method"),
+        dataType: 'json',
+        beforeSend:function(){
+            console.log(form.serialize());
+        },
+        success: function (data) {
+ 
+          if (data.success) {
+            toastr.success(data.message);
+            $("#rejectRequestModal").modal("hide");
+
+            refreshList2();
+          }
+          else {
+ 
+            toastr.error(data.error);
+          }
+        },
+        error:function(x,y,z){
+          toastr.error(x.responseJSON.error);
+          
+        }
+      });
+      return false;
     });
     $(document).on('click', '.btn-block3', function () {
         console.log('clicked');
