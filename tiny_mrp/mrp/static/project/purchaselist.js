@@ -52,10 +52,13 @@ $(function () {
         },
         success: function (data) {
         $("#modal-company .modal-content").html(data.html_rfq_form);
+        
+        
         $('.select2').select2({
           tags: true,  // Enable tags for creating new options
           placeholder: 'Select an item or create new...',
           allowClear: true,  // Option to clear selection
+          minimumResultsForSearch: 0,
           createTag: function (params) {
               // When user types a new option, we can create the new option.
               var term = params.term;

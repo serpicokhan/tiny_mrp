@@ -380,7 +380,9 @@ $(document).ready(function() {
           type: 'get',
           dataType: 'json',
           beforeSend: function () {
-            $("#modal-company").modal("show");
+            $('#modal-company').modal({
+                backdrop: false
+            });
 
           },
           success: function (data) {
