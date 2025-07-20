@@ -22,6 +22,7 @@ import ast
 from django.contrib.auth.models import User, Permission
 import re
 from mrp.forms import RequestItemForm
+from webpush import send_user_notification
 
 @login_required
 
@@ -1482,3 +1483,33 @@ def reject_purchase_request_ajax(request, request_id):
             'success': False, 
             'error': f'خطا در پردازش درخواست: {str(e)}'
         }, status=500)
+@login_required
+def send_push(request):
+    try:
+        payload = {
+            'head': 'Notification Title',
+            'body': 'Notification Message',
+            'icon': 'https://example.com/icon.png',
+            'url': 'https://example.com'
+        }
+        
+        # Send to specific user
+        print(request.user)
+        send_user_notification(
+            user=request.user,
+            payload=payload,
+            ttl=1000
+        )
+        
+        # Or send to all subscribed users
+        # from webpush.models import PushInformation
+        # for push_info in PushInformation.objects.all():
+        #     send_user_notification(
+        #         user=push_info.user,
+        #         payload=payload,
+        #         ttl=1000
+        #     )
+        
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})

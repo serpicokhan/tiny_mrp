@@ -179,6 +179,8 @@ urlpatterns = [
     url(r'^api/create-supplier/$', create_supplier, name="create_supplier"),
     url(r'^api/save-purchase-request/', views.save_purchase_request, name='save-purchase-request'),
     url(r'^api/users/', get_users_api, name='get_users_api'),
+    path('save-subscription/', save_subscription, name='save_subscription'),
+    path('send-push/', send_push, name='send_push'),
 
     
 

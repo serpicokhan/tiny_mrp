@@ -42,9 +42,15 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'mathfilters',
     'rest_framework',
+    'webpush',
 
 
 ]
+WEBPUSH_SETTINGS = {
+    "VAPID_PUBLIC_KEY": "BB6OpsqQ3mEdMntt5G3hPyaxvJBtTFOrORWZ6iD4ZPphw7YgEvUAIc9SECFUq5V6Ddt0BITU5_OeDiTyC9uTpT0",
+    "VAPID_PRIVATE_KEY": "SZC_CVkzqyuXztM09BuljVSgM5yrwAoDX7FO2XmXQaA",
+    "VAPID_ADMIN_EMAIL": "moein.serpico@gmail.com"
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -70,6 +76,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
 				'django.template.context_processors.media',
+                 
             ],
         },
     },
@@ -85,10 +92,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mrp581_jason',
-        'USER': 'mrp581_jason',
-        'PASSWORD': 'UuuV4YnQHyDh',
-        'HOST': 'services.irn9.chabokan.net',
-        'PORT': '49495',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
 LOGIN_REDIRECT_URL = 'index'

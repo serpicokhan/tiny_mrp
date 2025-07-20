@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 {% load static %}
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,6 +30,7 @@
     {% block stylesheet %}
     
     {% endblock %}
+    {% include 'webpush_header.html' %}
 </head>
 <body class="stretch-layout navigation-toggle-one">
 
@@ -95,6 +97,7 @@
 
     <!-- begin::main-content -->
     <div class="main-content">
+        
         {% block content %}
         {% endblock %}
 
@@ -103,7 +106,7 @@
         <!-- begin::footer -->
         <footer>
             <div class="container-fluid">
-              <div>© 1402 |سیستم مدیریت تولید و درخواست دیانا <a href="https://sarvrayan.ir">سرو رایان</a></div>
+              <div>© 1404 |سیستم مدیریت تولید و درخواست دیانا <a href="https://sarvrayan.ir">سرو رایان</a></div>
       
              
           </footer>
@@ -162,6 +165,93 @@
 <script src="{%  static 'vendors/quill/quill.js' %}"></script>
 
 <script src="{%  static 'assets/js/app.min.js' %}"></script>
+<script>
+    // Request permission for notifications
+    function askPermission() {
+        return new Promise(function(resolve, reject) {
+            const permissionResult = Notification.requestPermission(function(result) {
+                resolve(result);
+            });
+
+            if (permissionResult) {
+                permissionResult.then(resolve, reject);
+            }
+        }).then(function(permissionResult) {
+            if (permissionResult !== 'granted') {
+                throw new Error('Permission not granted for Notification');
+            }
+        });
+    }
+
+    // Register service worker and subscribe to push
+    function registerServiceWorker() {
+        return navigator.serviceWorker.register('{% static "sw.js" %}')
+            .then(function(registration) {
+                console.log('Service worker successfully registered.');
+                return registration;
+            })
+            .catch(function(err) {
+                console.error('Unable to register service worker.', err);
+            });
+    }
+
+    function subscribeUserToPush(registration) {
+        const subscribeOptions = {
+            userVisibleOnly: true,
+            applicationServerKey: "{{ vapid_public_key }}"
+        };
+
+        return registration.pushManager.subscribe(subscribeOptions)
+            .then(function(pushSubscription) {
+                console.log('Received PushSubscription: ', JSON.stringify(pushSubscription));
+                return pushSubscription;
+            });
+    }
+
+    function sendSubscriptionToBackEnd(subscription) {
+        return fetch('/save-subscription/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(subscription)
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error('Bad status code from server.');
+            }
+            return response.json();
+        })
+        .then(function(responseData) {
+            if (!(responseData.data && responseData.data.success)) {
+                throw new Error('Bad response from server.');
+            }
+        });
+    }
+
+    // Main function to setup push notifications
+    function setupPush() {
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            registerServiceWorker()
+                .then(askPermission)
+                .then(function() {
+                    return navigator.serviceWorker.ready;
+                })
+                .then(subscribeUserToPush)
+                .then(sendSubscriptionToBackEnd)
+                .catch(function(err) {
+                    console.error('Error setting up push notifications:', err);
+                });
+        } else {
+            console.warn('Push messaging is not supported');
+        }
+    }
+
+    // Call setupPush when you want to enable notifications (e.g., on button click)
+    // Or call it on page load if you want to prompt immediately
+    // setupPush();
+</script>
 {% block javascript %}
 
 
