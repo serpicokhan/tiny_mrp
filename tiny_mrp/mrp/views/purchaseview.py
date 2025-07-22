@@ -22,7 +22,7 @@ import ast
 from django.contrib.auth.models import User, Permission
 import re
 from mrp.forms import RequestItemForm
-from webpush import send_user_notification
+# from webpush import send_user_notification
 
 @login_required
 
@@ -452,8 +452,6 @@ def confirm_request(request,id):
     # Ensure the user cannot confirm a request if the status is already higher
     current_status_index = status_hierarchy.index(company.status)
     new_status_index = status_hierarchy.index(new_status)
-    print("status",new_status,company.status)
-    print("status",new_status_index,current_status_index)
     if new_status_index <= current_status_index:
         return JsonResponse({
             "http_status": "error",
@@ -476,6 +474,9 @@ def confirm_request(request,id):
 
     # Update the status
     company.status = new_status
+    company.rejected_by = None
+    company.rejection_reason = None
+    company.rejected_at = None
     company.save()
     PurchaseActivityLog.objects.create(
             user=request.user.sysuser,  # User making the change

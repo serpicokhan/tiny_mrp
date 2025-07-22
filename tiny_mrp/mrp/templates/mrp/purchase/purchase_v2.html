@@ -9,7 +9,15 @@
             <div class="card-body">
                 <h6 class="card-title">{{title}}</h6>
                 <input type="hidden" id="companyId" name="companyId" value="{{company.id}}" />
+                {% if company.is_rejected %}
+                <div class="alert alert-danger" role="alert">
+                   
+                    رد درخواست  توسط {{company.rejected_by}} در {{company.get_rejected_at_jalali|date:"Y/m/d"}} بعلت {{company.rejection_reason}}
+                 </div>
+                {% endif %}
                 {% if request.user|in_group:"purchase" %}
+
+               
 
                 <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;" >
                     <table class="table  table-bordered">
