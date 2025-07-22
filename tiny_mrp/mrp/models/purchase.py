@@ -79,24 +79,63 @@ class PurchaseRequest(models.Model):
             self.save()  # Save the updated PurchaseRequest with the new viewer
     def get_viwer(self):
         return json.loads(self.viewed_by)
+    def get_rejected_at_jalali(self):
+        return jdatetime.datetime.fromgregorian(datetime=self.rejected_at)
+
 
     # NEW REJECTION METHODS
     def reject_request(self, rejected_by_user, rejection_reason):
         """
         Method to reject a purchase request with a reason and user tracking
         """
-        self.status = 'Rejected'
+        # Define the status progression (in reverse order for stepping back)
+        status_order = [
+            'Pending',
+            'Approved',
+            'Approve2',
+            'Approve4',
+            'Approve3',
+            'Ordered',
+            'Purchased',
+            'GuardApproved',
+            'Completed'
+        ]
+        try:
+            current_index = status_order.index(self.status)
+        except ValueError:
+            current_index = -1
+        if current_index > 0:
+            self.status = status_order[current_index - 1]
+        else:
+            self.status = 'Rejected'  # If at the start, mark as Rejected
+        # self.status = 'Rejected'
         self.rejected_by = rejected_by_user
         self.rejection_reason = rejection_reason
         self.rejected_at = timezone.now()
         self.save()
-        
+        # Create rejection history entry
+        PurchaseRejectionHistory.objects.create(
+            purchase_request=self,
+            rejected_by=rejected_by_user,
+            previous_status=status_order[current_index] if current_index >= 0 else self.status,
+            new_status=self.status,
+            rejection_reason=rejection_reason,
+            rejected_at=timezone.now()
+        )
+
         # Create activity log for rejection
         PurchaseActivityLog.objects.create(
             user=rejected_by_user,
             purchase_request=self,
-            action=f'رد درخواست با دلیل: {rejection_reason}'
+            action=f'رد درخواست با دلیل: {rejection_reason}، وضعیت از {status_order[current_index] if current_index >= 0 else self.status} به {self.status} تغییر کرد'
         )
+        
+        # # Create activity log for rejection
+        # PurchaseActivityLog.objects.create(
+        #     user=rejected_by_user,
+        #     purchase_request=self,
+        #     action=f'رد درخواست با دلیل: {rejection_reason}'
+        # )
 
     def can_be_rejected_by(self, user):
         """
@@ -142,7 +181,7 @@ class PurchaseRequest(models.Model):
 
     def is_rejected(self):
         """Check if the request is rejected"""
-        return self.status == 'Rejected'
+        return self.rejection_reason != None
 
     def get_rejection_info(self):
         """Get rejection information"""
@@ -189,7 +228,7 @@ class PurchaseRequest(models.Model):
         choices=[
             ('Pending', 'درخواست شده'),
             ('Approved', 'تایید انبار'),
-            ('Rejected', 'رد شده'),
+            # ('Rejected', 'رد شده'),
             ('Ordered', 'سفارش '),
             ('Approve2', 'تایید مدیر تولید'),
             ('Approve3', 'تایید مهندس ارزنده'),
@@ -234,7 +273,43 @@ class PurchaseRequest(models.Model):
     def __str__(self):
         return f"درخواست {self.id} توسط {self.user}"
 
+class PurchaseRejectionHistory(models.Model):
+    """Represents the history of rejections for a purchase request."""
+    purchase_request = models.ForeignKey(
+        PurchaseRequest, 
+        on_delete=models.CASCADE, 
+        related_name='rejection_history',
+        help_text="درخواست خرید مرتبط"
+    )
+    rejected_by = models.ForeignKey(
+        SysUser, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='rejection_actions',
+        help_text="کاربری که درخواست را رد کرده"
+    )
+    previous_status = models.CharField(
+        max_length=20,
+        help_text="وضعیت درخواست قبل از رد"
+    )
+    new_status = models.CharField(
+        max_length=20,
+        help_text="وضعیت جدید درخواست پس از رد"
+    )
+    rejection_reason = models.TextField(
+        help_text="دلیل رد درخواست"
+    )
+    rejected_at = models.DateTimeField(
+        default=timezone.now,
+        help_text="زمان رد درخواست"
+    )
 
+    def get_rejected_at_jalali(self):
+        return jdatetime.datetime.fromgregorian(datetime=self.rejected_at)
+
+    def __str__(self):
+        return f"رد درخواست {self.purchase_request.id} توسط {self.rejected_by} در {self.rejected_at}"
 # REST OF YOUR MODELS REMAIN THE SAME...
 class RequestItem(models.Model):
     """Represents an individual item in a purchase request."""
