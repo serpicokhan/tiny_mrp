@@ -147,7 +147,7 @@ class PurchaseRequest(models.Model):
             'Approved': ['managers', 'admin'],   # مهندس اعزامی و ادمین  
             'Approve2': ['purchase', 'admin'], # مهندس ارزنده و ادمین
             'Approve3': ['director', 'admin'], # بازرگانی و ادمین
-            'Approve4': ['guard', 'admin'],             # نگهبان و ادمین
+            'Approve4': ['director', 'admin'],             # نگهبان و ادمین
             'GuardApproved': ['admin'],                 # فقط ادمین
         }
         
