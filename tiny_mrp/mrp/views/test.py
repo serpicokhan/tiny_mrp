@@ -25,6 +25,7 @@ from django.urls import reverse
 from django.db.models import Q
 from mrp.utils import utilMonth
 from mrp.client_call import get_hozur_count
+from django.views.decorators.http import require_GET
 def backup_database(request):
     # Define your database credentials and output file's path
    # Define your database credentials and output file's path
@@ -1454,3 +1455,29 @@ def delete_amar_info(request):
         'shifts':shift,'next_date':'','prev_date':'','today':''}
     )
     return JsonResponse(data)
+@require_GET
+def search_personnel(request):
+    term = request.GET.get('term', '').strip()
+    
+    if not term:
+        return JsonResponse([], safe=False)
+    
+    # جستجو هم در PNumber و هم در ترکیب نام و نام خانوادگی
+    personnel = Personnel.objects.filter(
+        models.Q(PNumber__icontains=term) |
+        models.Q(FName__icontains=term) |
+        models.Q(LName__icontains=term) |
+        models.Q(FName__icontains=term.split(' ')[0]) & 
+        models.Q(LName__icontains=term.split(' ')[-1] if len(term.split(' ')) > 1 else '')
+    ).distinct()[:10]
+    
+    results = [{
+        'id': p.id,
+        'value': f"{p.PNumber} - {p.FName} {p.LName}",  # نمایش در لیست پیشنهادی
+        'label': f"{p.PNumber} - {p.FName} {p.LName}",  # نمایش در لیست پیشنهادی
+        'pnumber': p.PNumber,
+        'fname': p.FName,
+        'lname': p.LName
+    } for p in personnel]
+    
+    return JsonResponse(results, safe=False)

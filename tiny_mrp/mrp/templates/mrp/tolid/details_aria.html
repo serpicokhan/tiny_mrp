@@ -1,5 +1,43 @@
 {% extends 'mrp/blank-page.html' %}
+{% block stylesheet %}
+<style>
+  /* اضافه کردن این استایل‌ها به فایل CSS شما */
+.ui-autocomplete {
+    max-height: 200px;
+    overflow-y: auto;
+    /* جلوگیری از اسکرول صفحه اصلی */
+    overflow-x: hidden;
+    position: absolute;
+    z-index: 9999 !important;
+    /* سایر استایل‌ها */
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    list-style: none;
+}
 
+.ui-autocomplete li {
+    padding: 8px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ui-autocomplete li.ui-state-focus {
+    background-color: #f5f5f5;
+    border: none;
+    margin: 0;
+}
+
+/* جلوگیری از اسکرول بدنه صفحه هنگام نمایش لیست */
+.ui-autocomplete-open {
+    overflow: hidden;
+}
+</style>
+{% endblock %}
 {% block content %}
 <div class="row app-block">
 
@@ -115,48 +153,47 @@
 
                               
                               <div class="table-responsive">
-                                <table class="table table-bordered table-striped company-table" >
+                                <table class="table table-bordered table-striped company-table">
                                   <thead class="thead-dark">
-                                    <tr>
-                                      <th>نام ماشین</th>
-                                      <th>واحد</th>
-
-                                      <th>نمره</th>
-                                      <th>سرعت</th>
-
-                                      <th> کنتور ابتدای شیفت</th>
-                                      <th> کنتور انتهای شیفت</th>
-                                      <th>100%</th>
-                                      <th>تولید</th>
-
-                                    </tr>
+                                      <tr>
+                                          <th>نام ماشین</th>
+                                          <th>اپراتور</th> <!-- ستون جدید برای نام اپراتور -->
+                                          <th>واحد</th>
+                                          <th>نمره</th>
+                                          <th>سرعت</th>
+                                          <th>کنتور ابتدای شیفت</th>
+                                          <th>کنتور انتهای شیفت</th>
+                                          <th>100%</th>
+                                          <th>تولید</th>
+                                      </tr>
                                   </thead>
                                   <tbody>
-                                    {% for c in machines %}
-                                    
-                                    
-                                    {% if c.machine.assetCategory.id == cat_item.id %}
-                                    <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
-                                      <td>{{c.machine.assetName}}</td>
-                                      <td contenteditable="true" class="editable-cell btc vahed selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.vahed}}</td>
-
-                                      <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.nomre}}</td>
-                                      <td contenteditable="true" class=" editable-cell2 btc speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
-
-
-                                      <td contenteditable="true" class="editable-cell btc counter1 selectable1"></td>
-                                      <td contenteditable="true" class="editable-cell btc counter2 selectable1"></td>
-                                      <td contenteditable="true" class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}" >{{c.max}}</td>
-
-
-                                      <td contenteditable="true" data-formula="{{c.formula}}" class='production'></td>
-
-                                    </tr>
-                                    {% endif %}
-                                    {% endfor %}
-                                    <!-- Add more rows as needed -->
+                                      {% for c in machines %}
+                                      {% if c.machine.assetCategory.id == cat_item.id %}
+                                      <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
+                                          <td>{{c.machine.assetName}}</td>
+                                          
+                                          <!-- سلول جدید برای نام اپراتور -->
+                                          <td>
+                                            <input type="text" class="form-control operator-name" 
+                                                   placeholder="شماره پرسنلی یا نام اپراتور" 
+                                                   data-machine-id="{{c.machine.id}}">
+                                            <input type="hidden" class="operator-pnumber" name="operator_pnumber">
+                                            <input type="hidden" class="operator-id" name="operator_id">
+                                        </td>
+                                          
+                                          <td contenteditable="true" class="editable-cell btc vahed selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.vahed}}</td>
+                                          <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.nomre}}</td>
+                                          <td contenteditable="true" class="editable-cell2 btc speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
+                                          <td contenteditable="true" class="editable-cell btc counter1 selectable1"></td>
+                                          <td contenteditable="true" class="editable-cell btc counter2 selectable1"></td>
+                                          <td contenteditable="true" class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}">{{c.max}}</td>
+                                          <td contenteditable="true" data-formula="{{c.formula}}" class='production'></td>
+                                      </tr>
+                                      {% endif %}
+                                      {% endfor %}
                                   </tbody>
-                                </table>
+                              </table>
                               </div>
                             </div>
                        

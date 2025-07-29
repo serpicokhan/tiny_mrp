@@ -85,6 +85,49 @@
 
 
 $(function () {
+  $('.operator-name').autocomplete({
+    source: function(request, response) {
+        $.ajax({
+            url: '/api/personnel/search/',
+            dataType: 'json',
+            data: { term: request.term },
+            success: function(data) {
+                response(data);
+            }
+        });
+    },
+    minLength: 2,
+    focus: function(event, ui) {
+        $(this).val(ui.item.label);
+        return false;
+    },
+    select: function(event, ui) {
+        $(this).val(ui.item.fname + ' ' + ui.item.lname);
+        $(this).data('pnumber', ui.item.pnumber);
+        $(this).data('personnel-id', ui.item.id);
+        return false;
+    },
+    open: function() {
+        // هنگام باز شدن لیست پیشنهادی
+        $(this).data('scrollTop', $(window).scrollTop());
+        $('body').css('overflow', 'hidden');
+    },
+    close: function() {
+        // هنگام بسته شدن لیست پیشنهادی
+        $('body').css('overflow', 'auto');
+        $(window).scrollTop($(this).data('scrollTop'));
+    }
+}).autocomplete("instance")._renderMenu = function(ul, items) {
+    var self = this;
+    $.each(items, function(index, item) {
+        self._renderItemData(ul, item);
+    });
+    // اضافه کردن اسکرول به منو
+    $(ul).css('max-height', '200px')
+         .css('overflow-y', 'auto')
+         .css('overflow-x', 'hidden');
+};
+
   $('.tblrows').on('keydown','.editable-cell, .production',(function(e) {
     console.log("1");
         if (e.keyCode == 13) { // Enter key
