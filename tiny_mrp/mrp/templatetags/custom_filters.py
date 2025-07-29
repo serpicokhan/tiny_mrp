@@ -1,5 +1,7 @@
 from django import template
 from datetime import datetime
+from django.contrib.auth.models import User
+
 import jdatetime
 register = template.Library()
 
@@ -39,13 +41,35 @@ def has_comment_by_user(purchase_request, user):
     """
     Check if the given user has commented on the purchase request.
     """
-    return purchase_request.notes.filter(user=user).exists()
+    # return purchase_request.notes.filter(user=user).exists()
+     # First get the group(s) the user belongs to
+    user_groups = user.userId.groups.all()
+    
+    # Get all users in the same group(s)
+    group_users = User.objects.filter(groups__in=user_groups).distinct()
+    
+    # Get all notes from these users on the purchase request
+    group_notes = purchase_request.notes.filter(user__userId__in=group_users)
+    
+    return group_notes.exists()
 @register.filter
 def get_comment_by_user(purchase_request, user):
     """
     Check if the given user has commented on the purchase request.
     """
-    return purchase_request.notes.filter(user=user)[0].content
+    # if(purchase_request.notes.filter(user=user).count()>0):
+    #     return purchase_request.notes.filter(user=user)[0].content
+    # return None
+    user_groups = user.userId.groups.all()
+    
+    # Get all users in the same group(s)
+    group_users = User.objects.filter(groups__in=user_groups).distinct()
+
+    
+    # Get all notes from these users on the purchase request
+    group_notes = purchase_request.notes.filter(user__userId__in=group_users)[0].content
+    print(group_notes)
+    return group_notes
 @register.filter(name='to_jalali')
 def to_jalali(value, format='%Y-%m-%d'):
     """
