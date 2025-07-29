@@ -71,6 +71,7 @@
                     <i class="minimize" data-feather="minimize"></i>
                 </a>
             </li>
+         {% include 'mrp/notification.html' %}
         </ul>
 
         <!-- begin::mobile header toggler -->
@@ -165,92 +166,100 @@
 
 <script src="{%  static 'assets/js/app.min.js' %}"></script>
 <script>
-    // Request permission for notifications
-    function askPermission() {
-        return new Promise(function(resolve, reject) {
-            const permissionResult = Notification.requestPermission(function(result) {
-                resolve(result);
-            });
-
-            if (permissionResult) {
-                permissionResult.then(resolve, reject);
-            }
-        }).then(function(permissionResult) {
-            if (permissionResult !== 'granted') {
-                throw new Error('Permission not granted for Notification');
-            }
+   
+    // WebSocket connection
+    const notificationSocket = new WebSocket(
+      'ws://' + window.location.host + '/ws/notifications/'
+    );
+    
+    notificationSocket.onmessage = function(e) {
+      const data = JSON.parse(e.data);
+      addNotificationToUI(data);
+      updateBadge();
+    };
+    
+    // Function to fetch notifications via AJAX
+    function fetchNotifications() {
+        
+      fetch('/notifications/')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            
+          const list = document.getElementById('notificationList');
+          list.innerHTML = '';
+          data.notifications.forEach(notification => {
+            addNotificationToUI(notification);
+          });
+          updateBadge();
         });
     }
-
-    // Register service worker and subscribe to push
-    function registerServiceWorker() {
-        return navigator.serviceWorker.register('{% static "sw.js" %}')
-            .then(function(registration) {
-                console.log('Service worker successfully registered.');
-                return registration;
-            })
-            .catch(function(err) {
-                console.error('Unable to register service worker.', err);
-            });
+    
+    function addNotificationToUI(notification) {
+      const list = document.getElementById('notificationList');
+      const item = document.createElement('li');
+    //   item.className = 'dropdown-item';
+      item.innerHTML = `
+       <a href="#" class="list-group-item d-flex hide-show-toggler">
+                        <div>
+                            <figure class="avatar avatar-sm m-r-15">
+                                    <span class="avatar-title bg-success-bright text-success rounded-circle">
+                                        <i class="ti-user"></i>
+                                    </span>
+                            </figure>
+                        </div>
+                        <div class="flex-grow-1">
+                            <p class="mb-0 line-height-20 d-flex justify-content-between">
+                                ${notification.message}
+                                <i title="" data-toggle="tooltip" class="hide-show-toggler-item fa fa-circle-o font-size-11" data-original-title="Mark as read"></i>
+                            </p>
+                            <span class="text-muted small">${notification.time_ago}</span>
+                        </div>
+                    </a>`
+        // <a href="${notification.link || '#'}" 
+        //    onclick="markAsRead(${notification.id})"
+        //    class="notification-item">
+        //   ${notification.message}
+        //   <small class="text-muted">${notification.created_at}</small>
+        // </a>
+    //   `;
+      list.prepend(item);
     }
-
-    function subscribeUserToPush(registration) {
-        const subscribeOptions = {
-            userVisibleOnly: true,
-            applicationServerKey: "{{ vapid_public_key }}"
-        };
-
-        return registration.pushManager.subscribe(subscribeOptions)
-            .then(function(pushSubscription) {
-                console.log('Received PushSubscription: ', JSON.stringify(pushSubscription));
-                return pushSubscription;
-            });
+    
+    function updateBadge() {
+      const count = document.getElementById('notificationList').children.length;
+      document.getElementById('notificationBadge').textContent = `${count} اطلاعیه خوانده نشده`;
     }
-
-    function sendSubscriptionToBackEnd(subscription) {
-        return fetch('/save-subscription/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify(subscription)
-        })
-        .then(function(response) {
-            if (!response.ok) {
-                throw new Error('Bad status code from server.');
-            }
-            return response.json();
-        })
-        .then(function(responseData) {
-            if (!(responseData.data && responseData.data.success)) {
-                throw new Error('Bad response from server.');
-            }
-        });
-    }
-
-    // Main function to setup push notifications
-    function setupPush() {
-        if ('serviceWorker' in navigator && 'PushManager' in window) {
-            registerServiceWorker()
-                .then(askPermission)
-                .then(function() {
-                    return navigator.serviceWorker.ready;
-                })
-                .then(subscribeUserToPush)
-                .then(sendSubscriptionToBackEnd)
-                .catch(function(err) {
-                    console.error('Error setting up push notifications:', err);
-                });
-        } else {
-            console.warn('Push messaging is not supported');
+    
+    function markAsRead(notificationId) {
+      fetch(`/notifications/${notificationId}/read/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'Content-Type': 'application/json'
         }
+      });
     }
-
-    // Call setupPush when you want to enable notifications (e.g., on button click)
-    // Or call it on page load if you want to prompt immediately
-    // setupPush();
-</script>
+    
+    // Helper function to get CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    
+    // Fetch notifications when page loads
+    document.addEventListener('DOMContentLoaded', fetchNotifications);
+    </script>
 {% block javascript %}
 
 

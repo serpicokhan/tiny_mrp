@@ -7,5 +7,6 @@ admin.site.register(Failure)
 admin.site.register(AssetFailure)
 admin.site.register(SysUser)
 admin.site.register(Comment)
+admin.site.register(Notification)
 
 # Register your models here.

@@ -20,4 +20,5 @@ from mrp.views.manufactureorderview import *
 from mrp.views.workcenterview import *
 from mrp.views.workorderview import *
 # from mrp.views.pushview import *
+from mrp.views.notificationview import *
 

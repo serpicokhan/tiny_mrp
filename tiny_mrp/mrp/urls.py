@@ -181,7 +181,9 @@ urlpatterns = [
     url(r'^api/users/', get_users_api, name='get_users_api'),
     # path('save-subscription/', save_subscription, name='save_subscription'),
     # path('send-push/', send_push, name='send_push'),
-
+    path('notifications/', get_notifications, name='get_notifications'), 
+    path('notifications/<int:notification_id>/read/', mark_as_read, name='mark_as_read'),
+    path('notifications/send/test', some_view, name='some_view'),
     
 
 
