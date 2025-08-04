@@ -108,7 +108,6 @@ $(function () {
         if (data.form_is_valid) {
           //alert("Company created!");  // <-- This is just a placeholder for now for testing
           $("#rfqtable-body").empty();
-          console.log(data);
           $("#rfqtable-body").html(data.html_rfq_list);
           $("#modal-company").modal("hide");
          // console.log(data.html_maintenanceType_list);

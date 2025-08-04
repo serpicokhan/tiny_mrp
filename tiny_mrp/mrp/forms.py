@@ -298,3 +298,8 @@ class ManufacturingOrderForm(forms.ModelForm):
     class Meta:
          model = ManufacturingOrder
          fields = '__all__'
+
+class FormulaForm(forms.ModelForm):
+    class Meta:
+         model = Formula
+         fields = '__all__'

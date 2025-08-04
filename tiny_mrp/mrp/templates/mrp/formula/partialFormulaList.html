@@ -2,5 +2,9 @@
 <tr>
   <td>{{c.machine.assetName}}</td>
   <td>{{c.formula}}</td>
+  <td>
+    <button type="button" class="btn btn-outline-light js-update-formula" data-url="{% url 'formula_update' c.id %}" >  <i class="ti-eye"></i></button>
+
+    </td>
 </tr>
 {% endfor %}

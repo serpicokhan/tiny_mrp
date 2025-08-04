@@ -761,8 +761,26 @@ def get_tahlil_calendar_info(request):
                 'id':i[0]})
     return JsonResponse(data,safe=False)
 def list_formula(request):
-    formulas=Formula.objects.all()
-    return render(request,"mrp/formula/formulaList.html",{'formulas':formulas,'title':'لیست فرمولهای تولید'})
+    object_list=Formula.objects.all()    
+    # Number of items per page
+    items_per_page = 10
+    
+    # Create paginator
+    paginator = Paginator(object_list, items_per_page)
+    
+    # Get current page number from request
+    page = request.GET.get('page')
+    
+    try:
+        # Get the Page object for the current page
+        objects = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page
+        objects = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page
+        objects = paginator.page(paginator.num_pages)
+    return render(request,"mrp/formula/formulaList.html",{'formulas':objects,'title':'لیست فرمولهای تولید'})
 def list_speed_formula(request):
     formulas=SpeedFormula.objects.all()
     return render(request,"mrp/speed_formula/formulaList.html",{'formulas':formulas,'title':'لیست فرمولهای سرعت'})

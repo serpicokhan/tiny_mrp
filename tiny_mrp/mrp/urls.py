@@ -44,6 +44,10 @@ urlpatterns = [
     url(r'^Shift/(?P<id>\d+)/update/$', shift_update, name='shift_update'),
 
     url(r'^Formula/$', list_formula, name='list_formula'),
+    url(r'^Formula/RefereshList$', referesh_formula_list, name='referesh_formula_list'),
+    url(r'^Formula/(?P<id>\d+)/update/$', formula_update, name='formula_update'),
+
+
     url(r'^Tolid/Randeman/Init$', list_randeman_tolid, name='list_randeman_tolid'),
     url(r'^Tolid/Heatset/LoadInfo$', list_heatset_info, name='list_heatset_info'),
     url(r'^Tolid/Asset/LoadInfo$', list_amar_daily_info, name='list_amar_daily_info'),
