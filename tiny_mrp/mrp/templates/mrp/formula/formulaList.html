@@ -8,6 +8,16 @@
         <div class="card">
             <div class="card-body">
                 <h6 class="card-title">{{title}}</h6>
+                <h6><div class="input-group">
+                    <select name="makan" id="id_makan" class="form-control">
+                        {% for i in makan_list %}
+                        <option value="{{i.id}}" {% if makan == i.id %} selected {% endif %}>{{i.assetName}}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-primary" id="makan_filter">فیلتر</button>
+                    </div>
+                </div></h6>
                 <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
                     <table class="table table-striped table-bordered" id="company-table">
                         <thead>
@@ -26,7 +36,7 @@
                         <ul class="pagination">
                             {% if formulas.has_previous %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ formulas.previous_page_number }}" aria-label="Previous">
+                                    <a class="page-link" href="?page={{ formulas.previous_page_number }}{% if makan %}&makan={{makan}}{% endif %}" aria-label="Previous">
                                         <span aria-hidden="true">قبلی</span>
                                     </a>
                                 </li>
@@ -43,14 +53,14 @@
                                     </li>
                                 {% elif num > formulas.number|add:'-3' and num < formulas.number|add:'3' %}
                                     <li class="page-item">
-                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        <a class="page-link" href="?page={{ num }}{% if makan %}&makan={{makan}}{% endif %}">{{ num }}</a>
                                     </li>
                                 {% endif %}
                             {% endfor %}
                     
                             {% if formulas.has_next %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ formulas.next_page_number }}" aria-label="Next">
+                                    <a class="page-link" href="?page={{ formulas.next_page_number }}{% if makan %}&makan={{makan}}{% endif %}" aria-label="Next">
                                         <span aria-hidden="true">بعدی</span>
                                     </a>
                                 </li>

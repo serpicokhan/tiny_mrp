@@ -139,9 +139,26 @@ $(function () {
             var formula2 = row.find("[data-maxformula]").data("maxformula");
             var formula = row.find(".production").data("formula");
             // console.log(nomre);
+            var counter2Text = row.find(".counter2").text().trim();
+            var counter2 = 0;
+
+            if (counter2Text.includes(":")) {
+                var parts = counter2Text.split(":");
+                if (parts.length === 2) {
+                    var hours = Math.abs(parseFloat(parts[0]) || 0);
+                    var minutes = Math.abs(parseFloat(parts[1]) || 0);
+                    minutes = minutes % 60; // Ensure minutes don't exceed 59
+                    counter2 = (hours * 60) + minutes;
+                    var result = evaluateFormula_4p(formula, nomre,z,counter2,q);
+
+                }
+            } else if (!isNaN(counter2Text)) {
+                counter2 = parseFloat(counter2Text) || 0;
+                 var result = evaluateFormula_4p(formula, nomre,z,counter2-counter1,q);
+
+            }
             
             
-            var result = evaluateFormula(formula, nomre,counter2-counter1,q);
 
            
 
@@ -158,6 +175,19 @@ $(function () {
             formula = formula.replace("P", P).replace("Q", Q).replace("Z",Z);
             try {
               // console.log(formula);
+                var result = eval(formula);
+                console.log(result)
+                return result.toFixed(2); // Adjust as needed
+            } catch (error) {
+                console.error("Error evaluating formula:", error);
+                return 0;
+            }
+        }
+        function evaluateFormula_4p(formula, N,S,T,V) {
+            formula = formula.replace("N", N).replace("S", S).replace("T",T).replace("V",V);
+            try {
+              console.log(formula);
+              console.log(N,S,T,V);
                 var result = eval(formula);
                 console.log(result)
                 return result.toFixed(2); // Adjust as needed

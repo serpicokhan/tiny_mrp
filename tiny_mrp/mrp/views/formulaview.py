@@ -19,6 +19,23 @@ from mrp.business.purchaseutility import *
 
 from mrp.forms import FormulaForm
 
+def list_formula(request):
+    makan=request.GET.get("makan",False)
+    if(makan):
+        print("makan:",makan)
+        object_list=Formula.objects.filter(machine__assetIsLocatedAt__id=makan).order_by("machine__assetCategory__priority","machine__tavali")
+    else:   
+
+        object_list=Formula.objects.all().order_by("machine__assetisLocatedAt","machine__tavali")    
+    # Number of items per page
+    objects=PurchaseUtility.doPaging2(request,object_list)
+    makan_list=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    if(makan):
+        return render(request,"mrp/formula/formulaList.html",{'formulas':objects,'makan_list':makan_list,'makan':int(makan),'title':'لیست فرمولهای تولید'})
+    else:
+
+        return render(request,"mrp/formula/formulaList.html",{'formulas':objects,'makan_list':makan_list,'title':'لیست فرمولهای تولید'})
+
 def save_formula_form(request, form, template_name):
 
 
@@ -55,9 +72,13 @@ def formula_update(request, id):
 
 
 def referesh_formula_list(request):
-    # if request.user.is_superuser:
-    requests = Formula.objects.all()
-    ws= PurchaseUtility.doPaging(request,requests)
+    makan = request.GET.get('makan', False)
+    if(makan): 
+        requests=Formula.objects.filter(machine__assetIsLocatedAt__id=makan).order_by("machine__assetCategory__priority","machine__tavali")
+    else:
+        # if request.user.is_superuser:
+        requests = Formula.objects.all().order_by("machine__assetCategory__priority")
+    ws= PurchaseUtility.doPaging2(request,requests)
     data=dict()
     data["status"]="ok"
     data["formula_html"]=render_to_string('mrp/formula/partialFormulaList.html', {

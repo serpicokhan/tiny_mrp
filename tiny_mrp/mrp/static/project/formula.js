@@ -18,7 +18,7 @@ $(function () {
         success: function (data) {
             // $('#list-container').html(data.parchase_req_html);
             if(data.status="ok"){
-              
+
               // $("#tbody_company").empty();
               //  $("#tbody_company").html(data.html_formula_list);
             $("#tbody_company").html('');
@@ -92,7 +92,9 @@ $(function () {
      loadForm(btn);
 
    }
-
+   $("#makan_filter").click(function(){
+    window.location="/Formula/?makan="+$("#id_makan").val();
+   });
 
   // // Update book
   $("#company-table").on("click", ".js-update-formula", myWoLoader);
