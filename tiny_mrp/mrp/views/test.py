@@ -259,6 +259,10 @@ def saveAmarTableInfo(request):
                 x.vahed=int(i["vahed"])
                 x.production_value=float(i["production_value"])
                 operators_data_json = i['operator_data']
+                moshakhase=i["moshakhase"]
+                if(moshakhase):
+                    x.set_moshakhase(moshakhase)
+
                 # print('####################',json.loads(operators_data_json),'####################')
                 if operators_data_json and operators_data_json.strip():
                     try:
@@ -288,6 +292,7 @@ def saveAmarTableInfo(request):
                     x.operators_data = None
                 try:
                     x.save()
+                    print("!#@#@!",x.moshakhase)
                 except IntegrityError:
                     print("برای این تاریخ مقدار از قبل وجود دارد!")
                     data["error"]="برای این تاریخ مقدار از قبل وجود دارد!"
@@ -308,12 +313,14 @@ def saveAmarTableInfo(request):
                 amar.vahed=float(i["vahed"])
                 
                 amar.production_value=float(i["production_value"])
+                moshakhase=i["moshakhase"]
+                if(moshakhase):
+                    amar.set_moshakhase(moshakhase)
                 operators_data_json = request.POST.get('operator_data', '{}')
-                print(operators_data_json,'####################')
-                if operators_data_json:
+                if operators_data_json and operators_data_json.strip():
                     try:
-                        operators_data = json.loads(operators_data_json)
-                        amar.set_operators(operators_data)
+                        # operators_data = json.loads(operators_data_json)
+                        amar.set_operators(operators_data_json)
                     except json.JSONDecodeError:
                         # If it's a single operator ID or comma-separated IDs
                         operator_ids = [int(id.strip()) for id in operators_data_json.split(',') if id.strip().isdigit()]
@@ -1306,13 +1313,27 @@ def list_amar_daily_info(request):
                 formula = Formula.objects.get(machine=machine)
                 speedformula = SpeedFormula.objects.get(machine=machine)
                 amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
+                # nakh_info={}
+                if(amar.moshakhase):
+                    nakh_info={
+                    'id': amar.moshakhase.id,
+                    'name': amar.moshakhase.name,
+                    'color_id': amar.moshakhase.color.id,
+                    'color_name': amar.moshakhase.color.name,
+                    'tool': amar.moshakhase.tool,
+                    'la': amar.moshakhase.la
+                    
+                }
+                else:
+                    nakh_info={}
                 operators=[]
+
                 if(amar.operators_data):
                     operator_info=json.loads(amar.operators_data)
                     for kk in operator_info:
                         operators.append(kk)
 
-                machines_with_formulas.append({'machine': machine,'operators':operators,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'shift_id':s})
+                machines_with_formulas.append({'machine': machine,'operators':operators,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'shift_id':s,'nakh_info':nakh_info})
 
                 # else:
                 #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})

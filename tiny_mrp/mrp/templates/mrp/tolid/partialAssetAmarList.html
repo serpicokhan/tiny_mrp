@@ -56,14 +56,17 @@
                   <input type="hidden" class="operator-data" name="operator_data" value="{{c.amar.operators_data}}">
               </td>
               <td>
-                <select class="form-control nakh-name" 
-                data-machine-id="{{c.machine.id}}"
-                
+                <select class="form-control nakh-name"  name="nakh-name"
+                data-machine-id="{{c.machine.id}}"                
                 style="width: 100%;">
+
+                <option value="{{c.amar.moshkhase}}">{{c.amar.moshakhase}}</option>
+
                 </select>
                 <!-- Single hidden field to store all operator data as JSON -->
-                <input type="hidden" class="nakh-data" name="nakh_data" ">
+                <input type="hidden" class="nakh-data" name="nakh_data_{{c.machine.id}}" value="{{c.nakh_info}}">
             </td>
+             
 
               <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
               <td contenteditable="true" class=" editable-cell2 btc speed selectable1" data-nomre={{c.amar.nomre}}>{{c.amar.speed}}</td>

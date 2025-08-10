@@ -235,7 +235,7 @@ def get_sum_vaz_zayeat_by_date_per_line(specific_date,makan):
 
     # Access the sum value
     total_vazn_for_specific_date = sum_vazn['total_vazn'] or 0  # Default to 0 if there's no sum
-    print(total_vazn_for_specific_date)
+    
     return total_vazn_for_specific_date
 
 def get_randeman_per_tolid_byshift(mah,sal,asset_cat,shift):

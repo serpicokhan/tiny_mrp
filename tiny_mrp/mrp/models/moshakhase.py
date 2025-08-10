@@ -16,7 +16,7 @@ class EntryForm(models.Model):
     def __str__(self):
         tool_display = self.tool if self.tool is not None else "?"
         la_display = self.la if self.la is not None else "?"
-        return f"{self.name} {tool_display}/{la_display} ({self.color.name})"
+        return f"{self.name}  ({self.color.name})"
     # class Meta:
     #     db_table="مشخصات"
     

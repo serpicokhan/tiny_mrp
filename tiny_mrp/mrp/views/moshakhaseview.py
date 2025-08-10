@@ -19,6 +19,7 @@ class MoshakhaseSearchView(View):
     """
     def get(self, request):
         search_term = request.GET.get('q', '')
+        print(search_term)
         page = int(request.GET.get('page', 1))
         per_page = 20  # Number of results per page
         
@@ -26,8 +27,8 @@ class MoshakhaseSearchView(View):
         if search_term:
             operators = EntryForm.objects.filter(
                 Q(name__icontains=search_term) |
-                Q(color__name____icontains=search_term) 
-            ).order_by('name', 'color__name')
+                Q(color__name__icontains=search_term) 
+            )
         else:
             operators = EntryForm.objects.all().order_by('name', 'color__name')
         

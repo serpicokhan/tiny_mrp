@@ -5,6 +5,7 @@ import ast
 from django.core.exceptions import ValidationError
 import json
 from mrp.models.operators import *
+from mrp.models.moshakhase import *
 
 class Shift(models.Model):
     name = models.CharField("نام شیفت",max_length=255)
@@ -44,6 +45,7 @@ class ProductionStandard(models.Model):
 class DailyProduction(models.Model):
     machine = models.ForeignKey(Asset, on_delete=models.CASCADE,related_name="dailyproduction_machine")
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE,related_name="dailyproduction_shift")
+    moshakhase = models.ForeignKey(EntryForm, on_delete=models.CASCADE,related_name="dailyproduction_moshakhase",blank=True,null=True)
     dayOfIssue = models.DateField()
     timestamp = models.DateTimeField(auto_now_add=True)
     register_user = models.CharField(max_length=100)
@@ -109,6 +111,32 @@ class DailyProduction(models.Model):
                     return 0
                     # You can set a default value or handle the error as per your requirement
     # NEW METHODS FOR OPERATOR MANAGEMENT
+    def set_moshakhase(self,moshakhase):
+         if isinstance(moshakhase, str):
+
+            try:
+                # print(operators_list)
+
+
+                moshakhase = json.loads(moshakhase)
+                
+                
+
+                if not moshakhase:
+
+                    self.moshakhase = None
+                    return
+                else:
+                    self.moshakhase=EntryForm.objects.get(id=int(moshakhase["id"]))
+                    return 
+                
+                    
+
+            except json.JSONDecodeError:
+                self.operators_data = None
+
+                return
+
     def set_operators(self, operators_list):
 
         """
@@ -226,11 +254,18 @@ class DailyProduction(models.Model):
         Returns:
             List of operator dictionaries
         """
+        print(self.operators_data)
         if not self.operators_data:
             return []
         
         try:
-            return json.loads(self.operators_data)
+            operators=''
+            for i in json.loads(self.operators_data):
+              
+                operators+=f"({i['id']}):{i['name']}"+","
+            return operators
+            
+
         except (json.JSONDecodeError, TypeError):
             return []
 

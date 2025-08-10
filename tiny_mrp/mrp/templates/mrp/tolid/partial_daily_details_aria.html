@@ -18,6 +18,7 @@ id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
             <th>نام ماشین</th>
             <th>واحد</th>
             <th>نام اپراتور</th>
+            <th>کد نخ</th>
 
             <th>نمره</th>
             <th>سرعت</th>
@@ -37,6 +38,11 @@ id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
           <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
             <td>{{c.machine.assetName}}</td>
             <td  class="editable-cell btc vahed selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.amar.vahed}}</td>
+            <td  class="editable-cell btc operators selectable1" data-vahed="{{c.moshkhase}}">{{c.amar.get_operators}}</td>
+            <td  class="editable-cell btc code_nakh selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.amar.moshakhase}}</td>
+
+
+
 
             <td  class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
             <td  class=" editable-cell2 btc  speed selectable1" data-nomre={{c.nomre}}>{{c.amar.speed}}</td>
