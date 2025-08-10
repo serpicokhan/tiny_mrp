@@ -277,6 +277,7 @@ var tableDataToJSON=function(tableId){
         var counter2 = $(this).find('td.counter2').text()||0;
         var vahed = parseInt($(this).find('td.vahed').text()||0);
         var actual_vahed = $(this).find('td.editable-cell').attr('data-vahed');
+        var operator_data= $(this).find('.operator-data').val() || '[]';
         // if(vahed > actual_vahed){
         //   toastr.error(`${vahed} ${actual_vahed}`);
         //   return;
@@ -285,7 +286,7 @@ var tableDataToJSON=function(tableId){
 
 
         data.push({id:amar_id, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
-          , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed
+          , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed,operator_data:operator_data,actual_vahed:actual_vahed
            });
          }
       });
@@ -424,6 +425,171 @@ console.log(JSON.stringify(sendData));
       }
     });
   });
+  function initiate_code_nakh(){
+    $('.nakh-name').select2({
+     
+      ajax: {
+          url: '/api/moshakhase/search/', // Replace with your actual endpoint
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term, // search term
+                  page: params.page || 1
+              };
+          },
+          processResults: function (data, params) {
+              params.page = params.page || 1;
+              
+              return {
+                  results: data.results.map(function(item) {
+                      return {
+                          id: item.id,
+                          text: item.name + ' (' + item.color_name + ')',
+                          
+                          name: item.name,
+                          color_id: item.pid,
+                          color_name: item.cp_code,
+                          too:item.tool,
+                          la:item.la
+                      };
+                  }),
+                  pagination: {
+                      more: data.has_more
+                  }
+              };
+          },
+          cache: true
+      },
+      placeholder: 'انتخاب کد نخ(ها)',
+      minimumInputLength: 2,
+      closeOnSelect: false, // Keep dropdown open after selection for multiple picks
+      language: {
+          inputTooShort: function () {
+              return "حداقل 2 کاراکتر وارد کنید";
+          },
+          searching: function () {
+              return "در حال جستجو...";
+          },
+          noResults: function () {
+              return "نتیجه‌ای یافت نشد";
+          },
+          errorLoading: function () {
+              return "خطا در بارگذاری نتایج";
+          }
+      },
+      dir: "rtl" // RTL support for Persian/Arabic text
+  });
+  // Handle selection event for multiple operators
+$('.nakh-name').on('select2:select', function (e) {
+    var data = e.params.data;
+    var $row = $(this).closest('tr');    
+    updateOperatorHiddenFields2($row);    
+    console.log('Selected operator:', data);
+});
+
+// Handle unselecting an operator
+$('.nakh-name').on('select2:unselect', function (e) {
+    var data = e.params.data;
+    var $row = $(this).closest('tr');
+    
+    updateOperatorHiddenFields2($row);
+    
+    console.log('Unselected operator:', data);
+});
+
+// Handle clearing all selections
+$('.nakh-name').on('select2:clear', function (e) {
+    var $row = $(this).closest('tr');
+    
+    // Clear all hidden fields
+    $row.find('.nakh-data').val('');
+});
+
+
+  }
+  function initializeSelect2() {
+    $('.operator-name').select2({
+      multiple: true, // Enable multiple selection
+      ajax: {
+          url: '/api/operators/search/', // Replace with your actual endpoint
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term, // search term
+                  page: params.page || 1
+              };
+          },
+          processResults: function (data, params) {
+              params.page = params.page || 1;
+              
+              return {
+                  results: data.results.map(function(item) {
+                      return {
+                          id: item.id,
+                          text: item.name + ' (' + item.personnel_number + ')',
+                          personnel_number: item.personnel_number,
+                          name: item.name,
+                          pid: item.pid,
+                          cp_code: item.cp_code,
+                          card_no: item.card_no,
+                          first_name: item.first_name,
+                          last_name: item.last_name
+                      };
+                  }),
+                  pagination: {
+                      more: data.has_more
+                  }
+              };
+          },
+          cache: true
+      },
+      placeholder: 'انتخاب اپراتور(ها)',
+      minimumInputLength: 2,
+      closeOnSelect: false, // Keep dropdown open after selection for multiple picks
+      language: {
+          inputTooShort: function () {
+              return "حداقل 2 کاراکتر وارد کنید";
+          },
+          searching: function () {
+              return "در حال جستجو...";
+          },
+          noResults: function () {
+              return "نتیجه‌ای یافت نشد";
+          },
+          errorLoading: function () {
+              return "خطا در بارگذاری نتایج";
+          }
+      },
+      dir: "rtl" // RTL support for Persian/Arabic text
+  });
+  // Handle selection event for multiple operators
+$('.operator-name').on('select2:select', function (e) {
+    var data = e.params.data;
+    var $row = $(this).closest('tr');    
+    updateOperatorHiddenFields($row);    
+    console.log('Selected operator:', data);
+});
+
+// Handle unselecting an operator
+$('.operator-name').on('select2:unselect', function (e) {
+    var data = e.params.data;
+    var $row = $(this).closest('tr');
+    
+    updateOperatorHiddenFields($row);
+    
+    console.log('Unselected operator:', data);
+});
+
+// Handle clearing all selections
+$('.operator-name').on('select2:clear', function (e) {
+    var $row = $(this).closest('tr');
+    
+    // Clear all hidden fields
+    $row.find('.operator-data').val('');
+});
+  }
   $("#button-addon1").click(function(){
 
     var btn=$(this);
@@ -438,7 +604,7 @@ console.log(JSON.stringify(sendData));
 
       },
       success: function (data) {
-        console.log(data);
+        
     $(".tab-content").empty();
     $(".tab-content").html(data.html_heatset_result);
     $("#btn_next_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.next_date}&shift_id=${$("#select_shift").val()}`);
@@ -446,7 +612,8 @@ console.log(JSON.stringify(sendData));
     $('.nav-link.active').removeClass('active').attr('aria-selected', false);
     $a = $($(".nav-item a")[0]); // Wrap the first DOM element in a jQuery object
     $a.addClass('active').attr('aria-selected', true).tab('show');
-
+    // $('.operator-name').select2({multiple: true});
+    initializeSelect2();
 
       }
     });
@@ -558,4 +725,128 @@ $(".tab-content").on("keydown", ".editable-cell, .editable-cell2, .production", 
   $("#select_shift2").change(function(){
     window.location=`/Tolid/DailyDetails?event_id=${getQueryParameter('event_id')}&shift_id=${$(this).val()}&makan_id=${getQueryParameter('makan_id')}`;
   });
+  
+  initializeSelect2();
+  initiate_code_nakh();
+
+function updateOperatorHiddenFields($row) {
+  // Get currently selected operators from Select2
+  var selectedOperators = $row.find('.operator-name').select2('data');
+  var selectedIds = selectedOperators.map(op => op.id);
+  
+  // Get existing data from hidden field
+  var existingData = [];
+  var currentValue = $row.find('.operator-data').val();
+  
+  if (currentValue) {
+    try {
+      existingData = JSON.parse(currentValue);
+      // Convert old format if needed
+      if (!Array.isArray(existingData)) {
+        existingData = convertOldFormatToArray(existingData);
+      }
+    } catch (e) {
+      console.error("Error parsing operator data", e);
+    }
+  }
+  
+  // Filter out any existing operators that are no longer selected
+  var updatedOperators = existingData.filter(op => 
+    selectedIds.includes(op.id)
+  );
+  
+  // Add any newly selected operators that aren't already in the data
+  selectedOperators.forEach(newOp => {
+    if (!updatedOperators.some(op => op.id === newOp.id)) {
+      updatedOperators.push({
+        id: newOp.id,
+        personnel_number: newOp.personnel_number,
+        pid: newOp.pid,
+        cp_code: newOp.cp_code,
+        card_no: newOp.card_no,
+        name: newOp.name
+      });
+    }
+  });
+  
+  // Update the hidden field
+  $row.find('.operator-data').val(JSON.stringify(updatedOperators));
+}
+
+// Convert old format {ids:[], names:[]} to new format [{id:..., name:...}]
+function convertOldFormatToArray(oldData) {
+  if (!oldData.ids) return [];
+  
+  return oldData.ids.map((id, index) => ({
+    id: id,
+    personnel_number: oldData.personnel_numbers?.[index] || null,
+    pid: oldData.pids?.[index] || null,
+    cp_code: oldData.cp_codes?.[index] || null,
+    card_no: oldData.card_nos?.[index] || null,
+    name: oldData.names?.[index] || null
+  }));
+}
+function updateOperatorHiddenFields2($row) {
+  // Get currently selected operators from Select2
+  var selectedOperators = $row.find('.nakh-name').select2('data');
+  var selectedIds = selectedOperators.map(op => op.id);
+  
+  // Get existing data from hidden field
+  var existingData = [];
+  var currentValue = $row.find('.nakh-data').val();
+  
+  if (currentValue) {
+    try {
+      existingData = JSON.parse(currentValue);
+      // Convert old format if needed
+      if (!Array.isArray(existingData)) {
+        existingData = convertOldFormatToArray2(existingData);
+      }
+    } catch (e) {
+      console.error("Error parsing operator data", e);
+    }
+  }
+  
+  // Filter out any existing operators that are no longer selected
+  var updatedOperators = existingData.filter(op => 
+    selectedIds.includes(op.id)
+  );
+  
+  // Add any newly selected operators that aren't already in the data
+  selectedOperators.forEach(newOp => {
+    if (!updatedOperators.some(op => op.id === newOp.id)) {
+      updatedOperators.push({
+        id: newOp.id,
+        personnel_number: newOp.personnel_number,
+        pid: newOp.pid,
+        cp_code: newOp.cp_code,
+        card_no: newOp.card_no,
+        name: newOp.name
+      });
+    }
+  });
+  
+  // Update the hidden field
+  $row.find('.operator-data').val(JSON.stringify(updatedOperators));
+}
+
+// Convert old format {ids:[], names:[]} to new format [{id:..., name:...}]
+function convertOldFormatToArray2(oldData) {
+  if (!oldData.ids) return [];
+  
+  return oldData.ids.map((id, index) => ({
+    id: id,
+    personnel_number: oldData.personnel_numbers?.[index] || null,
+    pid: oldData.pids?.[index] || null,
+    cp_code: oldData.cp_codes?.[index] || null,
+    card_no: oldData.card_nos?.[index] || null,
+    name: oldData.names?.[index] || null
+  }));
+}
+// Optional: Load existing operator data if editing
+// loadExistingOperators();
+// });
+
+
+
 });

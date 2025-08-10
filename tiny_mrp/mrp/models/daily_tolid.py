@@ -2,7 +2,9 @@ from django.db import models
 from mrp.models.asset import Asset
 import jdatetime
 import ast
-
+from django.core.exceptions import ValidationError
+import json
+from mrp.models.operators import *
 
 class Shift(models.Model):
     name = models.CharField("نام شیفت",max_length=255)
@@ -45,10 +47,10 @@ class DailyProduction(models.Model):
     dayOfIssue = models.DateField()
     timestamp = models.DateTimeField(auto_now_add=True)
     register_user = models.CharField(max_length=100)
-    speed=models.IntegerField(default=0)
+    speed=models.FloatField(default=0)
     nomre = models.FloatField()
-    counter1 = models.FloatField()
-    counter2 = models.FloatField()
+    counter1 = models.CharField(max_length=200,null=True,blank=True)
+    counter2 = models.CharField(max_length=200,null=True,blank=True)
     vahed = models.FloatField()
     production_value = models.FloatField(blank=True, null=True)  # Result of the formula
     daf_num = models.FloatField(null=True, blank=True)
@@ -68,6 +70,10 @@ class DailyProduction(models.Model):
     metrajdaf7 = models.FloatField(null=True, blank=True)
     metrajdaf8 = models.FloatField(null=True, blank=True)
     makhraj_metraj_daf = models.FloatField(null=True, blank=True)
+    # NEW OPERATOR FIELDS
+    # Store operator data as JSON for multiple operators
+    operators_data = models.TextField(null=True, blank=True, help_text="JSON data containing multiple operators")
+    
     def __str__(self):
         return f"{self.nomre} , {self.speed} ,{self.counter2}, {self.machine}"
     def eval_max_tolid(self):
@@ -102,6 +108,206 @@ class DailyProduction(models.Model):
                     print(f"Error evaluating formula: {e}")
                     return 0
                     # You can set a default value or handle the error as per your requirement
+    # NEW METHODS FOR OPERATOR MANAGEMENT
+    def set_operators(self, operators_list):
+
+        """
+        Set operators from a list of operator dictionaries or IDs
+        
+        Args:
+            operators_list: List of operator data dictionaries or operator IDs
+        """
+        # Handle None, empty list, or empty string
+        if not operators_list or (isinstance(operators_list, (list, tuple)) and len(operators_list) == 0):
+            print(operators_list)
+
+
+            self.operators_data = None
+            return
+        
+        # Handle string input (JSON string)
+        if isinstance(operators_list, str):
+
+            try:
+                # print(operators_list)
+
+
+                operators_list = operators_list
+                
+                
+
+                if not operators_list:
+
+                    self.operators_data = None
+                    return
+                else:
+                    self.operators_data=operators_list
+                
+                    
+
+            except json.JSONDecodeError:
+                self.operators_data = None
+
+                return
+        
+        # # Ensure we have a list
+        # if not isinstance(operators_list, (list, tuple)):
+        #     print(1)
+        #     self.operators_data = None
+
+            return
+        # Check if list is empty after conversion
+        if len(operators_list) == 0:
+            print("len0")
+            self.operators_data = None
+            return
+            
+        # If list contains dictionaries (from frontend)
+        if isinstance(operators_list[0], dict):
+            print("1")
+
+
+            # Validate that dictionaries have required fields
+            valid_operators = []
+            for op_dict in operators_list:
+                if isinstance(op_dict, dict) and 'id' in op_dict:
+                    valid_operators.append(op_dict)
+                else:
+                    print("1")
+
+            print("1")
+
+            
+            self.operators_data = json.dumps(valid_operators) if valid_operators else None
+            
+        # If list contains operator IDs
+        elif isinstance(operators_list[0], (int, str)):
+            print("12")
+
+
+
+
+            operators_data = []
+            for op_id in operators_list:
+                try:
+                    # Convert to int if string
+                    if isinstance(op_id, str):
+                        if not op_id.strip().isdigit():
+                            continue
+                        op_id = int(op_id.strip())
+                    
+                    operator = Operator.objects.get(id=op_id)
+                    operators_data.append({
+                        'id': operator.id,
+                        'name': f"{operator.FName} {operator.LName}",
+                        'personnel_number': operator.PNumber,
+                        'pid': operator.Pid,
+                        'cp_code': operator.CpCode,
+                        'card_no': operator.CardNo,
+                    })
+                    print("1")
+
+                except (Operator.DoesNotExist, ValueError, TypeError):
+
+                    continue
+                    
+            self.operators_data = json.dumps(operators_data) if operators_data else None
+        else:
+            print("1")
+
+            # Unknown format, clear the data
+            self.operators_data = None
+
+
+    def get_operators(self):
+        """
+        Get operators as a list of dictionaries
+        
+        Returns:
+            List of operator dictionaries
+        """
+        if not self.operators_data:
+            return []
+        
+        try:
+            return json.loads(self.operators_data)
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    def get_operator_names(self):
+        """
+        Get comma-separated list of operator names
+        
+        Returns:
+            String of operator names separated by commas
+        """
+        operators = self.get_operators()
+        if not operators:
+            return "No operators assigned"
+        
+        names = [op.get('name', 'Unknown') for op in operators]
+        return ', '.join(names)
+
+    def get_operator_ids(self):
+        """
+        Get list of operator IDs
+        
+        Returns:
+            List of operator IDs
+        """
+        operators = self.get_operators()
+        return [op.get('id') for op in operators if op.get('id')]
+
+    def add_operator(self, operator_id):
+        """
+        Add an operator to existing operators
+        
+        Args:
+            operator_id: ID of the operator to add
+        """
+        current_operators = self.get_operators()
+        
+        # Check if operator already exists
+        existing_ids = [op.get('id') for op in current_operators]
+        if operator_id in existing_ids:
+            return  # Operator already exists
+            
+        try:
+            operator = Operator.objects.get(id=operator_id)
+            new_operator = {
+                'id': operator.id,
+                'name': f"{operator.FName} {operator.LName}",
+                'personnel_number': operator.PNumber,
+                'pid': operator.Pid,
+                'cp_code': operator.CpCode,
+                'card_no': operator.CardNo,
+            }
+            current_operators.append(new_operator)
+            self.operators_data = json.dumps(current_operators)
+        except Operator.DoesNotExist:
+            pass
+
+    def remove_operator(self, operator_id):
+        """
+        Remove an operator from the list
+        
+        Args:
+            operator_id: ID of the operator to remove
+        """
+        current_operators = self.get_operators()
+        updated_operators = [op for op in current_operators if op.get('id') != operator_id]
+        self.operators_data = json.dumps(updated_operators) if updated_operators else None
+
+    def clean(self):
+        """
+        Validate operators_data JSON format
+        """
+        if self.operators_data:
+            try:
+                json.loads(self.operators_data)
+            except json.JSONDecodeError:
+                raise ValidationError({'operators_data': 'Invalid JSON format for operators data'})
+
 
 
 

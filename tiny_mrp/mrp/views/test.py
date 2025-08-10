@@ -238,6 +238,7 @@ def saveAmarTableInfo(request):
             m=Asset.objects.get(id=int(i["machine"]))
             s=Shift.objects.get(id=int(i["shift"]))
             d=None
+            # print(i)
 
             if(i["id"]!="0"):
 
@@ -250,15 +251,41 @@ def saveAmarTableInfo(request):
                 x.machine=m
                 x.shift=s
                 x.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
-                if(s.id==1):
-                    print(i)
-                    print('!!!!!!!!',i["speed"],i["id"],s.id)
+                
                 x.speed=i["speed"]
                 x.nomre=i["nomre"]
-                x.counter1=float(i["counter1"])
-                x.counter2=float(i["counter2"])
+                x.counter1=i["counter1"]
+                x.counter2=i["counter2"]
                 x.vahed=int(i["vahed"])
                 x.production_value=float(i["production_value"])
+                operators_data_json = i['operator_data']
+                # print('####################',json.loads(operators_data_json),'####################')
+                if operators_data_json and operators_data_json.strip():
+                    try:
+                        # Try to parse as JSON first
+                        # print(operators_data_json)
+                        # operators_data = json.loads(operators_data_json)
+                        x.set_operators(operators_data_json)
+                    except json.JSONDecodeError:
+                        try:
+                            # If JSON parsing fails, try as comma-separated IDs
+                            if ',' in operators_data_json:
+                                operator_ids = [
+                                    int(id.strip()) for id in operators_data_json.split(',') 
+                                    if id.strip().isdigit()
+                                ]
+                            else:
+                                # Single operator ID
+                                operator_ids = [int(operators_data_json.strip())] if operators_data_json.strip().isdigit() else []
+                            
+                            if operator_ids:
+                                x.set_operators(operator_ids)
+                            else:
+                                x.operators_data = None
+                        except (ValueError, TypeError):
+                            x.operators_data = None
+                else:
+                    x.operators_data = None
                 try:
                     x.save()
                 except IntegrityError:
@@ -276,11 +303,25 @@ def saveAmarTableInfo(request):
                 amar.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
                 amar.speed=i["speed"]
                 amar.nomre=i["nomre"]
-                amar.counter1=float(i["counter1"])
-                amar.counter2=float(i["counter2"])
+                amar.counter1=i["counter1"]
+                amar.counter2=i["counter2"]
                 amar.vahed=float(i["vahed"])
                 
                 amar.production_value=float(i["production_value"])
+                operators_data_json = request.POST.get('operator_data', '{}')
+                print(operators_data_json,'####################')
+                if operators_data_json:
+                    try:
+                        operators_data = json.loads(operators_data_json)
+                        amar.set_operators(operators_data)
+                    except json.JSONDecodeError:
+                        # If it's a single operator ID or comma-separated IDs
+                        operator_ids = [int(id.strip()) for id in operators_data_json.split(',') if id.strip().isdigit()]
+                        amar.set_operators(operator_ids)
+                else:
+                    amar.operators_data = None
+
+
                 try:
                     amar.save()
                     print("done!!!")
@@ -300,6 +341,8 @@ def saveAmarHTableInfo(request):
     # print(request.body)
     # print(request.POST)
     data2 = json.loads(request.body)
+    operators_data_json = request.POST.get('operator_data', '{}')
+    print('####################',operators_data_json,'####################')
     data=dict()
     # print("********")
     for table_name, table_data in data2.items():
@@ -321,7 +364,10 @@ def saveAmarHTableInfo(request):
 
             if(d.count()>0):
 
+
                 x=d[0]
+                
+               
                 x.machine=m
                 x.shift=s
                 x.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
@@ -1260,8 +1306,13 @@ def list_amar_daily_info(request):
                 formula = Formula.objects.get(machine=machine)
                 speedformula = SpeedFormula.objects.get(machine=machine)
                 amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
+                operators=[]
+                if(amar.operators_data):
+                    operator_info=json.loads(amar.operators_data)
+                    for kk in operator_info:
+                        operators.append(kk)
 
-                machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'shift_id':s})
+                machines_with_formulas.append({'machine': machine,'operators':operators,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'shift_id':s})
 
                 # else:
                 #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})

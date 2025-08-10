@@ -9,4 +9,5 @@ from mrp.models.purchase import *
 
 from mrp.models.mrp import *
 from mrp.models.moshakhase import *
+from mrp.models.operators import *
 

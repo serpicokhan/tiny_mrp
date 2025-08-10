@@ -185,7 +185,8 @@ urlpatterns = [
     url(r'^api/users/', get_users_api, name='get_users_api'),
     # path('save-subscription/', save_subscription, name='save_subscription'),
     # path('send-push/', send_push, name='send_push'),
-
+    path('api/operators/search/', OperatorSearchView.as_view(), name='operator_search'),
+    path('api/moshakhase/search/', MoshakhaseSearchView.as_view(), name='moshakhase_search'),
     
 
 

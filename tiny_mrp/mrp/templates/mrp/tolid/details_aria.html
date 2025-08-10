@@ -1,5 +1,81 @@
 {% extends 'mrp/blank-page.html' %}
+{% load static %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
+<!-- Add this CSS for better RTL support and styling -->
+<style>
+.select2-container {
+    width: 100% !important;
+}
 
+.select2-container--default .select2-selection--single {
+    height: 38px;
+    line-height: 36px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    padding-right: 12px;
+    padding-left: 20px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    right: auto;
+    left: 1px;
+}
+
+/* RTL support */
+.select2-container[dir="rtl"] .select2-selection--single .select2-selection__rendered {
+    text-align: right;
+}
+
+.select2-container[dir="rtl"] .select2-selection--single .select2-selection__arrow {
+    left: auto;
+    right: 1px;
+}
+
+/* Multiple selection styling */
+.select2-container--default .select2-selection--multiple {
+    min-height: 38px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #007bff;
+    border: 1px solid #006fe6;
+    border-radius: 4px;
+    color: #fff;
+    margin-right: 5px;
+    margin-top: 5px;
+    padding: 0 8px;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: rgba(255,255,255,.7);
+    float: left;
+    margin-left: 5px;
+    margin-right: -2px;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: #fff;
+}
+
+/* RTL support for multiple selection */
+.select2-container[dir="rtl"] .select2-selection--multiple .select2-selection__choice {
+    margin-left: 5px;
+    margin-right: 0;
+}
+
+.select2-container[dir="rtl"] .select2-selection--multiple .select2-selection__choice__remove {
+    float: right;
+    margin-left: -2px;
+    margin-right: 5px;
+}
+  </style>
+{% endblock %}
 {% block content %}
 <div class="row app-block">
 
@@ -115,48 +191,59 @@
 
                               
                               <div class="table-responsive">
-                                <table class="table table-bordered table-striped company-table" >
+                                <table class="table table-bordered table-striped company-table">
                                   <thead class="thead-dark">
-                                    <tr>
-                                      <th>نام ماشین</th>
-                                      <th>واحد</th>
-
-                                      <th>نمره</th>
-                                      <th>سرعت</th>
-
-                                      <th> کنتور ابتدای شیفت</th>
-                                      <th> کنتور انتهای شیفت</th>
-                                      <th>100%</th>
-                                      <th>تولید</th>
-
-                                    </tr>
+                                      <tr>
+                                          <th>نام ماشین</th>
+                                          <th>اپراتور</th> <!-- ستون جدید برای نام اپراتور -->
+                                          <th>کد نخ</th>
+                                          <th>واحد</th>
+                                          <th>نمره</th>
+                                          <th>سرعت</th>
+                                          <th>کنتور ابتدای شیفت</th>
+                                          <th>کنتور انتهای شیفت</th>
+                                          <th>100%</th>
+                                          <th>تولید</th>
+                                      </tr>
                                   </thead>
                                   <tbody>
-                                    {% for c in machines %}
-                                    
-                                    
-                                    {% if c.machine.assetCategory.id == cat_item.id %}
-                                    <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
-                                      <td>{{c.machine.assetName}}</td>
-                                      <td contenteditable="true" class="editable-cell btc vahed selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.vahed}}</td>
-
-                                      <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.nomre}}</td>
-                                      <td contenteditable="true" class=" editable-cell2 btc speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
-
-
-                                      <td contenteditable="true" class="editable-cell btc counter1 selectable1"></td>
-                                      <td contenteditable="true" class="editable-cell btc counter2 selectable1"></td>
-                                      <td contenteditable="true" class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}" >{{c.max}}</td>
-
-
-                                      <td contenteditable="true" data-formula="{{c.formula}}" class='production'></td>
-
-                                    </tr>
-                                    {% endif %}
-                                    {% endfor %}
-                                    <!-- Add more rows as needed -->
+                                      {% for c in machines %}
+                                      {% if c.machine.assetCategory.id == cat_item.id %}
+                                      <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
+                                          <td>{{c.machine.assetName}}</td>
+                                          
+                                          <!-- سلول جدید برای نام اپراتور -->
+                                          <td>
+                                            <select class="form-control operator-name" 
+                                            data-machine-id="{{c.machine.id}}"
+                                            multiple="multiple"
+                                            style="width: 100%;">
+                                            </select>
+                                            <!-- Single hidden field to store all operator data as JSON -->
+                                            <input type="hidden" class="operator-data" name="operator_data" ">
+                                        </td>
+                                        <td>
+                                          <select class="form-control nakh-name" 
+                                          data-machine-id="{{c.machine.id}}"
+                                          
+                                          style="width: 100%;">
+                                          </select>
+                                          <!-- Single hidden field to store all operator data as JSON -->
+                                          <input type="hidden" class="nakh-data" name="nakh_data_{{c.machine.id}}">
+                                      </td>
+                                          
+                                          <td contenteditable="true" class="editable-cell btc vahed selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.vahed}}</td>
+                                          <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.nomre}}</td>
+                                          <td contenteditable="true" class="editable-cell2 btc speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
+                                          <td contenteditable="true" class="editable-cell btc counter1 selectable1"></td>
+                                          <td contenteditable="true" class="editable-cell btc counter2 selectable1"></td>
+                                          <td contenteditable="true" class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}">{{c.max}}</td>
+                                          <td contenteditable="true" data-formula="{{c.formula}}" class='production'></td>
+                                      </tr>
+                                      {% endif %}
+                                      {% endfor %}
                                   </tbody>
-                                </table>
+                              </table>
                               </div>
                             </div>
                        
@@ -202,7 +289,7 @@
 {% load static %}
 
 {% block javascript %}
-
+<script src="{% static 'vendors/select2/js/select2.min.js' %}"></script>
 
  <script src="{% static 'project/tolid.js' %}"></script>
  <script>

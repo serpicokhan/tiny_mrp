@@ -17,6 +17,10 @@
             <tr>
               <th>نام ماشین</th>
               <th>واحد</th>
+               <th>نام اپراتور</th>
+               <th>کد نخ</th>
+
+
 
               <th>نمره</th>
               <th>سرعت</th>
@@ -37,6 +41,29 @@
             <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
               <td>{{c.machine.assetName}}</td>
               <td contenteditable="true" class="editable-cell btc vahed selectable1 " data-vahed="{{c.machine.assetVahed}}">{{c.amar.vahed}}</td>
+                <!-- سلول جدید برای نام اپراتور -->
+                <td>
+                  <select class="form-control operator-name" 
+                  data-machine-id="{{c.machine.id}}"
+                  multiple="multiple"
+                  style="width: 100%;">
+                  {% for i in c.operators %}
+                    <option value="{{i.id}}" selected>{{i.name}}</option>
+                  {% endfor %}
+                  
+                  </select>
+                  <!-- Single hidden field to store all operator data as JSON -->
+                  <input type="hidden" class="operator-data" name="operator_data" value="{{c.amar.operators_data}}">
+              </td>
+              <td>
+                <select class="form-control nakh-name" 
+                data-machine-id="{{c.machine.id}}"
+                
+                style="width: 100%;">
+                </select>
+                <!-- Single hidden field to store all operator data as JSON -->
+                <input type="hidden" class="nakh-data" name="nakh_data" ">
+            </td>
 
               <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
               <td contenteditable="true" class=" editable-cell2 btc speed selectable1" data-nomre={{c.amar.nomre}}>{{c.amar.speed}}</td>
