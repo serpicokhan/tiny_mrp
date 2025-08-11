@@ -428,6 +428,7 @@ console.log(JSON.stringify(sendData));
   });
   function initiate_code_nakh(){
     $('.nakh-name').select2({
+      dropdownParent: $('body'),
      
       ajax: {
           url: '/api/moshakhase/search/', // Replace with your actual endpoint
@@ -510,6 +511,7 @@ $('.nakh-name').on('select2:clear', function (e) {
   }
   function initializeSelect2() {
     $('.operator-name').select2({
+      dropdownParent: $('body'),
       multiple: true, // Enable multiple selection
       ajax: {
           url: '/api/operators/search/', // Replace with your actual endpoint
