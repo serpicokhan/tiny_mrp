@@ -74,6 +74,155 @@
     margin-left: -2px;
     margin-right: 5px;
 }
+/* اضافه کردن این CSS به بخش style موجود */
+
+/* تنظیم عرض ستون‌های جدول */
+.company-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.company-table th,
+.company-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 8px 5px;
+}
+
+/* تنظیم عرض ستون‌های مختلف */
+.company-table th:nth-child(1),  /* نام ماشین */
+.company-table td:nth-child(1) {
+    width: 12%;
+    min-width: 100px;
+}
+
+.company-table th:nth-child(2),  /* اپراتور */
+.company-table td:nth-child(2) {
+    width: 15%;
+    min-width: 120px;
+}
+
+.company-table th:nth-child(3),  /* کد نخ */
+.company-table td:nth-child(3) {
+    width: 12%;
+    min-width: 100px;
+}
+
+.company-table th:nth-child(4),  /* واحد */
+.company-table td:nth-child(4) {
+    width: 8%;
+    min-width: 70px;
+}
+
+.company-table th:nth-child(5),  /* نمره */
+.company-table td:nth-child(5) {
+    width: 8%;
+    min-width: 70px;
+}
+
+.company-table th:nth-child(6),  /* سرعت */
+.company-table td:nth-child(6) {
+    width: 8%;
+    min-width: 70px;
+}
+
+.company-table th:nth-child(7),  /* کنتور ابتدای شیفت */
+.company-table td:nth-child(7) {
+    width: 10%;
+    min-width: 90px;
+}
+
+.company-table th:nth-child(8),  /* کنتور انتهای شیفت */
+.company-table td:nth-child(8) {
+    width: 10%;
+    min-width: 90px;
+}
+
+.company-table th:nth-child(9),  /* 100% */
+.company-table td:nth-child(9) {
+    width: 8%;
+    min-width: 70px;
+}
+
+.company-table th:nth-child(10), /* تولید */
+.company-table td:nth-child(10) {
+    width: 9%;
+    min-width: 80px;
+}
+
+/* تنظیم Select2 برای اپراتور و کد نخ */
+.company-table .select2-container {
+    width: 100% !important;
+    min-width: 0;
+}
+
+.company-table .select2-selection--single,
+.company-table .select2-selection--multiple {
+    height: auto !important;
+    min-height: 30px !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 3px !important;
+    font-size: 13px;
+}
+
+.company-table .select2-selection__rendered {
+    padding: 2px 5px !important;
+    line-height: 1.3 !important;
+}
+
+.company-table .select2-selection__choice {
+    font-size: 11px !important;
+    padding: 2px 6px !important;
+    margin: 1px 2px !important;
+}
+
+/* برای نمایش کامل متن هنگام hover */
+.company-table td:hover {
+    overflow: visible;
+    white-space: normal;
+    word-wrap: break-word;
+    position: relative;
+    z-index: 1;
+    background-color: #f8f9fa;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* تنظیم responsive */
+@media (max-width: 1200px) {
+    .company-table th:nth-child(1),
+    .company-table td:nth-child(1) {
+        width: 10%;
+        min-width: 80px;
+    }
+    
+    .company-table th:nth-child(2),
+    .company-table td:nth-child(2) {
+        width: 13%;
+        min-width: 100px;
+    }
+    
+    .company-table th:nth-child(3),
+    .company-table td:nth-child(3) {
+        width: 10%;
+        min-width: 80px;
+    }
+}
+
+@media (max-width: 768px) {
+    .company-table {
+        font-size: 12px;
+    }
+    
+    .company-table th,
+    .company-table td {
+        padding: 4px 2px;
+    }
+    
+    .company-table .select2-selection__rendered {
+        font-size: 11px !important;
+    }
+}
   </style>
 {% endblock %}
 {% block content %}
