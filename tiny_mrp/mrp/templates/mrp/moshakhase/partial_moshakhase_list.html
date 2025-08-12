@@ -1,0 +1,22 @@
+{% load humanize %}
+
+{% for moshakhase in moshakhases %}
+  <tr>
+    <td>{{ moshakhase.description }}</td>
+    <td>{{ moshakhase.get_jalali_time_created }}</td>
+    <td>{{moshakhase.mablagh_kol_randeman|intcomma}}</td>
+    <td>{{moshakhase.tolid_randeman_mazrab_3|intcomma}}</td>
+    <td>{{moshakhase.tolid_randeman|intcomma}}</td>
+    
+    <td>
+     
+      <button type="button" class="btn btn-outline-light js-update-moshakhase" data-url="{% url 'moshakhase_update' moshakhase.id %}" >  <i class="ti-eye"></i></button>
+
+      <button type="button" class="btn btn-outline-light js-delete-moshakhase" data-url="{% url 'moshakhase_delete' moshakhase.id %}">  <i class="ti-close"></i></button>
+    </td>
+  </tr>
+{% empty %}
+  <tr>
+    <td colspan="8" class="text-center bg-success">اطلاعاتی یافت نشد!</td>
+  </tr>
+{% endfor %}

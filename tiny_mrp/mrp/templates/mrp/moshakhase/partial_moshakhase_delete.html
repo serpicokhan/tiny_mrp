@@ -1,0 +1,19 @@
+<form method="post" action="{% url 'moshakhase_delete' moshakhase.id %}" class="js-moshakhase-delete-form">
+  {% csrf_token %}
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">تایید حدف پروفایل</h4>
+  </div>
+  <div class="modal-body">
+    <p class="lead">تایید می کنید؟ <strong>{{ moshakhase.description }}</strong>?
+    
+    </p>
+    <p>در صورت تایید حدف اطلاعات مرتبط با این پروفایل مالی نیز حدف می گردند!</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">انصراف</button>
+    <button type="submit" class="btn btn-danger">تایید حدف</button>
+  </div>
+</form>
