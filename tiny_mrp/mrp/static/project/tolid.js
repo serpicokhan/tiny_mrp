@@ -288,7 +288,7 @@ var tableDataToJSON=function(tableId){
         var production_value =  $(this).find('td.production').text()||0;
 
 
-        data.push({id:amar_id, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
+        data.push({id:amar_id,wastage:wastage, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
           , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed,operator_data:operator_data,actual_vahed:actual_vahed,moshakhase:moshakhase
            });
          }
