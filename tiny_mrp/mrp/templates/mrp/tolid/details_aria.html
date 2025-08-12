@@ -293,13 +293,17 @@
                                           
                                           <!-- سلول جدید برای نام اپراتور -->
                                           <td>
+                                            
                                             <select class="form-control operator-name" 
                                             data-machine-id="{{c.machine.id}}"
                                             multiple="multiple"
                                             style="width: 100%;">
+                                            {% for i in c.operators %}
+                                              <option value="{{i.id}}" selected>{{i.name}}</option>
+                                            {% endfor %}
                                             </select>
                                             <!-- Single hidden field to store all operator data as JSON -->
-                                            <input type="hidden" class="operator-data" name="operator_data" ">
+                                            <input type="hidden" class="operator-data" name="operator_data" value="{{c.operators_json}}">
                                         </td>
                                         <td>
                                           <select class="form-control nakh-name" 
@@ -308,7 +312,7 @@
                                           style="width: 100%;">
                                           </select>
                                           <!-- Single hidden field to store all operator data as JSON -->
-                                          <input type="hidden" class="nakh-data" name="nakh_data_{{c.machine.id}}">
+                                          <input type="hidden" class="nakh-data" name="nakh_data_{{c.machine.id}}" >
                                       </td>
                                           
                                           <td contenteditable="true" class="editable-cell btc vahed selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.vahed}}</td>
