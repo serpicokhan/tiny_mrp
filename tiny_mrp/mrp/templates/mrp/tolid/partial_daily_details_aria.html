@@ -27,6 +27,7 @@ id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
             <th> کنتور انتهای شیفت</th>
             <th>100%</th>
             <th>تولید</th>
+            <th>ضایعات</th>
 
           </tr>
         </thead>
@@ -54,6 +55,7 @@ id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
 
 
             <td  data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
+            <td  data-formula="{{c.formula}}" class='wastage'>{{c.amar.wastage_value}}</td>
 
           </tr>
           {% endif %}

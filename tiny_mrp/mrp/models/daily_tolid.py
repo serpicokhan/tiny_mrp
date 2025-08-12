@@ -55,6 +55,7 @@ class DailyProduction(models.Model):
     counter2 = models.CharField(max_length=200,null=True,blank=True)
     vahed = models.FloatField()
     production_value = models.FloatField(blank=True, null=True)  # Result of the formula
+    wastage_value = models.FloatField(blank=True, null=True)  # wastage foreach machine
     daf_num = models.FloatField(null=True, blank=True)
     dook_weight = models.FloatField(null=True, blank=True)
     weight1 = models.FloatField(null=True, blank=True)

@@ -176,7 +176,7 @@ $(function () {
             try {
               // console.log(formula);
                 var result = eval(formula);
-                console.log(result)
+                // console.log(result)
                 return result.toFixed(2); // Adjust as needed
             } catch (error) {
                 console.error("Error evaluating formula:", error);
@@ -186,10 +186,10 @@ $(function () {
         function evaluateFormula_4p(formula, N,S,T,V) {
             formula = formula.replace("N", N).replace("S", S).replace("T",T).replace("V",V);
             try {
-              console.log(formula);
-              console.log(N,S,T,V);
+              // console.log(formula);
+              // console.log(N,S,T,V);
                 var result = eval(formula);
-                console.log(result)
+                // console.log(result)
                 return result.toFixed(2); // Adjust as needed
             } catch (error) {
                 console.error("Error evaluating formula:", error);
@@ -276,9 +276,11 @@ var tableDataToJSON=function(tableId){
         var counter1 = $(this).find('td.counter1').text()||0;
         var counter2 = $(this).find('td.counter2').text()||0;
         var vahed = parseInt($(this).find('td.vahed').text()||0);
+        var wastage = parseFloat($(this).find('td.wastage').text()||0);
         var actual_vahed = $(this).find('td.editable-cell').attr('data-vahed');
         var operator_data= $(this).find('.operator-data').val() || '[]';
         var moshakhase=$(this).find('.nakh-data').val()||''
+
         // if(vahed > actual_vahed){
         //   toastr.error(`${vahed} ${actual_vahed}`);
         //   return;

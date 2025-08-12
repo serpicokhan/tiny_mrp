@@ -269,6 +269,7 @@ def saveAmarTableInfo(request):
                 x.counter1=i["counter1"]
                 x.counter2=i["counter2"]
                 x.vahed=int(i["vahed"])
+                x.wastage_value=float(i["wastage"])
                 x.production_value=float(i["production_value"])
                 operators_data_json = i['operator_data']
                 moshakhase=i["moshakhase"]
@@ -323,6 +324,7 @@ def saveAmarTableInfo(request):
                 amar.counter1=i["counter1"]
                 amar.counter2=i["counter2"]
                 amar.vahed=float(i["vahed"])
+                amar.wastage_value=float(i["wastage"])
                 
                 amar.production_value=float(i["production_value"])
                 moshakhase=i["moshakhase"]

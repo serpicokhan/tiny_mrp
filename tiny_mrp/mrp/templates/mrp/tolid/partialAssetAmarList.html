@@ -29,6 +29,9 @@
               <th> کنتور انتهای شیفت</th>
               <th>100%</th>
               <th>تولید</th>
+              <th>ضایعات</th>
+
+              <th>عملیات</th>
 
             </tr>
           </thead>
@@ -78,6 +81,10 @@
 
 
               <td contenteditable="true" data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
+              <td contenteditable="true" class="editable-cell2 selectable1 wastage"> </td>
+              <td>
+                <button class="btn btn-success copy-row">کپی</button> <!-- Copy button -->
+            </td>
 
             </tr>
             {% endif %}
