@@ -129,7 +129,8 @@ def register_daily_amar(request):
     machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id).order_by("assetTavali")
     date_object=datetime.datetime.now()
     next_day = date_object + timedelta(days=1)
-    asset_category = AssetCategory.objects.all().order_by('priority')
+    # asset_category = AssetCategory.objects.all().order_by('priority')
+    asset_category=AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
     makan=Asset.objects.filter(assetIsLocatedAt__isnull=True,assetTypes=1)
 
 
@@ -1299,7 +1300,6 @@ def list_heatset_info(request):
 def list_amar_daily_info(request):
 
         data=dict()
-        asset_category = AssetCategory.objects.all().order_by('priority')
         # annotate(
         # min_priority=models.Min('asset__assetTavali')
         # ).order_by('min_priority')
@@ -1319,6 +1319,8 @@ def list_amar_daily_info(request):
     # Calculate previous day
         previous_day = date_object - timedelta(days=1)
         machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id)
+        asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority')
+        
 
         shift=Shift.objects.get(id=shift_id)
         machines_with_formulas = []

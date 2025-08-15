@@ -3,6 +3,7 @@ from mrp.models import *
 admin.site.register(Zayeat)
 admin.site.register(ZayeatVaz)
 admin.site.register(Asset)
+admin.site.register(AssetCategory)
 admin.site.register(Failure)
 admin.site.register(AssetFailure)
 admin.site.register(SysUser)
