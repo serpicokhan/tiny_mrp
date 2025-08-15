@@ -53,7 +53,6 @@ def backup_database(request):
         return HttpResponse(f"Error: {str(e)}")
 @login_required
 def get_daily_amar(request):
-    asset_category = AssetCategory.objects.all().order_by('priority')
     dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
     makan_id=request.GET.get('makan_id',False)
     # print(dayOfIssue,'!!!!!!!!!!!!!!!!!!')
@@ -64,6 +63,8 @@ def get_daily_amar(request):
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
     machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id)
+    asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+    
     shift_id=request.GET.get("shift_id",False)
     print(shift_id)
     if(not shift_id):

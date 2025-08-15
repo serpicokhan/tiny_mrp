@@ -824,6 +824,171 @@ function updateOperatorHiddenFields2($row) {
 // loadExistingOperators();
 // });
 
+// افزودن رویداد کلیک برای دکمه کپی
+$(".tab-content").on("click", ".copy-row", function() {
+  // پیدا کردن سطر جاری
+  var $currentRow = $(this).closest("tr");
+  
+  // کپی کردن سطر
+  var $newRow = $currentRow.clone(true);
+  
+  // حذف مقدارهای contenteditable در سطر جدید (به جز سلول‌های خاص)
+  $newRow.find('[contenteditable="true"]').not('.operator-name, .nakh-name').text('');
+  
+  // ریست کردن Select2 برای اپراتورها در سطر جدید
+  var $operatorSelect = $newRow.find('.operator-name');
+  $operatorSelect.val(null).trigger('change');
+  
+  // ریست کردن Select2 برای کد نخ در سطر جدید
+  var $nakhSelect = $newRow.find('.nakh-name');
+  $nakhSelect.val(null).trigger('change');
+  
+  // ریست کردن فیلدهای مخفی
+  $newRow.find('.operator-data').val('[]');
+  $newRow.find('.nakh-data').val('');
+  
+  // افزودن سطر جدید بعد از سطر جاری
+  $currentRow.after($newRow);
+  
+  // مقداردهی اولیه Select2 برای سطر جدید
+  initializeSelect2ForRow($newRow);
+  initiateCodeNakhForRow($newRow);
+  
+  // اسکرول به سطر جدید
+  $('html, body').animate({
+      scrollTop: $newRow.offset().top - 100
+  }, 500);
+});
 
+// تابع برای مقداردهی اولیه Select2 اپراتورها برای یک سطر خاص
+function initializeSelect2ForRow($row) {
+  $row.find('.operator-name').select2({
+      dropdownParent: $('body'),
+      multiple: true,
+      ajax: {
+          url: '/api/operators/search/',
+          dataType: 'json',
+          delay: 250,
+          data: function(params) {
+              return {
+                  q: params.term,
+                  page: params.page || 1
+              };
+          },
+          processResults: function(data, params) {
+              params.page = params.page || 1;
+              return {
+                  results: data.results.map(function(item) {
+                      return {
+                          id: item.id,
+                          text: item.name + ' (' + item.personnel_number + ')',
+                          personnel_number: item.personnel_number,
+                          name: item.name,
+                          pid: item.pid,
+                          cp_code: item.cp_code,
+                          card_no: item.card_no,
+                          first_name: item.first_name,
+                          last_name: item.last_name
+                      };
+                  }),
+                  pagination: {
+                      more: data.has_more
+                  }
+              };
+          },
+          cache: true
+      },
+      placeholder: 'انتخاب اپراتور(ها)',
+      minimumInputLength: 2,
+      closeOnSelect: false,
+      language: {
+          inputTooShort: function() {
+              return "حداقل 2 کاراکتر وارد کنید";
+          },
+          searching: function() {
+              return "در حال جستجو...";
+          },
+          noResults: function() {
+              return "نتیجه‌ای یافت نشد";
+          },
+          errorLoading: function() {
+              return "خطا در بارگذاری نتایج";
+          }
+      },
+      dir: "rtl"
+  });
+  
+  // افزودن رویدادهای Select2 برای سطر جدید
+  $row.find('.operator-name').on('select2:select', function(e) {
+      updateOperatorHiddenFields($(this).closest('tr'));
+  }).on('select2:unselect', function(e) {
+      updateOperatorHiddenFields($(this).closest('tr'));
+  }).on('select2:clear', function(e) {
+      $(this).closest('tr').find('.operator-data').val('[]');
+  });
+}
+
+// تابع برای مقداردهی اولیه Select2 کد نخ برای یک سطر خاص
+function initiateCodeNakhForRow($row) {
+  $row.find('.nakh-name').select2({
+      dropdownParent: $('body'),
+      ajax: {
+          url: '/api/moshakhase/search/',
+          dataType: 'json',
+          delay: 250,
+          data: function(params) {
+              return {
+                  q: params.term,
+                  page: params.page || 1
+              };
+          },
+          processResults: function(data, params) {
+              params.page = params.page || 1;
+              return {
+                  results: data.results.map(function(item) {
+                      return {
+                          id: item.id,
+                          text: item.name + ' (' + item.color_name + ')',
+                          name: item.name,
+                          color_id: item.color_id,
+                          color_name: item.color_name,
+                          tool: item.tool,
+                          la: item.la
+                      };
+                  }),
+                  pagination: {
+                      more: data.has_more
+                  }
+              };
+          },
+          cache: true
+      },
+      minimumInputLength: 2,
+      language: {
+          inputTooShort: function() {
+              return "حداقل 2 کاراکتر وارد کنید";
+          },
+          searching: function() {
+              return "در حال جستجو...";
+          },
+          noResults: function() {
+              return "نتیجه‌ای یافت نشد";
+          },
+          errorLoading: function() {
+              return "خطا در بارگذاری نتایج";
+          }
+      },
+      dir: "rtl"
+  });
+  
+  // افزودن رویدادهای Select2 برای سطر جدید
+  $row.find('.nakh-name').on('select2:select', function(e) {
+      updateOperatorHiddenFields2($(this).closest('tr'));
+  }).on('select2:unselect', function(e) {
+      updateOperatorHiddenFields2($(this).closest('tr'));
+  }).on('select2:clear', function(e) {
+      $(this).closest('tr').find('.nakh-data').val('');
+  });
+}
 
 });
