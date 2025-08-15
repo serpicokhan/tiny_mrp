@@ -825,32 +825,114 @@ function updateOperatorHiddenFields2($row) {
 // });
 
 // افزودن رویداد کلیک برای دکمه کپی
+function createNewRow($originalRow) {
+  // داده‌های اصلی از سطر موجود
+  var machineId = $originalRow.data("machine");
+  var machineName = $originalRow.find("td:first").text();
+  var speed = $originalRow.data("speed2") || 0;
+  var vahed = $originalRow.find(".vahed").data("vahed") || 0;
+  var maxFormula = $originalRow.find(".production_full").data("maxformula") || "";
+  var formula = $originalRow.find(".production").data("formula") || "";
+
+  // ساخت سطر جدید
+  var $newRow = $("<tr>", {
+      "data-machine": machineId,
+      "data-speed2": speed
+  });
+
+  // ستون نام ماشین
+  $newRow.append($("<td>").text(machineName));
+
+  // ستون اپراتور (Select2)
+  var $operatorCell = $("<td>");
+  var $operatorSelect = $("<select>", {
+      "class": "form-control operator-name",
+      "data-machine-id": machineId,
+      "multiple": "multiple",
+      "style": "width: 100%;"
+  });
+  $operatorCell.append($operatorSelect);
+  $operatorCell.append($('<input type="hidden" class="operator-data" name="operator_data" value="[]">'));
+  $newRow.append($operatorCell);
+
+  // ستون کد نخ (Select2)
+  var $nakhCell = $("<td>");
+  var $nakhSelect = $("<select>", {
+      "class": "form-control nakh-name",
+      "data-machine-id": machineId,
+      "style": "width: 100%;"
+  });
+  $nakhCell.append($nakhSelect);
+  $nakhCell.append($('<input type="hidden" class="nakh-data" name="nakh_data_' + machineId + '">'));
+  $newRow.append($nakhCell);
+
+  // ستون واحد (قابل ویرایش)
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell btc vahed selectable1",
+      "data-vahed": vahed
+  }).text(""));
+
+  // ستون نمره (قابل ویرایش)
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell btc nomre selectable1"
+  }).text(""));
+
+  // ستون سرعت (قابل ویرایش)
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell2 btc speed selectable1",
+      "data-nomre": ""
+  }).text(""));
+
+  // ستون‌های دیگر (کنتور ابتدا، انتها، تولید، ضایعات و عملیات)
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell btc counter1 selectable1"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell btc counter2 selectable1"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell3 production_full selectable1",
+      "data-maxformula": maxFormula,
+      "data-vahed": vahed
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "data-formula": formula,
+      "class": "production"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell2 selectable1 wastage"
+  }).text(""));
+
+  // دکمه کپی برای سطر جدید
+  $newRow.append($("<td>").append(
+      $("<button>", {
+          "class": "btn btn-success copy-row",
+          "text": "کپی"
+      })
+  ));
+
+  return $newRow;
+}
 $(".tab-content").on("click", ".copy-row", function() {
-  // پیدا کردن سطر جاری
-  var $currentRow = $(this).closest("tr");
+  var $originalRow = $(this).closest("tr");
+  var $newRow = createNewRow($originalRow);
   
-  // کپی کردن سطر
-  var $newRow = $currentRow.clone(true);
+  // اضافه کردن سطر جدید بعد از سطر جاری
+  $originalRow.after($newRow);
   
-  // حذف مقدارهای contenteditable در سطر جدید (به جز سلول‌های خاص)
-  $newRow.find('[contenteditable="true"]').not('.operator-name, .nakh-name').text('');
-  
-  // ریست کردن Select2 برای اپراتورها در سطر جدید
-  var $operatorSelect = $newRow.find('.operator-name');
-  $operatorSelect.val(null).trigger('change');
-  
-  // ریست کردن Select2 برای کد نخ در سطر جدید
-  var $nakhSelect = $newRow.find('.nakh-name');
-  $nakhSelect.val(null).trigger('change');
-  
-  // ریست کردن فیلدهای مخفی
-  $newRow.find('.operator-data').val('[]');
-  $newRow.find('.nakh-data').val('');
-  
-  // افزودن سطر جدید بعد از سطر جاری
-  $currentRow.after($newRow);
-  
-  // مقداردهی اولیه Select2 برای سطر جدید
+  // مقداردهی اولیه Select2ها برای سطر جدید
   initializeSelect2ForRow($newRow);
   initiateCodeNakhForRow($newRow);
   
@@ -859,7 +941,6 @@ $(".tab-content").on("click", ".copy-row", function() {
       scrollTop: $newRow.offset().top - 100
   }, 500);
 });
-
 // تابع برای مقداردهی اولیه Select2 اپراتورها برای یک سطر خاص
 function initializeSelect2ForRow($row) {
   $row.find('.operator-name').select2({
