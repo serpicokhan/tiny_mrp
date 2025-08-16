@@ -149,6 +149,7 @@ class DailyProduction(models.Model):
         # Handle None, empty list, or empty string
         if not operators_list or (isinstance(operators_list, (list, tuple)) and len(operators_list) == 0):
             print(operators_list)
+            print("here!")
 
 
             self.operators_data = None

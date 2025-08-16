@@ -303,3 +303,7 @@ class FormulaForm(forms.ModelForm):
     class Meta:
          model = Formula
          fields = '__all__'
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = '__all__'

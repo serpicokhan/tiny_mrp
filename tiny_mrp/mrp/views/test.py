@@ -150,18 +150,24 @@ def register_daily_amar(request):
             speed=DailyProduction.objects.filter(machine=machine).last()
             nomre=DailyProduction.objects.filter(machine=machine).last()
             vahed=DailyProduction.objects.filter(machine=machine).last()
-            operators_json=DailyProduction.objects.filter(machine=machine,shift__id=shift_id).last()
+            operators_json=DailyProduction.objects.filter(machine=machine,shift__id=shift_id,operators_data__isnull=False).last()
             operators=[]
             
 
-            if(operators_json and operators_json.operators_data):
-                    operator_info=json.loads(operators_json.operators_data)
-                    operators_json=operators_json.operators_data
-                    for kk in operator_info:
-                        operators.append(kk)
+            if(operators_json and operators_json.operators_data and operators_json.operators_data):
+                    try:
+                        operator_info=json.loads(operators_json.operators_data)
+                        print(operators_json.operators_data)
+
+                        operators_json=operators_json.operators_data
+                        for kk in operator_info:
+                            operators.append(kk)
+                    except Exception as e:
+                        print(e)
+                        
             
 
-            
+            print(operators)
             formula = Formula.objects.get(machine=machine)
             speedformula = SpeedFormula.objects.get(machine=machine)
             mydict={}
@@ -286,6 +292,8 @@ def saveAmarTableInfo(request):
                         # Try to parse as JSON first
                         # print(operators_data_json)
                         # operators_data = json.loads(operators_data_json)
+                        print("here!")
+
                         x.set_operators(operators_data_json)
                     except json.JSONDecodeError:
                         try:
@@ -335,7 +343,7 @@ def saveAmarTableInfo(request):
                 moshakhase=i["moshakhase"]
                 if(moshakhase):
                     amar.set_moshakhase(moshakhase)
-                operators_data_json = request.POST.get('operator_data', '{}')
+                operators_data_json = i["operator_data"]
                 if operators_data_json and operators_data_json.strip():
                     try:
                         # operators_data = json.loads(operators_data_json)
@@ -840,10 +848,12 @@ def list_speed_formula(request):
 def monthly_detaild_report(request):
     makan_id=request.GET.get("makan_id",False)
     makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    if(not makan_id):
+        makan_id=makan[0].id
     days=[]
     shift=Shift.objects.all()
-    asset_category = AssetCategory.objects.all().order_by('priority')
-
+    asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+    print(asset_category)
     current_date_time2 = jdatetime.datetime.now()
     current_year=current_date_time2.year
     j_month=request.GET.get('month',current_date_time2.month)
@@ -1332,7 +1342,7 @@ def list_amar_daily_info(request):
 
                 formula = Formula.objects.get(machine=machine)
                 speedformula = SpeedFormula.objects.get(machine=machine)
-                amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
+                amar=DailyProduction.objects.filter(machine=machine,dayOfIssue=date_object,shift=s)
                 # nakh_info={}
                 if(amar.moshakhase):
                     nakh_info={
@@ -1349,9 +1359,12 @@ def list_amar_daily_info(request):
                 operators=[]
 
                 if(amar.operators_data):
-                    operator_info=json.loads(amar.operators_data)
-                    for kk in operator_info:
-                        operators.append(kk)
+                    try:
+                        operator_info=json.loads(amar.operators_data)
+                        for kk in operator_info:
+                            operators.append(kk)
+                    except Exception as e:
+                        print(e)
 
                 machines_with_formulas.append({'machine': machine,'operators':operators,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'shift_id':s,'nakh_info':nakh_info})
 

@@ -1,0 +1,40 @@
+
+{% for c in reports %}
+
+<tr title="{{c.id}}">
+<td class="col-md-3">{{c}}</td>
+ <td class="col-md-4"> {{c.reportDetails}} </td>
+ <td class="col-md-2"><button class="btn btn-warning btn-outline fav_report" type="button" data-url="{{c.id}}">
+            {% if c.reportFav %}
+            <i class="fa fa-star fa-star-o"></i>
+
+            {%else %}
+							<i class="fa fa-star"></i>
+              {% endif %}
+								</button></td>
+
+
+
+
+ <td>
+    {% if perms.cmms.view_report %}
+   <button type="button"
+              class="btn btn-warning btn-sm btn-outline js-update-report"
+              data-url="{% url 'simpleReport_update' c.id %}">
+        <span class="glyphicon glyphicon glyphicon-eye-open"></span> مشاهده
+      </button>
+      {% endif %}
+      <button type="button"
+                   class="btn btn-info btn-sm btn-outline js-operate-report"
+                   data-url="{% url 'simpleReport_create' c.id %}">
+             <span class="glyphicon glyphicon glyphicon-cog"></span>عملیات
+           </button>
+
+    </td>
+</tr>
+{% empty %}
+<tr>
+ <td colspan="5" class="text-center bg-warning">هیچ موردی یافت نشد</td>
+</tr>
+
+{% endfor %}

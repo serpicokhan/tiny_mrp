@@ -89,7 +89,7 @@ def get_sum_machine_failure_by_date_shift(assetCatregory,shift,target_date):
         shift=shift,
         asset_name__assetCategory=assetCatregory,failure_name__is_it_count=True
         )
-        assets_count = assetCatregory.asset_set.all().count()
+        assets_count = assetCatregory.assetcategory_main.all().count()
 
 
         # Retrieve durations of the filtered failures and calculate the sum
@@ -112,7 +112,7 @@ def get_sum_machine_failure_monthly_shift(assetCatregory,shift,start,end):
         shift=shift,
         asset_name__assetCategory=assetCatregory,failure_name__is_it_count=True
         )
-        assets_count = assetCatregory.asset_set.all().count()
+        assets_count = assetCatregory.assetcategory_main.all().count()
 
         # Retrieve durations of the filtered failures and calculate the sum
         # total_failure_duration = filtered_failures.aggregate(total_duration=Sum('duration'))['total_duration']
@@ -134,7 +134,7 @@ def get_day_machine_failure_monthly_shift(assetCatregory,shift,start,end):
         shift=shift,
         asset_name__assetCategory=assetCatregory,failure_name__is_it_count=True
         )
-        assets_count = assetCatregory.asset_set.all().count()
+        assets_count = assetCatregory.assetcategory_main.all().count()
 
 
         # Retrieve durations of the filtered failures and calculate the sum
@@ -159,7 +159,7 @@ def get_day_machine_failure_monthly_shift_makan(assetCatregory,makan_id,shift,st
         shift=shift,
         asset_name__assetCategory=assetCatregory,failure_name__is_it_count=True,asset_name__assetIsLocatedAt__id=makan_id
         )
-        assets_count = assetCatregory.asset_set.all().count()
+        assets_count = assetCatregory.assetcategory_main.all().count()
 
 
         # Retrieve durations of the filtered failures and calculate the sum
