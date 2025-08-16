@@ -150,7 +150,7 @@ def register_daily_amar(request):
             speed=DailyProduction.objects.filter(machine=machine).last()
             nomre=DailyProduction.objects.filter(machine=machine).last()
             vahed=DailyProduction.objects.filter(machine=machine).last()
-            operators_json=DailyProduction.objects.filter(machine=machine,shift__id=shift_id,operators_data__isnull=False).last()
+            operators_json=DailyProduction.objects.filter(machine=machine,shift__id=shift_id).exclude( Q(operators_data__isnull=True) | Q(operators_data='{}')).last()
             operators=[]
             
 
@@ -1342,7 +1342,7 @@ def list_amar_daily_info(request):
 
                 formula = Formula.objects.get(machine=machine)
                 speedformula = SpeedFormula.objects.get(machine=machine)
-                amar=DailyProduction.objects.filter(machine=machine,dayOfIssue=date_object,shift=s)
+                amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
                 # nakh_info={}
                 if(amar.moshakhase):
                     nakh_info={
