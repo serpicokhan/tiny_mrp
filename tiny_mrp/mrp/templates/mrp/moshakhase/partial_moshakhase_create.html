@@ -1,7 +1,7 @@
 <form method="post" action="{% url 'moshakhase_create' %}" class="js-moshakhase-create-form">
   {% csrf_token %}
   <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
     <h4 class="modal-title">ایجاد مشخصه جدید</h4>
@@ -10,7 +10,7 @@
     {% include 'mrp/moshakhase/partial_moshakhase_form.html' %}
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-default" data-dismiss="modal">انصراف</button>
+    <button type="button" class="btn btn-default" data-bs-dismiss="modal">انصراف</button>
     <button type="submit" class="btn btn-primary">ایجاد</button>
   </div>
 </form>
