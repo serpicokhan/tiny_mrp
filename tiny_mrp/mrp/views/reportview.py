@@ -73,13 +73,12 @@ def production_chart_with_table(request):
     return JsonResponse(data,safe=False)
 
 
-@permission_required('cmms.view_report',login_url='/not_found')
 def list_report(request,id=None):
     #
     books = Report.objects.all()
     Cat=Report.Category
     wos=ReportUtility.doPaging(request,books)
-    return render(request, 'cmms/reports/main.html', {'reports': wos,'cat':Cat,'section':'list_report'})
+    return render(request, 'mrp/reports/main.html', {'reports': wos,'cat':Cat,'section':'list_report'})
 ##########################################################
 def save_report_form(request, form, template_name,id=None):
     data = dict()
@@ -89,7 +88,7 @@ def save_report_form(request, form, template_name,id=None):
             data['form_is_valid'] = True
             books = Report.objects.all()
             wos=ReportUtility.doPaging(request,books)
-            data['html_report_list'] = render_to_string('cmms/reports/partialReportList.html', {
+            data['html_report_list'] = render_to_string('mrp/reports/partialReportList.html', {
                 'reports': wos
             })
             data['form_is_valid'] = True
@@ -112,12 +111,12 @@ def report_delete(request, id):
         data['form_is_valid'] = True  # This is just to play along with the existing code
         companies =  Report.objects.all()
         #Tasks.objects.filter(reportId=id).update(report=id)
-        data['html_report_list'] = render_to_string('cmms/report/partialReportList.html', {
+        data['html_report_list'] = render_to_string('mrp/report/partialReportList.html', {
             'report': companies
         })
     else:
         context = {'report': comp1}
-        data['html_report_form'] = render_to_string('cmms/report/partialReportDelete.html',
+        data['html_report_form'] = render_to_string('mrp/report/partialReportDelete.html',
             context,
             request=request,
         )
@@ -129,11 +128,11 @@ def report_delete(request, id):
 def report_create(request):
     if (request.method == 'POST'):
         form = ReportForm(request.POST)
-        return save_report_form(request, form, 'cmms/reports/partialReportCreate.html')
+        return save_report_form(request, form, 'mrp/reports/partialReportCreate.html')
     else:
 
         form = ReportForm()
-        return save_report_form(request, form, 'cmms/reports/partialReportCreate.html')
+        return save_report_form(request, form, 'mrp/reports/partialReportCreate.html')
 
 
 
@@ -148,7 +147,7 @@ def report_update(request, id):
         form = ReportForm(instance=company)
 
 
-    return save_report_form(request, form,"cmms/reports/partialReportUpdate.html",id)
+    return save_report_form(request, form,"mrp/reports/partialReportUpdate.html",id)
 ##########################################################
 
 ##########################################################
@@ -164,11 +163,11 @@ def reportSearch(request,str):
     else:
         books = Report.objects.filter(Q(reportName__contains=str)|Q(reportDetails__contains=str))
     wos=ReportUtility.doPaging(request,books)
-    data['html_report_list'] = render_to_string('cmms/reports/partialReportList.html', {
+    data['html_report_list'] = render_to_string('mrp/reports/partialReportList.html', {
          'reports': wos,
          'perms': PermWrapper(request.user),
      })
-    data['html_report_paginator'] = render_to_string('cmms/reports/partialReportPagination.html', {'reports': wos,'pageType':'reportSearch' ,'pageArg':str })
+    data['html_report_paginator'] = render_to_string('mrp/reports/partialReportPagination.html', {'reports': wos,'pageType':'reportSearch' ,'pageArg':str })
     return JsonResponse(data)
 def FilterReportCategory(request,id):
     data=dict()
@@ -180,11 +179,11 @@ def FilterReportCategory(request,id):
     else:
          books = Report.objects.filter(reportCategory=id)
     wos=ReportUtility.doPaging(request,books)
-    data['html_report_list'] = render_to_string('cmms/reports/partialReportList.html', {
+    data['html_report_list'] = render_to_string('mrp/reports/partialReportList.html', {
          'reports': wos,'perms': PermWrapper(request.user)
      })
     # print(wos)
-    data['html_report_paginator'] = render_to_string('cmms/reports/partialReportPagination.html', {'reports': wos,'pageType':'FilterReportCategory','pageArg':id})
+    data['html_report_paginator'] = render_to_string('mrp/reports/partialReportPagination.html', {'reports': wos,'pageType':'FilterReportCategory','pageArg':id})
     return JsonResponse(data)
 def make_favorits_report(request,id):
     rep=Report.objects.get(id=id)
@@ -203,10 +202,10 @@ def show_fav_reports(request,id):
     else:
          books = Report.objects.all()
     wos=ReportUtility.doPaging(request,books)
-    data['html_report_list'] = render_to_string('cmms/reports/partialReportList.html', {
+    data['html_report_list'] = render_to_string('mrp/reports/partialReportList.html', {
          'reports': wos
          ,'perms': PermWrapper(request.user)
      })
     # print(wos)
-    data['html_report_paginator'] = render_to_string('cmms/reports/rep_pagination2.html', {'reports': wos})
+    data['html_report_paginator'] = render_to_string('mrp/reports/rep_pagination2.html', {'reports': wos})
     return JsonResponse(data)

@@ -1,6 +1,8 @@
 <!--pip install django-widget-tweaks-->
 {% extends 'mrp/blank-page.html' %}
 
+{% load static %}
+
  {% block content %}
 
 <div class="row">
@@ -8,23 +10,7 @@
                     <div class="card">
                         <div class="ibox-title">
                             <h5>لیست گزارشات </h5>
-                            <div class="ibox-tools">
-                                <a class="collapse-link">
-                                    <i class="fa fa-chevron-up"></i>
-                                </a>
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                    <i class="fa fa-wrench"></i>
-                                </a>
-                                <ul class="dropdown-menu dropdown-user">
-                                    <li><a href="#">گزینه 1</a>
-                                    </li>
-                                    <li><a href="#">گزینه 2</a>
-                                    </li>
-                                </ul>
-                                <a class="close-link">
-                                    <i class="fa fa-times"></i>
-                                </a>
-                            </div>
+                           
                         </div>
                         <div class="card-body">
 
@@ -79,7 +65,7 @@
                                     </tr>
                                   </tfoot> -->
                                   <tbody id='tbody_report'>
-                                    {% include 'cmms/reports/partialReportList.html' %}
+                                    {% include 'mrp/reports/partialReportList.html' %}
 
 
                                   </tbody>
@@ -170,7 +156,7 @@
 
 {% block javascript %}
 
-  <script src="{% static '/js/project/reports/mainreport.js' %}"></script>
+  <script src="{% static 'project/mainreport.js' %}"></script>
   <!-- <script src="{% static '/js/project/reports/form.js' %}"></script> -->
 
 

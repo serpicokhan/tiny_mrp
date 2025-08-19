@@ -75,7 +75,9 @@ class DailyProduction(models.Model):
     makhraj_metraj_daf = models.FloatField(null=True, blank=True)
     # NEW OPERATOR FIELDS
     # Store operator data as JSON for multiple operators
-    operators_data = models.TextField(null=True, blank=True, help_text="JSON data containing multiple operators")
+    # operators_data = models.JSONField(null=True, blank=True, help_text="JSON data containing multiple operators")
+    # operators_data = models.TextField(null=True, blank=True, help_text="JSON data containing multiple operators")  # keep original
+    operators_data = models.JSONField(null=True, blank=True)  # new field
     
     def __str__(self):
         return f"{self.nomre} , {self.speed} ,{self.counter2}, {self.machine}"
@@ -148,8 +150,7 @@ class DailyProduction(models.Model):
         """
         # Handle None, empty list, or empty string
         if not operators_list or (isinstance(operators_list, (list, tuple)) and len(operators_list) == 0):
-            print(operators_list)
-            print("here!")
+            print(json.load(operators_list))
 
 
             self.operators_data = None
@@ -159,7 +160,9 @@ class DailyProduction(models.Model):
         if isinstance(operators_list, str):
 
             try:
-                # print(operators_list)
+                print(operators_list)
+                # print(json.load(operators_list))
+
 
 
                 operators_list = operators_list
@@ -170,7 +173,7 @@ class DailyProduction(models.Model):
 
                     self.operators_data = None
                     return
-                else:
+                elif operators_list!=None:
                     self.operators_data=operators_list
                 
                     

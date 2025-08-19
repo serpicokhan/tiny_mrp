@@ -1,11 +1,11 @@
 from django.db import models
 class Operator(models.Model):
-    Pid = models.CharField(max_length=20)
-    PNumber = models.CharField(max_length=20)
-    CpCode = models.CharField(max_length=100)
-    CardNo = models.CharField(max_length=100)
-    FName = models.CharField(max_length=100)  # First name
-    LName = models.CharField(max_length=100)  # Last name
+    Pid = models.CharField(max_length=20,blank=True,null=True)
+    PNumber = models.CharField(max_length=20,blank=True,null=True)
+    CpCode = models.CharField(max_length=100,blank=True,null=True)
+    CardNo = models.CharField(max_length=100,blank=True,null=True)
+    FName = models.CharField(max_length=200,blank=True,null=True)  # First name
+    LName = models.CharField(max_length=200,blank=True,null=True)  # Last name
 
     class Meta:
         db_table = 'operator'  # This matches your table name

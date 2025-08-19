@@ -187,6 +187,15 @@ urlpatterns = [
     # path('send-push/', send_push, name='send_push'),
     path('api/operators/search/', OperatorSearchView.as_view(), name='operator_search'),
     path('api/moshakhase/search/', MoshakhaseSearchView.as_view(), name='moshakhase_search'),
+    url(r'^Reports/$',list_report,name='list_report'),
+    url(r'^Reports/create/$', report_create, name='report_create'),
+    
+    url(r'^Reports/(?P<id>-?\d+)/FilterCategory/$', FilterReportCategory, name='FilterReportCategory'),
+    url(r'^Reports/(?P<str>[-\w]+)/reportSearch/$', reportSearch, name='reportSearch'),
+    url(r'^Reports/(?P<id>\d+)/fav_report/$', make_favorits_report, name='make_favorits_report'),
+    url(r'^Reports/(?P<id>\d+)/show_fav_reports/$', show_fav_reports, name='show_fav_reports'),
+
+
     
 
 

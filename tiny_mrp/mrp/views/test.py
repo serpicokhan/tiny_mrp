@@ -150,24 +150,23 @@ def register_daily_amar(request):
             speed=DailyProduction.objects.filter(machine=machine).last()
             nomre=DailyProduction.objects.filter(machine=machine).last()
             vahed=DailyProduction.objects.filter(machine=machine).last()
-            operators_json=DailyProduction.objects.filter(machine=machine,shift__id=shift_id).exclude( Q(operators_data__isnull=True) | Q(operators_data='{}')).last()
+            operators_json=DailyProduction.objects.filter(machine=machine,shift__id=shift_id).exclude( operators_data__isnull=True).last()
             operators=[]
             
 
             if(operators_json and operators_json.operators_data and operators_json.operators_data):
-                    try:
-                        operator_info=json.loads(operators_json.operators_data)
-                        print(operators_json.operators_data)
-
-                        operators_json=operators_json.operators_data
-                        for kk in operator_info:
-                            operators.append(kk)
-                    except Exception as e:
-                        print(e)
+                        
+                        try:
+                            operator_info=json.loads(operators_json.operators_data)
+                            operators_json=operators_json.operators_data
+                            print(json.loads(operators_json))
+                            for kk in operator_info:
+                                operators.append(kk)
+                        except Exception as e:
+                            print(e)
                         
             
 
-            print(operators)
             formula = Formula.objects.get(machine=machine)
             speedformula = SpeedFormula.objects.get(machine=machine)
             mydict={}
@@ -267,6 +266,8 @@ def saveAmarTableInfo(request):
                 d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
 
             if(d.count()>0):
+                print("here!###")
+
                 x=d[0]
                 x.machine=m
                 x.shift=s
@@ -278,7 +279,6 @@ def saveAmarTableInfo(request):
                 x.counter2=i["counter2"]
                 x.vahed=int(i["vahed"])
                 x.wastage_value=float(i["wastage"]) if i["wastage"] else 0
-                print(i["wastage"])
                 
                 x.production_value=float(i["production_value"])
                 operators_data_json = i['operator_data']
@@ -292,7 +292,6 @@ def saveAmarTableInfo(request):
                         # Try to parse as JSON first
                         # print(operators_data_json)
                         # operators_data = json.loads(operators_data_json)
-                        print("here!")
 
                         x.set_operators(operators_data_json)
                     except json.JSONDecodeError:

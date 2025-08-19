@@ -22,5 +22,6 @@ from mrp.views.workorderview import *
 from mrp.views.formulaview import *
 from mrp.views.operatorview import *
 from mrp.views.moshakhaseview import *
+from mrp.views.reportview import *
 # from mrp.views.pushview import *
 
