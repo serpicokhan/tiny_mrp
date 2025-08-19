@@ -11,9 +11,12 @@ from django.views import View
 from django.db.models import Value
 from django.db.models.functions import Concat
 import json
-
+from mrp.forms import MoshakhaseForm
+from mrp.business.tolid_util import doPaging
 # Import your Operator model
 from mrp.models.moshakhase import *
+from django.contrib.auth.context_processors import PermWrapper
+
 
 class MoshakhaseSearchView(View):
     """
@@ -54,28 +57,31 @@ class MoshakhaseSearchView(View):
             'total_count': paginator.count
         })
 
-def profile_list(request):
-    profile = FinancialProfile.objects.order_by('-id')
-    return render(request, 'mrp/financial_profile/profile_list.html', {'profiles': profile,'title':'پروفال مالی'})
+def moshakhase_list(request):
+    moshakhase = EntryForm.objects.order_by('-id')
+    ws=doPaging(request,moshakhase)
+    return render(request, 'mrp/moshakhase/moshakhase_list.html', {'wo': ws,'title':'لیست محصولات'})
 
 
-def save_profile_form(request, form, template_name,is_new=None):
+def save_moshakhase_form(request, form, template_name,is_new=None):
     data = dict()
     if request.method == 'POST':
         if form.is_valid():
             instance=form.save()
-            if(is_new):
-                create_related_tolid_padash(instance.id)
-                create_related_nezafat_padash(instance.id)
-                create_related_randemanInit_padash(instance.id)
-            # create_related_nezafat_padash(instance.id)
+            # if(is_new):
+            #     create_related_tolid_padash(instance.id)
+            #     create_related_nezafat_padash(instance.id)
+            #     create_related_randemanInit_padash(instance.id)
+            # # create_related_nezafat_padash(instance.id)
             # create_related_randeman_init_padash(instance.id)
 
             data['form_is_valid'] = True
-            profile = FinancialProfile.objects.all()
-            data['html_profile_list'] = render_to_string('mrp/financial_profile/partial_profile_list.html', {
-                'profiles': profile
-            })
+
+            # moshakhase = EntryForm.objects.all()
+            # wo=doPaging(request,moshakhase)
+            # data['html_moshakhase_list'] = render_to_string('mrp/moshakhase/partial_moshakhase_list.html', {
+            #     'wo': wo
+            # })
         else:
             data['form_is_valid'] = False
     context = {'form': form}
@@ -83,34 +89,113 @@ def save_profile_form(request, form, template_name,is_new=None):
     return JsonResponse(data)
 
 
-def profile_create(request):
+def moshakhase_create(request):
     if request.method == 'POST':
-        form = FinancialProfileForm(request.POST)
+        form = MoshakhaseForm(request.POST)
     else:
-        form = FinancialProfileForm()
-    return save_profile_form(request, form, 'mrp/financial_profile/partial_profile_create.html',is_new=True)
+        form = MoshakhaseForm()
+    return save_moshakhase_form(request, form, 'mrp/moshakhase/partial_moshakhase_create.html',is_new=True)
 
 
-def profile_update(request, pk):
-    profile = get_object_or_404(FinancialProfile, pk=pk)
+def moshakhase_update(request, pk):
+    moshakhase = get_object_or_404(EntryForm, pk=pk)
     if request.method == 'POST':
-        form = FinancialProfileForm(request.POST, instance=profile)
+        form = MoshakhaseForm(request.POST, instance=moshakhase)
     else:
-        form = FinancialProfileForm(instance=profile)
-    return save_profile_form(request, form, 'mrp/financial_profile/partial_profile_update.html')
+        form = MoshakhaseForm(instance=moshakhase)
+    return save_moshakhase_form(request, form, 'mrp/moshakhase/partial_moshakhase_update.html')
 
 
-def profile_delete(request, pk):
-    profile = get_object_or_404(FinancialProfile, pk=pk)
+def moshakhase_delete(request, pk):
+    moshakhase = get_object_or_404(EntryForm, pk=pk)
     data = dict()
     if request.method == 'POST':
-        profile.delete()
+        moshakhase.delete()
         data['form_is_valid'] = True
-        profile = FinancialProfile.objects.all()
-        data['html_profile_list'] = render_to_string('mrp/financial_profile/partial_profile_list.html', {
-            'profiles': profile
-        })
+        # moshakhase = MoshakhaseForm.objects.all()
+        # data['html_moshakhase_list'] = render_to_string('mrp/moshakhase/partial_moshakhase_list.html', {
+        #     'moshakhases': moshakhase
+        # })
     else:
-        context = {'profile': profile}
-        data['html_form'] = render_to_string('mrp/financial_profile/partial_profile_delete.html', context, request=request)
+        context = {'moshakhase': moshakhase}
+        data['html_form'] = render_to_string('mrp/moshakhase/partial_moshakhase_delete.html', context, request=request)
+    return JsonResponse(data)
+def search_moshakhase(request):
+    query = request.GET.get('q', '')
+    results = EntryForm.objects.all()
+    
+    if query:
+        # Create a Q object to search across multiple fields
+        search_filter = Q()
+        
+        # Search in name field
+        search_filter |= Q(name__icontains=query)
+        
+        # Search in color name (through ForeignKey)
+        search_filter |= Q(color__name__icontains=query)
+        
+        # Search in tool field (if it's a number)
+        if query.isdigit():
+            search_filter |= Q(tool=int(query))
+            
+        # Search in la field (if it's a number)
+        if query.isdigit():
+            search_filter |= Q(la=int(query))
+            
+        results = results.filter(search_filter)
+    
+    # Add pagination if needed (using the same pattern as your original view)
+    # paginator = Paginator(results, 20)
+    # page = request.GET.get('page')
+    # results = paginator.get_page(page)
+    results=doPaging(request,results)
+
+    context = {
+        'wo': results,
+        'q': query,
+        'title': 'نتایج جستجو'
+    }
+    
+    return render(request, 'mrp/moshakhase/moshakhase_list.html', context)
+
+def referesh_moshakhase_list(request):
+    search_query = request.GET.get('q', '').strip() 
+    page=request.GET.get('page', False)
+    # print(page,request.GET,'@@@@@@@@@@')
+    
+
+    # if(request.user.is_superuser):
+    
+    requests = EntryForm.objects.all()
+    
+
+    # else:
+    #     requests=PurchaseRequest.objects.filter(user__userId=request.user).order_by('-created_at')
+
+    if search_query:
+        filters = Q(color__name__icontains=search_query) | \
+                Q(la__icontains=search_query) | \
+                Q(name__icontains=search_query)| \
+                Q(tool__icontains=search_query)
+        
+        # Only add the id filter if the search query is a digit
+        if search_query.isdigit():
+            filters |= Q(id=search_query)
+        
+        requests = requests.filter(filters).distinct()
+
+    
+    
+    ws= doPaging(request,requests)
+    data=dict()
+    data["status"]="ok"
+    data["html_moshakhase_list"]=render_to_string('mrp/moshakhase/partial_moshakhase_list.html', {
+                        
+                        'wo':ws,
+                         'perms': PermWrapper(request.user) 
+
+                       
+
+                        
+                    },request)
     return JsonResponse(data)

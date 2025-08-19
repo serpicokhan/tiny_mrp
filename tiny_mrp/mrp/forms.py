@@ -307,3 +307,7 @@ class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
         fields = '__all__'
+class MoshakhaseForm(forms.ModelForm):
+    class Meta:
+        model = EntryForm
+        fields = '__all__'

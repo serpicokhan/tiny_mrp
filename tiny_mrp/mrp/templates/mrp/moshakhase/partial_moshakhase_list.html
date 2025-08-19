@@ -1,12 +1,11 @@
 {% load humanize %}
 
-{% for moshakhase in moshakhases %}
+{% for moshakhase in wo %}
   <tr>
-    <td>{{ moshakhase.description }}</td>
-    <td>{{ moshakhase.get_jalali_time_created }}</td>
-    <td>{{moshakhase.mablagh_kol_randeman|intcomma}}</td>
-    <td>{{moshakhase.tolid_randeman_mazrab_3|intcomma}}</td>
-    <td>{{moshakhase.tolid_randeman|intcomma}}</td>
+    <td>{{ moshakhase.name }}</td>
+    <td>{{ moshakhase.color }}</td>
+    <td>{{moshakhase.tool|intcomma}}</td>
+    <td>{{moshakhase.la|default_if_none:'نامشخص'}}</td>
     
     <td>
      

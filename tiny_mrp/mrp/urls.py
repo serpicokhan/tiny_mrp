@@ -187,6 +187,13 @@ urlpatterns = [
     # path('send-push/', send_push, name='send_push'),
     path('api/operators/search/', OperatorSearchView.as_view(), name='operator_search'),
     path('api/moshakhase/search/', MoshakhaseSearchView.as_view(), name='moshakhase_search'),
+    url(r'^Moshakhase/$', moshakhase_list, name='moshakhase_list'),
+    url(r'^Moshakhase/(?P<pk>\d+)/update/$', moshakhase_update, name='moshakhase_update'),
+    url(r'^Moshakhase/(?P<pk>\d+)/delete/$', moshakhase_delete, name='moshakhase_delete'),
+     url(r'^Mshakhase/search/', search_moshakhase, name='moshakhase_search'),
+    url(r'^Moshakhase/create/$', moshakhase_create, name='moshakhase_create'),
+    url(r'^Moshakhase/RefereshList$', referesh_moshakhase_list, name='referesh_moshakhase_list'),
+
     url(r'^Reports/$',list_report,name='list_report'),
     url(r'^Reports/create/$', report_create, name='report_create'),
     

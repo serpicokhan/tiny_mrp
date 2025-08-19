@@ -6,12 +6,15 @@ class Color(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        ordering = ['name']  # Order by name alphabetically
+    
     
 class EntryForm(models.Model):
-    color = models.ForeignKey(Color, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, unique=True)  # Added unique=True
-    tool = models.IntegerField(null=True, blank=True)     # Made optional
-    la = models.IntegerField(null=True, blank=True)       # Made optional
+    color = models.ForeignKey(Color, on_delete=models.CASCADE,verbose_name="رنگ")
+    name = models.CharField("نام",max_length=100, unique=True)  # Added unique=True
+    tool = models.IntegerField("طول",null=True, blank=True)     # Made optional
+    la = models.IntegerField("لا",null=True, blank=True)       # Made optional
 
     def __str__(self):
         tool_display = self.tool if self.tool is not None else "?"

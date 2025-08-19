@@ -1,5 +1,9 @@
 {% extends 'mrp/blank-page.html' %}
 {% load static %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
+
+{% endblock %}
 {% block content %}
 
 <div class="row">
@@ -9,31 +13,83 @@
         <div class="card">
             <div class="card-body">
                 <h6 class="card-title">{{title}}</h6>
-                <p>
-                    <button type="button" class="btn btn-primary js-create-moshakhase" data-url="{% url 'moshakhase_create' %}">
-                      <span class="glyphicon glyphicon-plus"></span>
-                      جدید
-                    </button>
-                  </p>
+                   <!-- Search Form -->
+                   <div class="row mb-3">
+                   
+                    <div class="col-md-6 text-right">
+                        <button type="button" class="btn btn-primary js-create-moshakhase" data-url="{% url 'moshakhase_create' %}">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            جدید
+                        </button>
+                    </div>
+                     <div class="col-md-6">
+                        <form method="GET" action="{% url 'moshakhase_search' %}" id="search-form" autocomplete="off">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="جستجو بر اساس نام کد، رنگ، طول یا لا..." 
+                                       name="q" value="{{ request.GET.q }}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="submit">
+                                        <i class="ti ti-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+               
                 <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
                     <table class="table table-striped table-bordered" id="moshakhase-table">
                         <thead>
                         <tr class="bg-info">
-                        <th>نام پروفایل</th>
-                        <th>تاریخ ایجاد</th>
-                        <th>مبلغ راندمان کل دستکاه</th>
-                        <th>مبلغ مضرب 3 کل</th>
-                        <th>راندمان تولید سرشیفت</th>
+                        <th>نام کد</th>
+                        <th>رنگ</th>
+                        <th>طول</th>
+                        <th>لا</th>
                         <th>عملیات</th>
+                        
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="tbody_company2">
                           {% include 'mrp/moshakhase/partial_moshakhase_list.html' %}
 
                           </tbody>
                     </table>
+                    <nav aria-label="...">
+                      <ul class="pagination">
+                        {% if wo.has_previous %}
+                          <li class="page-item ">
+                              <a class="page-link" href="?page={{ wo.previous_page_number }}{% if q %}&q={{q}}{% endif %}" tabindex="-1" aria-disabled="true">قبلی</a>
+                          </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                          <a class="page-link" href="#" tabindex="-1" aria-disabled="true">قبلی</a>
+                      </li>
+                      {% endif %}
+                      {% for i in wo.paginator.page_range %}
+                      {% if wo.number == i %}
+                      <li class="page-item active" aria-current="page">
+                        <a class="page-link" href="#">{{i}} <span class="sr-only">(فعلی)</span></a>
+                       </li>
+                       {% else %}
+                       <li class="page-item"><a class="page-link" href="?page={{ i }}{% if q %}&q={{q}}{% endif %}">{{i}}</a></li>
+
+                      {% endif %}
+
+
+                         {% endfor %}
+                         {% if wo.has_next %}
+                          <li class="page-item">
+                              <a class="page-link" href="?page={{ wo.next_page_number }}{% if q %}&q={{q}}{% endif %}">بعدی</a>
+                          </li>
+                          {% else %}
+                          <a class="page-link disabled" href="#" aria-disabled="true">بعدی</a>
+
+
+                          {% endif %}
+                      </ul>
+                  </nav>
                 </div>
-                <div class="modal fade" id="modal-moshakhase">
+                <div class="modal fade" id="modal-company2">
                     <div class="modal-dialog">
                       <div class="modal-content">
                 
@@ -53,5 +109,7 @@
 {% load static %}
 
 {% block javascript %}
-  <script src="{% static 'project\financialmoshakhase.js' %}"></script>
+<script src="{% static 'vendors/select2/js/select2.min.js' %}"></script>
+
+  <script src="{% static 'project\moshakhase.js' %}"></script>
 {% endblock %}
