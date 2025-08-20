@@ -150,7 +150,7 @@ class DailyProduction(models.Model):
         """
         # Handle None, empty list, or empty string
         if not operators_list or (isinstance(operators_list, (list, tuple)) and len(operators_list) == 0):
-            print(json.load(operators_list))
+            # print(json.load(operators_list))
 
 
             self.operators_data = None
@@ -160,7 +160,7 @@ class DailyProduction(models.Model):
         if isinstance(operators_list, str):
 
             try:
-                print(operators_list)
+                # print(operators_list)
                 # print(json.load(operators_list))
 
 
@@ -260,12 +260,13 @@ class DailyProduction(models.Model):
             List of operator dictionaries
         """
         print(self.operators_data)
+        
         if not self.operators_data:
             return []
         
         try:
             operators=''
-            for i in json.loads(self.operators_data):
+            for i in self.operators_data:
               
                 operators+=f"({i['id']}):{i['name']}"+","
             return operators

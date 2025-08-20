@@ -135,6 +135,7 @@ def register_daily_amar(request):
     makan=Asset.objects.filter(assetIsLocatedAt__isnull=True,assetTypes=1)
 
 
+
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
 
@@ -151,6 +152,12 @@ def register_daily_amar(request):
             nomre=DailyProduction.objects.filter(machine=machine).last()
             vahed=DailyProduction.objects.filter(machine=machine).last()
             operators_json=DailyProduction.objects.filter(machine=machine,shift__id=shift_id).exclude( operators_data__isnull=True).last()
+            countor1 = DailyProduction.objects.filter(
+                machine=machine, 
+                shift__id=shift_id
+            ).exclude(counter2__isnull=True).order_by('-dayOfIssue').last()
+
+            result_counter = countor1.counter2 if countor1 else 0
             operators=[]
             
 
@@ -188,9 +195,9 @@ def register_daily_amar(request):
                 mydict["vahed"]=machine.assetVahed
 
             if(speed):
-                machines_with_formulas.append({'machine': machine,'operators':operators,'operators_json':operators_json, 'formula': formula.formula,'speed':speed.speed,'nomre':speed.nomre,'vahed':machine.assetVahed,'speedformula':speedformula.formula,'max':"{:.0f}".format(speed.eval_max_tolid())})
+                machines_with_formulas.append({'machine': machine,'operators':operators,'operators_json':operators_json, 'formula': formula.formula,'speed':speed.speed,'nomre':speed.nomre,'vahed':machine.assetVahed,'speedformula':speedformula.formula,'counter1':result_counter,'max':"{:.0f}".format(speed.eval_max_tolid())})
             else:
-                machines_with_formulas.append({'machine': machine,'operators':operators,'operators_json':operators_json, 'formula': formula.formula,'speed':1,'vahed':machine.assetVahed,'nomre':0,'speedformula':speedformula.formula})
+                machines_with_formulas.append({'machine': machine,'operators':operators,'operators_json':operators_json, 'formula': formula.formula,'speed':1,'vahed':machine.assetVahed,'nomre':0,'speedformula':speedformula.formula,'counter1':result_counter})
 
 
         except Formula.DoesNotExist:
@@ -247,8 +254,7 @@ def tolid_heatset(request):
 
 @csrf_exempt
 def saveAmarTableInfo(request):
-    # print(request.body)
-    # print(request.POST)
+    print("here")
     data2 = json.loads(request.body)
     data=dict()
     # print("********")
@@ -266,7 +272,8 @@ def saveAmarTableInfo(request):
                 d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
 
             if(d.count()>0):
-                print("here!###")
+                # print("here!###")
+                
 
                 x=d[0]
                 x.machine=m
@@ -279,6 +286,7 @@ def saveAmarTableInfo(request):
                 x.counter2=i["counter2"]
                 x.vahed=int(i["vahed"])
                 x.wastage_value=float(i["wastage"]) if i["wastage"] else 0
+                # print("!wastage:",i["wastage"])
                 
                 x.production_value=float(i["production_value"])
                 operators_data_json = i['operator_data']
@@ -295,6 +303,7 @@ def saveAmarTableInfo(request):
 
                         x.set_operators(operators_data_json)
                     except json.JSONDecodeError:
+                        print("@@@@@@@")
                         try:
                             # If JSON parsing fails, try as comma-separated IDs
                             if ',' in operators_data_json:
@@ -336,6 +345,8 @@ def saveAmarTableInfo(request):
                 amar.counter2=i["counter2"]
                 amar.vahed=float(i["vahed"])
                 amar.wastage_value=float(i["wastage"]) if i["wastage"] else 0
+                # print("!wastage:",i["wastage"])
+
                 # print(i["wastage"])
                 
                 amar.production_value=float(i["production_value"])
@@ -1329,7 +1340,7 @@ def list_amar_daily_info(request):
     # Calculate previous day
         previous_day = date_object - timedelta(days=1)
         machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id)
-        asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority')
+        asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
         
 
         shift=Shift.objects.get(id=shift_id)

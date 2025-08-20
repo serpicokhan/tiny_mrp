@@ -263,7 +263,13 @@ var tableDataToJSON=function(tableId){
   var $table = $(tableId);
   var data = [];
   $table.find('tr').each(function() {
+
         if($(this).attr('data-machine')){
+        if($(this).attr('data-machine')=='7155'){
+          console.log(tableId);
+          
+        }
+          
         var machine=$(this).attr('data-machine');
         var amar_id=$(this).attr('data-id')||'0';
         var shift = $("#select_shift").val();
@@ -279,7 +285,7 @@ var tableDataToJSON=function(tableId){
         var wastage = parseFloat($(this).find('td.wastage').text()||0);
         var actual_vahed = $(this).find('td.editable-cell').attr('data-vahed');
         var operator_data= $(this).find('.operator-data').val() || '[]';
-        var moshakhase=$(this).find('.nakh-data').val()||''
+        var moshakhase=$(this).find('.nakh-data').val()||'null'
 
         // if(vahed > actual_vahed){
         //   toastr.error(`${vahed} ${actual_vahed}`);

@@ -40,7 +40,7 @@ id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
             <td>{{c.machine.assetName}}</td>
             <td  class="editable-cell btc vahed selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.amar.vahed}}</td>
             <td  class="editable-cell btc operators selectable1" data-vahed="{{c.moshkhase}}">{{c.amar.get_operators}}</td>
-            <td  class="editable-cell btc code_nakh selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.amar.moshakhase}}</td>
+            <td  class="editable-cell btc code_nakh selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.amar.moshakhase|default_if_none:'نامشخص'}}</td>
 
 
 
@@ -55,7 +55,7 @@ id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
 
 
             <td  data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
-            <td  data-formula="{{c.formula}}" class='wastage'>{{c.amar.wastage_value}}</td>
+            <td  data-formula="{{c.formula}}" class='wastage'>{{c.amar.wastage_value|default_if_none:'0'}}</td>
 
           </tr>
           {% endif %}
