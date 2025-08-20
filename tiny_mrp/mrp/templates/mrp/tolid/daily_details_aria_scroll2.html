@@ -1,0 +1,88 @@
+
+{% extends 'mrp/blank-page.html' %}
+{% block stylesheet %}
+<style>
+  /* Custom class to set the height to 7 times the normal height */
+  .custom-height {
+    height: 20.2em; /* Adjust this value based on your requirements */
+  }
+  .custom-height2 {
+    height: 6.7em; /* Adjust this value based on your requirements */
+  }
+  
+</style>
+{% endblock %}
+{% block content %}
+<div class="row app-block">
+
+                <div class="col-md-12 app-content">
+                    <div></div>
+                    <div class="app-action">
+                        <div class="action-left">
+
+
+                        </div>
+                        <div class="action-right">
+                            <form class="d-flex mr-3">
+                               
+                                <div class="input-group">
+                                  <h3>{{today}}</h3>
+                                  
+                                </div>
+                                <div class="input-group">
+                                  <select class="form-control" aria-label="Default select example" id="select_shift_scroll">
+                                    {% for i in shifts %}
+                                    
+                                    <option x="{{shift_id}}" value="{{i.id}}" {% if i.id == shift_id %} selected {% endif %}>{{i.name}}</option>
+                                    {% endfor %}
+                               
+                                  </select>
+                                </div>
+                            </form>
+                            <div class="app-pager d-flex align-items-center">
+                                <div class="mr-3"></div>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination">
+                                        <li class="page-item">
+                                            <a class="page-link" href="/Tolid/DailyDetails/Scroll?event_id={{prev_date}}&shift_id={{shift_id}}&makan_id={{makan_id}}" aria-label="Previous">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-left width-15 height-15"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="/Tolid/DailyDetails/Scroll?event_id={{next_date}}&shift_id={{shift_id}}&makan_id={{makan_id}}" aria-label="Next">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right width-15 height-15"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card card-body app-content-body">
+
+                        <div class="card-body">
+                          <h5 class="card-title">آمار روزانه</h5>
+                          
+                          {% include 'mrp/tolid/partial_daily_details_aria_scroll.html' %}
+                       
+                        </div>
+                      </div>
+                        <!-- end::app-lists -->
+
+                        <!-- begin:app-detail -->
+
+
+            </div>
+
+
+          </div>
+
+
+{% endblock %}
+{% load static %}
+
+{% block javascript %}
+
+
+ <script src="{% static 'project/tolid.js' %}"></script>
+{% endblock %}

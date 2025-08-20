@@ -106,6 +106,62 @@ def get_daily_amar(request):
 
     # print("here")
     return render(request,"mrp/tolid/daily_details_aria.html",{'makan_id':int(makan_id),'heatsets':machines_with_formulas2,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه','shift_id':int(s)})
+@login_required
+def get_daily_amar_scroll(request):
+    dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
+    makan_id=request.GET.get('makan_id',False)
+    # print(dayOfIssue,'!!!!!!!!!!!!!!!!!!')
+    date_object = datetime.datetime.strptime(dayOfIssue, '%Y-%m-%d')
+
+    next_day = date_object + timedelta(days=1)
+
+# Calculate previous day
+    previous_day = date_object - timedelta(days=1)
+    asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+
+    machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id,assetCategory__in=asset_category).order_by('assetCategory__priority')
+    
+    shift_id=request.GET.get("shift_id",False)
+    print(shift_id)
+    if(not shift_id):
+        shift_id=1
+    print("shiftid",shift_id)
+    
+    # heatsets=Asset.objects.filter(assetCategory__id=8)
+    shift=Shift.objects.all()
+    machines_with_formulas = []
+    machines_with_formulas2 = []
+    # for s in shift:
+    s=shift_id
+    for machine in machines:
+        try:
+            formula = Formula.objects.get(machine=machine)
+            speedformula = SpeedFormula.objects.get(machine=machine)
+            amar=DailyProduction.objects.get(machine=machine,dayOfIssue=dayOfIssue,shift=s)
+            machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'shift_id':s})
+            # else:
+            #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
+
+
+        except Formula.DoesNotExist:
+            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'shift':s,'shift_id':s})
+        except SpeedFormula.DoesNotExist:
+            machines_with_formulas.append({'machine': machine, 'formula': None,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'shift':s,'shift_id':s})
+        except DailyProduction.DoesNotExist:
+            machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'shift':s,'shift_id':s})
+
+    # for s in shift:
+    #     for machine in heatsets:
+    #         try:
+    #             formula = Formula.objects.get(machine=machine)
+    #             speedformula = SpeedFormula.objects.first()
+    #             amar=DailyProduction.objects.get(machine=machine,dayOfIssue=dayOfIssue,shift=s)
+    #             machines_with_formulas2.append({'machine': machine, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s})
+    #         except Exception as ex:
+    #             print(ex)
+
+    # print("here")
+    return render(request,"mrp/tolid/daily_details_aria_scroll2.html",{'makan_id':int(makan_id),'heatsets':machines_with_formulas2,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه','shift_id':int(s)})
 
 @login_required
 def index(request):
@@ -761,8 +817,13 @@ def show_daily_analyse_tolid(request):
 def calendar_main(request):
     makan_id=request.GET.get("makan_id",False)
     makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
-    
     return render(request,'mrp/tolid/calendar_main.html',{'title':'تولید روزانه','makan':makan,'makan_id':int(makan_id)})
+
+def calendar_main_scroll(request):
+    makan_id=request.GET.get("makan_id",False)
+    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    
+    return render(request,'mrp/tolid/calendar_main_scroll.html',{'title':'تولید روزانه','makan':makan,'makan_id':int(makan_id)})
 def calendar_randeman(request):
     makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
     print(makan,"$$$$$$$$$$$$$$$$$$$")
@@ -1384,12 +1445,12 @@ def list_amar_daily_info(request):
 
             except DailyProduction.DoesNotExist:
                     # print("error",)
-                    print(machine.id,'!!!!!!!!!!!!!!!!!')
+                    # print(machine.id,'!!!!!!!!!!!!!!!!!')
 
                     formula = Formula.objects.get(machine=machine)
                     speedformula = SpeedFormula.objects.get(machine=machine)
                     max_nomre = DailyProduction.objects.filter(machine=machine).aggregate(Max('nomre'))
-                    print(max_nomre['nomre__max'],'!!!!!!!!!!!!!!!!')
+                    # print(max_nomre['nomre__max'],'!!!!!!!!!!!!!!!!')
 
                     new_daily_production = DailyProduction(
                     machine=machine,
@@ -1429,7 +1490,7 @@ def list_amar_daily_info(request):
             except Formula.DoesNotExist:
                 machines_with_formulas.append({'machine': machine,'formula': 0,'speed':0,'nomre':0,'vahed':machine.assetVahed,'shift_id':s})
             except SpeedFormula.DoesNotExist:
-                print(machine.id,'!!!!!!!!!!!!!!!!!')
+                # print(machine.id,'!!!!!!!!!!!!!!!!!')
 
                 # amar=DailyProduction.objects.get(machine=machine,dayOfIssue=date_object,shift=s)
                 machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speedformula':0 ,'formula': 0,'speed':0,'nomre':0,'speedformula':0,'vahed':machine.assetVahed,'shift_id':s,'amar':new_daily_production})

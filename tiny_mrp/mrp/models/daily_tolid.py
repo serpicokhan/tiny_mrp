@@ -259,21 +259,24 @@ class DailyProduction(models.Model):
         Returns:
             List of operator dictionaries
         """
-        print(self.operators_data)
+       
         
         if not self.operators_data:
-            return []
+            return 'نامشخص'
         
         try:
             operators=''
-            for i in self.operators_data:
+            for i in json.loads(self.operators_data):
+                
               
-                operators+=f"({i['id']}):{i['name']}"+","
+                operators+=f"({i['id']}):{i['name']}"+"</br>"
             return operators
             
 
         except (json.JSONDecodeError, TypeError):
-            return []
+            return 'نامشخص'
+        except:
+            return 'نامشخص'
 
     def get_operator_names(self):
         """

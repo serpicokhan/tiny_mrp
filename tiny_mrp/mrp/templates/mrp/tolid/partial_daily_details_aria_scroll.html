@@ -1,10 +1,4 @@
 
-{% for cat_item in cat_list %}
-
-<div class="tab-pane fade {% if forloop.counter == 1 %}active show {% endif %}"
-id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
-<div class="row tblrows">
-  
   
 
  
@@ -35,7 +29,7 @@ id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
           {% for c in machines %}
           
           
-          {% if c.machine.assetCategory.id == cat_item.id %}
+         
           <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
             <td>{{c.machine.assetName}}</td>
             <td  class="editable-cell btc vahed selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.amar.vahed}}</td>
@@ -58,7 +52,6 @@ id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
             <td  data-formula="{{c.formula}}" class='wastage'>{{c.amar.wastage_value|default_if_none:'0'}}</td>
 
           </tr>
-          {% endif %}
           {% endfor %}
           <!-- Add more rows as needed -->
         </tbody>
@@ -81,6 +74,6 @@ id="sub{{cat_item.id}}" role="tabpanel" aria-labelledby="sub{{cat_item.id}}">
 
 
 </div>
-{% endfor %}
+
 
 

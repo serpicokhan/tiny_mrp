@@ -1,0 +1,70 @@
+
+{% extends 'mrp/blank-page.html' %}
+{% load static %}
+
+{% block stylesheet %}
+ <link href="{% static 'assets/css/fullcalendar.min.css' %}" rel="stylesheet" type="text/css">
+ <style media="screen">
+   .fc-event {
+  direction: rtl;
+  text-align: right; /* Optional: Align text to the right */
+}
+ </style>
+{% endblock %}
+<!-- Fullcalendar -->
+
+{% block content %}
+<div class="row app-block">
+    <div class="col-md-3 app-sidebar">
+        <div class="card">
+           
+            <div>
+                <div class="card-body">
+                   <select class="form-control" id="makan_select">
+                    {% for i in makan %}
+                    <option value={{i.id}} {% if i.id == makan_id %} selected {% endif %}>{{i.assetName}}</option>
+                    {% endfor %}
+                    
+                   </select>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-secondary btn-block" >
+                        فیلتر
+                    </button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+                   <div class="col-md-9 app-content">
+                       <div class="app-content-overlay"></div>
+                       <div class="card app-content-body">
+                           <div class="card-body">
+                               <a href="#" class="app-sidebar-menu-button btn btn-outline-light mb-3">
+                                   <i data-feather="menu"></i>
+                               </a>
+                               <div id="calendar"></div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+
+{% endblock %}
+{% load static %}
+
+{% block javascript %}
+<script src="{% static 'assets/Cal/cal/js/fullcalendar.min.js' %}"></script>
+<script src="{% static 'assets/Cal/cal/js/fullcalendarscroll.init.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        $('#makan_select').change(function() {
+            var selectedValue = $(this).val();
+            if (selectedValue) { // check if the value is not empty
+                window.location.href = `/Tolid/Calendar/Scroll?makan_id=${$("#makan_select").val()}`;
+            }
+        });
+    });
+    
+</script>
+{% endblock %}

@@ -737,6 +737,10 @@ $(".tab-content").on("keydown", ".editable-cell, .editable-cell2, .production", 
   $("#select_shift2").change(function(){
     window.location=`/Tolid/DailyDetails?event_id=${getQueryParameter('event_id')}&shift_id=${$(this).val()}&makan_id=${getQueryParameter('makan_id')}`;
   });
+
+  $("#select_shift_scroll").change(function(){
+    window.location=`/Tolid/DailyDetails/Scroll?event_id=${getQueryParameter('event_id')}&shift_id=${$(this).val()}&makan_id=${getQueryParameter('makan_id')}`;
+  });
   
   initializeSelect2();
   initiate_code_nakh();
