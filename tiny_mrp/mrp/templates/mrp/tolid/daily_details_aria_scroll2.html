@@ -1,6 +1,8 @@
 
 {% extends 'mrp/blank-page.html' %}
+
 {% block stylesheet %}
+
 <style>
   /* Custom class to set the height to 7 times the normal height */
   .custom-height {
@@ -9,7 +11,86 @@
   .custom-height2 {
     height: 6.7em; /* Adjust this value based on your requirements */
   }
-  
+  /* Separator row for category */
+.category-header {
+  background-color: #343a40; /* Dark background like thead-dark */
+  color: #ffffff;
+  font-weight: bold;
+  text-align: center;
+}
+
+.category-title {
+  padding: 10px;
+  font-size: 1.1em;
+}
+
+/* Highlight row when category changes */
+.category-change {
+  border-top: 3px solid #007bff; /* Blue border for category change */
+  background-color: #f8f9fa; /* Light background for contrast */
+  transition: background-color 0.3s ease;
+}
+
+/* Hover effect for better interactivity */
+.category-change:hover {
+  background-color: #e9ecef;
+}
+
+/* Ensure table responsiveness */
+.company-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* Adjust table cell padding for better readability */
+.company-table td, .company-table th {
+  padding: 8px;
+  vertical-align: middle;
+}
+   /* Category separation styles */
+   .category-border {
+            border-top: 3px solid #007bff !important;
+            background-color: #f8f9fa;
+        }
+        
+        .category-header-row {
+            background: linear-gradient(135deg, #e2e4e6, #494f57);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .category-section {
+            border: 2px solid #dee2e6;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .category-title {
+            background: #343a40;
+            color: white;
+            padding: 10px 15px;
+            margin: 0;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        
+        /* Different colors for different categories */
+        .category-manufacturing { border-color: #28a745; }
+        .category-manufacturing .category-title { background-color: #28a745; }
+        .category-manufacturing .category-border { border-top-color: #28a745 !important; }
+        
+        .category-packaging { border-color: #ffc107; }
+        .category-packaging .category-title { background-color: #ffc107; color: black; }
+        .category-packaging .category-border { border-top-color: #ffc107 !important; }
+        
+        .category-quality { border-color: #dc3545; }
+        .category-quality .category-title { background-color: #dc3545; }
+        .category-quality .category-border { border-top-color: #dc3545 !important; }
+        
+        .category-logistics { border-color: #6f42c1; }
+        .category-logistics .category-title { background-color: #9a97a0; }
+        .category-logistics .category-border { border-top-color: #9a97a0 !important; }
 </style>
 {% endblock %}
 {% block content %}

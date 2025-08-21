@@ -207,11 +207,14 @@ def register_daily_amar(request):
             speed=DailyProduction.objects.filter(machine=machine).last()
             nomre=DailyProduction.objects.filter(machine=machine).last()
             vahed=DailyProduction.objects.filter(machine=machine).last()
-            operators_json=DailyProduction.objects.filter(machine=machine,shift__id=shift_id).exclude( operators_data__isnull=True).last()
+            operators=DailyProduction.objects.filter(machine=machine,shift__id=shift_id,operators_data__isnull=False).order_by('-id')
+            operators_json=operators.last() if operators else None
             countor1 = DailyProduction.objects.filter(
                 machine=machine, 
                 shift__id=shift_id
             ).exclude(counter2__isnull=True).order_by('-dayOfIssue').last()
+            if(operators_json):
+                print(operators_json.operators_data,machine.id,':$$$$$$$$$$$')
 
             result_counter = countor1.counter2 if countor1 else 0
             operators=[]
@@ -222,7 +225,7 @@ def register_daily_amar(request):
                         try:
                             operator_info=json.loads(operators_json.operators_data)
                             operators_json=operators_json.operators_data
-                            print(json.loads(operators_json))
+                            # print(json.loads(operators_json))
                             for kk in operator_info:
                                 operators.append(kk)
                         except Exception as e:

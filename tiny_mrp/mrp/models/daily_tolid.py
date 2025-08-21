@@ -197,7 +197,6 @@ class DailyProduction(models.Model):
             
         # If list contains dictionaries (from frontend)
         if isinstance(operators_list[0], dict):
-            print("1")
 
 
             # Validate that dictionaries have required fields
@@ -215,7 +214,6 @@ class DailyProduction(models.Model):
             
         # If list contains operator IDs
         elif isinstance(operators_list[0], (int, str)):
-            print("12")
 
 
 

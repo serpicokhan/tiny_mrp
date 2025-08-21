@@ -102,3 +102,38 @@ def to_jalali(value, format='%Y-%m-%d'):
     
     # Return formatted Jalali date
     return jalali_date.strftime(format)
+@register.filter
+def sum_production(machines):
+    """Calculate total production for a list of machines"""
+    total = 0
+    for machine in machines:
+        
+        try:
+            # Access the production value
+            amar= machine.amar
+            print(amar)
+            for i in amar:
+                prod_value+=i.production_value
+
+            print('!!!',prod_value)
+            if prod_value is not None:
+                total += float(prod_value)
+        except (AttributeError, ValueError, TypeError):
+            
+            continue
+    print(total)
+    return total
+
+@register.filter
+def sum_wastage(machines):
+    """Calculate total wastage for a list of machines"""
+    total = 0
+    for machine in machines:
+        try:
+            # Access the wastage value
+            waste_value = machine.amar.wastage_value
+            if waste_value is not None:
+                total += float(waste_value)
+        except (AttributeError, ValueError, TypeError):
+            continue
+    return total

@@ -1,4 +1,4 @@
-
+{% load custom_filters %}
   
 
  
@@ -26,34 +26,38 @@
           </tr>
         </thead>
         <tbody>
-          {% for c in machines %}
-          
-          
-         
-          <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
-            <td>{{c.machine.assetName}}</td>
-            <td  class="editable-cell btc vahed selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.amar.vahed}}</td>
-            <td  class="editable-cell btc operators " >{{c.amar.get_operators|safe}}</td>
-            <td  class="editable-cell btc code_nakh " >{{c.amar.moshakhase|default_if_none:'نامشخص'}}</td>
-
-
-
-
-            <td  class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
-            <td  class=" editable-cell2 btc  speed selectable1" data-nomre={{c.nomre}}>{{c.amar.speed}}</td>
-
-
-            <td  class="editable-cell btc counter1 selectable1">{{c.amar.counter1}}</td>
-            <td  class="editable-cell btc counter2 selectable1">{{c.amar.counter2}}</td>
-            <td  class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}" >{{c.amar.eval_max_tolid|floatformat:0}}</td>
-
-
-            <td  data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
-            <td  data-formula="{{c.formula}}" class='wastage'>{{c.amar.wastage_value|default_if_none:'0'}}</td>
-
-          </tr>
+          {% regroup machines by machine.assetCategory as category_list %}
+          {% for category in category_list %}
+              <!-- Category header row -->
+              <tr class="category-header-row">
+                  <td colspan="11" class="text-center">
+                      <strong>{{ category.grouper }}</strong>
+                  </td>
+              </tr>
+              {% for c in category.list %}
+              <tr data-machine="{{c.machine.id}}" data-shift="{{i.id}}" data-speed2="{{c.speed}}" 
+                  class="{% if forloop.first %}category-border{% endif %}">
+                  <td>{{c.machine.assetName}}</td>
+                  <td class="editable-cell btc vahed selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.amar.vahed}}</td>
+                  <td class="editable-cell btc operators">{{c.amar.get_operators|safe}}</td>
+                  <td class="editable-cell btc code_nakh">{{c.amar.moshakhase|default_if_none:'نامشخص'}}</td>
+                  <td class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
+                  <td class="editable-cell2 btc speed selectable1" data-nomre="{{c.nomre}}">{{c.amar.speed}}</td>
+                  <td class="editable-cell btc counter1 selectable1">{{c.amar.counter1}}</td>
+                  <td class="editable-cell btc counter2 selectable1">{{c.amar.counter2}}</td>
+                  <td class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}">{{c.amar.eval_max_tolid|floatformat:0}}</td>
+                  <td data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
+                  <td data-formula="{{c.formula}}" class='wastage'>{{c.amar.wastage_value|default_if_none:'0'}}</td>
+              </tr>
+              {% endfor %}
+                                              <!-- Sum row for each category -->
+                                        <!-- Method without JavaScript -->
+                                        <tr class="category-total-row">
+                                          <td colspan="9">جمع {{ category.grouper }}:</td>
+                                          <td class="production-total">{{ category.list|sum_production|floatformat:0 }}</td>
+                                          <td class="wastage-total">{{ category.list|sum_wastage|floatformat:0 }}</td>
+                                      </tr>
           {% endfor %}
-          <!-- Add more rows as needed -->
         </tbody>
       </table>
     </div>
