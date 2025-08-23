@@ -74,6 +74,38 @@ class SysUser(models.Model):
             ("can_view_rfq","user can view rfq"),
             ("can_operate_guard","user can operate gaurd"),
             ("can_view_pb","user can view planning board"),
+            ("is_supervisor_user","user is supervisor user"),
 
 
         ]
+class UserShiftAccess(models.Model):
+    """جدول ارتباط کاربر با خط تولید و شیفت"""
+    user = models.ForeignKey(
+        SysUser, 
+        on_delete=models.CASCADE, 
+        verbose_name="کاربر",
+        related_name='shift_accesses'
+    )
+    
+    production_line = models.ForeignKey(
+        'Asset',  # یا اسم اپ شما.ProductionLine
+        on_delete=models.CASCADE,
+        verbose_name="خط تولید", limit_choices_to={'assetIsLocatedAt__isnull': True}
+    )
+    
+    shift = models.ForeignKey(
+        'Shift',  # یا اسم اپ شما.Shift
+        on_delete=models.CASCADE,
+        verbose_name="شیفت"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+    is_active = models.BooleanField(default=True, verbose_name="فعال")
+    
+    class Meta:
+        verbose_name = "دسترسی کاربر به شیفت"
+        verbose_name_plural = "دسترسی‌های کاربران به شیفت"
+        unique_together = ['user', 'production_line', 'shift']  # جلوگیری از تکراری
+    
+    def __str__(self):
+        return f"{self.user.fullName} - {self.production_line.assetName} - {self.shift.name}"

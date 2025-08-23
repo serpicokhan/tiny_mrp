@@ -24,6 +24,16 @@ from mrp.forms import ReportForm
 def daily_tolid_with_chart(request):
     
     return render(request,'mrp/report/daily_tolid.html',{})
+
+
+
+@login_required
+def daily_tolid_main(request):
+    
+    return render(request,'mrp/report/daily_tolid_main.html',{})
+
+
+
 def production_chart_with_table(request):
     date_str = request.GET.get('date',False) # Modify these dates as needed
 

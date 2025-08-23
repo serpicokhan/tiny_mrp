@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.views import LoginView,LogoutView
 
 from django.conf.urls.static import static
+handler404 = custom_404
 urlpatterns = [
     path(        'login/',        LoginView.as_view(            template_name="mrp/registration/login.html",            ),        name='login'),
     path(        'logout/',        LogoutView.as_view(            template_name="mrp/registration/logout.html",            ),        name='logout'),
@@ -107,6 +108,7 @@ urlpatterns = [
     url(r'^profile/(?P<pk>\d+)/update/$', profile_update, name='profile_update'),
     url(r'^profile/(?P<pk>\d+)/delete/$', profile_delete, name='profile_delete'),
     url(r'^Report/$', daily_tolid_with_chart, name='daily_tolid_with_chart'),
+    url(r'^Report/Main/$', daily_tolid_main, name='daily_tolid_main'),
     
     url(r'^Purchase/$', list_purchase, name='list_purchase'),
     url(r'^Purchase/Dash$', purchase_dash, name='purchase_dash'),

@@ -52,7 +52,7 @@
     </div>
     <div class="flex-grow-1">
       <ul>
-        {% if perms.mrp.can_operator_mrp %}
+        {% if perms.mrp.can_operator_mrp or perms.mrp.is_supervisor_user %}
         <li>
           <a href="#" data-toggle="tooltip" data-placement="right" title="اطلاعات"
           data-nav-target="#dashboards">
@@ -137,15 +137,22 @@
 <!-- end::navigation-logo -->
 
 <div class="navigation-menu-group">
-  {% if perms.mrp.can_operator_mrp %}
+  {% if perms.mrp.can_operator_mrp or perms.mrp.is_supervisor_user %}
   <div id="dashboards">
     <ul>
       <li class="navigation-divider">اطلاعات</li>
+      {% if perms.mrp.can_operator_mrp %}
       <li><a href="{% url 'list_dashboard' %}">داشبورد</a></li>
+  {% endif %}
+  {% if perms.mrp.can_operator_mrp or perms.mrp.is_supervisor_user %}
+      
       <li><a href="{% url 'register_daily_amar' %}">ورود اطلاعات روزانه</a></li>
 
       <li><a href="{% url 'calendar_main' %}">مشاهده آمار روزانه</a></li>
       <li><a href="{% url 'calendar_main_scroll' %}">مشاهده آمار روزانه با اسکرول</a></li>
+  {% endif %}
+  {% if perms.mrp.can_operator_mrp %}
+
       {% comment %} <li><a href="{% url 'calendar_randeman_brief' %}">راندمان روزانه تولید</a></li> {% endcomment %}
        <li><a href="{% url 'calendar_randeman' %}">راندمان روزانه تولید به تفکیک شیفت</a></li> 
       <li><a href="{% url 'monthly_detaild_report_ezami' %}">سرانه تولید</a></li>
@@ -159,7 +166,7 @@
       </a></li>
       {% comment %} <li><a href="{% url 'monthly_detaild_failured_report' %}">مشاهده توقفات ماهانه</a></li> {% endcomment %}
 
-
+  {% endif %}
 
 
     </ul>

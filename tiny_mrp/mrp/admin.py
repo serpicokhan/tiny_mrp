@@ -51,3 +51,11 @@ class EntryFormAdmin(admin.ModelAdmin):
     def display_info(self, obj):
         return f"{obj.tool}/{obj.la}"
     display_info.short_description = 'Tool/LA'  # Sets column header
+
+# روش اول: استفاده از دکوراتور صحیح
+@admin.register(UserShiftAccess)
+class UserShiftAccessAdmin(admin.ModelAdmin):
+    list_display = ['user', 'production_line', 'shift', 'is_active', 'created_at']
+    list_filter = ['production_line', 'shift', 'is_active']
+    search_fields = ['user__fullName', 'production_line__assetName', 'shift__name']
+    list_editable = ['is_active']

@@ -25,6 +25,7 @@ from django.urls import reverse
 from django.db.models import Q
 from mrp.utils import utilMonth
 from mrp.client_call import get_hozur_count
+from django.http import HttpResponseNotFound
 def backup_database(request):
     # Define your database credentials and output file's path
    # Define your database credentials and output file's path
@@ -55,6 +56,8 @@ def backup_database(request):
 def get_daily_amar(request):
     dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
     makan_id=request.GET.get('makan_id',False)
+    shift_id=request.GET.get("shift_id",False)
+
     # print(dayOfIssue,'!!!!!!!!!!!!!!!!!!')
     date_object = datetime.datetime.strptime(dayOfIssue, '%Y-%m-%d')
 
@@ -62,17 +65,32 @@ def get_daily_amar(request):
 
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
-    machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id)
-    asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+    if request.user.groups.filter(name='supervisors').exists():
+        asset_category=AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+        user_access=UserShiftAccess.objects.get(user=request.user.sysuser)
+        machines=Asset.objects.filter(assetIsLocatedAt__id=user_access.production_line.id)
+        shift=Shift.objects.filter(id=user_access.shift.id)
+
+        if(not shift_id):
+            shift_id=user_access.shift.id
+        if(not makan_id):
+            makan_id=user_access.production_line.id
+        print(user_access.production_line.id,makan_id)
+        if( int(makan_id) != user_access.production_line.id):
+
+            return HttpResponseNotFound("Page not found")
+            
+
+    else:
+
+        machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id)
+        asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+        shift=Shift.objects.all()
+
     
-    shift_id=request.GET.get("shift_id",False)
-    print(shift_id)
-    if(not shift_id):
-        shift_id=1
-    print("shiftid",shift_id)
+ 
     
     # heatsets=Asset.objects.filter(assetCategory__id=8)
-    shift=Shift.objects.all()
     machines_with_formulas = []
     machines_with_formulas2 = []
     # for s in shift:
@@ -110,6 +128,8 @@ def get_daily_amar(request):
 def get_daily_amar_scroll(request):
     dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
     makan_id=request.GET.get('makan_id',False)
+    shift_id=request.GET.get("shift_id",False)
+
     # print(dayOfIssue,'!!!!!!!!!!!!!!!!!!')
     date_object = datetime.datetime.strptime(dayOfIssue, '%Y-%m-%d')
 
@@ -118,17 +138,29 @@ def get_daily_amar_scroll(request):
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
     asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+    if request.user.groups.filter(name='supervisors').exists():
+        asset_category=AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+        user_access=UserShiftAccess.objects.get(user=request.user.sysuser)
+        machines=Asset.objects.filter(assetIsLocatedAt__id=user_access.production_line.id)
+        shift=Shift.objects.filter(id=user_access.shift.id)
 
-    machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id,assetCategory__in=asset_category).order_by('assetCategory__priority')
-    
-    shift_id=request.GET.get("shift_id",False)
-    print(shift_id)
-    if(not shift_id):
-        shift_id=1
-    print("shiftid",shift_id)
-    
-    # heatsets=Asset.objects.filter(assetCategory__id=8)
-    shift=Shift.objects.all()
+        if(not shift_id):
+            shift_id=user_access.shift.id
+        if(not makan_id):
+            makan_id=user_access.production_line.id
+        print(user_access.production_line.id,makan_id)
+        if( int(makan_id) != user_access.production_line.id):
+
+            return HttpResponseNotFound("Page not found")
+            
+
+    else:
+
+        machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id)
+        asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+        shift=Shift.objects.all()
+
+ 
     machines_with_formulas = []
     machines_with_formulas2 = []
     # for s in shift:
@@ -187,8 +219,19 @@ def register_daily_amar(request):
     date_object=datetime.datetime.now()
     next_day = date_object + timedelta(days=1)
     # asset_category = AssetCategory.objects.all().order_by('priority')
-    asset_category=AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
-    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True,assetTypes=1)
+    if request.user.groups.filter(name='supervisors').exists():
+        asset_category=AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+        user_access=UserShiftAccess.objects.get(user=request.user.sysuser)
+        makan=Asset.objects.filter(id=user_access.production_line.id)
+        shift=Shift.objects.filter(id=user_access.shift.id)
+
+        
+    else:
+
+        asset_category=AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+        makan=Asset.objects.filter(assetIsLocatedAt__isnull=True,assetTypes=1)
+        shift=Shift.objects.all()
+
 
 
 
@@ -199,7 +242,6 @@ def register_daily_amar(request):
         shift_id=Shift.objects.first().id
     
     
-    shift=Shift.objects.all()
 
     machines_with_formulas = []
     for machine in machines:
@@ -207,18 +249,35 @@ def register_daily_amar(request):
             speed=DailyProduction.objects.filter(machine=machine).last()
             nomre=DailyProduction.objects.filter(machine=machine).last()
             vahed=DailyProduction.objects.filter(machine=machine).last()
-            operators=DailyProduction.objects.filter(machine=machine,shift__id=shift_id,operators_data__isnull=False).order_by('-id')
-            operators_json=operators.last() if operators else None
+            
+            operators = DailyProduction.objects.filter(
+                machine=machine,
+                shift__id=shift_id,
+                operators_data__isnull=False
+            ).exclude(
+                operators_data__in=["", "None", "null", "none"]
+            ).order_by('-id')
+            if(machine.id==7155):
+                print(operators.query)
+                print("###############",json.loads(operators.first().operators_data))
+            operators_json=operators.first() if operators else None
+           
             countor1 = DailyProduction.objects.filter(
                 machine=machine, 
                 shift__id=shift_id
             ).exclude(counter2__isnull=True).order_by('-dayOfIssue').last()
-            if(operators_json):
-                print(operators_json.operators_data,machine.id,':$$$$$$$$$$$')
+
+            # if(machine):
+            #     # print(machine.assetCategory)
+            #     print(machine.id,':$$$$$$$$$$$')
+
+            # if(operators_json):
+            #     print(operators_json.operators_data,machine.id,':$$$$$$$$$$$')
 
             result_counter = countor1.counter2 if countor1 else 0
             operators=[]
-            
+           
+
 
             if(operators_json and operators_json.operators_data and operators_json.operators_data):
                         
@@ -226,10 +285,13 @@ def register_daily_amar(request):
                             operator_info=json.loads(operators_json.operators_data)
                             operators_json=operators_json.operators_data
                             # print(json.loads(operators_json))
-                            for kk in operator_info:
+                            for kk in operator_info:  
+                                print(kk)                             
+                               
                                 operators.append(kk)
                         except Exception as e:
-                            print(e)
+                            # print(e)
+                            pass
                         
             
 
@@ -819,12 +881,34 @@ def show_daily_analyse_tolid(request):
         return render(request,'mrp/tolid/daily_analyse_tolid.html',{'machines_with_amar':machines_with_amar,'title':'تحلیل روزانه تولید','next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object)})
 def calendar_main(request):
     makan_id=request.GET.get("makan_id",False)
-    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    if request.user.groups.filter(name='supervisors').exists():
+        user_access=UserShiftAccess.objects.get(user=request.user.sysuser)
+        makan=Asset.objects.filter(id=user_access.production_line.id)
+
+
+       
+        if(not makan_id):
+            makan_id=user_access.production_line.id
+        if( int(makan_id) != user_access.production_line.id):
+            return HttpResponseNotFound("Page not found")
+    else:
+        makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
     return render(request,'mrp/tolid/calendar_main.html',{'title':'تولید روزانه','makan':makan,'makan_id':int(makan_id)})
 
 def calendar_main_scroll(request):
     makan_id=request.GET.get("makan_id",False)
-    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    if request.user.groups.filter(name='supervisors').exists():
+        user_access=UserShiftAccess.objects.get(user=request.user.sysuser)
+        makan=Asset.objects.filter(id=user_access.production_line.id)
+
+
+       
+        if(not makan_id):
+            makan_id=user_access.production_line.id
+        if( int(makan_id) != user_access.production_line.id):
+            return HttpResponseNotFound("Page not found")
+    else:
+        makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
     
     return render(request,'mrp/tolid/calendar_main_scroll.html',{'title':'تولید روزانه','makan':makan,'makan_id':int(makan_id)})
 def calendar_randeman(request):
@@ -1631,3 +1715,5 @@ def delete_amar_info(request):
         'shifts':shift,'next_date':'','prev_date':'','today':''}
     )
     return JsonResponse(data)
+def custom_404(request, exception=None):
+    return render(request, 'mrp/404.html', status=404)
