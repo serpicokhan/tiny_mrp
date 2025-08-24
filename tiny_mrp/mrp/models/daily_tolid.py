@@ -410,14 +410,15 @@ class ZayeatVaz(models.Model):
         db_table="zayeatvazn"
 class AssetRandemanInit(models.Model):
     asset_category = models.ForeignKey('AssetCategory', on_delete=models.CASCADE,verbose_name='نوع تجهیز')
-    operator_count = models.IntegerField("تعداد اپراتور")
-    max_randeman = models.DecimalField("حداکثر راندمان",max_digits=10, decimal_places=0)
-    randeman_yek_dastgah = models.DecimalField("راندمان کل یک دستگاه",max_digits=10, decimal_places=0)
-    randeman_mazrab_3 = models.DecimalField("مضرب 3 رانمان",max_digits=10, decimal_places=0)
-    mablaghe_kole_randeman = models.DecimalField("مبلغ کل راندمان (واقعی)",max_digits=10, decimal_places=0)
-    mablaghe_kole_randeman_round = models.DecimalField("مبلغ کل راندمان (واقعی)",max_digits=10, decimal_places=0)
-    randeman_tolid = models.DecimalField("راندمان تولید",max_digits=10, decimal_places=0)
+    operator_count = models.IntegerField("تعداد اپراتور",default=0)
+    max_randeman = models.DecimalField("حداکثر راندمان",max_digits=10, decimal_places=0,default=0)
+    randeman_yek_dastgah = models.DecimalField("راندمان کل یک دستگاه",max_digits=10, decimal_places=0,default=0)
+    randeman_mazrab_3 = models.DecimalField("مضرب 3 رانمان",max_digits=10, decimal_places=0,default=0)
+    mablaghe_kole_randeman = models.DecimalField("مبلغ کل راندمان (واقعی)",max_digits=10, decimal_places=0,default=0)
+    mablaghe_kole_randeman_round = models.DecimalField("مبلغ کل راندمان (واقعی)",max_digits=10, decimal_places=0,default=0)
+    randeman_tolid = models.DecimalField("راندمان تولید",max_digits=10, decimal_places=0,default=0)
     profile = models.ForeignKey('FinancialProfile', on_delete=models.CASCADE,null=True,blank=True)
+    production_line=models.ForeignKey('Asset', on_delete=models.CASCADE,null=True,blank=True,related_name="ranemna_productionn_line")
 
     class Meta:
         db_table="assetrandemaninit"
@@ -445,6 +446,19 @@ class AssetRandemanPerMonth(models.Model):
 
     def __str__(self):
         return f"{self.asset_category} - Shift: {self.shift}, Tolid Value: {self.tolid_value}, MAH: {self.mah}, SAL: {self.sal}"
+class OperatorProduction(models.Model):
+    assetrandeman = models.ForeignKey('AssetRandemanList', on_delete=models.CASCADE, related_name='productions')
+    operator = models.ForeignKey('Operator', on_delete=models.CASCADE, related_name='operator_productions')
+    machine = models.ForeignKey('Asset', on_delete=models.CASCADE, related_name='asset_operator_productions')
+    tolid = models.FloatField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"Production {self.id} - {self.assetrandeman}"
+
+    class Meta:
+        verbose_name = 'OperatorProduction'
+        verbose_name_plural = 'OperatorProductions'
 
 class NezafatRanking(models.Model):
     # Your model fields go here

@@ -1,7 +1,7 @@
 {% load humanize %}
 {% for c in formulas %}
-<tr data-id={{c.id}}>
-  <td>{{c.asset_category.name}}</td>
+<tr data-id={{c.id}} data-line="{{c.production_line.id}}">
+  <td>{{c.asset_category.name}}- {{c.production_line}}</td>
   <td contenteditable="true" class="editable-cell operator_count">{{c.operator_count}}</td>
   <td contenteditable="true" class="editable-cell max_randeman">{{c.max_randeman|floatformat:0|intcomma}}</td>
   <td contenteditable="true" class="editable-cell randeman_yek_dastgah">{{c.randeman_yek_dastgah|floatformat:0|intcomma}}</td>

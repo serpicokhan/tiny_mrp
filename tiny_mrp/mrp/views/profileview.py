@@ -18,8 +18,8 @@ def save_profile_form(request, form, template_name,is_new=None):
         if form.is_valid():
             instance=form.save()
             if(is_new):
-                create_related_tolid_padash(instance.id)
-                create_related_nezafat_padash(instance.id)
+                # create_related_tolid_padash(instance.id)
+                # create_related_nezafat_padash(instance.id)
                 create_related_randemanInit_padash(instance.id)
             # create_related_nezafat_padash(instance.id)
             # create_related_randeman_init_padash(instance.id)

@@ -3,7 +3,10 @@ from django.db.models import Sum
 from datetime import timedelta
 from django.core.paginator import *
 from mrp.business.DateJob import *
+from collections import defaultdict
+import json
 import math
+from decimal import Decimal
 
 def doPaging(request,books):
     page=request.GET.get('page',1)
@@ -76,6 +79,11 @@ def get_monthly_machine_by_date_shift(assetCatregory,shift,start,end):
             ).aggregate(Sum('production_value'))['production_value__sum'] or 0
             # print(machine.id,target_date,production_sum)
             return t2
+# def get_monthly_operator(,start,end):
+    
+
+        
+           
 def get_monthly_machine_by_date_shift_makan(assetCatregory,makan_id,shift,start,end):
             t2 = DailyProduction.objects.filter(
             machine__assetCategory=assetCatregory,
@@ -252,9 +260,24 @@ def get_randeman_per_tolid_byshift(mah,sal,asset_cat,shift):
     total_day_per_shift= num_days - day_machine_failure_monthly_shift
     mean_day_per_shift=sum_production_value/total_day_per_shift
 
-    # print("day_machine_failure_monthly_shift",day_machine_failure_monthly_shift)
-    # print("total_day_per_shift",total_day_per_shift)
-    # print("mean_day_per_shift",mean_day_per_shift)
+
+
+    return mean_day_per_shift
+def get_randeman_per_tolid_operator(asset_randeman_list,operator):
+    start_date_gregorian, end_date_gregorian = DateJob.shamsi_to_gregorian_range(asset_randeman_list.sal, asset_randeman_list.mah)
+
+    num_days=(end_date_gregorian-start_date_gregorian).days+1
+
+    sum_production_value=get_monthly_machine_by_date_shift(asset_cat,shift,start_date_gregorian,end_date_gregorian)
+
+    if(not sum_production_value):
+        return 0
+    # print(start_date_gregorian,end_date_gregorian)
+    day_machine_failure_monthly_shift = get_day_machine_failure_monthly_shift(asset_cat,shift,start_date_gregorian,end_date_gregorian)
+    total_day_per_shift= num_days - day_machine_failure_monthly_shift
+    mean_day_per_shift=sum_production_value/total_day_per_shift
+
+
 
     return mean_day_per_shift
 def get_randeman_per_tolid(mah,sal,asset_cat):
@@ -272,37 +295,149 @@ def get_randeman_per_tolid(mah,sal,asset_cat):
 
 
 
-def calc_assetrandeman(mah,sal):
-    asset_cat_list=AssetCategory.objects.all()
-    shift_list=Shift.objects.all()
-    asset_randeman_list=AssetRandemanList.objects.get(mah=mah,sal=sal)
+def calc_assetrandeman(profile):
+    # asset_cat_list=AssetCategory.objects.all()
+    # shift_list=Shift.objects.all()
+    Operators=Operator.objects.all()
+    asset_randeman_list=profile
 
-    AssetRandemanPerMonth.objects.filter(asset_randeman_list=asset_randeman_list).delete()
-    for i in asset_cat_list:
-        
-        data_shift=[]
-        for shift in shift_list:
+    OperatorProduction.objects.filter(assetrandeman=asset_randeman_list).delete()
+    production_by_operator_machine = defaultdict(lambda: defaultdict(float))
+    # Query DailyProduction for the date range
+    start_date_gregorian, end_date_gregorian = DateJob.shamsi_to_gregorian_range(asset_randeman_list.sal, asset_randeman_list.mah)
+    print(start_date_gregorian, end_date_gregorian)
+    daily_productions = DailyProduction.objects.filter(
+        dayOfIssue__range=[start_date_gregorian, end_date_gregorian], operators_data__isnull=False
+    ).exclude(operators_data__in=["", "None", "null", "none"])
+    # Process each DailyProduction record
+    for dp in daily_productions:
+        try:
+            if(dp.operators_data):
+                operators_list = json.loads(dp.operators_data) or []
+
+                if not isinstance(operators_list, list):
+                    continue
+                operator_ids = [op.get('id') for op in operators_list if isinstance(op, dict) and 'id' in op]
+                num_operators = len(operator_ids)
+                if num_operators == 0:
+                    continue
+                operator_share = dp.production_value / num_operators
+                # Distribute share to each operator for this machine
+                for op_id in operator_ids:
+                    production_by_operator_machine[op_id][dp.machine_id] += operator_share
+                    
+                
+
+                # print(operator_ids,"ids")
+        except:
+             print("error",dp.operators_data)
+    # Store results in OperatorProduction
+    results = []
+    for operator_id, machines in production_by_operator_machine.items():
+        try:
+            operator = Operator.objects.get(id=int(operator_id))
+            for machine_id, total_production in machines.items():
+                try:
+                    machine = Asset.objects.get(id=machine_id)
+                    # Get rate from AssetRandemanInit
+                    assetrandeman_init = AssetRandemanInit.objects.filter(
+                        production_line=machine.assetIsLocatedAt, profile=profile.profile
+                    ).first()
+                    rate = 1000#getattr(assetrandeman_init, rate_field, Decimal('0')) if assetrandeman_init else Decimal('0')
+                    price = Decimal(total_production) * rate
+                    
+                    # Create or update OperatorProduction
+                    op, created = OperatorProduction.objects.update_or_create(
+                        assetrandeman=profile,
+                        operator=operator,
+                        machine=machine,
+                        defaults={'tolid': total_production, 'price': price}
+                    )
+                    
+                    results.append({
+                        'operator_id': operator_id,
+                        'operator_name': str(operator),
+                        'machine_id': machine_id,
+                        'machine_name': str(machine),
+                        'total_production': round(total_production, 2),
+                        'price': price,
+                        'operator_production_id': op.id
+                    })
+                except Asset.DoesNotExist:
+                    results.append({
+                        'operator_id': operator_id,
+                        'operator_name': f'Unknown Operator (ID: {operator_id})',
+                        'machine_id': machine_id,
+                        'machine_name': f'Unknown Machine (ID: {machine_id})',
+                        'total_production': round(total_production, 2),
+                        'price': Decimal('0'),
+                        'operator_production_id': None
+                    })
+        except Operator.DoesNotExist:
+            # Skip or log if operator not found
+            continue
+         
+    #     num_operators = len(operator_ids)
+    #     if num_operators == 0:
+    #         continue
+    #     operator_share = dp.production_value / num_operators
+    #     # Distribute share to each operator for this machine
+    #     for op_id in operator_ids:
+    #         production_by_operator_machine[op_id][dp.machine_id] += operator_share
+    # # Store results in OperatorProduction
+    # results = []
+    # print(production_by_operator_machine.items())
+    # for operator_id, machines in production_by_operator_machine.items():
+    #     print(operator_id)
+    #     try:
+    #         operator = Operator.objects.get(id=int(operator_id))
+    #         print(operator)
+    #         for machine_id, total_production in machines.items():
+    #             try:
+    #                 machine = Asset.objects.get(id=machine_id)
+    #                 # Get rate from AssetRandemanInit
+    #                 assetrandeman_init = AssetRandemanInit.objects.filter(
+    #                     production_line=machine, profile=asset_randeman_list.profile
+    #                 ).first()
+    #                 rate = 1000#getattr(assetrandeman_init, rate_field, Decimal('0')) if assetrandeman_init else Decimal('0')
+    #                 price = Decimal(total_production) * rate
+    #                 print("!")
+                    
+    #                 # Create or update OperatorProduction
+    #                 op, created = OperatorProduction.objects.update_or_create(
+    #                     assetrandeman=asset_randeman_list,
+    #                     operator=operator,
+    #                     machine=machine,
+    #                     defaults={'tolid': total_production, 'price': price}
+    #                 )
+                    
+    #                 # results.append({
+    #                 #     'operator_id': operator_id,
+    #                 #     'operator_name': str(operator),
+    #                 #     'machine_id': machine_id,
+    #                 #     'machine_name': str(machine),
+    #                 #     'total_production': round(total_production, 2),
+    #                 #     'price': price,
+    #                 #     'operator_production_id': op.id
+    #                 # })
+    #             except Asset.DoesNotExist:
+    #                  print("asset not exist")
+    #                 # results.append({
+    #                 #     'operator_id': operator_id,
+    #                 #     'operator_name': f'Unknown Operator (ID: {operator_id})',
+    #                 #     'machine_id': machine_id,
+    #                 #     'machine_name': f'Unknown Machine (ID: {machine_id})',
+    #                 #     'total_production': round(total_production, 2),
+    #                 #     'price': Decimal('0'),
+    #                 #     'operator_production_id': None
+    #                 # })
+    #     except Operator.DoesNotExist:
+    #         # Skip or log if operator not found
+    #         print("operaort not exist")
+    
+
+    
             
-            kole_randeman=AssetRandemanInit.objects.get(asset_category=i,profile=asset_randeman_list.profile).randeman_tolid
-            tolid_shift=get_randeman_per_tolid_byshift(mah,sal,i,shift)           
-           
-
-            kole_tolid=get_randeman_per_tolid(mah,sal,i)        
-            print(f"kole_randeman:{0},tolid_shift:{1},kole_tolid",kole_randeman)
-
-            result=0
-            if(kole_tolid==0):
-                if(i.id==10):
-                    result=math.ceil((float(kole_randeman)*2000)/float(6000))
-                    AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,asset_randeman_list=asset_randeman_list)
-            else:
-                # print(f"kole randeman {kole_randeman},tolid shift {tolid_shift} and  kole tolid={kole_tolid}")
-                result=math.ceil((float(kole_randeman)*tolid_shift)/float(kole_tolid))
-                if(i.id==4):
-                     print(result,'!!!!!!!!!!!!!!!!')
-                a=AssetRandemanPerMonth.objects.create(asset_category=i,shift=shift,tolid_value=result,asset_randeman_list=asset_randeman_list)
-                if(a.tolid_value==99999999.99):                     
-                    print(a.id,a.tolid_value,'$$$$$$$$$$$$$$$$$$')
 def create_first_padash(AssetRandemanListId):
     asset_randeman=AssetRandemanList.objects.get(id=AssetRandemanListId)
     shifts=Shift.objects.all()
@@ -415,12 +550,21 @@ def create_related_nezafat_padash(id):
             new_padash.profile=FinancialProfile.objects.get(id=id)
             new_padash.save()
 def create_related_randemanInit_padash(id):
-     init_randeman=AssetRandemanInit.objects.order_by('-id')[:10]
-     for i in init_randeman:
-          new_padash=i
-          new_padash.pk=None
-          new_padash.profile=FinancialProfile.objects.get(id=id)
-          new_padash.save()
+    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    for i in makan:
+        asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt=i).order_by('priority').distinct()
+        for cat in asset_category:
+            r_init=AssetRandemanInit()
+            r_init.asset_category=cat
+            r_init.profile=FinancialProfile.objects.get(id=id)
+            r_init.production_line=i
+            r_init.save()
+
+
+         
+         
+         
+   
 def find_who_take_1_padash(my_list):
      obj_with_ranking_1 = [obj for obj in my_list if int(obj.rank) == 1]
     #  print(obj_with_ranking_3)
