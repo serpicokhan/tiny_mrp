@@ -138,10 +138,11 @@ def get_daily_amar_scroll(request):
 # Calculate previous day
     previous_day = date_object - timedelta(days=1)
     asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+
+    
     if request.user.groups.filter(name='supervisors').exists():
-        asset_category=AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
         user_access=UserShiftAccess.objects.get(user=request.user.sysuser)
-        machines=Asset.objects.filter(assetIsLocatedAt__id=user_access.production_line.id)
+        machines=Asset.objects.filter(assetIsLocatedAt__id=user_access.production_line.id).order_by('assetCategory__priority')
         shift=Shift.objects.filter(id=user_access.shift.id)
 
         if(not shift_id):
@@ -156,8 +157,9 @@ def get_daily_amar_scroll(request):
 
     else:
 
-        machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id)
-        asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
+        
+        machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id,assetCategory__in=asset_category).order_by('assetCategory__priority')
+
         shift=Shift.objects.all()
 
  

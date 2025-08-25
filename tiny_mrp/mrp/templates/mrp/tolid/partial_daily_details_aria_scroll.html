@@ -17,9 +17,7 @@
             <th>نمره</th>
             <th>سرعت</th>
 
-            <th> کنتور ابتدای شیفت</th>
-            <th> کنتور انتهای شیفت</th>
-            <th>100%</th>
+           
             <th>تولید</th>
             <th>ضایعات</th>
 
@@ -43,18 +41,16 @@
                   <td class="editable-cell btc code_nakh">{{c.amar.moshakhase|default_if_none:'نامشخص'}}</td>
                   <td class="editable-cell btc nomre selectable1">{{c.amar.nomre}}</td>
                   <td class="editable-cell2 btc speed selectable1" data-nomre="{{c.nomre}}">{{c.amar.speed}}</td>
-                  <td class="editable-cell btc counter1 selectable1">{{c.amar.counter1}}</td>
-                  <td class="editable-cell btc counter2 selectable1">{{c.amar.counter2}}</td>
-                  <td class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}">{{c.amar.eval_max_tolid|floatformat:0}}</td>
-                  <td data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
+                  
+                  <td data-formula="{{c.formula}}" class='production font-weight-bold '>{{c.amar.production_value}}</td>
                   <td data-formula="{{c.formula}}" class='wastage'>{{c.amar.wastage_value|default_if_none:'0'}}</td>
               </tr>
               {% endfor %}
                                               <!-- Sum row for each category -->
                                         <!-- Method without JavaScript -->
-                                        <tr class="category-total-row">
-                                          <td colspan="9">جمع {{ category.grouper }}:</td>
-                                          <td class="production-total">{{ category.list|sum_production|floatformat:0 }}</td>
+                                        <tr class="category-total-row text-center">
+                                          <td colspan="6">جمع {{ category.grouper }}:</td>
+                                          <td class="production-total font-weight-bold bg-success text-primary">{{ category.list|sum_production|floatformat:0 }}</td>
                                           <td class="wastage-total">{{ category.list|sum_wastage|floatformat:0 }}</td>
                                       </tr>
           {% endfor %}
