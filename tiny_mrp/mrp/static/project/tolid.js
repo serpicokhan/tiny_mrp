@@ -624,7 +624,7 @@ $('.operator-name').on('select2:clear', function (e) {
     $a = $($(".nav-item a")[0]); // Wrap the first DOM element in a jQuery object
     $a.addClass('active').attr('aria-selected', true).tab('show');
     // $('.operator-name').select2({multiple: true});
-    initializeSelect2();
+    // initializeSelect2();
     initiate_code_nakh();
 
       }
@@ -742,7 +742,7 @@ $(".tab-content").on("keydown", ".editable-cell, .editable-cell2, .production", 
     window.location=`/Tolid/DailyDetails/Scroll?event_id=${getQueryParameter('event_id')}&shift_id=${$(this).val()}&makan_id=${getQueryParameter('makan_id')}`;
   });
   
-  initializeSelect2();
+  // initializeSelect2();
   initiate_code_nakh();
 
 function updateOperatorHiddenFields($row) {
@@ -1081,5 +1081,155 @@ function initiateCodeNakhForRow($row) {
       $(this).closest('tr').find('.nakh-data').val('');
   });
 }
+// Operator Modal Handlers
+$(".tab-content").on("click", ".operator-cell", function() {
+  var $row = $(this).closest('tr');
+  var $operatorDataInput = $row.find('.operator-data');
+  var currentOperators = [];
+  try {
+    currentOperators = JSON.parse($operatorDataInput.val() || '[]');
+  } catch (e) {
+    console.error("Error parsing operator data", e);
+  }
 
+  // Populate modal with current operators
+  var $operatorList = $("#operatorModal .operator-list");
+  $operatorList.empty();
+  currentOperators.forEach(function(op) {
+    $operatorList.append(
+      `<div class="operator-item" data-id="${op.id}">
+        ${op.name} (${op.personnel_number})
+        <button class="btn btn-danger btn-sm remove-operator" data-id="${op.id}">حذف</button>
+      </div>`
+    );
+  });
+
+  // Store current row for reference
+  $("#operatorModal").data('current-row', $row);
+  $("#operatorSearch").val(''); // Clear search input
+  $("#operatorSearchResults").empty(); // Clear search results
+  // console.log("Opening modal for row:", $row[0].outerHTML); // Debug row reference
+  $("#operatorModal").modal('show');
+});
+
+$("#operatorSearch").on("input", function() {
+  var query = $(this).val();
+  if (query.length < 2) {
+    $("#operatorSearchResults").empty();
+    return;
+  }
+
+  $.ajax({
+    url: '/api/operators/search/',
+    data: { q: query, page: 1 },
+    dataType: 'json',
+    success: function(data) {
+      var $results = $("#operatorSearchResults");
+      $results.empty();
+      data.results.forEach(function(item) {
+        $results.append(
+          `<div class="operator-search-item" data-id="${item.id}" data-name="${item.name}" data-personnel="${item.personnel_number}" data-pid="${item.pid}" data-cpcode="${item.cp_code}" data-cardno="${item.card_no}">
+            ${item.name} (${item.personnel_number})
+          </div>`
+        );
+      });
+    },
+    error: function(xhr, status, error) {
+      console.error("Error fetching operators:", error);
+    }
+  });
+});
+
+$("#operatorSearchResults").on("click", ".operator-search-item", function() {
+  var $row = $("#operatorModal").data('current-row');
+  if (!$row) {
+    console.error("No current row set for operator modal");
+    return;
+  }
+  var $operatorDisplay = $row.find('.operator-display');
+  if (!$operatorDisplay.length) {
+    console.error("Operator display span not found in row:", $row[0].outerHTML);
+    return;
+  }
+  var operator = {
+    id: $(this).data('id'),
+    name: $(this).data('name'),
+    personnel_number: $(this).data('personnel'),
+    pid: $(this).data('pid'),
+    cp_code: $(this).data('cpcode'),
+    card_no: $(this).data('cardno')
+  };
+
+  var $operatorDataInput = $row.find('.operator-data');
+  var currentOperators = [];
+  try {
+    currentOperators = JSON.parse($operatorDataInput.val() || '[]');
+  } catch (e) {
+    console.error("Error parsing operator data", e);
+  }
+
+  if (!currentOperators.some(op => op.id === operator.id)) {
+    currentOperators.push(operator);
+    $operatorDataInput.val(JSON.stringify(currentOperators));
+    $("#operatorModal .operator-list").append(
+      `<div class="operator-item" data-id="${operator.id}">
+        ${operator.name} (${operator.personnel_number})
+        <button class="btn btn-danger btn-sm remove-operator" data-id="${operator.id}">حذف</button>
+      </div>`
+    );
+
+    // Update table cell display
+    var displayText = currentOperators.map(op => `${op.name} (${op.personnel_number})`).join(', ');
+
+    $operatorDisplay.text(displayText || 'انتخاب اپراتور');
+    console.log("Updated operator-display with:", displayText, "for row:", $row[0].outerHTML);
+  }
+});
+
+$("#operatorModal").on("click", ".remove-operator", function() {
+  var operatorId = $(this).data('id');
+  console.log(operatorId);
+  
+  var $row = $("#operatorModal").data('current-row');
+  if (!$row || $row.length === 0) {
+    console.error("No current row set for operator modal");
+    return;
+  }
+  var $operatorDisplay = $row.find('.operator-display');
+  if (!$operatorDisplay.length) {
+    console.error("Operator display span not found in row:", $row[0].outerHTML);
+    return;
+  }
+  var $operatorDataInput = $row.find('.operator-data');
+  if (!$operatorDataInput.length) {
+    console.error("Operator data input not found in row:", $row[0].outerHTML);
+    return;
+  }
+  var currentOperators = [];
+  try {
+    currentOperators = JSON.parse($operatorDataInput.val() || '[]');
+  } catch (e) {
+    console.error("Error parsing operator data", e);
+    return;
+  }
+
+  currentOperators = currentOperators.filter(op => op.id != operatorId);
+  console.log(currentOperators);
+  
+  $operatorDataInput.val(JSON.stringify(currentOperators));
+  $(this).parent('.operator-item').remove();
+
+  // Update table cell display
+  var displayText = currentOperators.map(op => `${op.name} (${op.personnel_number})`).join(', ');
+  $operatorDisplay.text(displayText || 'انتخاب اپراتور');
+  // console.log("Updated operator-display after removal with:", displayText, "for row:", $row[0].outerHTML);
+});
+
+$('#operatorModal').on('hidden.bs.modal', function () {
+  $("#operatorSearch").val('');
+  $("#operatorSearchResults").empty();
+  $("#operatorModal .operator-list").empty();
+  $("#operatorModal").data('current-row', null); // Clear current row reference
+  console.log("Modal closed and reset");
+});
 });

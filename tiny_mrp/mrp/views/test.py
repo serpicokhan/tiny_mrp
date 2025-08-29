@@ -144,6 +144,8 @@ def get_daily_amar_scroll(request):
         user_access=UserShiftAccess.objects.get(user=request.user.sysuser)
         machines=Asset.objects.filter(assetIsLocatedAt__id=user_access.production_line.id).order_by('assetCategory__priority')
         shift=Shift.objects.filter(id=user_access.shift.id)
+        user_shift=user_access
+
 
         if(not shift_id):
             shift_id=user_access.shift.id
@@ -161,6 +163,7 @@ def get_daily_amar_scroll(request):
         machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id,assetCategory__in=asset_category).order_by('assetCategory__priority')
 
         shift=Shift.objects.all()
+        user_shift=UserShiftAccess.objects.filter(production_line__id=makan_id)
 
  
     machines_with_formulas = []
@@ -195,7 +198,7 @@ def get_daily_amar_scroll(request):
     #             print(ex)
 
     # print("here")
-    return render(request,"mrp/tolid/daily_details_aria_scroll2.html",{'makan_id':int(makan_id),'heatsets':machines_with_formulas2,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه','shift_id':int(s)})
+    return render(request,"mrp/tolid/daily_details_aria_scroll2.html",{'makan_id':int(makan_id),'heatsets':machines_with_formulas2,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'user_shift':user_shift,'next_date':next_day.strftime('%Y-%m-%d'),'prev_date':previous_day.strftime('%Y-%m-%d'),'today':jdatetime.date.fromgregorian(date=date_object),'title':'آمار روزانه','shift_id':int(s)})
 
 @login_required
 def index(request):

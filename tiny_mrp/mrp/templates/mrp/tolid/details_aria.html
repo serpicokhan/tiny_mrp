@@ -151,7 +151,10 @@
     min-width: 0;
 }
 
-
+.operator-cell { cursor: pointer; }
+.operator-item { padding: 5px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+.operator-search-item { padding: 5px; cursor: pointer; }
+.operator-search-item:hover { background-color: #f0f0f0; }
   </style>
 {% endblock %}
 {% block content %}
@@ -284,7 +287,7 @@
                                           <th>100%</th>
                                           <th>تولید</th>
                                           <th>ضایعات</th>
-                                          <th>نظافت</th>
+                                          <th>انضباط</th>
                                           <th>کیفیت</th>
                                           <th>عملیات</th> 
                                       </tr>
@@ -295,20 +298,18 @@
                                       <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
                                           <td>{{c.machine.assetName}}</td>
                                           
-                                          <!-- سلول جدید برای نام اپراتور -->
-                                          <td>
-                                            
-                                            <select class="form-control operator-name" 
-                                            data-machine-id="{{c.machine.id}}"
-                                            multiple="multiple"
-                                            style="width: 100%;">
-                                            {% for i in c.operators %}
-                                              <option value="{{i.id}}" selected>{{i.name}}</option>
-                                            {% endfor %}
-                                            </select>
-                                            <!-- Single hidden field to store all operator data as JSON -->
-                                            <input type="hidden" class="operator-data" name="operator_data" value="{{c.operators_json}}">
-                                        </td>
+                                          <td class="operator-cell">
+                                            <span class="operator-display">
+                                                {% if c.operators %}
+                                                  {% for op in c.operators %}
+                                                    {{ op.name }}({{op.personnel_number}}){% if not forloop.last %}, {% endif %}
+                                                  {% endfor %}
+                                                {% else %}
+                                                  انتخاب اپراتور
+                                                {% endif %}
+                                              </span>
+                                            <input type="hidden" class="operator-data" name="operator_data" value='{{c.operators_json|default:"[]"}}'>
+                                          </td>
                                         <td>
                                           <select class="form-control nakh-name" 
                                           data-machine-id="{{c.machine.id}}"
@@ -330,7 +331,7 @@
                                           <td contenteditable="true" class="editable-cell2 selectable1 nezafat"> </td>
                                           <td contenteditable="true" class="editable-cell2 selectable1 qc"> </td>
                                           <td>
-                                            <button class="btn btn-success copy-row">کپی</button> <!-- Copy button -->
+                                            <!-- <button class="btn btn-success copy-row">کپی</button> Copy button -->
                                         </td>
                                       </tr>
                                       {% endif %}
@@ -359,6 +360,26 @@
                          
 
                         </div>
+                         <!-- Operator Modal -->
+                                <div class="modal fade" id="operatorModal" tabindex="-1" aria-labelledby="operatorModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h5 class="modal-title" id="operatorModalLabel">مدیریت اپراتورها</h5>
+                                        <button type="button" class="btn-bs-close" data-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                        <input type="text" id="operatorSearch" class="form-control mb-3" placeholder="جستجوی اپراتور..." autocomplete="off">
+                                        <div id="operatorSearchResults" class="mb-3"></div>
+                                        <h6>اپراتورهای انتخاب شده:</h6>
+                                        <div class="operator-list"></div>
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
                         <div class="modal fade" id="modal-company">
                          <div class="modal-dialog  modal-lg ">
 

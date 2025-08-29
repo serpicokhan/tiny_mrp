@@ -82,7 +82,7 @@ class UserShiftAccess(models.Model):
     """جدول ارتباط کاربر با خط تولید و شیفت"""
     user = models.ForeignKey(
         SysUser, 
-        on_delete=models.CASCADE, 
+        on_delete=models.DO_NOTHING, 
         verbose_name="کاربر",
         related_name='shift_accesses'
     )
@@ -96,7 +96,7 @@ class UserShiftAccess(models.Model):
     shift = models.ForeignKey(
         'Shift',  # یا اسم اپ شما.Shift
         on_delete=models.CASCADE,
-        verbose_name="شیفت"
+        verbose_name="شیفت",related_name="user_shift"
     )
     
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")

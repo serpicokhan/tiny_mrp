@@ -44,25 +44,25 @@
               <td>{{c.machine.assetName}}</td>
               <td contenteditable="true" class="editable-cell btc vahed selectable1 " data-vahed="{{c.machine.assetVahed}}">{{c.amar.vahed}}</td>
                 <!-- سلول جدید برای نام اپراتور -->
-                <td>
-                  <select class="form-control operator-name" 
-                  data-machine-id="{{c.machine.id}}"
-                  multiple="multiple"
-                  style="width: 100%;">
-                  {% for i in c.operators %}
-                    <option value="{{i.id}}" selected>{{i.name}}</option>
-                  {% endfor %}
-                  
-                  </select>
-                  <!-- Single hidden field to store all operator data as JSON -->
-                  <input type="hidden" class="operator-data" name="operator_data" value="{{c.amar.operators_data}}">
-              </td>
+                <td class="operator-cell">
+                  <span class="operator-display">
+                      {% if c.operators %}
+                        {% for op in c.operators %}
+                          {{ op.name }}({{op.personnel_number}}){% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                      {% else %}
+                        انتخاب اپراتور
+                      {% endif %}
+                    </span>
+                  <input type="hidden" class="operator-data" name="operator_data"  value="{{c.amar.operators_data}}">
+                </td>
+              
               <td>
                 <select class="form-control nakh-name"  name="nakh-name"
                 data-machine-id="{{c.machine.id}}"                
                 style="width: 100%;">
 
-                <option value="{{c.amar.moshkhase}}">{{c.amar.moshakhase}}</option>
+                <option value="{{c.amar.moshkhase}}">{{c.amar.moshakhase|default_if_none:'نامشخص'}}</option>
 
                 </select>
                 <!-- Single hidden field to store all operator data as JSON -->
@@ -82,7 +82,7 @@
               <td contenteditable="true" data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
               <td contenteditable="true" class="editable-cell2 selectable1 wastage">{{c.amar.wastage_value}} </td>
               <td>
-                <button class="btn btn-success copy-row">کپی</button> <!-- Copy button -->
+                <!-- <button class="btn btn-success copy-row">کپی</button> Copy button -->
             </td>
 
             </tr>

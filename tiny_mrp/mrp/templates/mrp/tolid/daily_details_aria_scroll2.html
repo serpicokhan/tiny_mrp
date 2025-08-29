@@ -112,9 +112,9 @@
                                 </div>
                                 <div class="input-group">
                                   <select class="form-control" aria-label="Default select example" id="select_shift_scroll">
-                                    {% for i in shifts %}
+                                    {% for i in user_shift %}
                                     
-                                    <option x="{{shift_id}}" value="{{i.id}}" {% if i.id == shift_id %} selected {% endif %}>{{i.name}}</option>
+                                    <option x="{{shift_id}}" value="{{i.shift.id}}" {% if i.shift.id == shift_id %} selected {% endif %}>{{i}}</option>
                                     {% endfor %}
                                
                                   </select>
