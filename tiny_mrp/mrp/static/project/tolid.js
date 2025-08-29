@@ -265,10 +265,7 @@ var tableDataToJSON=function(tableId){
   $table.find('tr').each(function() {
 
         if($(this).attr('data-machine')){
-        if($(this).attr('data-machine')=='7155'){
-          console.log(tableId);
-          
-        }
+       
           
         var machine=$(this).attr('data-machine');
         var amar_id=$(this).attr('data-id')||'0';

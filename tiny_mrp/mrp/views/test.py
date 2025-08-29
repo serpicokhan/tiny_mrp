@@ -75,7 +75,7 @@ def get_daily_amar(request):
             shift_id=user_access.shift.id
         if(not makan_id):
             makan_id=user_access.production_line.id
-        print(user_access.production_line.id,makan_id)
+        # print(user_access.production_line.id,makan_id)
         if( int(makan_id) != user_access.production_line.id):
 
             return HttpResponseNotFound("Page not found")
@@ -151,7 +151,7 @@ def get_daily_amar_scroll(request):
             shift_id=user_access.shift.id
         if(not makan_id):
             makan_id=user_access.production_line.id
-        print(user_access.production_line.id,makan_id)
+        # print(user_access.production_line.id,makan_id)
         if( int(makan_id) != user_access.production_line.id):
 
             return HttpResponseNotFound("Page not found")
@@ -262,9 +262,9 @@ def register_daily_amar(request):
             ).exclude(
                 operators_data__in=["", "None", "null", "none"]
             ).order_by('-id')
-            if(machine.id==7155):
-                print(operators.query)
-                print("###############",json.loads(operators.first().operators_data))
+            # if(machine.id==7155):
+                # print(operators.query)
+                # print("###############",json.loads(operators.first().operators_data))
             operators_json=operators.first() if operators else None
            
             countor1 = DailyProduction.objects.filter(
@@ -291,7 +291,7 @@ def register_daily_amar(request):
                             operators_json=operators_json.operators_data
                             # print(json.loads(operators_json))
                             for kk in operator_info:  
-                                print(kk)                             
+                                # print(kk)                             
                                
                                 operators.append(kk)
                         except Exception as e:
@@ -512,7 +512,7 @@ def saveAmarHTableInfo(request):
     # print(request.POST)
     data2 = json.loads(request.body)
     operators_data_json = request.POST.get('operator_data', '{}')
-    print('####################',operators_data_json,'####################')
+    # print('####################',operators_data_json,'####################')
     data=dict()
     # print("********")
     for table_name, table_data in data2.items():
@@ -525,7 +525,7 @@ def saveAmarHTableInfo(request):
 
 
             if(i["id"]!="0"):
-                print(i["id"])
+                # print(i["id"])
                 d=DailyProduction.objects.filter(id=i["id"])
             else:
 
@@ -557,9 +557,9 @@ def saveAmarHTableInfo(request):
                 if(z):
                    if('dict' in str(type(z))):
                         # z=json.loads(i["data_metraj"])
-                        print(z,z['metrajdaf1'])
+                        # print(z,z['metrajdaf1'])
                         x.metrajdaf1=z["metrajdaf1"]
-                        print(x.metrajdaf1)
+                        # print(x.metrajdaf1)
                         x.metrajdaf2=int(i["data_metraj"]["metrajdaf2"])
                         x.metrajdaf3=int(i["data_metraj"]["metrajdaf3"])
                         x.metrajdaf4=int(i["data_metraj"]["metrajdaf4"])
@@ -667,7 +667,7 @@ def show_daily_amar_tolid(request):
     previous_day = date_object - timedelta(days=1)
     shifts=Shift.objects.all()
     machines=Asset.objects.filter(Q(assetTypes=3)).order_by('assetCategory__priority','assetTavali')
-    print(machines)
+    # print(machines)
     machines_with_amar=[]
     m_count=1
 
@@ -701,7 +701,7 @@ def show_daily_amar_tolid(request):
                         print(e)
                 mx_speed=0
                 if(max_speed>0):
-                    print(f"{sum}/{max_speed}*{shifts.count()}")
+                    # print(f"{sum}/{max_speed}*{shifts.count()}")
                     mx_speed=(sum/(max_speed*shifts.count()))*100
                 if(m.id in (7053,7052,7055)):
                     machines_with_amar.append({'machine':m.assetName,'shift_amar':shift_val,'css':'font-weight-bold','sum':sum,'max_speed':"{:.2f} %".format(mx_speed)})
@@ -918,7 +918,7 @@ def calendar_main_scroll(request):
     return render(request,'mrp/tolid/calendar_main_scroll.html',{'title':'تولید روزانه','makan':makan,'makan_id':int(makan_id)})
 def calendar_randeman(request):
     makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
-    print(makan,"$$$$$$$$$$$$$$$$$$$")
+    # print(makan,"$$$$$$$$$$$$$$$$$$$")
     return render(request,'mrp/tolid/calendar_randeman.html',{'title':'راندمان روزانه','makan':makan})
 def calendar_randeman_brief(request):
     return render(request,'mrp/tolid/calendar_randeman_brief.html',{'title':'راندمان روزانه'})
@@ -975,7 +975,7 @@ def move_tolid_calendar_info(request):
 def get_randeman_calendar_info(request):
     data=[]
     user_info=DailyProduction.objects.values_list('dayOfIssue').distinct()
-    print(user_info)
+    # print(user_info)
     for i in user_info:
         z=get_sum_vaz_zayeat_by_date(i[0])
         data.append({'title': "راندمان روزانه{}".format(round(get_sum_machin_product_by_cat(Asset.objects.get(id=7084),i[0]),0)),\
@@ -1016,7 +1016,7 @@ def monthly_detaild_report(request):
     days=[]
     shift=Shift.objects.all()
     asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
-    print(asset_category)
+    # print(asset_category)
     current_date_time2 = jdatetime.datetime.now()
     current_year=current_date_time2.year
     j_month=request.GET.get('month',current_date_time2.month)
@@ -1042,7 +1042,7 @@ def monthly_detaild_report(request):
             # print(j_date,'!!!!!!!!!!!!!')
             for sh in shift:
                 product[sh.id]=get_sum_machine_by_date_shift_makan(cats,makan_id,sh,j_date.togregorian())
-                print("!!!!!!!!!",cats,product[sh.id])
+                # print("!!!!!!!!!",cats,product[sh.id])
             days.append({'cat':cats,'date':"{0}/{1}/{2}".format(j_year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
         product={}
         start=jdatetime.date(j_year,current_jalali_date.month,1)
@@ -1711,7 +1711,7 @@ def delete_amar_info(request):
     date=DateJob.getTaskDate(request.GET.get('event_id',False))
     heatset_amar=DailyProduction.objects.filter(dayOfIssue=dayOfIssue,machine__assetTypes=2)
     shift=Shift.objects.all()
-    print(heatset_amar.count())
+    # print(heatset_amar.count())
     for i in heatset_amar:
         i.delete()
     data=dict()
