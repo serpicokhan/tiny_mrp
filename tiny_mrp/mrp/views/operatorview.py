@@ -27,8 +27,8 @@ class OperatorSearchView(View):
             operators = Operator.objects.filter(
                 Q(FName__icontains=search_term) |
                 Q(LName__icontains=search_term) |
-                Q(PNumber__icontains=search_term) |
-                Q(Pid__icontains=search_term) |
+                Q(PNumber=search_term) |
+                Q(Pid=search_term) |
                 Q(CpCode__icontains=search_term)
             ).annotate(
                 full_name=Concat('FName', Value(' '), 'LName')

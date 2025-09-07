@@ -207,6 +207,8 @@ def index(request):
        return HttpResponseRedirect(reverse('list_dashboard'))
     elif(request.user.has_perm('mrp.can_operator_mrp')):
        return HttpResponseRedirect(reverse('register_daily_amar'))
+    elif(request.user.has_perm('mrp.is_supervisor_user')):
+       return HttpResponseRedirect(reverse('register_daily_amar'))
     else:
        return HttpResponseRedirect(reverse('list_purchase_req_detail'))
 
@@ -217,25 +219,34 @@ def register_daily_amar(request):
     shift_id=request.GET.get('shift_id',False)
     makan_id=request.GET.get('makan_id',False)
     selected_date=request.GET.get('selected_date',False)
-    if(not makan_id):
-        makan_id=Asset.objects.filter(assetIsLocatedAt__isnull=True).first().id
     
-    machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id).order_by("assetTavali")
+    
     date_object=datetime.datetime.now()
     next_day = date_object + timedelta(days=1)
     # asset_category = AssetCategory.objects.all().order_by('priority')
     if request.user.groups.filter(name='supervisors').exists():
-        asset_category=AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
         user_access=UserShiftAccess.objects.get(user=request.user.sysuser)
+
+        makan_id=user_access.production_line.id
+
+        asset_category=AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
         makan=Asset.objects.filter(id=user_access.production_line.id)
         shift=Shift.objects.filter(id=user_access.shift.id)
+        shift_id=user_access.shift.id
+        machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id).order_by("assetTavali")
+        # print(machines)
+        
 
         
     else:
+        if(not makan_id):
+            makan_id=Asset.objects.filter(assetIsLocatedAt__isnull=True).first().id
 
         asset_category=AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
         makan=Asset.objects.filter(assetIsLocatedAt__isnull=True,assetTypes=1)
         shift=Shift.objects.all()
+        machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id).order_by("assetTavali")
+    
 
 
 
@@ -332,6 +343,7 @@ def register_daily_amar(request):
             machines_with_formulas.append({'machine': machine,'formula': formula.formula,'speed':0,'nomre':0,'speedformula':0,'vahed':machine.assetVahed})
         except DailyProduction.DoesNotExist:
             machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula,'vahed':machine.assetVahed})
+        
 
     return render(request,"mrp/tolid/details_aria.html",{'selected_date':selected_date,'makan':makan,'machines':machines_with_formulas,'cat_list':asset_category,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d'),'shift_id':int(shift_id),'makan_id':int(makan_id)})
 @login_required
