@@ -135,6 +135,10 @@ $(function () {
             var z = parseFloat(row.find(".speed").text()) || 0;
             var p = parseFloat(row.find(".nomre").text()) || 0;
             var q = parseFloat(row.find(".vahed").text()) || 0;
+            var wastage = parseFloat(row.find(".wastage").text()) || 0;
+            
+            var nezafat = parseFloat(row.find(".nezafat").text()) || 0;
+            var qc = parseFloat(row.find(".qc").text()) || 0;
             var q1 = parseFloat(row.find(".vahed").data("vahed")) || 0;
             var formula2 = row.find("[data-maxformula]").data("maxformula");
             var formula = row.find(".production").data("formula");
@@ -157,6 +161,30 @@ $(function () {
                  var result = evaluateFormula_4p(formula, nomre,z,counter2-counter1,q);
 
             }
+            let operatorData = row.find('.operator-data').val();
+            let operatorCount = 0;
+            try {
+              // Parse the JSON to count the number of operators
+              operatorData = JSON.parse(operatorData);
+              operatorCount = Array.isArray(operatorData) ? operatorData.length : 0;
+            } catch (e) {
+              console.error('Error parsing operator_data JSON:', e);
+              operatorCount = 1; // Fallback to 1 to avoid division by zero
+            }
+        
+            // Ensure operatorCount is at least 1 to avoid division by zero
+            operatorCount = operatorCount > 0 ? operatorCount : 1;
+        
+            // Calculate the formula: (result - wastage - qc) * (nezafat / 100) / operatorCount
+            let randemanValue = ((result - wastage - qc) * (nezafat / 100)) / operatorCount;
+        
+            // Round to 2 decimal places
+            randemanValue = isNaN(randemanValue) ? 0 : randemanValue.toFixed(2);
+        
+            // Update the randeman_production cell
+            row.find('.randeman_production').text(randemanValue);
+            // row.find(".randeman_production").text((result-wastage-qc)*(nezafat/100)); 
+
             
             
 
@@ -165,9 +193,52 @@ $(function () {
             // var result = evaluateFormula(formula, nomre,counter2-counter1,q);
             row.find("[data-formula]").text(result);
             var result = evaluateFormula2(formula2, p,z,q1);
+            
             row.find(".production_full").text(result);
 
 
+        });
+        function calculateRandeman(row) {
+          
+          // Extract values from the row
+          let result = parseFloat(row.find('.production').text()) || 0;
+          let wastage = parseFloat(row.find('.wastage').text()) || 0;
+          let qc = parseFloat(row.find('.qc').text()) || 0;
+          let nezafat = parseFloat(row.find('.nezafat').text()) || 0;
+      
+          // Get the operator_data JSON from the hidden input
+          let operatorData = row.find('.operator-data').val();
+          let operatorCount = 0;
+      
+          try {
+            // Parse the JSON to count the number of operators
+            operatorData = JSON.parse(operatorData);
+            operatorCount = Array.isArray(operatorData) ? operatorData.length : 0;
+          } catch (e) {
+            console.error('Error parsing operator_data JSON:', e);
+            operatorCount = 1; // Fallback to 1 to avoid division by zero
+          }
+      
+          // Ensure operatorCount is at least 1 to avoid division by zero
+          operatorCount = operatorCount > 0 ? operatorCount : 1;
+      
+          // Calculate the formula: (result - wastage - qc) * (nezafat / 100) / operatorCount
+          let randemanValue = ((result - wastage - qc) * (nezafat / 100)) / operatorCount;
+      
+          // Round to 2 decimal places
+          randemanValue = isNaN(randemanValue) ? 0 : randemanValue.toFixed(2);
+      
+          // Update the randeman_production cell
+          row.find('.randeman_production').text(randemanValue);
+        }
+      
+        // Apply the calculation to all rows with class 'randeman_production' on page load
+        
+        
+        
+        $(".tab-content").on('change', '.operator-data', function() {
+          let row = $(this).closest('tr');
+          calculateRandeman(row);
         });
 
         function evaluateFormula(formula, P, Q,Z) {
@@ -280,6 +351,8 @@ var tableDataToJSON=function(tableId){
         var counter2 = $(this).find('td.counter2').text()||0;
         var vahed = parseInt($(this).find('td.vahed').text()||0);
         var wastage = parseFloat($(this).find('td.wastage').text()||0);
+        var enzebat = parseFloat($(this).find('td.nezafat').text()||0);
+        var qc = parseFloat($(this).find('td.qc').text()||0);
         var actual_vahed = $(this).find('td.editable-cell').attr('data-vahed');
         var operator_data= $(this).find('.operator-data').val() || '[]';
         var moshakhase=$(this).find('.nakh-data').val()||'null'
@@ -292,7 +365,7 @@ var tableDataToJSON=function(tableId){
 
 
         data.push({id:amar_id,wastage:wastage, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
-          , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed,operator_data:operator_data,actual_vahed:actual_vahed,moshakhase:moshakhase
+          , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed,operator_data:operator_data,actual_vahed:actual_vahed,moshakhase:moshakhase,qc:qc,enzebat:enzebat
            });
          }
       });
@@ -398,7 +471,7 @@ console.log(JSON.stringify(sendData));
               type: form.attr("method"),
               dataType: 'json',
               success: function (data) {
-                console.log(data);
+                
                 if(data.success==true)
                  $("#modal-company").modal("hide");
                 else{
@@ -784,6 +857,8 @@ function updateOperatorHiddenFields($row) {
   
   // Update the hidden field
   $row.find('.operator-data').val(JSON.stringify(updatedOperators));
+  console.log("!@@@@@@@@@@@@@@@@@@@@@@");
+  
 }
 
 // Convert old format {ids:[], names:[]} to new format [{id:..., name:...}]
@@ -1179,7 +1254,9 @@ $("#operatorSearchResults").on("click", ".operator-search-item", function() {
     var displayText = currentOperators.map(op => `${op.name} (${op.personnel_number})`).join(', ');
 
     $operatorDisplay.text(displayText || 'انتخاب اپراتور');
-    console.log("Updated operator-display with:", displayText, "for row:", $row[0].outerHTML);
+    // console.log("Updated operator-display with:", displayText, "for row:", $row[0].outerHTML);
+    calculateRandeman($row);
+
   }
 });
 
@@ -1219,6 +1296,8 @@ $("#operatorModal").on("click", ".remove-operator", function() {
   // Update table cell display
   var displayText = currentOperators.map(op => `${op.name} (${op.personnel_number})`).join(', ');
   $operatorDisplay.text(displayText || 'انتخاب اپراتور');
+  calculateRandeman($row);
+
   // console.log("Updated operator-display after removal with:", displayText, "for row:", $row[0].outerHTML);
 });
 

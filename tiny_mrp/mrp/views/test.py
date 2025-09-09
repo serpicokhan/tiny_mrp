@@ -424,6 +424,8 @@ def saveAmarTableInfo(request):
                 x.counter2=i["counter2"]
                 x.vahed=int(i["vahed"])
                 x.wastage_value=float(i["wastage"]) if i["wastage"] else 0
+                x.enzebat_value=float(i["enzebat"]) if i["enzebat"] else 0
+                x.qc_value=float(i["qc"]) if i["qc"] else 0
                 # print("!wastage:",i["wastage"])
                 
                 x.production_value=float(i["production_value"])
@@ -483,6 +485,8 @@ def saveAmarTableInfo(request):
                 amar.counter2=i["counter2"]
                 amar.vahed=float(i["vahed"])
                 amar.wastage_value=float(i["wastage"]) if i["wastage"] else 0
+                amar.enzebat_value=float(i["enzebat"]) if i["enzebat"] else 0
+                amar.qc_value=float(i["qc"]) if i["qc"] else 0
                 # print("!wastage:",i["wastage"])
 
                 # print(i["wastage"])

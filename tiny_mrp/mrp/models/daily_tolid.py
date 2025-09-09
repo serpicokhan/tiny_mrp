@@ -56,6 +56,8 @@ class DailyProduction(models.Model):
     vahed = models.FloatField()
     production_value = models.FloatField(blank=True, null=True)  # Result of the formula
     wastage_value = models.FloatField(blank=True, null=True)  # wastage foreach machine
+    enzebat_value = models.FloatField(blank=True, null=True)  # wastage foreach machine
+    qc_value = models.FloatField(blank=True, null=True)  # wastage foreach machine
     daf_num = models.FloatField(null=True, blank=True)
     dook_weight = models.FloatField(null=True, blank=True)
     weight1 = models.FloatField(null=True, blank=True)
@@ -104,7 +106,7 @@ class DailyProduction(models.Model):
                     # Use ast.literal_eval to evaluate the expression safely
                     calculated_value = eval(formula)
                     # self.production_value = calculated_value
-                    return calculated_value
+                    return int(calculated_value)
                 except (ZeroDivisionError, ValueError):
                     return 0
 
@@ -113,6 +115,12 @@ class DailyProduction(models.Model):
                     print(f"Error evaluating formula: {e}")
                     return 0
                     # You can set a default value or handle the error as per your requirement
+    def get_randeman_production(self):
+        enzebat=self.enzebat_value if self.enzebat_value else 0
+        wastage=self.wastage_value if self.wastage_value else 0
+        qc=self.qc_value if self.qc_value else 0
+        production=self.production_value if self.production_value else 0
+        return (production-wastage-qc)*(enzebat/100)
     # NEW METHODS FOR OPERATOR MANAGEMENT
     def set_moshakhase(self,moshakhase):
          if isinstance(moshakhase, str):

@@ -29,6 +29,8 @@
               <th>100%</th>
               <th>تولید</th>
               <th>ضایعات</th>
+              <th>انضباط</th>
+              <th>کیفیت</th>
 
               <th>عملیات</th>
 
@@ -80,9 +82,12 @@
 
 
               <td contenteditable="true" data-formula="{{c.formula}}" class='production'>{{c.amar.production_value}}</td>
-              <td contenteditable="true" class="editable-cell2 selectable1 wastage">{{c.amar.wastage_value}} </td>
-              <td>
+              <td contenteditable="true" class="editable-cell2 selectable1 wastage">{{c.amar.wastage_value|default_if_none:'0'}} </td>
+              <td contenteditable="true" class="editable-cell2 btc  nezafat"> {{c.amar.enzebat_value|default_if_none:'0'}}</td>
+              <td contenteditable="true" class="editable-cell2 btc  qc"> {{c.amar.qc_value|default_if_none:'0'}}</td>
+              <td class="randeman_production">
                 <!-- <button class="btn btn-success copy-row">کپی</button> Copy button -->
+                 {{c.amar.get_randeman_production}}
             </td>
 
             </tr>
