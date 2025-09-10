@@ -111,7 +111,7 @@
         <div class="card summary-card">
             <div class="card-body text-center">
                 <h5 class="card-title">تعداد کل تولید</h5>
-                <h2 class="card-text">12,845</h2>
+                <h2 class="card-text">{{total_production}}</h2>
                 <p class="card-text">عدد</p>
             </div>
         </div>
@@ -156,7 +156,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for i in page_obj %}
+                    {% for i in report_data %}
                     <tr>
                         <td>{{i.date}}</td>
                         <td>{{i.operator}}</td>

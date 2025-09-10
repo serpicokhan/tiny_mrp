@@ -416,6 +416,13 @@ class DailyProduction(models.Model):
     class Meta:
         db_table="dailyproduction"
         unique_together = (('machine', 'shift','dayOfIssue'),)
+        indexes = [
+            models.Index(fields=['dayOfIssue']),
+            models.Index(fields=['machine']),
+            models.Index(fields=['production_value']),
+            # For PostgreSQL JSONB field (if used)
+            models.Index(fields=['operators_data'], name='operators_data_gin', opclasses=['jsonb_path_ops']),
+        ]
 
 class Zayeat(models.Model):
     name = models.CharField(max_length=100)
