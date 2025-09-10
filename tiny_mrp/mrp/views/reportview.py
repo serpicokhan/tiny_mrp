@@ -18,7 +18,10 @@ from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404
 from django.views.decorators import csrf
 from mrp.forms import ReportForm
-
+from django.utils import timezone
+from django.db.models import Sum, F, ExpressionWrapper, FloatField
+from datetime import datetime
+from django.core.paginator import Paginator
 
 @login_required
 def daily_tolid_with_chart(request):
@@ -27,15 +30,143 @@ def daily_tolid_with_chart(request):
 
 
 
+
+
 @login_required
 def daily_tolid_main(request):
+    # Fetch all locations (assets with no parent location) and categories
+    locations = Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    categories = AssetCategory.objects.all().order_by('priority')
+    shifts=Shift.objects.all()
 
-    location=Asset.objects.filter(assetIsLocatedAt__isnull=True)
-    category=AssetCategory.objects.all().order_by('priority')
-    
-    return render(request,'mrp/report/daily_tolid_main.html',{'makan':location,'category':category})
+    # Initialize query for DailyProduction
+    productions = DailyProduction.objects.filter(production_value__gt=0).order_by('-dayOfIssue')
 
+    # Handle filters from GET request
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if(start_date):
+        start_date=DateJob.getTaskDate(start_date)
+    if(end_date):
+        end_date=DateJob.getTaskDate(end_date)
+    print(start_date,end_date,'$$$$$$$$$$$$$$$$$$')
+    operator_id = request.GET.get('operator_data')
+    print(operator_id)
+    machine_id = request.GET.get('machine_id')
+    category_id = request.GET.get('category_id')
+    shift_id = request.GET.get('shift_id')
 
+    # Apply date filters
+    if start_date:
+        # start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        productions = productions.filter(dayOfIssue__gte=start_date)
+    if end_date:
+        # end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        productions = productions.filter(dayOfIssue__lte=end_date)
+
+    # Apply operator filter (check JSON field for operator ID)
+    if operator_id:
+        productions = productions.filter(operators_data__contains=operator_id)
+
+    # Apply machine filter
+    if machine_id and machine_id !='-1':
+
+        productions = productions.filter(machine_id=machine_id)
+
+    # Apply category filter
+    if category_id and category_id !='-1':
+        productions = productions.filter(machine__assetCategory_id=category_id)
+
+    # Calculate summary metrics (using total values, not divided)
+    total_production = productions.aggregate(
+        total=Sum(F('production_value'), output_field=FloatField(), default=0.0)
+    )['total'] or 0.0
+    total_wastage = productions.aggregate(
+        total=Sum(F('wastage_value'), output_field=FloatField(), default=0.0)
+    )['total'] or 0.0
+    wastage_rate = (total_wastage / total_production * 100) if total_production > 0 else 0.0
+
+    # Prepare report data (one row per operator)
+    report_data = []
+    for prod in productions:
+        # Parse operators_data JSON to get operator names
+        operator_names = []
+        operator_count = 1  # Default to 1 to avoid division by zero
+        if prod.operators_data:
+            try:
+                operators = prod.operators_data if isinstance(prod.operators_data, list) else json.loads(prod.operators_data)
+                operator_names = [op['name'] for op in operators if 'name' in op]
+                operator_count = len(operator_names) if operator_names else 1
+            except (json.JSONDecodeError, TypeError):
+                operator_names = ['Unknown']
+                operator_count = 1
+
+        # Handle None values for production and wastage
+        production = float(prod.production_value) if prod.production_value is not None else 0.0
+        wastage = float(prod.wastage_value) if prod.wastage_value is not None else 0.0
+        # Divide production and wastage by operator_count
+        production_per_operator = production / operator_count if operator_count > 0 else 0.0
+        wastage_per_operator = wastage / operator_count if operator_count > 0 else 0.0
+        wastage_rate_row = (wastage_per_operator / production_per_operator * 100) if production_per_operator > 0 else 0.0
+
+        # Create one row per operator
+        for operator_name in operator_names:
+            report_data.append({
+                'date': jdatetime.date.fromgregorian(date=prod.dayOfIssue).strftime('%Y/%m/%d'),
+                'operator': operator_name,
+                'machine': prod.machine.assetName if prod.machine else 'Unknown',
+                'production': production_per_operator,
+                'wastage': wastage_per_operator,
+                'wastage_rate': wastage_rate_row,
+            })
+
+    # Pagination
+    paginator = Paginator(report_data, 10)  # Show 10 records per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Prepare chart data (based on total values, not divided)
+    chart_data={}
+    # chart_data = {
+    #     'daily_production': {
+    #         'labels': [prod.dayOfIssue.strftime('%Y/%m/%d') for prod in productions],
+    #         'data': [float(prod.production_value) if prod.production_value is not None else 0.0 for prod in productions]
+    #     },
+    #     'wastage_by_machine': {
+    #         'labels': list(productions.values('machine__assetName').distinct().values_list('machine__assetName', flat=True)),
+    #         'data': [
+    #             productions.filter(machine__assetName=machine).aggregate(total=Sum(F('wastage_value'), default=0.0))['total'] or 0.0
+    #             for machine in productions.values('machine__assetName').distinct().values_list('machine__assetName', flat=True)
+    #         ]
+    #     }
+    # }
+
+    # # Prepare all operators for dropdown
+    all_operators = set()
+    # for prod in DailyProduction.objects.all():
+    #     if prod.operators_data:
+    #         try:
+    #             operators = prod.operators_data if isinstance(prod.operators_data, list) else json.loads(prod.operators_data)
+    #             for op in operators:
+    #                 if 'name' in op and 'id' in op:
+    #                     all_operators.add((op['id'], op['name']))
+    #         except (json.JSONDecodeError, TypeError):
+    #             pass
+
+    context = {
+        'makan': locations,
+        'category': categories,
+        'shifts':shifts,
+        'report_data': page_obj,  # Use paginated report_data
+        'total_production': round(total_production, 2),
+        'total_wastage': round(total_wastage, 2),
+        'wastage_rate': round(wastage_rate, 2),
+        'chart_data': chart_data,
+        'page_obj': page_obj,
+        'operators': [{'id': oid, 'name': name} for oid, name in all_operators],
+    }
+
+    return render(request, 'mrp/report/daily_tolid_main.html', context)
 
 def production_chart_with_table(request):
     date_str = request.GET.get('date',False) # Modify these dates as needed

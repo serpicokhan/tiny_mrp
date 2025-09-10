@@ -60,33 +60,42 @@
                 </div>
                 <div class="col-md-4">
                     <label for="startDate" class="form-label">تاریخ شروع</label>
-                    <input type="text" class="form-control" id="startDate" >
+                    <input type="text" class="form-control" id="startDate" name="start_date">
                 </div>
                 <div class="col-md-4">
                     <label for="endDate" class="form-label">تاریخ پایان</label>
-                    <input type="text" class="form-control" id="endDate" >
+                    <input type="text" class="form-control" id="endDate" name="end_date" >
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-4">
-                    <label for="machine" class="form-label">دستگاه</label>
-                    <select class="form-control" id="machine">
-                        <option selected value="-1">همه دستگاه‌ها</option>
+                <div class="col-md-3">
+                    <label for="machine" class="form-label">سالن</label>
+                    <select class="form-control" id="machine" name="machine_id">
+                        <option selected value="-1">همه سالن ها</option>
                         {% for i in makan %}
                         <option value="{{i.id}}">{{i.assetName}}</option>
                       {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-4">
-                    <label for="machine" class="form-label">دستگاه</label>
-                    <select class="form-control" id="machine">
-                        <option selected>همه دستگاه‌ها</option>
+                <div class="col-md-3">
+                    <label for="machinecat" class="form-label">دستگاه</label>
+                    <select class="form-control" id="machinecat" name="category_id">
+                        <option selected value="-1">همه دستگاه‌ها</option>
                         {% for i in category %}
                         <option value="{{i.id}}">{{i.name}}</option>
                       {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-4 d-flex justify-content-center align-items-end">
+                <div class="col-md-3">
+                    <label for="shift" class="form-label">شیفت</label>
+                    <select class="form-control" id="shift" name="shift_id">
+                        <option selected value="-1">همه شیفت ها</option>
+                        {% for i in shifts %}
+                        <option value="{{i.id}}">{{i.name}}</option>
+                      {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex justify-content-center align-items-end">
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-filter-circle"></i> اعمال فیلترها
                     </button>
@@ -147,71 +156,23 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for i in page_obj %}
                     <tr>
-                        <td>1402/03/15</td>
-                        <td>محمد رضایی</td>
-                        <td>دستگاه برش CNC</td>
-                        <td>1,250</td>
-                        <td>25</td>
-                        <td><span class="waste-rate low-waste">2.0%</span></td>
+                        <td>{{i.date}}</td>
+                        <td>{{i.operator}}</td>
+                        <td>{{i.machine}}</td>
+                        <td>{{i.production}}</td>
+                        
+                        <td>{{i.wastage}}</td>
+                        <td><span class="waste-rate low-waste">{{i.wastage_rate}}%</span></td>
                         <td>
                             <button class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-info-circle"></i> جزئیات
                             </button>
                         </td>
                     </tr>
-                    <tr>
-                        <td>1402/03/16</td>
-                        <td>فاطمه محمدی</td>
-                        <td>دستگاه تراش</td>
-                        <td>980</td>
-                        <td>18</td>
-                        <td><span class="waste-rate low-waste">1.84%</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-info-circle"></i> جزئیات
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>1402/03/17</td>
-                        <td>علی حسینی</td>
-                        <td>دستگاه فرز</td>
-                        <td>1,540</td>
-                        <td>52</td>
-                        <td><span class="waste-rate medium-waste">3.38%</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-info-circle"></i> جزئیات
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>1402/03/18</td>
-                        <td>مریم کریمی</td>
-                        <td>دستگاه پرس</td>
-                        <td>2,100</td>
-                        <td>45</td>
-                        <td><span class="waste-rate low-waste">2.14%</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-info-circle"></i> جزئیات
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>1402/03/19</td>
-                        <td>محمد رضایی</td>
-                        <td>دستگاه برش CNC</td>
-                        <td>1,380</td>
-                        <td>65</td>
-                        <td><span class="waste-rate high-waste">4.71%</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-info-circle"></i> جزئیات
-                            </button>
-                        </td>
-                    </tr>
+                    {% endfor %}
+
                 </tbody>
                 <tfoot>
                     <tr class="table-active">
@@ -228,15 +189,43 @@
         <!-- صفحه‌بندی -->
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1">قبلی</a>
-                </li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#">بعدی</a>
-                </li>
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">قبلی</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">قبلی</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active" aria-current="page">
+                            <a class="page-link" href="#">{{ num }}</a>
+                        </li>
+                    {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">بعدی</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">بعدی</span>
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
         </nav>
     </div>

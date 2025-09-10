@@ -118,10 +118,10 @@ class DailyProduction(models.Model):
                     # You can set a default value or handle the error as per your requirement
     def get_randeman_production(self):
         # Initialize values, defaulting to 0 if None
-        enzebat = self.enzebat_value if self.enzebat_value is not None else 0
-        wastage = self.wastage_value if self.wastage_value is not None else 0
-        qc = self.qc_value if self.qc_value is not None else 0
-        production = self.production_value if self.production_value is not None else 0
+        enzebat = float(self.enzebat_value) if self.enzebat_value is not None else 0.0
+        wastage = float(self.wastage_value) if self.wastage_value is not None else 0.0
+        qc = float(self.qc_value) if self.qc_value is not None else 0.0
+        production = float(self.production_value) if self.production_value is not None else 0.0
 
         # Get the number of operators from operators_data JSON
         operator_count = 1  # Default to 1 to avoid division by zero
@@ -137,10 +137,13 @@ class DailyProduction(models.Model):
                 operator_count = 1  # Fallback to 1 on error
 
         # Calculate formula: (production - wastage - qc) * (enzebat / 100) / operator_count
-        result = ((production - wastage - qc) * (enzebat / 100)) / operator_count
+        try:
+            result = ((production - wastage - qc) * (enzebat / 100.0)) / operator_count
+        except ZeroDivisionError:
+            return 0.0
 
         # Round to 2 decimal places and handle NaN
-        return round(result, 2) if not math.isnan(result) else 0
+        return round(result, 2) if not math.isnan(result) else 0.0
     # NEW METHODS FOR OPERATOR MANAGEMENT
     def set_moshakhase(self,moshakhase):
          if isinstance(moshakhase, str):
