@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 import json
 from mrp.models.operators import *
 from mrp.models.moshakhase import *
+import math
 
 class Shift(models.Model):
     name = models.CharField("نام شیفت",max_length=255)
@@ -116,11 +117,30 @@ class DailyProduction(models.Model):
                     return 0
                     # You can set a default value or handle the error as per your requirement
     def get_randeman_production(self):
-        enzebat=self.enzebat_value if self.enzebat_value else 0
-        wastage=self.wastage_value if self.wastage_value else 0
-        qc=self.qc_value if self.qc_value else 0
-        production=self.production_value if self.production_value else 0
-        return (production-wastage-qc)*(enzebat/100)
+        # Initialize values, defaulting to 0 if None
+        enzebat = self.enzebat_value if self.enzebat_value is not None else 0
+        wastage = self.wastage_value if self.wastage_value is not None else 0
+        qc = self.qc_value if self.qc_value is not None else 0
+        production = self.production_value if self.production_value is not None else 0
+
+        # Get the number of operators from operators_data JSON
+        operator_count = 1  # Default to 1 to avoid division by zero
+        if self.operators_data:
+            try:
+                # Parse JSON to count operators
+                operators = self.operators_data
+                if isinstance(operators, str):
+                    operators = json.loads(operators)
+                operator_count = len(operators) if isinstance(operators, list) and operators else 1
+            except (json.JSONDecodeError, TypeError) as e:
+                print(f"Error parsing operators_data JSON: {e}")
+                operator_count = 1  # Fallback to 1 on error
+
+        # Calculate formula: (production - wastage - qc) * (enzebat / 100) / operator_count
+        result = ((production - wastage - qc) * (enzebat / 100)) / operator_count
+
+        # Round to 2 decimal places and handle NaN
+        return round(result, 2) if not math.isnan(result) else 0
     # NEW METHODS FOR OPERATOR MANAGEMENT
     def set_moshakhase(self,moshakhase):
          if isinstance(moshakhase, str):

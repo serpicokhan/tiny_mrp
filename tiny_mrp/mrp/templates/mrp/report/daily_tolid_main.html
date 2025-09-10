@@ -71,21 +71,19 @@
                 <div class="col-md-4">
                     <label for="machine" class="form-label">دستگاه</label>
                     <select class="form-control" id="machine">
-                        <option selected>همه دستگاه‌ها</option>
-                        <option>دستگاه برش CNC</option>
-                        <option>دستگاه تراش</option>
-                        <option>دستگاه فرز</option>
-                        <option>دستگاه پرس</option>
+                        <option selected value="-1">همه دستگاه‌ها</option>
+                        {% for i in makan %}
+                        <option value="{{i.id}}">{{i.assetName}}</option>
+                      {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label for="machine" class="form-label">دستگاه</label>
                     <select class="form-control" id="machine">
                         <option selected>همه دستگاه‌ها</option>
-                        <option>دستگاه برش CNC</option>
-                        <option>دستگاه تراش</option>
-                        <option>دستگاه فرز</option>
-                        <option>دستگاه پرس</option>
+                        {% for i in category %}
+                        <option value="{{i.id}}">{{i.name}}</option>
+                      {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-4 d-flex justify-content-center align-items-end">

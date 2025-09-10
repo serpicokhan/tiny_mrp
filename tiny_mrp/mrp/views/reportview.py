@@ -29,8 +29,11 @@ def daily_tolid_with_chart(request):
 
 @login_required
 def daily_tolid_main(request):
+
+    location=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    category=AssetCategory.objects.all().order_by('priority')
     
-    return render(request,'mrp/report/daily_tolid_main.html',{})
+    return render(request,'mrp/report/daily_tolid_main.html',{'makan':location,'category':category})
 
 
 
