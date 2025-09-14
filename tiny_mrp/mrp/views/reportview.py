@@ -114,13 +114,11 @@ def daily_tolid_main(request):
     wastage_rate = (total_wastage / total_production * 100) if total_production > 0 else 0.0
 
     # Paginate at the QuerySet level
-    paginator = Paginator(productions, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+   
 
     # Prepare report data for the current page
     report_data = []
-    for prod in page_obj:
+    for prod in productions:
         operator_names = ['Unknown']
         operator_count = 1
         if prod.operators_data:
@@ -136,9 +134,9 @@ def daily_tolid_main(request):
 
         production = float(prod.production_value) if prod.production_value is not None else 0.0
         ##hamgen 36
-        production_36 = float(prod.eval_36_tolid_op_count()) if prod.eval_36_tolid_op_count() is not None else 0.0
+        production_36 = 0#float(prod.eval_36_tolid_op_count()) if prod.eval_36_tolid_op_count() is not None else 0.0
         wastage = float(prod.wastage_value) if prod.wastage_value is not None else 0.0
-        production_per_operator = production / operator_count if operator_count > 0 else 0.0
+        production_per_operator = production / prod.get_operator_count()
         # production_per_operator_36 = production_36 / operator_count if operator_count > 0 else 0.0
         wastage_per_operator = wastage / operator_count if operator_count > 0 else 0.0
         wastage_rate_row = (wastage_per_operator / production_per_operator * 100) if production_per_operator > 0 else 0.0
@@ -157,7 +155,9 @@ def daily_tolid_main(request):
                 'op_count':prod.get_operator_count(),
                 'randeman_production':prod.get_randeman_production()
             })
-
+    paginator = Paginator(report_data, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     # Chart data (optional)
     chart_data = {}
     if request.GET.get('include_chart'):
@@ -177,7 +177,7 @@ def daily_tolid_main(request):
         'profiles':profiles,
         'category': categories,
         'shifts': shifts,
-        'report_data': report_data,
+        # 'report_data': report_data,
         'total_production': round(total_production, 2),
         'total_wastage': round(total_wastage, 2),
         'wastage_rate': round(wastage_rate, 2),

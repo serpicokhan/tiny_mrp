@@ -174,7 +174,7 @@ class DailyProduction(models.Model):
                     return int(self.production_value/self.get_operator_count())
     def get_randeman_production(self):
         # Initialize values, defaulting to 0 if None
-        enzebat = float(self.enzebat_value) if self.enzebat_value is not None else 0.0
+        enzebat = float(self.enzebat_value) if self.enzebat_value is not None else 100
         wastage = float(self.wastage_value) if self.wastage_value is not None else 0.0
         qc = float(self.qc_value) if self.qc_value is not None else 0.0
         production = float(self.production_value) if self.production_value is not None else 0.0
