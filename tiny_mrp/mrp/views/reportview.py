@@ -20,9 +20,12 @@ from django.views.decorators import csrf
 from mrp.forms import ReportForm
 from django.utils import timezone
 from django.db.models import Sum, F, ExpressionWrapper, FloatField
+from django.db.models import Func, F, Value, FloatField, Sum, Case, When
+from django.db.models.functions import Coalesce
 from datetime import datetime
 from django.core.paginator import Paginator
 from django.db.models import Q
+
 
 @login_required
 def daily_tolid_with_chart(request):
@@ -32,6 +35,11 @@ def daily_tolid_with_chart(request):
 
 
 
+# Custom function for MySQL JSON array length
+class JsonArrayLength(Func):
+    function = 'JSON_LENGTH'
+    template = '%(function)s(%(expressions)s)'
+    output_field = models.IntegerField()
 
 @login_required
 def daily_tolid_main(request):
@@ -55,6 +63,7 @@ def daily_tolid_main(request):
     machine_id = request.GET.get('machine_id')
     category_id = request.GET.get('category_id')
     shift_id = request.GET.get('shift_id')
+    print(request.GET.get("collective",False),'$$$$$$$$$$$$$$')
     st_date,e_date=False,False
 
     # Convert date strings using DateJob
@@ -66,6 +75,10 @@ def daily_tolid_main(request):
         e_date=end_date
         end_date = DateJob.getTaskDate(end_date)
         productions = productions.filter(dayOfIssue__lte=end_date)
+
+    if( not start_date and not end_date):
+        return render(request, 'mrp/report/daily_tolid_main.html',{})
+
 
     # Apply filters
     if machine_id and machine_id != '-1':
@@ -79,7 +92,7 @@ def daily_tolid_main(request):
     # if operator_id:
     #     productions = productions.filter(operators_data__contains=[{'id': operator_id}])
    # فیلتر اپراتورها
-    if operator_id:
+    if operator_id and operator_id!='[]':
     #     try:
     #         # پارس کردن رشته JSON
             operator_datas = json.loads(operator_id)  # تبدیل به لیست دیکشنری
@@ -113,7 +126,7 @@ def daily_tolid_main(request):
         if prod.operators_data:
             try:
                 operators = prod.operators_data if isinstance(prod.operators_data, list) else json.loads(prod.operators_data)
-                if(operator_id):
+                if(operator_id and operator_id!='[]'):
                     operator_names = [op['name'] for op in operators if 'name' in op and op.get('id') == operator_datas[0]['id']]
                 else:
                     operator_names = [op['name'] for op in operators if 'name' in op ]
@@ -170,7 +183,7 @@ def daily_tolid_main(request):
         'wastage_rate': round(wastage_rate, 2),
         'chart_data': chart_data,
         'page_obj': page_obj,
-        'operator_data': operator_id,
+        'operator_data': operator_datas if operator_id and operator_id!='[]' else None,
         'start_date':start_date,
         'end_date':end_date,
         'shift_id':int(shift_id) if shift_id else False
