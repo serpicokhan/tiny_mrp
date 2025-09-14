@@ -22,6 +22,7 @@ from django.utils import timezone
 from django.db.models import Sum, F, ExpressionWrapper, FloatField
 from datetime import datetime
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 @login_required
 def daily_tolid_with_chart(request):
@@ -38,6 +39,7 @@ def daily_tolid_main(request):
     locations = Asset.objects.filter(assetIsLocatedAt__isnull=True)
     categories = AssetCategory.objects.all().order_by('priority')
     shifts = Shift.objects.all()
+    profiles=FinancialProfile.objects.all()
 
     # Initialize query with select_related for machine only
     productions = DailyProduction.objects.filter(production_value__gt=0).select_related(
@@ -53,12 +55,15 @@ def daily_tolid_main(request):
     machine_id = request.GET.get('machine_id')
     category_id = request.GET.get('category_id')
     shift_id = request.GET.get('shift_id')
+    st_date,e_date=False,False
 
     # Convert date strings using DateJob
     if start_date:
+        st_date=start_date
         start_date = DateJob.getTaskDate(start_date)
         productions = productions.filter(dayOfIssue__gte=start_date)
     if end_date:
+        e_date=end_date
         end_date = DateJob.getTaskDate(end_date)
         productions = productions.filter(dayOfIssue__lte=end_date)
 
@@ -71,8 +76,20 @@ def daily_tolid_main(request):
         productions = productions.filter(shift_id=shift_id)
 
     # Apply operator filter (using JSONB query for PostgreSQL, if applicable)
+    # if operator_id:
+    #     productions = productions.filter(operators_data__contains=[{'id': operator_id}])
+   # فیلتر اپراتورها
     if operator_id:
-        productions = productions.filter(operators_data__contains=[{'id': operator_id}])
+    #     try:
+    #         # پارس کردن رشته JSON
+            operator_datas = json.loads(operator_id)  # تبدیل به لیست دیکشنری
+            operator_id = int(operator_datas[0]['id'])  # your variable
+            productions = productions.filter(
+                Q(operators_data__icontains=f'"id":{operator_id}') | 
+                Q(operators_data__icontains=f'"id":"{operator_id}"')
+            )
+   
+    
 
     # Calculate summary metrics in a single query
     aggregates = productions.aggregate(
@@ -96,25 +113,36 @@ def daily_tolid_main(request):
         if prod.operators_data:
             try:
                 operators = prod.operators_data if isinstance(prod.operators_data, list) else json.loads(prod.operators_data)
-                operator_names = [op['name'] for op in operators if 'name' in op]
+                if(operator_id):
+                    operator_names = [op['name'] for op in operators if 'name' in op and op.get('id') == operator_datas[0]['id']]
+                else:
+                    operator_names = [op['name'] for op in operators if 'name' in op ]
                 operator_count = len(operator_names) if operator_names else 1
             except (json.JSONDecodeError, TypeError):
                 pass
 
         production = float(prod.production_value) if prod.production_value is not None else 0.0
+        ##hamgen 36
+        production_36 = float(prod.eval_36_tolid_op_count()) if prod.eval_36_tolid_op_count() is not None else 0.0
         wastage = float(prod.wastage_value) if prod.wastage_value is not None else 0.0
         production_per_operator = production / operator_count if operator_count > 0 else 0.0
+        # production_per_operator_36 = production_36 / operator_count if operator_count > 0 else 0.0
         wastage_per_operator = wastage / operator_count if operator_count > 0 else 0.0
         wastage_rate_row = (wastage_per_operator / production_per_operator * 100) if production_per_operator > 0 else 0.0
 
         for operator_name in operator_names:
+          
+            # if operators_name in 
             report_data.append({
                 'date': jdatetime.date.fromgregorian(date=prod.dayOfIssue).strftime('%Y/%m/%d'),
                 'operator': operator_name,
                 'machine': prod.machine.assetName if prod.machine else 'Unknown',
                 'production': production_per_operator,
+                'eval_36_tolid':production_36,
                 'wastage': wastage_per_operator,
                 'wastage_rate': wastage_rate_row,
+                'op_count':prod.get_operator_count(),
+                'randeman_production':prod.get_randeman_production()
             })
 
     # Chart data (optional)
@@ -133,6 +161,7 @@ def daily_tolid_main(request):
 
     context = {
         'makan': locations,
+        'profiles':profiles,
         'category': categories,
         'shifts': shifts,
         'report_data': report_data,
@@ -141,10 +170,20 @@ def daily_tolid_main(request):
         'wastage_rate': round(wastage_rate, 2),
         'chart_data': chart_data,
         'page_obj': page_obj,
-        'operators': all_operators,
+        'operator_data': operator_id,
+        'start_date':start_date,
+        'end_date':end_date,
+        'shift_id':int(shift_id) if shift_id else False
     }
 
     return render(request, 'mrp/report/daily_tolid_main.html', context)
+
+
+
+
+
+
+
 def production_chart_with_table(request):
     date_str = request.GET.get('date',False) # Modify these dates as needed
 

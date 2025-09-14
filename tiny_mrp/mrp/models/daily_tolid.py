@@ -116,6 +116,62 @@ class DailyProduction(models.Model):
                     print(f"Error evaluating formula: {e}")
                     return 0
                     # You can set a default value or handle the error as per your requirement
+
+    def get_operator_count(self):
+        operator_count = 1  # Default to 1 to avoid division by zero
+        if self.operators_data:
+            try:
+                # Parse JSON to count operators
+                operators = self.operators_data
+                if isinstance(operators, str):
+                    operators = json.loads(operators)
+                operator_count = len(operators) if isinstance(operators, list) and operators else 1
+            except (json.JSONDecodeError, TypeError) as e:
+                print(f"Error parsing operators_data JSON: {e}")
+                operator_count = 1  # Fallback to 1 on error
+        return operator_count
+                
+
+    def eval_36_tolid_op_count(self):
+        if self.machine:
+                formula_obj = Formula.objects.get(machine=self.machine)
+                formula = formula_obj.formula
+              
+
+                # Parameters for the evaluation (counter and nomre)
+                parameters = {
+                    
+                    'N': 36,
+                    'V':self.vahed,
+                    'T':int(self.counter2)-int(self.counter1)
+                }
+
+
+                # Replace parameters in the formula with actual values
+                for param, value in parameters.items():
+                    formula = formula.replace(param, str(value))
+                formula = formula.replace("/", " / ")
+
+                
+
+                # Evaluate the modified formula
+                try:
+                    # Evaluating the formula string to get the calculated value
+                    # Use ast.literal_eval to evaluate the expression safely
+                    calculated_value = eval(formula)
+                    # self.production_value = calculated_value
+                    return int(calculated_value)/self.get_operator_count()
+                except (ZeroDivisionError, ValueError):
+                    return int(self.production_value/self.get_operator_count())
+              
+
+                except (SyntaxError, ValueError) as e:
+                    # Handle exceptions if the formula is incorrect or cannot be evaluated
+                    print(f"Error evaluating formula: {e}")
+                    return int(self.production_value/self.get_operator_count())
+                    # You can set a default value or handle the error as per your requirement
+                except:
+                    return int(self.production_value/self.get_operator_count())
     def get_randeman_production(self):
         # Initialize values, defaulting to 0 if None
         enzebat = float(self.enzebat_value) if self.enzebat_value is not None else 0.0

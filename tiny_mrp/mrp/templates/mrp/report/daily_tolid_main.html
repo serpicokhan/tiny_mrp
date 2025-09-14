@@ -45,7 +45,7 @@
     <div class="card-body">
         <form>
             <div class="row mb-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="operator" class="form-label">اپراتور</label>
                     <select class="form-control operator-name" 
                     data-machine-id="{{c.machine.id}}"
@@ -56,15 +56,24 @@
                     {% endfor %}
                     </select>
                     <!-- Single hidden field to store all operator data as JSON -->
-                    <input type="hidden" class="operator-data" name="operator_data" value="{{c.operators_json}}">
+                    <input type="hidden" class="operator-data" name="operator_data" value="{{c.operators_json}}" id="operator_data">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="startDate" class="form-label">تاریخ شروع</label>
-                    <input type="text" class="form-control" id="startDate" name="start_date">
+                    <input type="text" class="form-control" id="startDate" name="start_date" value="{{start_date}}">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="endDate" class="form-label">تاریخ پایان</label>
-                    <input type="text" class="form-control" id="endDate" name="end_date" >
+                    <input type="text" class="form-control" id="endDate" name="end_date" value="{{end_date}}">
+                </div>
+                <div class="col-md-3">
+                    <label for="shift" class="form-label">پروفایل مالی</label>
+                    <select class="form-control" id="profile" name="profile_id">
+                        <option selected value="-1">همه</option>
+                        {% for i in profiles %}
+                        <option value="{{i.id}}" {% if i.id == shift_id %} selected {% endif %}>{{i.description}}</option>
+                      {% endfor %}
+                    </select>
                 </div>
             </div>
             <div class="row">
@@ -91,10 +100,11 @@
                     <select class="form-control" id="shift" name="shift_id">
                         <option selected value="-1">همه شیفت ها</option>
                         {% for i in shifts %}
-                        <option value="{{i.id}}">{{i.name}}</option>
+                        <option value="{{i.id}}" {% if i.id == shift_id %} selected {% endif %}>{{i.name}}</option>
                       {% endfor %}
                     </select>
                 </div>
+               
                 <div class="col-md-3 d-flex justify-content-center align-items-end">
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-filter-circle"></i> اعمال فیلترها
@@ -148,8 +158,10 @@
                     <tr>
                         <th>تاریخ</th>
                         <th>اپراتور</th>
+                        <th>تعداد op</th>
                         <th>دستگاه</th>
-                        <th>تعداد تولید</th>
+                        <th>تولید</th>
+                        <th>همگن 36</th>
                         <th>تعداد ضایعات</th>
                         <th>نرخ ضایعات</th>
                         <th>عملیات</th>
@@ -160,21 +172,21 @@
                     <tr>
                         <td>{{i.date}}</td>
                         <td>{{i.operator}}</td>
+                        <td>{{i.op_count}}</td>
                         <td>{{i.machine}}</td>
                         <td>{{i.production}}</td>
+                        <th>{{i.eval_36_tolid|floatformat:0}}</th>
                         
                         <td>{{i.wastage}}</td>
-                        <td><span class="waste-rate low-waste">{{i.wastage_rate}}%</span></td>
+                        <td><span class="waste-rate low-waste">{{i.wastage_rate|floatformat:0}}%</span></td>
                         <td>
-                            <button class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-info-circle"></i> جزئیات
-                            </button>
+                           {{i.randeman_production}}
                         </td>
                     </tr>
                     {% endfor %}
 
                 </tbody>
-                <tfoot>
+                <!-- <tfoot>
                     <tr class="table-active">
                         <th colspan="3">مجموع</th>
                         <th>7,250</th>
@@ -182,7 +194,7 @@
                         <th>2.83%</th>
                         <th></th>
                     </tr>
-                </tfoot>
+                </tfoot> -->
             </table>
         </div>
         
@@ -191,7 +203,7 @@
             <ul class="pagination justify-content-center">
                 {% if page_obj.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}" aria-label="Previous">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}" aria-label="Previous">
                             <span aria-hidden="true">قبلی</span>
                         </a>
                     </li>
@@ -209,13 +221,13 @@
                         </li>
                     {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}">{{ num }}</a>
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}">{{ num }}</a>
                         </li>
                     {% endif %}
                 {% endfor %}
                 {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}" aria-label="Next">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}" aria-label="Next">
                             <span aria-hidden="true">بعدی</span>
                         </a>
                     </li>
@@ -350,14 +362,14 @@
   // Handle selection event for multiple operators
 $('.operator-name').on('select2:select', function (e) {
     var data = e.params.data;
-    var $row = $(this).closest('tr');    
+    var $row = $(this).closest('div');    
     updateOperatorHiddenFields($row);    
 });
 
 // Handle unselecting an operator
 $('.operator-name').on('select2:unselect', function (e) {
     var data = e.params.data;
-    var $row = $(this).closest('tr');
+    var $row = $(this).closest('div');
     
     updateOperatorHiddenFields($row);
     
@@ -365,7 +377,7 @@ $('.operator-name').on('select2:unselect', function (e) {
 
 // Handle clearing all selections
 $('.operator-name').on('select2:clear', function (e) {
-    var $row = $(this).closest('tr');
+    var $row = $(this).closest('div');
     
     // Clear all hidden fields
     $row.find('.operator-data').val('');
