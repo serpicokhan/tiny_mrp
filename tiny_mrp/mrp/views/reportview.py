@@ -65,6 +65,8 @@ def daily_tolid_main(request):
     shift_id = request.GET.get('shift_id')
     print(request.GET.get("collective",False),'$$$$$$$$$$$$$$')
     st_date,e_date=False,False
+    collective = request.GET.get("collective", False)
+
 
     # Convert date strings using DateJob
     if start_date:
@@ -118,43 +120,109 @@ def daily_tolid_main(request):
 
     # Prepare report data for the current page
     report_data = []
-    for prod in productions:
-        operator_names = ['Unknown']
-        operator_count = 1
-        if prod.operators_data:
+    if collective:
+        # Group by operator and machine when collective is active
+        grouped_data = {}
+        for prod in productions:
+            if not prod.operators_data:
+                continue
             try:
-                operators = prod.operators_data if isinstance(prod.operators_data, list) else json.loads(prod.operators_data)
-                if(operator_id and operator_id!='[]'):
-                    operator_names = [op['name'] for op in operators if 'name' in op and op.get('id') == operator_datas[0]['id']]
-                else:
-                    operator_names = [op['name'] for op in operators if 'name' in op ]
-                operator_count = len(operator_names) if operator_names else 1
+                operators = (
+                    prod.operators_data
+                    if isinstance(prod.operators_data, list)
+                    else json.loads(prod.operators_data)
+                )
             except (json.JSONDecodeError, TypeError):
-                pass
+                continue
 
-        production = float(prod.production_value) if prod.production_value is not None else 0.0
-        ##hamgen 36
-        production_36 = 0#float(prod.eval_36_tolid_op_count()) if prod.eval_36_tolid_op_count() is not None else 0.0
-        wastage = float(prod.wastage_value) if prod.wastage_value is not None else 0.0
-        production_per_operator = production / prod.get_operator_count()
-        # production_per_operator_36 = production_36 / operator_count if operator_count > 0 else 0.0
-        wastage_per_operator = wastage / operator_count if operator_count > 0 else 0.0
-        wastage_rate_row = (wastage_per_operator / production_per_operator * 100) if production_per_operator > 0 else 0.0
+            machine_name = prod.machine.assetName if prod.machine else 'Unknown'
+            production = float(prod.production_value) if prod.production_value is not None else 0.0
+            wastage = float(prod.wastage_value) if prod.wastage_value is not None else 0.0
+            operator_count = len(operators) if operators else 1
+            production_per_operator = production / operator_count if operator_count > 0 else 0.0
+            wastage_per_operator = wastage / operator_count if operator_count > 0 else 0.0
+            wastage_rate_row = (
+                (wastage_per_operator / production_per_operator * 100)
+                if production_per_operator > 0
+                else 0.0
+            )
 
-        for operator_name in operator_names:
-          
-            # if operators_name in 
+            for op in operators:
+                if 'name' not in op or 'id' not in op:
+                    continue
+                if operator_datas and op.get('id') != operator_datas[0]['id']:
+                    continue
+                operator_name = op['name']
+                key = (operator_name, machine_name)
+                if key not in grouped_data:
+                    grouped_data[key] = {
+                        'production': 0.0,
+                        'wastage': 0.0,
+                        'count': 0
+                    }
+                grouped_data[key]['production'] += production_per_operator
+                grouped_data[key]['wastage'] += wastage_per_operator
+                grouped_data[key]['count'] += 1
+
+        # Convert grouped data to report_data format
+        for (operator_name, machine_name), data in grouped_data.items():
+            total_production_op = data['production']
+            total_wastage_op = data['wastage']
+            wastage_rate_op = (
+                (total_wastage_op / total_production_op * 100)
+                if total_production_op > 0
+                else 0.0
+            )
             report_data.append({
-                'date': jdatetime.date.fromgregorian(date=prod.dayOfIssue).strftime('%Y/%m/%d'),
+                'date': '',  # No single date for grouped data
                 'operator': operator_name,
-                'machine': prod.machine.assetName if prod.machine else 'Unknown',
-                'production': production_per_operator,
-                'eval_36_tolid':production_36,
-                'wastage': wastage_per_operator,
-                'wastage_rate': wastage_rate_row,
-                'op_count':prod.get_operator_count(),
-                'randeman_production':prod.get_randeman_production()
+                'machine': machine_name,
+                'production': round(total_production_op, 2),
+                'eval_36_tolid': 0.0,  # Placeholder, adjust if needed
+                'wastage': round(total_wastage_op, 2),
+                'wastage_rate': round(wastage_rate_op, 2),
+                'op_count': data['count'],
+                'randeman_production': 0.0  # Placeholder, adjust if needed
             })
+    else:
+        for prod in productions:
+            operator_names = ['Unknown']
+            operator_count = 1
+            if prod.operators_data:
+                try:
+                    operators = prod.operators_data if isinstance(prod.operators_data, list) else json.loads(prod.operators_data)
+                    if(operator_id and operator_id!='[]'):
+                        operator_names = [op['name'] for op in operators if 'name' in op and op.get('id') == operator_datas[0]['id']]
+                    else:
+                        operator_names = [op['name'] for op in operators if 'name' in op ]
+                    operator_count = len(operator_names) if operator_names else 1
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
+            production = float(prod.production_value) if prod.production_value is not None else 0.0
+            ##hamgen 36
+            production_36 = 0#float(prod.eval_36_tolid_op_count()) if prod.eval_36_tolid_op_count() is not None else 0.0
+            wastage = float(prod.wastage_value) if prod.wastage_value is not None else 0.0
+            production_per_operator = production / prod.get_operator_count()
+            # production_per_operator_36 = production_36 / operator_count if operator_count > 0 else 0.0
+            wastage_per_operator = wastage / operator_count if operator_count > 0 else 0.0
+            wastage_rate_row = (wastage_per_operator / production_per_operator * 100) if production_per_operator > 0 else 0.0
+            
+
+            for operator_name in operator_names:
+            
+                # if operators_name in 
+                report_data.append({
+                    'date': jdatetime.date.fromgregorian(date=prod.dayOfIssue).strftime('%Y/%m/%d'),
+                    'operator': operator_name,
+                    'machine': prod.machine.assetName if prod.machine else 'Unknown',
+                    'production': production_per_operator,
+                    'eval_36_tolid':production_36,
+                    'wastage': wastage_per_operator,
+                    'wastage_rate': wastage_rate_row,
+                    'op_count':prod.get_operator_count(),
+                    'randeman_production':prod.get_randeman_production()
+                })
     paginator = Paginator(report_data, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
