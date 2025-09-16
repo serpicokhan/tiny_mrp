@@ -63,9 +63,10 @@ def daily_tolid_main(request):
     machine_id = request.GET.get('machine_id')
     category_id = request.GET.get('category_id')
     shift_id = request.GET.get('shift_id')
-    print(request.GET.get("collective",False),'$$$$$$$$$$$$$$')
     st_date,e_date=False,False
     collective = request.GET.get("collective", False)
+
+    operator_datas=None
 
 
     # Convert date strings using DateJob
@@ -138,7 +139,7 @@ def daily_tolid_main(request):
             machine_name = prod.machine.assetName if prod.machine else 'Unknown'
             production = float(prod.production_value) if prod.production_value is not None else 0.0
             wastage = float(prod.wastage_value) if prod.wastage_value is not None else 0.0
-            operator_count = len(operators) if operators else 1
+            operator_count = prod.get_operator_count()
             production_per_operator = production / operator_count if operator_count > 0 else 0.0
             wastage_per_operator = wastage / operator_count if operator_count > 0 else 0.0
             wastage_rate_row = (
@@ -162,7 +163,7 @@ def daily_tolid_main(request):
                     }
                 grouped_data[key]['production'] += production_per_operator
                 grouped_data[key]['wastage'] += wastage_per_operator
-                grouped_data[key]['count'] += 1
+                grouped_data[key]['count'] = +1
 
         # Convert grouped data to report_data format
         for (operator_name, machine_name), data in grouped_data.items():
@@ -239,6 +240,7 @@ def daily_tolid_main(request):
 
     # Operators for dropdown (placeholder)
     all_operators = []  # Replace with actual logic
+    print(operator_datas,'!!!!!!!!!!!!!!')
 
     context = {
         'makan': locations,
@@ -252,6 +254,7 @@ def daily_tolid_main(request):
         'chart_data': chart_data,
         'page_obj': page_obj,
         'operator_data': operator_datas if operator_id and operator_id!='[]' else None,
+        'operators_id':request.GET.get('operator_data') if request.GET.get('operator_data') and request.GET.get('operator_data')!='[]' else None,
         'start_date':start_date,
         'end_date':end_date,
         'shift_id':int(shift_id) if shift_id else False
