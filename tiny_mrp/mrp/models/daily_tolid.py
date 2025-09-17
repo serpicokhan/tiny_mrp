@@ -133,7 +133,23 @@ class DailyProduction(models.Model):
                 
 
     def eval_36_tolid_op_count(self):
+        def safe_time_to_minutes(time_str):
+            """Safely convert time string to minutes, handling various formats"""
+            if not time_str or not isinstance(time_str, str):
+                return 0
+            
+            try:
+                # Handle HH:mm format
+                if ':' in time_str:
+                    hours, minutes = map(int, time_str.split(':'))
+                    return hours * 60 + minutes
+                # Handle plain number (assume it's already minutes)
+                else:
+                    return int(time_str)
+            except (ValueError, AttributeError):
+                return 0
         if self.machine:
+                
                 formula_obj = Formula.objects.get(machine=self.machine)
                 formula = formula_obj.formula
               
@@ -143,7 +159,7 @@ class DailyProduction(models.Model):
                     
                     'N': 36,
                     'V':self.vahed,
-                    'T':int(self.counter2)-int(self.counter1)
+                    'T':int(safe_time_to_minutes(self.counter2))-int(self.counter1)
                 }
 
 
@@ -172,6 +188,65 @@ class DailyProduction(models.Model):
                     # You can set a default value or handle the error as per your requirement
                 except:
                     return int(self.production_value/self.get_operator_count())
+    def eval_36_tolid(self):
+        if self.machine:
+                formula_obj = Formula.objects.get(machine=self.machine)
+                formula = formula_obj.formula
+                # print(self.machine.id,'%%%%%%%%%%%%%%%')
+                nomre_item=MakanHamgen.objects.get(makan=self.machine.assetIsLocatedAt)
+                nomre=nomre_item.nomre if nomre_item else 36
+                def safe_time_to_minutes(time_str):
+                    """Safely convert time string to minutes, handling various formats"""
+                    if not time_str or not isinstance(time_str, str):
+                        return 0
+                    
+                    try:
+                        # Handle HH:mm format
+                        if ':' in time_str:
+                            hours, minutes = map(int, time_str.split(':'))
+                            return hours * 60 + minutes
+                        # Handle plain number (assume it's already minutes)
+                        else:
+                            return int(time_str)
+                    except (ValueError, AttributeError):
+                        return 0
+              
+
+                # Parameters for the evaluation (counter and nomre)
+                parameters = {
+                    
+                    'N': nomre,
+                    'V':self.vahed,
+                    'T':int(safe_time_to_minutes(self.counter2))-int(self.counter1)
+
+                }
+
+
+                # Replace parameters in the formula with actual values
+                for param, value in parameters.items():
+                    formula = formula.replace(param, str(value))
+                formula = formula.replace("/", " / ")
+
+                
+
+                # Evaluate the modified formula
+                try:
+                    # Evaluating the formula string to get the calculated value
+                    # Use ast.literal_eval to evaluate the expression safely
+                    calculated_value = eval(formula)
+                    # self.production_value = calculated_value
+                    return calculated_value
+                except (ZeroDivisionError, ValueError):
+                    return self.production_value/self.get_operator_count()
+              
+
+                except (SyntaxError, ValueError) as e:
+                    # Handle exceptions if the formula is incorrect or cannot be evaluated
+                    print(f"Error evaluating formula: {e}")
+                    return self.production_value
+                    # You can set a default value or handle the error as per your requirement
+                except:
+                    return self.production_value
     def get_randeman_production(self):
         # Initialize values, defaulting to 0 if None
         enzebat = float(self.enzebat_value) if self.enzebat_value is not None else 100
@@ -180,23 +255,29 @@ class DailyProduction(models.Model):
         production = float(self.production_value) if self.production_value is not None else 0.0
 
         # Get the number of operators from operators_data JSON
-        operator_count = 1  # Default to 1 to avoid division by zero
-        if self.operators_data:
-            try:
-                # Parse JSON to count operators
-                operators = self.operators_data
-                if isinstance(operators, str):
-                    operators = json.loads(operators)
-                operator_count = len(operators) if isinstance(operators, list) and operators else 1
-            except (json.JSONDecodeError, TypeError) as e:
-                print(f"Error parsing operators_data JSON: {e}")
-                operator_count = 1  # Fallback to 1 on error
+        # operator_count = 1  # Default to 1 to avoid division by zero
+        # if self.operators_data:
+        #     try:
+        #         # Parse JSON to count operators
+        #         operators = self.operators_data
+        #         if isinstance(operators, str):
+        #             operators = json.loads(operators)
+        #         operator_count = len(operators) if isinstance(operators, list) and operators else 1
+        #     except (json.JSONDecodeError, TypeError) as e:
+        #         print(f"Error parsing operators_data JSON: {e}")
+        #         operator_count = 1  # Fallback to 1 on error
 
         # Calculate formula: (production - wastage - qc) * (enzebat / 100) / operator_count
-        try:
-            result = ((production - wastage - qc) * (enzebat / 100.0)) / operator_count
-        except ZeroDivisionError:
-            return 0.0
+        if(self.machine.assetCategory.id in (4,7)):
+            try:
+                result = ((self.eval_36_tolid() - wastage - qc) * (enzebat / 100.0)) / self.get_operator_count()
+            except ZeroDivisionError:
+                return 0.0
+        else:
+            try:
+                result = ((production - wastage - qc) * (enzebat / 100.0)) / self.get_operator_count()
+            except ZeroDivisionError:
+                return 0.0
 
         # Round to 2 decimal places and handle NaN
         return round(result, 2) if not math.isnan(result) else 0.0

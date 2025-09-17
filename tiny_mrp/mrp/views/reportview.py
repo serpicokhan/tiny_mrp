@@ -62,7 +62,7 @@ def daily_tolid_main(request):
     operator_id = request.GET.get('operator_data')
     machine_id = request.GET.get('machine_id')
     category_id = request.GET.get('category_id')
-    shift_id = request.GET.get('shift_id')
+    shift_id = request.GET.get('shift_id',False)
     st_date,e_date=False,False
     collective = request.GET.get("collective", False)
     profile_id=request.GET.get("profile_id",False)
@@ -81,7 +81,16 @@ def daily_tolid_main(request):
         productions = productions.filter(dayOfIssue__lte=end_date)
 
     if( not start_date and not end_date):
-        return render(request, 'mrp/report/daily_tolid_main.html',{})
+        
+        context = {
+            'makan': locations,
+            'profiles':profiles,
+            'category': categories,
+            'shifts':shifts
+
+
+        }
+        return render(request, 'mrp/report/daily_tolid_main.html',context)
 
 
     # Apply filters
@@ -101,6 +110,7 @@ def daily_tolid_main(request):
     #         # پارس کردن رشته JSON
             operator_datas = json.loads(operator_id)  # تبدیل به لیست دیکشنری
             operator_id = int(operator_datas[0]['id'])  # your variable
+            # print("id:",operator_id)
             productions = productions.filter(
                 Q(operators_data__icontains=f'"id":{operator_id}') | 
                 Q(operators_data__icontains=f'"id":"{operator_id}"')
@@ -137,11 +147,11 @@ def daily_tolid_main(request):
             except (json.JSONDecodeError, TypeError):
                 continue
 
-            machine_name = prod.machine.assetName if prod.machine else 'Unknown'
+            machine_name = prod.machine.assetCategory if prod.machine else 'Unknown'
             production = float(prod.production_value) if prod.production_value is not None else 0.0
             wastage = float(prod.wastage_value) if prod.wastage_value is not None else 0.0
             operator_count = prod.get_operator_count()
-            production_per_operator = production / operator_count if operator_count > 0 else 0.0
+            production_per_operator = prod.get_randeman_production()#production / operator_count if operator_count > 0 else 0.0
             wastage_per_operator = wastage / operator_count if operator_count > 0 else 0.0
             wastage_rate_row = (
                 (wastage_per_operator / production_per_operator * 100)
@@ -152,7 +162,7 @@ def daily_tolid_main(request):
             for op in operators:
                 if 'name' not in op or 'id' not in op:
                     continue
-                if operator_datas and op.get('id') != operator_datas[0]['id']:
+                if operator_datas and str(op.get('id')) != str(operator_datas[0]['id']):
                     continue
                 operator_name = op['name']
                 key = (operator_name, machine_name)
@@ -188,30 +198,37 @@ def daily_tolid_main(request):
             })
     else:
         for prod in productions:
+
             operator_names = ['Unknown']
             operator_count = 1
             if prod.operators_data:
                 try:
                     operators = prod.operators_data if isinstance(prod.operators_data, list) else json.loads(prod.operators_data)
+                    # print(operators)
                     if(operator_id and operator_id!='[]'):
-                        operator_names = [op['name'] for op in operators if 'name' in op and op.get('id') == operator_datas[0]['id']]
+
+                        operator_names = [op['name'] for op in operators if 'name' in op and str(op.get('id')) == str(operator_datas[0]['id'])]
                     else:
                         operator_names = [op['name'] for op in operators if 'name' in op ]
                     operator_count = len(operator_names) if operator_names else 1
                 except (json.JSONDecodeError, TypeError):
-                    pass
+                    print(jdatetime.date.fromgregorian(date=prod.dayOfIssue).strftime('%Y/%m/%d'),'!!!!!!!!!!!!!!!')
+                    
 
             production = float(prod.production_value) if prod.production_value is not None else 0.0
             ##hamgen 36
-            production_36 = float(prod.eval_36_tolid_op_count()) if prod.eval_36_tolid_op_count() is not None else 0.0
+            production_36 = 0#float(prod.eval_36_tolid_op_count()) if prod.eval_36_tolid_op_count() is not None else 0.0
             wastage = float(prod.wastage_value) if prod.wastage_value is not None else 0.0
             production_per_operator = production / prod.get_operator_count()
             # production_per_operator_36 = production_36 / operator_count if operator_count > 0 else 0.0
             wastage_per_operator = wastage / operator_count if operator_count > 0 else 0.0
             wastage_rate_row = (wastage_per_operator / production_per_operator * 100) if production_per_operator > 0 else 0.0
+            # print(jdatetime.date.fromgregorian(date=prod.dayOfIssue).strftime('%Y/%m/%d'),'!!!!!!!!!!!!!!!')
+            # print(operator_names)
             
 
             for operator_name in operator_names:
+
             
                 # if operators_name in 
                 report_data.append({
@@ -230,18 +247,9 @@ def daily_tolid_main(request):
     page_obj = paginator.get_page(page_number)
     # Chart data (optional)
     chart_data = {}
-    if request.GET.get('include_chart'):
-        daily_production = productions.values('dayOfIssue').annotate(
-            total=Sum('production_value')
-        ).order_by('dayOfIssue')[:30]
-        chart_data['daily_production'] = {
-            'labels': [jdatetime.date.fromgregorian(date=entry['dayOfIssue']).strftime('%Y/%m/%d') for entry in daily_production],
-            'data': [float(entry['total']) for entry in daily_production]
-        }
+   
 
-    # Operators for dropdown (placeholder)
-    all_operators = []  # Replace with actual logic
-
+   
     context = {
         'makan': locations,
         'profiles':profiles,
@@ -251,7 +259,7 @@ def daily_tolid_main(request):
         'total_production': round(total_production, 2),
         'total_wastage': round(total_wastage, 2),
         'wastage_rate': round(wastage_rate, 2),
-        'chart_data': chart_data,
+        
         'page_obj': page_obj,
         'operator_data': operator_datas if operator_id and operator_id!='[]' else None,
         # 'operators_id':request.GET.get('operator_data') if request.GET.get('operator_data') and request.GET.get('operator_data')!='[]' else None,
@@ -260,7 +268,7 @@ def daily_tolid_main(request):
         'shift_id':int(shift_id) if shift_id else False,
         'collective':'checked' if collective else '',
         'machin_id':int(machine_id),
-        'shift_id':int(shift_id),
+        'shift_id':int(shift_id) if shift_id else None,
         'category_id':int(category_id),
         'profile_id':int(profile_id)
 
