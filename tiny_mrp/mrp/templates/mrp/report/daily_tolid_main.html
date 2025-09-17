@@ -71,7 +71,7 @@
                     <select class="form-control" id="profile" name="profile_id">
                         <option selected value="-1">همه</option>
                         {% for i in profiles %}
-                        <option value="{{i.id}}" {% if i.id == shift_id %} selected {% endif %}>{{i.description}}</option>
+                        <option value="{{i.id}}" {% if i.id == profile_id %} selected {% endif %}>{{i.description}}</option>
                       {% endfor %}
                     </select>
                 </div>
@@ -82,7 +82,7 @@
                     <select class="form-control" id="machine" name="machine_id">
                         <option selected value="-1">همه سالن ها</option>
                         {% for i in makan %}
-                        <option value="{{i.id}}">{{i.assetName}}</option>
+                        <option value="{{i.id}}" {% if i.id == machin_id %} selected {% endif %}>{{i.assetName}}</option>
                       {% endfor %}
                     </select>
                 </div>
@@ -91,7 +91,7 @@
                     <select class="form-control" id="machinecat" name="category_id">
                         <option selected value="-1">همه دستگاه‌ها</option>
                         {% for i in category %}
-                        <option value="{{i.id}}">{{i.name}}</option>
+                        <option value="{{i.id}}" {% if i.id == category_id %} selected {% endif %}>{{i.name}}</option>
                       {% endfor %}
                     </select>
                 </div>
@@ -108,7 +108,7 @@
                 <div class="col-md-3 d-flex justify-content-center align-items-end">
                     <div class="form-group">
                         <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input" id="customSwitch1" name="collective">
+                            <input type="checkbox" class="custom-control-input" id="customSwitch1" name="collective" {{collective}}>
                             <label class="custom-control-label" for="customSwitch1">ایجاد گزارش به صورت تجمعی</label>
                         </div>
                     </div>

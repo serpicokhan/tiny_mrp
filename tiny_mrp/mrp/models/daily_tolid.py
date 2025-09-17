@@ -628,3 +628,11 @@ class FinancialProfile(models.Model):
 
     def __str__(self):
         return f"{self.description}"
+class MakanHamgen(models.Model):
+    makan = models.ForeignKey(Asset, on_delete=models.DO_NOTHING,related_name='makan_makanhamgen',limit_choices_to={'assetIsLocatedAt': None})
+    nomre = models.FloatField()
+    class Meta:
+        db_table='makanhamgen'
+
+
+

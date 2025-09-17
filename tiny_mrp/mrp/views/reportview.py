@@ -65,6 +65,7 @@ def daily_tolid_main(request):
     shift_id = request.GET.get('shift_id')
     st_date,e_date=False,False
     collective = request.GET.get("collective", False)
+    profile_id=request.GET.get("profile_id",False)
 
     operator_datas=None
 
@@ -202,7 +203,7 @@ def daily_tolid_main(request):
 
             production = float(prod.production_value) if prod.production_value is not None else 0.0
             ##hamgen 36
-            production_36 = 0#float(prod.eval_36_tolid_op_count()) if prod.eval_36_tolid_op_count() is not None else 0.0
+            production_36 = float(prod.eval_36_tolid_op_count()) if prod.eval_36_tolid_op_count() is not None else 0.0
             wastage = float(prod.wastage_value) if prod.wastage_value is not None else 0.0
             production_per_operator = production / prod.get_operator_count()
             # production_per_operator_36 = production_36 / operator_count if operator_count > 0 else 0.0
@@ -240,7 +241,6 @@ def daily_tolid_main(request):
 
     # Operators for dropdown (placeholder)
     all_operators = []  # Replace with actual logic
-    print(operator_datas,'!!!!!!!!!!!!!!')
 
     context = {
         'makan': locations,
@@ -254,10 +254,16 @@ def daily_tolid_main(request):
         'chart_data': chart_data,
         'page_obj': page_obj,
         'operator_data': operator_datas if operator_id and operator_id!='[]' else None,
-        'operators_id':request.GET.get('operator_data') if request.GET.get('operator_data') and request.GET.get('operator_data')!='[]' else None,
+        # 'operators_id':request.GET.get('operator_data') if request.GET.get('operator_data') and request.GET.get('operator_data')!='[]' else None,
         'start_date':start_date,
         'end_date':end_date,
-        'shift_id':int(shift_id) if shift_id else False
+        'shift_id':int(shift_id) if shift_id else False,
+        'collective':'checked' if collective else '',
+        'machin_id':int(machine_id),
+        'shift_id':int(shift_id),
+        'category_id':int(category_id),
+        'profile_id':int(profile_id)
+
     }
 
     return render(request, 'mrp/report/daily_tolid_main.html', context)

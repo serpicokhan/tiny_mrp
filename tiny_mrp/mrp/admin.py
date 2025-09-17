@@ -8,6 +8,7 @@ admin.site.register(Failure)
 admin.site.register(AssetFailure)
 admin.site.register(SysUser)
 admin.site.register(Comment)
+admin.site.register(MakanHamgen)
 class OperatorAdmin(admin.ModelAdmin):
     # Fields to display in the list view
     list_display = ('Pid', 'PNumber', 'CpCode', 'CardNo', 'FName', 'LName')
