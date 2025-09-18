@@ -109,6 +109,7 @@ urlpatterns = [
     url(r'^profile/(?P<pk>\d+)/delete/$', profile_delete, name='profile_delete'),
     url(r'^Report/$', daily_tolid_with_chart, name='daily_tolid_with_chart'),
     url(r'^Report/Main/$', daily_tolid_main, name='daily_tolid_main'),
+    path('production-report/export-excel/', ProductionReportExcelExport.as_view(), name='production_report_excel'),
     
     url(r'^Purchase/$', list_purchase, name='list_purchase'),
     url(r'^Purchase/Dash$', purchase_dash, name='purchase_dash'),

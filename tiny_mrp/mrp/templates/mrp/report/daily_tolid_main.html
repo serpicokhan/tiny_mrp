@@ -112,10 +112,18 @@
                             <label class="custom-control-label" for="customSwitch1">ایجاد گزارش به صورت تجمعی</label>
                         </div>
                     </div>
+                   
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-filter-circle"></i> اعمال فیلترها
                     </button>
                 </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 d-flex justify-content-center "> 
+                    <a href="{% url 'production_report_excel' %}?{{ request.GET.urlencode }}" 
+                    class="btn btn-success me-2">
+                        <i class="bi bi-file-earmark-excel"></i> خروجی اکسل
+                    </a></div>
             </div>
         </form>
     </div>
