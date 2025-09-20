@@ -541,7 +541,7 @@ class ProductionReportExcelExport(View):
         ).only(
             'dayOfIssue', 'production_value', 'wastage_value', 'machine__assetName', 'operators_data'
         ).order_by('-dayOfIssue')
-
+        
         # Handle filters from GET request
         operator_id = operator_data
         st_date,e_date=False,False
@@ -561,14 +561,18 @@ class ProductionReportExcelExport(View):
 
        
 
-
         # Apply filters
-        if machine_id and machine_id != '-1':
+        if machine_id and int(machine_id) != -1:
             productions = productions.filter(machine__assetIsLocatedAt__id=machine_id)
-        if category_id and category_id != '-1':
+
+        if category_id and int(category_id) != -1:
             productions = productions.filter(machine__assetCategory_id=category_id)
-        if shift_id and shift_id != '-1':
+
+        if shift_id and int(shift_id) != -1:
             productions = productions.filter(shift_id=shift_id)
+        
+        productions=productions.order_by('machine__assetCategority__priority')
+
 
         # Apply operator filter (using JSONB query for PostgreSQL, if applicable)
         # if operator_id:
@@ -633,7 +637,7 @@ class ProductionReportExcelExport(View):
                         continue
                     if operator_datas and str(op.get('id')) != str(operator_datas[0]['id']):
                         continue
-                    operator_name = op['name']
+                    operator_name = f"{op['name']}({op['personnel_number']})"
                     key = (operator_name, machine_name)
                     if key not in grouped_data:
                         grouped_data[key] = {
@@ -655,7 +659,7 @@ class ProductionReportExcelExport(View):
                     else 0.0
                 )
                 report_data.append({
-                    'date': '',  # No single date for grouped data
+                    'date': 'تاریخ تجمیعی',  # No single date for grouped data
                     'operator': operator_name,
                     'machine': machine_name,
                     'production': round(total_production_op, 2),
@@ -676,7 +680,7 @@ class ProductionReportExcelExport(View):
                         # print(operators)
                         if(operator_id and operator_id!='[]'):
 
-                            operator_names = [op['name'] for op in operators if 'name' in op and str(op.get('id')) == str(operator_datas[0]['id'])]
+                            operator_names = [f"{op['name']}({op['personnel_number']})" for op in operators if 'name' in op and str(op.get('id')) == str(operator_datas[0]['id'])]
                         else:
                             operator_names = [op['name'] for op in operators if 'name' in op ]
                         operator_count = len(operator_names) if operator_names else 1
@@ -711,6 +715,7 @@ class ProductionReportExcelExport(View):
                         'op_count':prod.get_operator_count(),
                         'randeman_production':prod.get_randeman_production()
                     })
+
         return report_data
     def create_header_style(self):
         return {
@@ -820,11 +825,12 @@ class ProductionReportExcelExport(View):
 
     def add_data_rows(self, worksheet, queryset, start_row, data_style):
         for row_idx, item in enumerate(queryset, start_row):
+            print(item)
             data = [
-                item.date if hasattr(item,'date') else '',
-                str(item['operator']) if hasattr(item,'operator') else '',
+                item['date'],
+                str(item['operator']) ,
                 item['op_count'] or 0,
-                str(item['machine']) if hasattr(item,'machine') else '',
+                str(item['machine']),
                 item['production'] or 0,
                 round(item['eval_36_tolid'] or 0),
                 item['wastage'] or 0,
@@ -852,7 +858,7 @@ class ProductionReportExcelExport(View):
 
     def adjust_column_widths(self, worksheet):
         # Auto-adjust column widths
-        column_widths = [15, 20, 12, 20, 15, 15, 18, 15, 20]
+        column_widths = [15, 40, 12, 40, 15, 15, 18, 15, 20]
         
         for i, width in enumerate(column_widths, 1):
             worksheet.column_dimensions[get_column_letter(i)].width = width

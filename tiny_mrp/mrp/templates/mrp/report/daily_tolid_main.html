@@ -44,18 +44,18 @@
     </div>
     <div class="card-body">
         <form>
+            <!-- Row for Filters -->
             <div class="row mb-3">
                 <div class="col-md-3">
                     <label for="operator" class="form-label">اپراتور</label>
                     <select class="form-control operator-name" 
-                    data-machine-id="{{c.machine.id}}"
-                    multiple="multiple"
-                    style="width: 100%;">
-                    {% for i in operator_data %}
-                      <option value="{{i.id}}" selected>{{i.name}}</option>
-                    {% endfor %}
+                            data-machine-id="{{c.machine.id}}"
+                            multiple="multiple"
+                            style="width: 100%;">
+                        {% for i in operator_data %}
+                            <option value="{{i.id}}" selected>{{i.name}}</option>
+                        {% endfor %}
                     </select>
-                    <!-- Single hidden field to store all operator data as JSON -->
                     <input type="hidden" class="operator-data" name="operator_data" value="{{operators_id}}" id="operator_data">
                 </div>
                 <div class="col-md-3">
@@ -67,63 +67,64 @@
                     <input type="text" class="form-control" id="endDate" name="end_date" value="{{end_date}}">
                 </div>
                 <div class="col-md-3">
-                    <label for="shift" class="form-label">پروفایل مالی</label>
+                    <label for="profile" class="form-label">پروفایل مالی</label>
                     <select class="form-control" id="profile" name="profile_id">
-                        <option selected value="-1">همه</option>
+                        <option value="-1" selected>همه</option>
                         {% for i in profiles %}
-                        <option value="{{i.id}}" {% if i.id == profile_id %} selected {% endif %}>{{i.description}}</option>
-                      {% endfor %}
+                            <option value="{{i.id}}" {% if i.id == profile_id %} selected {% endif %}>{{i.description}}</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>
-            <div class="row">
+            <!-- Row for Additional Filters -->
+            <div class="row mb-3">
                 <div class="col-md-3">
                     <label for="machine" class="form-label">سالن</label>
                     <select class="form-control" id="machine" name="machine_id">
-                        <option selected value="-1">همه سالن ها</option>
+                        <option value="-1" selected>همه سالن‌ها</option>
                         {% for i in makan %}
-                        <option value="{{i.id}}" {% if i.id == machin_id %} selected {% endif %}>{{i.assetName}}</option>
-                      {% endfor %}
+                            <option value="{{i.id}}" {% if i.id == machin_id %} selected {% endif %}>{{i.assetName}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label for="machinecat" class="form-label">دستگاه</label>
                     <select class="form-control" id="machinecat" name="category_id">
-                        <option selected value="-1">همه دستگاه‌ها</option>
+                        <option value="-1" selected>همه دستگاه‌ها</option>
                         {% for i in category %}
-                        <option value="{{i.id}}" {% if i.id == category_id %} selected {% endif %}>{{i.name}}</option>
-                      {% endfor %}
+                            <option value="{{i.id}}" {% if i.id == category_id %} selected {% endif %}>{{i.name}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label for="shift" class="form-label">شیفت</label>
                     <select class="form-control" id="shift" name="shift_id">
-                        <option selected value="-1">همه شیفت ها</option>
+                        <option value="-1" selected>همه شیفت‌ها</option>
                         {% for i in shifts %}
-                        <option value="{{i.id}}" {% if i.id == shift_id %} selected {% endif %}>{{i.name}}</option>
-                      {% endfor %}
+                            <option value="{{i.id}}" {% if i.id == shift_id %} selected {% endif %}>{{i.name}}</option>
+                        {% endfor %}
                     </select>
                 </div>
-               
-                <div class="col-md-3 d-flex justify-content-center align-items-end">
-                    <div class="form-group">
-                        <div class="custom-control custom-switch">
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-group w-100">
+                        <div class="custom-control custom-switch mb-3">
                             <input type="checkbox" class="custom-control-input" id="customSwitch1" name="collective" {{collective}}>
                             <label class="custom-control-label" for="customSwitch1">ایجاد گزارش به صورت تجمعی</label>
                         </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-filter-circle"></i> اعمال فیلترها
+                        </button>
                     </div>
-                   
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-filter-circle"></i> اعمال فیلترها
-                    </button>
                 </div>
             </div>
+            <!-- Row for Export Button -->
             <div class="row">
-                <div class="col-md-3 d-flex justify-content-center "> 
+                <div class="col-md-12 d-flex justify-content-center">
                     <a href="{% url 'production_report_excel' %}?{{ request.GET.urlencode }}" 
-                    class="btn btn-success me-2">
+                       class="btn btn-success">
                         <i class="bi bi-file-earmark-excel"></i> خروجی اکسل
-                    </a></div>
+                    </a>
+                </div>
             </div>
         </form>
     </div>
@@ -188,13 +189,13 @@
                         <td>{{i.operator}}</td>
                         <td>{{i.op_count}}</td>
                         <td>{{i.machine}}</td>
-                        <td>{{i.production}}</td>
+                        <td>{{i.production|floatformat:0}}</td>
                         <th>{{i.eval_36_tolid|floatformat:0}}</th>
                         
                         <td>{{i.wastage}}</td>
                         <td><span class="waste-rate low-waste">{{i.wastage_rate|floatformat:0}}%</span></td>
                         <td>
-                           {{i.randeman_production}}
+                           {{i.randeman_production|floatformat:0}}
                         </td>
                     </tr>
                     {% endfor %}
