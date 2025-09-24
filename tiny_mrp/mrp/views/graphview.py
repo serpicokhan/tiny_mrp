@@ -40,7 +40,7 @@ class ProductionGraphDataView(View):
                 last_day=Max('dayOfIssue'),
                 first_timestamp=Min('timestamp'),
                 last_timestamp=Max('timestamp'),
-                distinct_days=Count('dayOfIssue', distinct=True)  # Count unique days
+                distinct_days=Count('dayOfIssue', distinct=True)
             )
             if productions['total_production'] and productions['total_production'] != 0:
                 # Convert to Jalali
@@ -57,6 +57,37 @@ class ProductionGraphDataView(View):
                         return j_dt.strftime('%Y/%m/%d %H:%M:%S')
                     return 'نامشخص'
                 
+                # Build machine data
+                machine_data = []
+                for machine in machines:
+                    machine_productions = DailyProduction.objects.filter(
+                        machine=machine,
+                        moshakhase=moshakhase
+                    ).aggregate(
+                        total_production=Sum('production_value'),
+                        avg_speed=Avg('speed'),
+                        total_wastage=Sum('wastage_value'),
+                        first_day=Min('dayOfIssue'),
+                        last_day=Max('dayOfIssue'),
+                        first_timestamp=Min('timestamp'),
+                        last_timestamp=Max('timestamp'),
+                        distinct_days=Count('dayOfIssue', distinct=True)
+                    )
+                    if machine_productions['total_production'] and machine_productions['total_production'] != 0:
+                        machine_data.append({
+                            'name': machine.assetName,
+                            'productionInfo': {
+                                'production': f"{float(machine_productions['total_production'] or 0):.2f} کیلوگرم",
+                                'speed': f"{float(machine_productions['avg_speed'] or 0):.2f} متر/دقیقه",
+                                'wastage': f"{float(machine_productions['total_wastage'] or 0):.2f} کیلوگرم",
+                                'first_day': to_jalali(machine_productions['first_day']),
+                                'last_day': to_jalali(machine_productions['last_day']),
+                                'first_timestamp': to_jalali_full(machine_productions['first_timestamp']),
+                                'last_timestamp': to_jalali_full(machine_productions['last_timestamp']),
+                                'distinct_days': machine_productions['distinct_days']
+                            }
+                        })
+                
                 return {
                     'name': category.name,
                     'code': category.code,
@@ -69,8 +100,9 @@ class ProductionGraphDataView(View):
                         'last_day': to_jalali(productions['last_day']),
                         'first_timestamp': to_jalali_full(productions['first_timestamp']),
                         'last_timestamp': to_jalali_full(productions['last_timestamp']),
-                        'distinct_days': productions['distinct_days']  # Add distinct days count
-                    }
+                        'distinct_days': productions['distinct_days']
+                    },
+                    'children': machine_data
                 }
             return None
         

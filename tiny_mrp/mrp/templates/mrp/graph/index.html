@@ -1,14 +1,26 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
+    {% load static %}
 <head>
-  <meta charset="UTF-8">
-  <title>نمودار خط تولیدی ریسندگی با جدول و کنترل‌ها</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برد برنامه ریزی خرید</title>
+   
+      <!-- Favicon -->
+  <link rel="shortcut icon" href="{% static 'assets/media/image/favicon.png' %}"/>
+
+  <!-- Plugin styles -->
+  <link rel="stylesheet" href="{% static 'vendors/bundle.css' %}" type="text/css">
+    <!-- App styles -->
+    <link rel="stylesheet" href="{%  static 'assets/css/app.min.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
   <style>
     body {
       direction: rtl;
-      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
     }
     .node circle {
       fill: #fff;
@@ -33,216 +45,500 @@
     .container-fluid {
       max-width: 1200px;
     }
-    .controls {
-      margin-bottom: 20px;
+    
+    /* استایل مخصوص Card فیلتر */
+    .filter-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    
+    .filter-card .card-header {
+      background: rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding: 15px 20px;
+      color: white;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    
+    .filter-card .card-body {
+      background: white;
+      padding: 25px;
+    }
+    
+    .filter-card .form-label {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    .filter-card .form-control {
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 10px 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .filter-card .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .filter-card .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 25px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+    
+    .filter-card .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* استایل برای بخش نمودار */
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    
+    /* استایل برای جدول اطلاعات */
+    .info-container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      padding: 25px;
     }
   </style>
 </head>
 <body>
-  <div class="container-fluid">
-    <!-- کنترل‌های فیلتر -->
-    <div class="row controls">
-      <div class="col-12">
-        <form class="row g-3 justify-content-center">
-          <div class="col-md-3">
-            <label for="moshakhase" class="form-label">مشخصه</label>
-            <input type="number" class="form-control" id="moshakhase" value="123" placeholder="مثال: 123">
+    <div class="container-fluid">
+      <!-- کنترل‌های فیلتر به صورت Card -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card filter-card">
+            <div class="card-header">
+              <i class="fas fa-filter me-2"></i>فیلتر اطلاعات
+            </div>
+            <div class="card-body">
+              <form class="row g-3 align-items-end">
+                <div class="col-md-8">
+                  <label for="moshakhase" class="form-label">مشخصه</label>
+                  <select class="form-control nakh-name" id="moshakhase"
+                          data-machine-id="{{c.machine.id}}"
+                          style="width: 100%;">
+                  </select>
+                  <input type="hidden" class="nakh-data" name="nakh_data_{{c.machine.id}}">
+                </div>
+                <div class="col-md-4">
+                  <button type="button" class="btn btn-primary" onclick="fetchData()">
+                    <i class="fas fa-search me-2"></i>اعمال فیلتر
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-          <div class="col-md-2 d-flex align-items-end">
-            <button type="button" class="btn btn-primary" onclick="fetchData()">فیلتر</button>
-          </div>
-        </form>
-      </div>
-    </div>
-    <!-- نمودار -->
-    <div class="row">
-      <div class="col-12">
-        <svg width="1000" height="600"></svg>
-      </div>
-    </div>
-    <!-- جدول اطلاعات -->
-    <div class="row">
-      <div class="col-12">
-        <div id="info-table" class="text-center"></div>
-      </div>
-    </div>
-  </div>
-  <script>
-    function fetchData() {
-      const moshakhaseId = document.getElementById('moshakhase').value;
-      fetch(`/api/production-graph/?moshakhase_id=${moshakhaseId}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.error) {
-            console.error(data.error);
-            return;
-          }
-          update(data.data);
-          showTable(d3.hierarchy(data.data));
-        })
-        .catch(error => console.error('Error fetching data:', error));
-    }
-
-    const svg = d3.select("svg"),
-          width = +svg.attr("width"),
-          height = +svg.attr("height"),
-          g = svg.append("g").attr("transform", "translate(40,0)");
-
-    const tree = d3.tree().size([height, width - 160]);
-
-    function showTable(d) {
-      const info = d.data.productionInfo || { 
-        production: "نامشخص", 
-        speed: "نامشخص", 
-        wastage: "نامشخص",
-        first_day: "نامشخص",
-        last_day: "نامشخص",
-        first_timestamp: "نامشخص",
-        last_timestamp: "نامشخص",
-        distinct_days: 0
-      };
-      const table = `
-        <div class="table-responsive">
-          <h5>اطلاعات تولید: ${d.data.name}</h5>
-          <table class="table table-bordered table-striped mx-auto">
-            <thead class="table-light">
-              <tr>
-                <th>پارامتر</th>
-                <th>مقدار</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>مقدار تولید</td>
-                <td>${info.production}</td>
-              </tr>
-              <tr>
-                <td>سرعت</td>
-                <td>${info.speed}</td>
-              </tr>
-              <tr>
-                <td>ضایعات</td>
-                <td>${info.wastage}</td>
-              </tr>
-              <tr>
-                <td>اولین روز تولید (شمسی)</td>
-                <td>${info.first_day}</td>
-              </tr>
-              <tr>
-                <td>آخرین روز تولید (شمسی)</td>
-                <td>${info.last_day}</td>
-              </tr>
-              <tr>
-                <td>اولین زمان ثبت (شمسی)</td>
-                <td>${info.first_timestamp}</td>
-              </tr>
-              <tr>
-                <td>آخرین زمان ثبت (شمسی)</td>
-                <td>${info.last_timestamp}</td>
-              </tr>
-              <tr>
-                <td>تعداد روزهای تولید</td>
-                <td>${info.distinct_days} روز</td>
-              </tr>
-            </tbody>
-          </table>
         </div>
-      `;
-      d3.select("#info-table").html(table);
-    }
+      </div>
 
-    function update(data) {
-      const root = d3.hierarchy(data);
-      root.x0 = height / 2;
-      root.y0 = 0;
+      <!-- نمودار -->
+      <div class="row">
+        <div class="col-12">
+          <div class="chart-container">
+            <svg width="100%" height="600"></svg>
+          </div>
+        </div>
+      </div>
 
-      root.descendants().forEach((d, i) => {
-        d.id = i;
-        d._children = d.children;
-        if (d.depth && d.data.name !== "خط ریسندگی") d.children = null;
-      });
+      <!-- جدول اطلاعات -->
+      <div class="row">
+        <div class="col-12">
+          <div class="info-container">
+            <div id="info-table" class="text-center"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      let i = 0;
+    <script src="{% static 'vendors/bundle.js' %}"></script>
+    <!-- end::global scripts -->
 
-      const duration = 750;
-      const nodes = root.descendants().reverse();
-      const links = root.links();
+    <!-- begin::custom scripts -->
+    <script src="{% static 'assets/js/custom.js' %}"></script>
+    <script src="{% static 'assets/js/app.min.js' %}"></script>
+    <script src="{% static 'vendors/select2/js/select2.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- آیکون‌های Font Awesome -->
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
 
-      tree(root);
-
-      const node = g.selectAll(".node")
-        .data(nodes, d => d.id || (d.id = ++i));
-
-      const nodeEnter = node.enter().append("g")
-        .attr("class", "node")
-        .attr("transform", d => `translate(${root.y0},${root.x0})`)
-        .on("click", (event, d) => {
+    <script>
+        // Global variables
+        let root;
+        let i = 0;
+        const duration = 750;
+        
+        const svg = d3.select("svg"),
+              width = +svg.attr("width"),
+              height = +svg.attr("height"),
+              g = svg.append("g").attr("transform", "translate(40,0)");
+    
+        const tree = d3.tree().size([height, width - 200]);
+    
+        function fetchData() {
+          const moshakhaseId = document.getElementById('moshakhase').value;
+          console.log(moshakhaseId,'!!!!!!!!!!!!');
+          
+          // نمایش loading
+          const filterBtn = document.querySelector('.filter-card .btn-primary');
+          const originalText = filterBtn.innerHTML;
+          filterBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>در حال بارگذاری...';
+          filterBtn.disabled = true;
+    
+          fetch(`/api/production-graph/?moshakhase_id=${moshakhaseId}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.error) {
+                console.error(data.error);
+                return;
+              }
+              initializeTree(data.data);
+              showTable(root);
+            })
+            .catch(error => console.error('Error fetching data:', error))
+            .finally(() => {
+              // بازگرداندن دکمه به حالت اول
+              filterBtn.innerHTML = originalText;
+              filterBtn.disabled = false;
+            });
+        }
+    
+        function showTable(d) {
+          const info = d.data.productionInfo || { 
+            production: "نامشخص", 
+            speed: "نامشخص", 
+            wastage: "نامشخص",
+            first_day: "نامشخص",
+            last_day: "نامشخص",
+            first_timestamp: "نامشخص",
+            last_timestamp: "نامشخص",
+            distinct_days: 0
+          };
+          
+          const table = `
+            <div class="table-responsive">
+              <h5 class="mb-4 text-primary">
+                <i class="fas fa-chart-bar me-2"></i>اطلاعات تولید: ${d.data.name}
+              </h5>
+              <table class="table table-hover table-bordered">
+                <thead class="table-primary">
+                  <tr>
+                    <th><i class="fas fa-list me-2"></i>پارامتر</th>
+                    <th><i class="fas fa-chart-line me-2"></i>مقدار</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><i class="fas fa-box me-2"></i>مقدار تولید</td>
+                    <td><span class="badge bg-success">${info.production}</span></td>
+                  </tr>
+                  <tr>
+                    <td><i class="fas fa-tachometer-alt me-2"></i>سرعت</td>
+                    <td><span class="badge bg-info">${info.speed}</span></td>
+                  </tr>
+                  <tr>
+                    <td><i class="fas fa-trash me-2"></i>ضایعات</td>
+                    <td><span class="badge bg-warning">${info.wastage}</span></td>
+                  </tr>
+                  <tr>
+                    <td><i class="fas fa-calendar-day me-2"></i>اولین روز تولید (شمسی)</td>
+                    <td>${info.first_day}</td>
+                  </tr>
+                  <tr>
+                    <td><i class="fas fa-calendar-check me-2"></i>آخرین روز تولید (شمسی)</td>
+                    <td>${info.last_day}</td>
+                  </tr>
+                  <tr>
+                    <td><i class="fas fa-clock me-2"></i>اولین زمان ثبت (شمسی)</td>
+                    <td>${info.first_timestamp}</td>
+                  </tr>
+                  <tr>
+                    <td><i class="fas fa-stopwatch me-2"></i>آخرین زمان ثبت (شمسی)</td>
+                    <td>${info.last_timestamp}</td>
+                  </tr>
+                  <tr>
+                    <td><i class="fas fa-calendar-alt me-2"></i>تعداد روزهای تولید</td>
+                    <td><span class="badge bg-primary">${info.distinct_days} روز</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          `;
+          d3.select("#info-table").html(table);
+        }
+    
+        // بقیه توابع JavaScript بدون تغییر باقی می‌مانند...
+        function initializeTree(data) {
+          // Clear previous tree
+          g.selectAll("*").remove();
+          
+          root = d3.hierarchy(data);
+          root.x0 = height / 2;
+          root.y0 = 0;
+    
+          // Initialize nodes with IDs and store original children
+          root.eachBefore((d, i) => {
+            d.id = i;
+            if (d.children) {
+              d._children = d.children.slice(); // Store original children
+            }
+          });
+    
+          // Collapse nodes deeper than level 2 by default
+          function collapseDeepNodes(d) {
+            if (d.depth >= 1 && d.children) {
+              d._children = d.children;
+              d.children = null;
+            }
+            if (d.children) {
+              d.children.forEach(collapseDeepNodes);
+            }
+          }
+    
+          collapseDeepNodes(root);
+    
+          update(root);
+        }
+    
+        function collapse(d) {
+          if (d.children) {
+            d._children = d.children;
+            d._children.forEach(collapse);
+            d.children = null;
+          }
+        }
+    
+        function click(event, d) {
+          if (d.children) {
+            d._children = d.children;
+            d.children = null;
+          } else if (d._children) {
+            d.children = d._children;
+            d._children = null;
+          }
+          update(d);
           showTable(d);
-        });
-
-      nodeEnter.append("circle")
-        .attr("r", 8)
-        .style("fill", d => d._children ? "#20c997" : "#fff");
-
-      nodeEnter.append("text")
-        .attr("x", 12)
-        .attr("dy", ".35em")
-        .text(d => d.data.name);
-
-      const nodeUpdate = node.merge(nodeEnter).transition().duration(duration)
-        .attr("transform", d => `translate(${d.y},${d.x})`);
-
-      nodeUpdate.select("circle")
-        .style("fill", d => d._children ? "#20c997" : "#fff");
-
-      nodeUpdate.select("text")
-        .style("fill-opacity", 1);
-
-      const nodeExit = node.exit().transition().duration(duration)
-        .attr("transform", d => `translate(${root.y},${root.x})`)
-        .remove();
-
-      nodeExit.select("circle")
-        .attr("r", 1e-6);
-
-      nodeExit.select("text")
-        .style("fill-opacity", 1e-6);
-
-      const link = g.selectAll(".link")
-        .data(links, d => d.target.id);
-
-      const linkEnter = link.enter().append("path")
-        .attr("class", "link")
-        .attr("d", d => {
-          const o = {x: root.x0, y: root.y0};
-          return diagonal({source: o, target: o});
-        });
-
-      link.merge(linkEnter).transition().duration(duration)
-        .attr("d", diagonal);
-
-      link.exit().transition().duration(duration)
-        .attr("d", d => {
-          const o = {x: root.x, y: root.y};
-          return diagonal({source: o, target: o});
-        })
-        .remove();
-
-      nodes.forEach(d => {
-        d.x0 = d.x;
-        d.y0 = d.y;
-      });
-
-      function diagonal(d) {
-        return `M${d.source.y},${d.source.x}
-                C${(d.source.y + d.target.y) / 2},${d.source.x}
-                 ${(d.source.y + d.target.y) / 2},${d.target.x}
-                 ${d.target.y},${d.target.x}`;
-      }
-    }
-
-    // Initial fetch
-    fetchData();
-  </script>
+        }
+    
+        function update(source) {
+          // Compute the new tree layout
+          const treeData = tree(root);
+          const nodes = treeData.descendants();
+          const links = treeData.descendants().slice(1);
+    
+          // Normalize for fixed-depth
+          nodes.forEach(d => { d.y = d.depth * 250; });
+    
+          // ****************** Nodes section ***************************
+    
+          // Update the nodes...
+          const node = g.selectAll('g.node')
+              .data(nodes, d => d.id);
+    
+          // Enter any new modes at the parent's previous position.
+          const nodeEnter = node.enter().append('g')
+              .attr('class', 'node')
+              .attr("transform", d => "translate(" + source.y0 + "," + source.x0 + ")")
+              .on('click', click);
+    
+          // Add Circle for the nodes
+          nodeEnter.append('circle')
+              .attr('r', 1e-6)
+              .style("fill", d => d._children ? "#20c997" : "#fff");
+    
+          // Add labels for the nodes
+          nodeEnter.append('text')
+              .attr("dy", ".35em")
+              .attr("x", 12)
+              .attr("text-anchor", "start")
+              .text(d => d.data.name);
+    
+          // UPDATE
+          const nodeUpdate = nodeEnter.merge(node);
+    
+          // Transition to the proper position for the node
+          nodeUpdate.transition()
+            .duration(duration)
+            .attr("transform", d => "translate(" + d.y + "," + d.x + ")");
+    
+          // Update the node attributes and style
+          nodeUpdate.select('circle')
+            .attr('r', 8)
+            .style("fill", d => d._children ? "#20c997" : "#fff")
+            .attr('cursor', 'pointer');
+    
+          // Remove any exiting nodes
+          const nodeExit = node.exit().transition()
+              .duration(duration)
+              .attr("transform", d => "translate(" + source.y + "," + source.x + ")")
+              .remove();
+    
+          // On exit reduce the node circles size to 0
+          nodeExit.select('circle')
+            .attr('r', 1e-6);
+    
+          // On exit reduce the opacity of text labels
+          nodeExit.select('text')
+            .style('fill-opacity', 1e-6);
+    
+          // ****************** links section ***************************
+    
+          // Update the links...
+          const link = g.selectAll('path.link')
+              .data(links, d => d.id);
+    
+          // Enter any new links at the parent's previous position.
+          const linkEnter = link.enter().insert('path', "g")
+              .attr("class", "link")
+              .attr('d', d => {
+                const o = {x: source.x0, y: source.y0}
+                return diagonal(o, o)
+              });
+    
+          // UPDATE
+          const linkUpdate = linkEnter.merge(link);
+    
+          // Transition back to the parent element position
+          linkUpdate.transition()
+              .duration(duration)
+              .attr('d', d => diagonal(d, d.parent));
+    
+          // Remove any exiting links
+          const linkExit = link.exit().transition()
+              .duration(duration)
+              .attr('d', d => {
+                const o = {x: source.x, y: source.y}
+                return diagonal(o, o)
+              })
+              .remove();
+    
+          // Store the old positions for transition.
+          nodes.forEach(d => {
+            d.x0 = d.x;
+            d.y0 = d.y;
+          });
+    
+          // Creates a curved (diagonal) path from parent to the child nodes
+          function diagonal(s, d) {
+            const path = `M ${s.y} ${s.x}
+                    C ${(s.y + d.y) / 2} ${s.x},
+                      ${(s.y + d.y) / 2} ${d.x},
+                      ${d.y} ${d.x}`
+            return path
+          }
+        }
+    
+        // توابع مربوط به select2 بدون تغییر باقی می‌مانند...
+        function initiate_code_nakh(){
+          $('.nakh-name').select2({
+            dropdownParent: $('body'),
+            ajax: {
+                url: '/api/moshakhase/search/',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    
+                    return {
+                        results: data.results.map(function(item) {
+                            return {
+                                id: item.id,
+                                text: item.name + ' (' + item.color_name + ')',
+                                name: item.name,
+                                color_id: item.color_id,
+                                color_name: item.color_name,
+                                tool: item.tool,
+                                la: item.la
+                            };
+                        }),
+                        pagination: {
+                            more: data.has_more
+                        }
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 2,
+            language: {
+                inputTooShort: function () {
+                    return "حداقل 2 کاراکتر وارد کنید";
+                },
+                searching: function () {
+                    return "در حال جستجو...";
+                },
+                noResults: function () {
+                    return "نتیجه‌ای یافت نشد";
+                },
+                errorLoading: function () {
+                    return "خطا در بارگذاری نتایج";
+                }
+            },
+            dir: "rtl"
+          });
+          
+          $('.nakh-name').on('select2:select', function (e) {
+              var data = e.params.data;
+              var $row = $(this).closest('div');    
+              updateOperatorHiddenFields2($row);    
+              console.log('Selected operator:', data);
+          });
+          
+          $('.nakh-name').on('select2:unselect', function (e) {
+              var data = e.params.data;
+              var $row = $(this).closest('div');
+              updateOperatorHiddenFields2($row);
+              console.log('Unselected operator:', data);
+          });
+          
+          $('.nakh-name').on('select2:clear', function (e) {
+              var $row = $(this).closest('div');
+              $row.find('.nakh-data').val('');
+          });
+        }
+        
+        function updateOperatorHiddenFields2($row) {
+          var selectedOperators = $row.find('.nakh-name').select2('data')[0];
+          console.log(selectedOperators);
+          
+          var updatedOperators = {
+            id: selectedOperators.id,
+            text: selectedOperators.name + ' (' + selectedOperators.color_name + ')',
+            name: selectedOperators.name,
+            color_id: selectedOperators.pid,
+            color_name: selectedOperators.cp_code,
+            tool: selectedOperators.tool,
+            la: selectedOperators.la
+          };
+          
+          $row.find('.nakh-data').val(JSON.stringify(updatedOperators));
+        }
+        
+        initiate_code_nakh();
+    </script>
 </body>
 </html>
