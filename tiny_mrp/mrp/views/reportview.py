@@ -142,16 +142,19 @@ def daily_tolid_main(request):
         # Group by operator and machine when collective is active
         grouped_data = {}
         for prod in productions:
-            if not prod.operators_data:
-                continue
-            try:
-                operators = (
-                    prod.operators_data
-                    if isinstance(prod.operators_data, list)
-                    else json.loads(prod.operators_data)
-                )
-            except (json.JSONDecodeError, TypeError):
-                continue
+            if prod.operators_data:
+                try:
+                    operators = prod.operators_data if isinstance(prod.operators_data, list) else json.loads(prod.operators_data)
+                    # print(operators)
+                    if(operator_id and operator_id!='[]'):
+
+                        operator_names = [op['name'] for op in operators if 'name' in op and str(op.get('id')) == str(operator_datas[0]['id'])]
+                    else:
+                        operator_names = [op['name'] for op in operators if 'name' in op ]
+                    operator_count = len(operator_names) if operator_names else 1
+                except (json.JSONDecodeError, TypeError):
+                    print(jdatetime.date.fromgregorian(date=prod.dayOfIssue).strftime('%Y/%m/%d'),'!!!!!!!!!!!!!!!')
+                    
 
             machine_name = prod.machine.assetCategory if prod.machine else 'Unknown'
             production = float(prod.production_value) if prod.production_value is not None else 0.0
@@ -166,10 +169,11 @@ def daily_tolid_main(request):
             )
 
             for op in operators:
-                if 'name' not in op or 'id' not in op:
-                    continue
-                if operator_datas and str(op.get('id')) != str(operator_datas[0]['id']):
-                    continue
+                print(op['name'],'$$$$$$$$$$$$')
+                # if 'name' not in op or 'id' not in op:
+                #     print(op,'!!!!!!!!!!!!!!!!!!')
+                # if operator_datas and str(op.get('id')) != str(operator_datas[0]['id']):
+                #     continue
                 operator_name = op['name']
                 key = (operator_name, machine_name)
                 if key not in grouped_data:
@@ -178,6 +182,7 @@ def daily_tolid_main(request):
                         'wastage': 0.0,
                         'count': 0
                     }
+                print(production_per_operator,' ppppppppppp')
                 grouped_data[key]['production'] += production_per_operator
                 grouped_data[key]['wastage'] += wastage_per_operator
                 grouped_data[key]['count'] = +1
@@ -825,7 +830,6 @@ class ProductionReportExcelExport(View):
 
     def add_data_rows(self, worksheet, queryset, start_row, data_style):
         for row_idx, item in enumerate(queryset, start_row):
-            print(item)
             data = [
                 item['date'],
                 str(item['operator']) ,

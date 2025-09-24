@@ -249,11 +249,11 @@ class DailyProduction(models.Model):
                     return self.production_value
     def get_randeman_production(self):
         # Initialize values, defaulting to 0 if None
-        enzebat = float(self.enzebat_value) if self.enzebat_value is not None else 100
+        enzebat = float(self.enzebat_value) if self.enzebat_value  not in (None, 0) else 100
         wastage = float(self.wastage_value) if self.wastage_value is not None else 0.0
         qc = float(self.qc_value) if self.qc_value is not None else 0.0
         production = float(self.production_value) if self.production_value is not None else 0.0
-
+        print(enzebat,'enzebat')
         # Get the number of operators from operators_data JSON
         # operator_count = 1  # Default to 1 to avoid division by zero
         # if self.operators_data:
@@ -272,11 +272,14 @@ class DailyProduction(models.Model):
             try:
                 result = ((self.eval_36_tolid() - wastage - qc) * (enzebat / 100.0)) / self.get_operator_count()
             except ZeroDivisionError:
+                print('error!!!!!!!!!!!')
+
                 return 0.0
         else:
             try:
                 result = ((production - wastage - qc) * (enzebat / 100.0)) / self.get_operator_count()
             except ZeroDivisionError:
+                print('error!!!!!!!!!!!')
                 return 0.0
 
         # Round to 2 decimal places and handle NaN
