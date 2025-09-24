@@ -206,6 +206,9 @@ urlpatterns = [
     url(r'^Reports/(?P<str>[-\w]+)/reportSearch/$', reportSearch, name='reportSearch'),
     url(r'^Reports/(?P<id>\d+)/fav_report/$', make_favorits_report, name='make_favorits_report'),
     url(r'^Reports/(?P<id>\d+)/show_fav_reports/$', show_fav_reports, name='show_fav_reports'),
+    path('api/production-graph/', ProductionGraphDataView.as_view(), name='production_graph'),
+    path('graph/', graph_index, name='graph_index'),
+
 
 
     
