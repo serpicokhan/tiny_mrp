@@ -128,7 +128,7 @@
         <div class="col-12">
           <div class="card filter-card">
             <div class="card-header">
-              <i class="fas fa-filter me-2"></i>فیلتر اطلاعات
+              <i class="fa fa-filter me-2"></i>فیلتر اطلاعات
             </div>
             <div class="card-body">
               <form class="row g-3 align-items-end">
@@ -141,9 +141,9 @@
                   <input type="hidden" class="nakh-data" name="nakh_data_{{c.machine.id}}">
                 </div>
                 <div class="col-md-4">
-                  <button type="button" class="btn btn-primary" onclick="fetchData()">
-                    <i class="fas fa-search me-2"></i>اعمال فیلتر
-                  </button>
+                    <button type="button" class="btn btn-primary d-flex justify-content-center align-items-center" onclick="fetchData()">
+                       
+                    اعمال فیلتر                  </button>
                 </div>
               </form>
             </div>
@@ -368,7 +368,7 @@
           // Add labels for the nodes
           nodeEnter.append('text')
               .attr("dy", ".35em")
-              .attr("x", 12)
+              .attr("x", 50)
               .attr("text-anchor", "start")
               .text(d => d.data.name);
     

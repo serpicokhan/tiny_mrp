@@ -8,7 +8,7 @@ from jdatetime import datetime as jdatetime
 from datetime import datetime
 
 def graph_index(request):
-    return render(request,'mrp/graph/index.html',{})
+    return render(request,'mrp/graph/index.html',{'title':'گراف سفارشات'})
 
 
 
