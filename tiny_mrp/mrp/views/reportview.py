@@ -169,23 +169,23 @@ def daily_tolid_main(request):
             )
 
             for op in operators:
-                print(op['name'],'$$$$$$$$$$$$')
+                # print(op['name'],'$$$$$$$$$$$$')
                 # if 'name' not in op or 'id' not in op:
                 #     print(op,'!!!!!!!!!!!!!!!!!!')
                 # if operator_datas and str(op.get('id')) != str(operator_datas[0]['id']):
                 #     continue
-                operator_name = op['name']
-                key = (operator_name, machine_name)
-                if key not in grouped_data:
-                    grouped_data[key] = {
-                        'production': 0.0,
-                        'wastage': 0.0,
-                        'count': 0
-                    }
-                print(production_per_operator,' ppppppppppp')
-                grouped_data[key]['production'] += production_per_operator
-                grouped_data[key]['wastage'] += wastage_per_operator
-                grouped_data[key]['count'] = +1
+                if("name" in op):
+                    operator_name = op['name']
+                    key = (operator_name, machine_name)
+                    if key not in grouped_data:
+                        grouped_data[key] = {
+                            'production': 0.0,
+                            'wastage': 0.0,
+                            'count': 0
+                        }
+                    grouped_data[key]['production'] += production_per_operator
+                    grouped_data[key]['wastage'] += wastage_per_operator
+                    grouped_data[key]['count'] = +1
 
         # Convert grouped data to report_data format
         for (operator_name, machine_name), data in grouped_data.items():
