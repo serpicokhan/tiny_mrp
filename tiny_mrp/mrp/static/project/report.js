@@ -128,7 +128,7 @@ var draw_bar_daily_asset_production=function(start_dt){
                 // Add font-weight-bold class to make text bold
                 
 
-                sumRow = '<tr class="font-weight-bold bg-info"><td>مجموع</td>';
+                sumRow = '<tr class="font-weight-bold"><td>مجموع</td>';
                 columnSums.forEach((sum) => {
                     sumRow += `<td>${sum}</td>`;
                 });
