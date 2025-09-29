@@ -58,6 +58,7 @@ var draw_bar_daily_asset_production=function(start_dt){
                 $.each(data[0].production_values, function(index, value) {
                     productionValuesRow+='<td >' + value + '</td>';
                 });
+
                 productionValuesRow+='</tr>';
                 $("#productionTable tbody").append(productionValuesRow);
 
@@ -87,7 +88,7 @@ var draw_bar_daily_asset_production=function(start_dt){
                 var headers =data[0].asset_category;
                 var columnSums = new Array(headers.length).fill(0);
                 var values =data[0].production_values2;
-                var thead = '<tr>';
+                var thead = '<tr><th>شیفت</th>';
                 headers.forEach((header) => {
                   thead += `<th>${header}</th>`;
                 });
@@ -95,7 +96,7 @@ var draw_bar_daily_asset_production=function(start_dt){
                 $('#productionTable2').append(thead);
           
                 // Create table row with values
-                var tbody = '<tr>';
+                var tbody = '<tr><td>A</td>';
                 values.forEach((value) => {
                   tbody += `<td>${value}</td>`;
                 });
@@ -106,7 +107,7 @@ var draw_bar_daily_asset_production=function(start_dt){
                     columnSums[i] += value;
                 });
                 var values =data[1].production_values2;
-                var tbody = '<tr>';
+                var tbody = '<tr><td>B</td>';
                 values.forEach((value) => {
                   tbody += `<td>${value}</td>`;
                 });
@@ -115,7 +116,7 @@ var draw_bar_daily_asset_production=function(start_dt){
                     columnSums[i] += value;
                 });
                 var values =data[2].production_values2;
-                var tbody = '<tr>';
+                var tbody = '<tr><td>C</td>';
                 values.forEach((value) => {
                   tbody += `<td>${value}</td>`;
                 });
@@ -127,7 +128,7 @@ var draw_bar_daily_asset_production=function(start_dt){
                 // Add font-weight-bold class to make text bold
                 
 
-                sumRow = '<tr class="font-weight-bold">';
+                sumRow = '<tr class="font-weight-bold bg-info"><td>مجموع</td>';
                 columnSums.forEach((sum) => {
                     sumRow += `<td>${sum}</td>`;
                 });
