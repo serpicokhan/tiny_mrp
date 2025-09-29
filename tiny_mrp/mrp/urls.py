@@ -208,6 +208,9 @@ urlpatterns = [
     url(r'^Reports/(?P<id>\d+)/show_fav_reports/$', show_fav_reports, name='show_fav_reports'),
     path('api/production-graph/', ProductionGraphDataView.as_view(), name='production_graph'),
     path('graph/', graph_index, name='graph_index'),
+    path('api/chatbot/', chatbot_api, name='chatbot_api'),
+    path('chatbot/', load_chart, name='load_chart'),
+
 
 
 

@@ -22,6 +22,7 @@ from mrp.models import BillOfMaterials
 from mrp.serializers import BillOfMaterialsSerializer
 from mrp.forms import BOMForm,BomComponentForm
 
+
 def bom_list(request):
     return render(request,"mrp/bom/partialBOMList.html",{})
 class BOMListView(generics.ListAPIView):

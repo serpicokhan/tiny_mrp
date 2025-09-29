@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot مدیریتی سیستم تولید</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .chat-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .chat-body {
+            display: flex;
+            height: 600px;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+        }
+        
+        .messages-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            border-radius: 18px;
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--secondary-color);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-message {
+            align-self: flex-start;
+            background-color: var(--light-color);
+            border-bottom-left-radius: 5px;
+        }
+        
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+        }
+        
+        .input-area input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            outline: none;
+            transition: border 0.3s;
+        }
+        
+        .input-area input:focus {
+            border-color: var(--secondary-color);
+        }
+        
+        .input-area button {
+            margin-right: 10px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .input-area button:hover {
+            background-color: var(--primary-color);
+        }
+        
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .quick-action {
+            background-color: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+        
+        .quick-action:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .kpi-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .kpi-title {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .kpi-trend {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        
+        .trend-up {
+            color: var(--success-color);
+        }
+        
+        .trend-down {
+            color: var(--accent-color);
+        }
+        
+        .machine-status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: rgba(255,255,255,0.05);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+        
+        .status-running {
+            background-color: var(--success-color);
+        }
+        
+        .status-idle {
+            background-color: var(--warning-color);
+        }
+        
+        .status-down {
+            background-color: var(--accent-color);
+        }
+        
+        .alert-item {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-right: 3px solid var(--accent-color);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        .performance-chart {
+            height: 200px;
+            margin-top: 15px;
+        }
+        
+        .suggestion {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .suggestion:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .table-responsive {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-body {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+            
+            .chat-area {
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1><i class="fas fa-robot me-2"></i>Chatbot مدیریتی سیستم تولید</h1>
+                <p class="mb-0">دستیار هوشمند برای نظارت و مدیریت خطوط تولید</p>
+            </div>
+            
+            <div class="chat-body">
+                <div class="sidebar">
+                    <h5><i class="fas fa-chart-line me-2"></i>وضعیت کلی تولید</h5>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-title">تولید امروز</div>
+                        <div class="kpi-value">۱,۲۵۰ واحد</div>
+                        <div class="kpi-trend trend-up"><i class="fas fa-arrow-up me-1"></i> ۵.۲% افزایش نسبت به دیروز</div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-title">نرخ بهره‌وری</div>
+                        <div class="kpi-value">۸۷.۵%</div>
+                        <div class="kpi-trend trend-up"><i class="fas fa-arrow-up me-1"></i> ۲.۱% افزایش</div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-title">ضایعات</div>
+                        <div class="kpi-value">۲.۳%</div>
+                        <div class="kpi-trend trend-down"><i class="fas fa-arrow-down me-1"></i> ۰.۵% کاهش</div>
+                    </div>
+                    
+                    <h5 class="mt-4"><i class="fas fa-cogs me-2"></i>وضعیت ماشین‌آلات</h5>
+                    
+                    <div class="machine-status">
+                        <div class="status-indicator status-running"></div>
+                        <div>خط تولید A: در حال کار</div>
+                    </div>
+                    
+                    <div class="machine-status">
+                        <div class="status-indicator status-running"></div>
+                        <div>خط تولید B: در حال کار</div>
+                    </div>
+                    
+                    <div class="machine-status">
+                        <div class="status-indicator status-idle"></div>
+                        <div>خط تولید C: آماده به کار</div>
+                    </div>
+                    
+                    <div class="machine-status">
+                        <div class="status-indicator status-down"></div>
+                        <div>خط تولید D: خرابی</div>
+                    </div>
+                    
+                    <h5 class="mt-4"><i class="fas fa-exclamation-triangle me-2"></i>هشدارهای فعال</h5>
+                    
+                    <div class="alert-item">
+                        <strong>خط تولید D</strong>: خرابی موتور اصلی
+                    </div>
+                    
+                    <div class="alert-item">
+                        <strong>خط تولید B</strong>: کاهش سرعت تولید
+                    </div>
+                </div>
+                
+                <div class="chat-area">
+                    <div class="messages-container" id="messagesContainer">
+                        <div class="message bot-message">
+                            <div class="mb-2">سلام! من دستیار هوشمند سیستم تولید هستم. چگونه می‌توانم کمک کنم؟</div>
+                            <div class="suggestion" onclick="addMessage('تولید امروز چطور بوده؟')">تولید امروز چطور بوده؟</div>
+                            <div class="suggestion" onclick="addMessage('وضعیت ماشین‌ها چطوره؟')">وضعیت ماشین‌ها چطوره؟</div>
+                            <div class="suggestion" onclick="addMessage('کدام خط مشکل داره؟')">کدام خط مشکل داره؟</div>
+                            <div class="suggestion" onclick="addMessage('بهترین خط تولیدی کدومه؟')">بهترین خط تولیدی کدومه؟</div>
+                            <div class="suggestion" onclick="addMessage('گزارش کامل بده')">گزارش کامل بده</div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-area">
+                        <input type="text" id="userInput" placeholder="پیام خود را وارد کنید..." onkeypress="handleKeyPress(event)">
+                        <button onclick="addMessageFromInput()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // داده‌های نمونه برای سیستم تولید
+        const productionData = {
+            today: {
+                total: 1250,
+                lines: {
+                    A: 450,
+                    B: 380,
+                    C: 320,
+                    D: 100
+                },
+                efficiency: 87.5,
+                waste: 2.3
+            },
+            yesterday: {
+                total: 1188,
+                lines: {
+                    A: 420,
+                    B: 400,
+                    C: 300,
+                    D: 68
+                },
+                efficiency: 85.4,
+                waste: 2.8
+            },
+            machineStatus: {
+                A: { status: 'running', issues: [] },
+                B: { status: 'running', issues: ['کاهش سرعت تولید'] },
+                C: { status: 'idle', issues: [] },
+                D: { status: 'down', issues: ['خرابی موتور اصلی'] }
+            },
+            performance: {
+                bestLine: 'A',
+                worstLine: 'D',
+                trends: {
+                    A: 'up',
+                    B: 'down',
+                    C: 'up',
+                    D: 'down'
+                }
+            }
+        };
+        
+        // تابع برای اضافه کردن پیام از ورودی کاربر
+        function addMessageFromInput() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (message) {
+                addMessage(message);
+                userInput.value = '';
+            }
+        }
+        
+        // تابع برای مدیریت کلید Enter
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                addMessageFromInput();
+            }
+        }
+        
+        // تابع اصلی برای اضافه کردن پیام و پاسخ
+        function addMessage(message) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            
+            // اضافه کردن پیام کاربر
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'message user-message';
+            userMessageDiv.textContent = message;
+            messagesContainer.appendChild(userMessageDiv);
+            
+            // اسکرول به پایین
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // تولید پاسخ بات پس از تاخیر کوتاه
+            setTimeout(() => {
+                const botResponse = generateResponse(message);
+                console.log(botResponse);
+                
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'message bot-message';
+                botMessageDiv.innerHTML = botResponse;
+                messagesContainer.appendChild(botMessageDiv);
+                
+                // اسکرول به پایین
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 500);
+        }
+        
+        // تابع برای تولید پاسخ بات بر اساس پیام کاربر
+        async function generateResponse(message) {
+            try {
+                const response = await fetch('/api/chatbot/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // 'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify({ 
+                        message: message,
+                        user_id: 1 // اگر کاربر لاگین کرده
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // دریافت پیشنهادات شخصی‌سازی شده
+                // const suggestions = await getPersonalizedSuggestions();
+                // data.suggestions = suggestions;
+                
+                return data;
+            } catch (error) {
+                console.error('Error:', error);
+                return {
+                    reply: "خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.",
+                    suggestions: []
+                };
+            }
+        }
+
+        async function getPersonalizedSuggestions() {
+            try {
+                const response = await fetch('/api/chatbot/suggestions/', {
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                });
+                return await response.json();
+            } catch (error) {
+                return [];
+            }
+        }
+        function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+        // تولید گزارش تولید امروز
+        function generateTodayProductionReport() {
+            const today = productionData.today;
+            const yesterday = productionData.yesterday;
+            const change = ((today.total - yesterday.total) / yesterday.total * 100).toFixed(1);
+            
+            return `
+                <strong>گزارش تولید امروز:</strong><br>
+                <div class="kpi-card mt-2">
+                    <div class="kpi-title">تعداد کل تولید</div>
+                    <div class="kpi-value">${today.total.toLocaleString()} واحد</div>
+                    <div class="kpi-trend ${change >= 0 ? 'trend-up' : 'trend-down'}">
+                        <i class="fas fa-arrow-${change >= 0 ? 'up' : 'down'} me-1"></i> 
+                        ${Math.abs(change)}% ${change >= 0 ? 'افزایش' : 'کاهش'} نسبت به دیروز
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="kpi-card">
+                            <div class="kpi-title">نرخ بهره‌وری</div>
+                            <div class="kpi-value">${today.efficiency}%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="kpi-card">
+                            <div class="kpi-title">نرخ ضایعات</div>
+                            <div class="kpi-value">${today.waste}%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <strong>تولید بر اساس خطوط:</strong>
+                    <table class="table table-sm mt-2">
+                        <thead>
+                            <tr>
+                                <th>خط تولید</th>
+                                <th>تعداد تولید</th>
+                                <th>وضعیت</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(today.lines).map(([line, value]) => `
+                                <tr>
+                                    <td>خط ${line}</td>
+                                    <td>${value} واحد</td>
+                                    <td>
+                                        <span class="badge bg-${productionData.machineStatus[line].status === 'running' ? 'success' : 
+                                                                 productionData.machineStatus[line].status === 'idle' ? 'warning' : 'danger'}">
+                                            ${productionData.machineStatus[line].status === 'running' ? 'در حال کار' : 
+                                              productionData.machineStatus[line].status === 'idle' ? 'آماده به کار' : 'خراب'}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        // تولید گزارش وضعیت ماشین‌آلات
+        function generateMachineStatusReport() {
+            return `
+                <strong>وضعیت ماشین‌آلات:</strong><br>
+                ${Object.entries(productionData.machineStatus).map(([line, data]) => `
+                    <div class="machine-status mt-2">
+                        <div class="status-indicator status-${data.status}"></div>
+                        <div>
+                            <strong>خط تولید ${line}:</strong> 
+                            ${data.status === 'running' ? 'در حال کار' : 
+                              data.status === 'idle' ? 'آماده به کار' : 'خراب'}
+                            ${data.issues.length > 0 ? `<br><small class="text-danger">مشکلات: ${data.issues.join('، ')}</small>` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+                
+                <div class="mt-3">
+                    <canvas id="machineStatusChart" width="400" height="200" class="performance-chart"></canvas>
+                </div>
+            `;
+        }
+        
+        // تولید گزارش مشکلات
+        function generateProblemReport() {
+            const problemLines = Object.entries(productionData.machineStatus)
+                .filter(([line, data]) => data.issues.length > 0 || data.status === 'down');
+            
+            if (problemLines.length === 0) {
+                return "هیچ خط تولیدی در حال حاضر مشکل خاصی ندارد. همه خطوط به خوبی در حال کار هستند.";
+            }
+            
+            return `
+                <strong>خطوط دارای مشکل:</strong><br>
+                ${problemLines.map(([line, data]) => `
+                    <div class="alert-item mt-2">
+                        <strong>خط تولید ${line}</strong><br>
+                        وضعیت: ${data.status === 'running' ? 'در حال کار' : 
+                                 data.status === 'idle' ? 'آماده به کار' : 'خراب'}<br>
+                        مشکلات: ${data.issues.length > 0 ? data.issues.join('، ') : 'بدون مشکل خاص (وضعیت نامناسب)'}
+                    </div>
+                `).join('')}
+                
+                <div class="mt-3">
+                    <strong>توصیه‌های فوری:</strong>
+                    <ul>
+                        <li>برای خط D، تیم تعمیرات را اعزام کنید</li>
+                        <li>برای خط B، سرعت تولید را بررسی و تنظیم کنید</li>
+                        <li>بررسی کلیه خطوط برای پیشگیری از مشکلات مشابه</li>
+                    </ul>
+                </div>
+            `;
+        }
+        
+        // تولید گزارش بهترین خط تولید
+        function generateBestLineReport() {
+            const bestLine = productionData.performance.bestLine;
+            const worstLine = productionData.performance.worstLine;
+            const bestData = productionData.today.lines[bestLine];
+            const worstData = productionData.today.lines[worstLine];
+            
+            return `
+                <strong>بهترین خط تولید:</strong><br>
+                <div class="alert alert-success mt-2">
+                    <h5>خط تولید ${bestLine} - برترین عملکرد</h5>
+                    <p>تولید امروز: <strong>${bestData} واحد</strong></p>
+                    <p>وضعیت: <span class="badge bg-success">در حال کار</span></p>
+                    <p>روند: <i class="fas fa-arrow-up text-success"></i> بهبود عملکرد نسبت به روز گذشته</p>
+                </div>
+                
+                <div class="mt-3">
+                    <strong>مقایسه با ضعیف‌ترین خط:</strong>
+                    <table class="table table-sm mt-2">
+                        <thead>
+                            <tr>
+                                <th>معیار</th>
+                                <th>بهترین خط (${bestLine})</th>
+                                <th>ضعیف‌ترین خط (${worstLine})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>تولید امروز</td>
+                                <td>${bestData} واحد</td>
+                                <td>${worstData} واحد</td>
+                            </tr>
+                            <tr>
+                                <td>وضعیت</td>
+                                <td><span class="badge bg-success">در حال کار</span></td>
+                                <td><span class="badge bg-danger">خراب</span></td>
+                            </tr>
+                            <tr>
+                                <td>روند</td>
+                                <td><i class="fas fa-arrow-up text-success"></i> بهبود</td>
+                                <td><i class="fas fa-arrow-down text-danger"></i> کاهش</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-3">
+                    <strong>توصیه برای بهبود:</strong>
+                    <ul>
+                        <li>الگوهای خط ${bestLine} را در خطوط دیگر پیاده‌سازی کنید</li>
+                        <li>بررسی علت مشکلات خط ${worstLine} و رفع سریع آنها</li>
+                        <li>برنامه‌ریزی برای تعمیرات پیشگیرانه در خطوط دیگر</li>
+                    </ul>
+                </div>
+            `;
+        }
+        
+        // تولید گزارش کامل
+        function generateFullReport() {
+            return `
+                <strong>گزارش کامل سیستم تولید:</strong><br>
+                
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="kpi-card">
+                            <div class="kpi-title">تولید امروز</div>
+                            <div class="kpi-value">${productionData.today.total.toLocaleString()} واحد</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="kpi-card">
+                            <div class="kpi-title">نرخ بهره‌وری</div>
+                            <div class="kpi-value">${productionData.today.efficiency}%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="kpi-card">
+                            <div class="kpi-title">ضایعات</div>
+                            <div class="kpi-value">${productionData.today.waste}%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <strong>وضعیت خطوط تولید:</strong>
+                    <table class="table table-sm mt-2">
+                        <thead>
+                            <tr>
+                                <th>خط تولید</th>
+                                <th>تولید امروز</th>
+                                <th>وضعیت</th>
+                                <th>مشکلات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(productionData.today.lines).map(([line, value]) => `
+                                <tr>
+                                    <td>خط ${line}</td>
+                                    <td>${value} واحد</td>
+                                    <td>
+                                        <span class="badge bg-${productionData.machineStatus[line].status === 'running' ? 'success' : 
+                                                                 productionData.machineStatus[line].status === 'idle' ? 'warning' : 'danger'}">
+                                            ${productionData.machineStatus[line].status === 'running' ? 'در حال کار' : 
+                                              productionData.machineStatus[line].status === 'idle' ? 'آماده به کار' : 'خراب'}
+                                        </span>
+                                    </td>
+                                    <td>${productionData.machineStatus[line].issues.join('، ') || 'بدون مشکل'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-3">
+                    <strong>هشدارهای فعال:</strong>
+                    ${Object.entries(productionData.machineStatus)
+                        .filter(([line, data]) => data.issues.length > 0 || data.status === 'down')
+                        .map(([line, data]) => `
+                            <div class="alert-item mt-2">
+                                <strong>خط تولید ${line}</strong>: 
+                                ${data.issues.length > 0 ? data.issues.join('، ') : 'خرابی تجهیزات'}
+                            </div>
+                        `).join('')}
+                    
+                    ${Object.entries(productionData.machineStatus)
+                        .filter(([line, data]) => data.issues.length > 0 || data.status === 'down').length === 0 ? 
+                        '<div class="alert alert-success mt-2">هیچ هشدار فعالی وجود ندارد</div>' : ''}
+                </div>
+                
+                <div class="mt-3">
+                    <strong>توصیه‌های مدیریتی:</strong>
+                    <ul>
+                        <li>تمرکز بر رفع مشکلات خط D برای بازگشت به چرخه تولید</li>
+                        <li>بررسی علل کاهش سرعت در خط B</li>
+                        <li>الگوبرداری از خط A برای بهبود عملکرد سایر خطوط</li>
+                        <li>برنامه‌ریزی برای تعمیرات پیشگیرانه هفتگی</li>
+                    </ul>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
