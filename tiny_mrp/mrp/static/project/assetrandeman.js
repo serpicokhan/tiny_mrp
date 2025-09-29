@@ -196,8 +196,8 @@ var save_ranking=function () {
               for( var i in data.result){
                 var targetRow = $(`tr[data-id="${data.result[i].id}"]`);
                 
-                targetRow.find('input.sarshift_val').val(data.result[i].price_sarshift);
-                targetRow.find('input.operator_val').val(data.result[i].price_personnel);
+                targetRow.find('input.sarshift_val').val(Math.ceil(data.result[i].price_sarshift));
+                targetRow.find('input.operator_val').val(Math.ceil(data.result[i].price_personnel));
               }
             }
           }
