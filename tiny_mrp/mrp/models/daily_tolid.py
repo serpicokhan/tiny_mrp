@@ -194,6 +194,8 @@ class DailyProduction(models.Model):
                 formula = formula_obj.formula
                 # print(self.machine.id,'%%%%%%%%%%%%%%%')
                 nomre_item=MakanHamgen.objects.get(makan=self.machine.assetIsLocatedAt)
+                # print("nomer@@@@@@@@@@@@@@@@@@@@@",nomre_item.nomre)
+                # print("machin@@@@@@@@@@@@@@@@@@@@",self.machine.assetIsLocatedAt.id)
                 nomre=nomre_item.nomre if nomre_item else 36
                 def safe_time_to_minutes(time_str):
                     """Safely convert time string to minutes, handling various formats"""
@@ -217,6 +219,7 @@ class DailyProduction(models.Model):
                     
                     'N': nomre,
                     'V':self.vahed,
+                    'S':self.speed,
                     'T':int(safe_time_to_minutes(self.counter2))-int(self.counter1)
 
                 }
@@ -245,7 +248,8 @@ class DailyProduction(models.Model):
                     print(f"Error evaluating formula: {e}")
                     return self.production_value
                     # You can set a default value or handle the error as per your requirement
-                except:
+                except Exception as ex:
+                    print(ex,'!!!!!!!!!!!!!!!!!')
                     return self.production_value
     def get_randeman_production(self):
         # Initialize values, defaulting to 0 if None
