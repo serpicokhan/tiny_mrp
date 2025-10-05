@@ -128,7 +128,7 @@ def get_daily_amar(request):
 def get_daily_amar_scroll(request):
     dayOfIssue=request.GET.get('event_id',datetime.datetime.now())
     makan_id=request.GET.get('makan_id',False)
-    shift_id=request.GET.get("shift_id",False)
+    shift_id=request.GET.get("shift_id",3)
 
     # print(dayOfIssue,'!!!!!!!!!!!!!!!!!!')
     date_object = datetime.datetime.strptime(dayOfIssue, '%Y-%m-%d')
@@ -948,7 +948,7 @@ def get_tolid_calendar_info(request):
 
     # print(user_info)
     for i in user_info:
-        product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=7,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
+        product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=4,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
 
         z=get_sum_vaz_zayeat_by_date_per_line(i[0],makan)
         data.append({'title': f"آمار روزانه { round(product_data_tab[0]['total_product'],0)}",\
