@@ -105,26 +105,44 @@
                         {% endfor %}
                     </select>
                 </div>
+                <div class="col-md-3">
+                    <label for="moshakhase" class="form-label">کد نخ</label>
+                    <select class="form-control nakh-name" id="moshakhase"
+                            data-machine-id="{{c.machine.id}}"
+                            style="width: 100%;">
+                            {% if code_nakh %}
+                            <option value="{{code_nakh.id}}">{{code_nakh}}</option>
+                            {% endif %}
+                    </select>
+                    <input type="hidden" class="nakh-data" name="nakh_data_" {% if code_nakh %} value={{code_nakh}} {% endif %}>
+                </div>
+            
+            </div>
+            <div class="row">
                 <div class="col-md-3 d-flex align-items-end">
                     <div class="form-group w-100">
                         <div class="custom-control custom-switch mb-3">
                             <input type="checkbox" class="custom-control-input" id="customSwitch1" name="collective" {{collective}}>
                             <label class="custom-control-label" for="customSwitch1">ایجاد گزارش به صورت تجمعی</label>
                         </div>
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="bi bi-filter-circle"></i> اعمال فیلترها
-                        </button>
+                       
                     </div>
                 </div>
-            </div>
-            <!-- Row for Export Button -->
-            <div class="row">
-                <div class="col-md-12 d-flex justify-content-center">
+                <div class="col-md-3 justify-content-center">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-filter-circle"></i> اعمال فیلترها
+                    </button>
+                </div>
+                <div class="col-md-3  justify-content-center">
                     <a href="{% url 'production_report_excel' %}?{{ request.GET.urlencode }}" 
                        class="btn btn-success">
                         <i class="bi bi-file-earmark-excel"></i> خروجی اکسل
                     </a>
                 </div>
+            </div>
+            <!-- Row for Export Button -->
+            <div class="row">
+               
             </div>
         </form>
     </div>
@@ -175,6 +193,7 @@
                         <th>اپراتور</th>
                         <th>تعداد op</th>
                         <th>دستگاه</th>
+                        <th>کد نخ</th>
                         <th>تولید</th>
                         <th>همگن 36</th>
                         <th>تعداد ضایعات</th>
@@ -189,6 +208,7 @@
                         <td>{{i.operator}}</td>
                         <td>{{i.op_count}}</td>
                         <td>{{i.machine}}</td>
+                        <td>{{i.code_nakh}}</td>
                         <td>{{i.production|floatformat:0}}</td>
                         <th>{{i.eval_36_tolid|floatformat:0}}</th>
                         
@@ -218,7 +238,7 @@
             <ul class="pagination justify-content-center">
                 {% if page_obj.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}" aria-label="Previous">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}{% if request.GET.moshakhase %}&moshakhase={{ request.GET.moshakhase }}{% endif %}" aria-label="Previous">
                             <span aria-hidden="true">قبلی</span>
                         </a>
                     </li>
@@ -236,13 +256,13 @@
                         </li>
                     {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}">{{ num }}</a>
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}{% if request.GET.moshakhase %}&moshakhase={{ request.GET.moshakhase }}{% endif %}">{{ num }}</a>
                         </li>
                     {% endif %}
                 {% endfor %}
                 {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}" aria-label="Next">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}{% if request.GET.moshakhase %}&moshakhase={{ request.GET.moshakhase }}{% endif %}" aria-label="Next">
                             <span aria-hidden="true">بعدی</span>
                         </a>
                     </li>
@@ -456,6 +476,97 @@ function convertOldFormatToArray(oldData) {
   }));
 }
     });
+    function initiate_code_nakh(){
+          $('.nakh-name').select2({
+            dropdownParent: $('body'),
+            ajax: {
+                url: '/api/moshakhase/search/',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    
+                    return {
+                        results: data.results.map(function(item) {
+                            return {
+                                id: item.id,
+                                text: item.name + ' (' + item.color_name + ')',
+                                name: item.name,
+                                color_id: item.color_id,
+                                color_name: item.color_name,
+                                tool: item.tool,
+                                la: item.la
+                            };
+                        }),
+                        pagination: {
+                            more: data.has_more
+                        }
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 2,
+            language: {
+                inputTooShort: function () {
+                    return "حداقل 2 کاراکتر وارد کنید";
+                },
+                searching: function () {
+                    return "در حال جستجو...";
+                },
+                noResults: function () {
+                    return "نتیجه‌ای یافت نشد";
+                },
+                errorLoading: function () {
+                    return "خطا در بارگذاری نتایج";
+                }
+            },
+            dir: "rtl"
+          });
+          
+          $('.nakh-name').on('select2:select', function (e) {
+              var data = e.params.data;
+              var $row = $(this).closest('div');    
+              updateOperatorHiddenFields2($row);    
+              console.log('Selected operator:', data);
+          });
+          
+          $('.nakh-name').on('select2:unselect', function (e) {
+              var data = e.params.data;
+              var $row = $(this).closest('div');
+              updateOperatorHiddenFields2($row);
+              console.log('Unselected operator:', data);
+          });
+          
+          $('.nakh-name').on('select2:clear', function (e) {
+              var $row = $(this).closest('div');
+              $row.find('.nakh-data').val('');
+          });
+        }
+        
+        function updateOperatorHiddenFields2($row) {
+          var selectedOperators = $row.find('.nakh-name').select2('data')[0];
+          console.log(selectedOperators);
+          
+          var updatedOperators = {
+            id: selectedOperators.id,
+            text: selectedOperators.name + ' (' + selectedOperators.color_name + ')',
+            name: selectedOperators.name,
+            color_id: selectedOperators.pid,
+            color_name: selectedOperators.cp_code,
+            tool: selectedOperators.tool,
+            la: selectedOperators.la
+          };
+          
+          $row.find('.nakh-data').val(JSON.stringify(updatedOperators));
+        }
+        
+        initiate_code_nakh();
 </script>
 
 {% endblock %}

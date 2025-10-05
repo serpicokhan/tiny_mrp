@@ -257,7 +257,7 @@ class DailyProduction(models.Model):
         wastage = float(self.wastage_value) if self.wastage_value is not None else 0.0
         qc = float(self.qc_value) if self.qc_value is not None else 0.0
         production = float(self.production_value) if self.production_value is not None else 0.0
-        print(enzebat,'enzebat')
+        # print(enzebat,'enzebat')
         # Get the number of operators from operators_data JSON
         # operator_count = 1  # Default to 1 to avoid division by zero
         # if self.operators_data:

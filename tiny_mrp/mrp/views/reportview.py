@@ -72,7 +72,8 @@ def daily_tolid_main(request):
     st_date,e_date=False,False
     collective = request.GET.get("collective", False)
     profile_id=request.GET.get("profile_id",False)
-
+    nakh_data=request.GET.get("nakh_data_",False)
+    moshakhase=request.GET.get("moshakhase",False)
     operator_datas=None
 
 
@@ -106,6 +107,14 @@ def daily_tolid_main(request):
         productions = productions.filter(machine__assetCategory_id=category_id)
     if shift_id and shift_id != '-1':
         productions = productions.filter(shift_id=shift_id)
+    if(nakh_data ):
+        print(nakh_data)
+        productions=productions.filter(moshakhase__id=int(json.loads(nakh_data)["id"]))
+    else:
+        if(moshakhase):
+            productions=production.filter(moshakhase__id=int(moshakhase))
+
+
 
     # Apply operator filter (using JSONB query for PostgreSQL, if applicable)
     # if operator_id:
@@ -206,6 +215,7 @@ def daily_tolid_main(request):
                 'wastage_rate': round(wastage_rate_op, 2),
                 'op_count': data['count'],
                 'randeman_production': 0.0  # Placeholder, adjust if needed
+
             })
     else:
         for prod in productions:
@@ -251,7 +261,10 @@ def daily_tolid_main(request):
                     'wastage': wastage_per_operator,
                     'wastage_rate': wastage_rate_row,
                     'op_count':prod.get_operator_count(),
-                    'randeman_production':prod.get_randeman_production()
+                    'randeman_production':prod.get_randeman_production(),
+                    'moshakhase':moshakhase if moshakhase else json.loads(nakh_data)["id"] if nakh_data else None,
+                    'code_nakh':prod.moshakhase
+
                 })
     paginator = Paginator(report_data, 10)
     page_number = request.GET.get('page')
@@ -281,7 +294,10 @@ def daily_tolid_main(request):
         'machin_id':int(machine_id),
         'shift_id':int(shift_id) if shift_id else None,
         'category_id':int(category_id),
-        'profile_id':int(profile_id)
+        'profile_id':int(profile_id),
+        'moshakhase':json.loads(nakh_data)["id"] if nakh_data else None,
+        'code_nakh':nakh_data if nakh_data else None,
+        'code_nakh_main':EntryForm.objects.get(id=json.loads(nakh_data)["id"]) if nakh_data else None
 
     }
 
