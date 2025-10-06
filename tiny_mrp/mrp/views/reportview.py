@@ -108,11 +108,11 @@ def daily_tolid_main(request):
     if shift_id and shift_id != '-1':
         productions = productions.filter(shift_id=shift_id)
     if(nakh_data ):
-        print(nakh_data)
+        print(request.GET.get('nakh_data_'))
         productions=productions.filter(moshakhase__id=int(json.loads(nakh_data)["id"]))
-    else:
-        if(moshakhase):
-            productions=production.filter(moshakhase__id=int(moshakhase))
+    if(moshakhase):
+            print("!!!!!!!!!!!!!!!!!!")
+            productions=productions.filter(moshakhase__id=int(moshakhase))
 
 
 
@@ -295,7 +295,7 @@ def daily_tolid_main(request):
         'shift_id':int(shift_id) if shift_id else None,
         'category_id':int(category_id),
         'profile_id':int(profile_id),
-        'moshakhase':json.loads(nakh_data)["id"] if nakh_data else None,
+        'moshakhase':EntryForm.objects.get(id=json.loads(nakh_data)["id"]) if nakh_data else EntryForm.objects.get(id=moshakhase) if moshakhase else None,
         'code_nakh':nakh_data if nakh_data else None,
         'code_nakh_main':EntryForm.objects.get(id=json.loads(nakh_data)["id"]) if nakh_data else None
 

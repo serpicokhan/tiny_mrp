@@ -110,11 +110,9 @@
                     <select class="form-control nakh-name" id="moshakhase"
                             data-machine-id="{{c.machine.id}}"
                             style="width: 100%;">
-                            {% if code_nakh %}
-                            <option value="{{code_nakh.id}}">{{code_nakh}}</option>
-                            {% endif %}
+                           <option value="{{moshakhase}}">{{moshakhase}}</option>
                     </select>
-                    <input type="hidden" class="nakh-data" name="nakh_data_" {% if code_nakh %} value={{code_nakh}} {% endif %}>
+                    <input type="hidden" class="nakh-data" name="nakh_data_"/>
                 </div>
             
             </div>
@@ -238,7 +236,7 @@
             <ul class="pagination justify-content-center">
                 {% if page_obj.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}{% if request.GET.moshakhase %}&moshakhase={{ request.GET.moshakhase }}{% endif %}" aria-label="Previous">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}{% if request.GET.nakh_data_  or request.GET.moshakhase %}&moshakhase={{ moshakhase.id }}{% endif %}" aria-label="Previous">
                             <span aria-hidden="true">قبلی</span>
                         </a>
                     </li>
@@ -256,13 +254,14 @@
                         </li>
                     {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}{% if request.GET.moshakhase %}&moshakhase={{ request.GET.moshakhase }}{% endif %}">{{ num }}</a>
+                          
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}{% if request.GET.nakh_data_  or request.GET.moshakhase %}&moshakhase={{ moshakhase.id }}{% endif %}">{{ num }}</a>
                         </li>
                     {% endif %}
                 {% endfor %}
                 {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}{% if request.GET.moshakhase %}&moshakhase={{ request.GET.moshakhase }}{% endif %}" aria-label="Next">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.operator_id %}&operator_id={{ request.GET.operator_id }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.operator_data %}&operator_data={{ request.GET.operator_data }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}{% if request.GET.nakh_data_ or request.GET.moshakhase %}&moshakhase={{ moshakhase.id }}{% endif %}" aria-label="Next">
                             <span aria-hidden="true">بعدی</span>
                         </a>
                     </li>
