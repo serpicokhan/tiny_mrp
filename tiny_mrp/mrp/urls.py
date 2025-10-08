@@ -210,7 +210,9 @@ urlpatterns = [
     path('graph/', graph_index, name='graph_index'),
     path('api/chatbot/', chatbot_api, name='chatbot_api'),
     path('chatbot/', load_chart, name='load_chart'),
-
+    path('api/purchase-requests/', get_all_purchase_requests, name='get_purchase_requests'),
+    path('api/part/<int:part_id>/history/', get_part_purchase_history, name='get_part_history'),
+    path('api/part/<int:part_id>/similar/', get_similar_parts, name='get_similar_parts'),
 
 
 

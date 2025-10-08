@@ -22,6 +22,9 @@ import ast
 from django.contrib.auth.models import User, Permission
 import re
 from mrp.forms import RequestItemForm
+from django.db.models import Avg, Count, Q
+from django.views.decorators.http import require_http_methods
+from .models import RequestItem, Part
 # from webpush import send_user_notification
 
 @login_required
@@ -1514,3 +1517,146 @@ def send_push(request):
         return JsonResponse({'status': 'success'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+
+@require_http_methods(["GET"])
+def get_part_purchase_history(request, part_id):
+    """
+    دریافت سابقه خرید یک قطعه خاص
+    """
+    try:
+        part = Part.objects.get(id=part_id)
+        
+        # دریافت تمام خریدهای این قطعه
+        purchase_items = RequestItem.objects.filter(
+            item_name=part
+        ).select_related(
+            'purchase_request',
+            'supplier_assigned',
+            'consume_place'
+        ).order_by('-purchase_request__created_at')
+        
+        history = []
+        for item in purchase_items:
+            history.append({
+                'date': item.purchase_request.created_at.strftime('%Y/%m/%d') if hasattr(item.purchase_request, 'created_at') else '',
+                'quantity': item.quantity,
+                'supplied_quantity': item.supplied_quantity,
+                'price': item.price,
+                'supplier': item.supplier_assigned.name if item.supplier_assigned else 'تعیین نشده',
+                'buyer': item.purchase_request.requested_by.get_full_name() if hasattr(item.purchase_request, 'requested_by') else '',
+                'consume_place': item.consume_place.name if item.consume_place else '',
+                'description': item.description or ''
+            })
+        
+        # محاسبه آمار
+        avg_price = purchase_items.aggregate(Avg('price'))['price__avg'] or 0
+        total_quantity = purchase_items.aggregate(models.Sum('quantity'))['quantity__sum'] or 0
+        
+        return JsonResponse({
+            'success': True,
+            'part_name': part.name,
+            'part_code': part.code if hasattr(part, 'code') else '',
+            'history': history,
+            'stats': {
+                'avg_price': round(avg_price, 2),
+                'total_purchases': purchase_items.count(),
+                'total_quantity': total_quantity
+            }
+        })
+        
+    except Part.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'قطعه یافت نشد'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@require_http_methods(["GET"])
+def get_similar_parts(request, part_id):
+    """
+    یافتن قطعات مشابه بر اساس نام
+    """
+    try:
+        part = Part.objects.get(id=part_id)
+        part_name = part.name.lower()
+        
+        # جستجوی قطعات مشابه
+        similar_parts = Part.objects.filter(
+            Q(name__icontains=part_name.split()[0]) |  # کلمه اول
+            Q(name__iregex=r'\b' + part_name.split()[0] + r'\b')
+        ).exclude(id=part_id)[:5]
+        
+        results = []
+        for similar_part in similar_parts:
+            # دریافت آخرین قیمت
+            latest_item = RequestItem.objects.filter(
+                item_name=similar_part
+            ).order_by('-purchase_request__created_at').first()
+            
+            results.append({
+                'id': similar_part.id,
+                'name': similar_part.name,
+                'code': similar_part.code if hasattr(similar_part, 'code') else '',
+                'latest_price': latest_item.price if latest_item else 0,
+                'purchase_count': RequestItem.objects.filter(item_name=similar_part).count()
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'similar_parts': results
+        })
+        
+    except Part.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'قطعه یافت نشد'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@require_http_methods(["GET"])
+def get_all_purchase_requests(request):
+    """
+    دریافت تمام درخواست‌های خرید
+    """
+    try:
+        items = RequestItem.objects.select_related(
+            'item_name',
+            'purchase_request',
+            'consume_place'
+        ).order_by('-purchase_request__created_at')[:100]
+        
+        requests = []
+        for item in items:
+            requests.append({
+                'id': item.id,
+                'part_id': item.item_name.id,
+                'part_name': item.item_name.name,
+                'part_code': item.item_name.code if hasattr(item.item_name, 'code') else '',
+                'requester': item.purchase_request.requested_by.get_full_name() if hasattr(item.purchase_request, 'requested_by') else '',
+                'date': item.purchase_request.created_at.strftime('%Y/%m/%d') if hasattr(item.purchase_request, 'created_at') else '',
+                'quantity': item.quantity,
+                'consume_place': item.consume_place.name if item.consume_place else ''
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'requests': requests
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

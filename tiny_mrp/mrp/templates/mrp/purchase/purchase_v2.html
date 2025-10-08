@@ -78,6 +78,7 @@
                                 {% if company.status == "Pending" and perms.mrp.can_edit_purchase %}
                                 <th> عملیات</th>
                                 {% endif%}
+                                <th>سوابق</th>
 
                                 
                             </tr>
@@ -90,6 +91,11 @@
                                 <td  class="editable-cell">{{i.quantity}}</td>
                                 <td  class="editable-cell machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
                                 <td  class="editable-cell description" data-id="">{{i.description}}</td>
+
+                                <td  class="editable-cell " data-id=""><button type="button" class="btn btn-info btn-rounded" onclick="showHistory('P001')">
+                                    <i class="fa fa-history"></i> مشاهده سابقه
+                                </button></td>
+                                
                                 
                                 
                             </tr>
@@ -100,9 +106,9 @@
                                 <td contenteditable="true" class="editable-cell part-name" data-id="{{i.item_name.id}}" data-partcode="{{i.item_name.partCode}}">{{i.item_name.partName}}</td>
                                 <td contenteditable="true" class="editable-cell">{{i.quantity}}</td>
                                 <td contenteditable="true" class="editable-cell machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
-                                <td contenteditable="true" class="editable-cell description" data-id="">{{i.description}}</td>
-                                <td>
-                                    <button class="btn btn-sm  delete-row">
+                                <td contenteditable="true" class="editable-cell description" data-id="" >{{i.description}}</td>
+                                <td >
+                                    <button class="btn btn-sm  delete-row" >
                                         <i class="fa fa-trash"></i> <!-- Tiny Trash Icon -->
                                     </button>
                                 </td>
@@ -140,6 +146,29 @@
 
     </div>
 </div>
-
+ <!-- Modal برای نمایش سابقه -->
+ <div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-history"></i> سابقه خرید و روند قیمت
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="partInfo" class="mb-4"></div>
+                
+                <h6 class="mb-3"><i class="fas fa-shopping-cart"></i> سابقه خریدها:</h6>
+                <div id="historyList"></div>
+                
+                <div class="chart-container">
+                    <h6><i class="fas fa-chart-line"></i> نمودار روند قیمت:</h6>
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
