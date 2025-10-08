@@ -579,43 +579,43 @@
                   var supplierId = $row.find('.supplier-autocomplete').attr("data-id"); // گرفتن آیدی تأمین‌کننده
                   //console.log(requestItemId,quantityReceived,supplierId);
                   // اعتبارسنجی ساده
-        if (!quantityReceived || quantityReceived <= 0) {
-            alert('لطفاً تعداد معتبری وارد کنید.');
-            return;
-        }
-        if (!supplierId) {
-            alert('لطفاً یک تأمین‌کننده انتخاب کنید.');
-            return;
-        }
+                    if (!quantityReceived || quantityReceived <= 0) {
+                        alert('لطفاً تعداد معتبری وارد کنید.');
+                        return;
+                    }
+                    if (!supplierId) {
+                        alert('لطفاً یک تأمین‌کننده انتخاب کنید.');
+                        return;
+                    }
 
-        // داده‌ها برای ارسال
-        var data = {
-            request_item: requestItemId,
-            quantity_received: quantityReceived,
-            supplier: supplierId
-            
-        };
+                    // داده‌ها برای ارسال
+                    var data = {
+                        request_item: requestItemId,
+                        quantity_received: quantityReceived,
+                        supplier: supplierId
+                        
+                    };
 
-        // درخواست AJAX
-        $.ajax({
-            url: '/Purchases/Gaurd/create-goods-entry/', // آدرس ویوی جنگو که GoodsEntry رو می‌سازه
-            type: 'POST',
-            data: data,
-            success: function(response) {
-                if (response.http_status === 'success') {
-                    toastr.success('ورود کالا با موفقیت ثبت شد.');
-                    // می‌تونی اینجا جدول رو آپدیت کنی یا ردیف رو پاک کنی
-                    $row.find('.supplied-qty').val(''); // پاک کردن مقدار ورودی
-                    $row.find('.supplier-autocomplete').val('').data('id', ''); // ریست تأمین‌کننده
-                } else {
-                    toastr.error('خطا: ' + response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                toastr.error('خطایی رخ داد: ' + error);
-            }
-        });
-    });
+                    // درخواست AJAX
+                    $.ajax({
+                        url: '/Purchases/Gaurd/create-goods-entry/', // آدرس ویوی جنگو که GoodsEntry رو می‌سازه
+                        type: 'POST',
+                        data: data,
+                        success: function(response) {
+                            if (response.http_status === 'success') {
+                                toastr.success('ورود کالا با موفقیت ثبت شد.');
+                                // می‌تونی اینجا جدول رو آپدیت کنی یا ردیف رو پاک کنی
+                                $row.find('.supplied-qty').val(''); // پاک کردن مقدار ورودی
+                                $row.find('.supplier-autocomplete').val('').data('id', ''); // ریست تأمین‌کننده
+                            } else {
+                                toastr.error('خطا: ' + response.message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            toastr.error('خطایی رخ داد: ' + error);
+                        }
+                    });
+                });
               $('#save-suppliers').on('click', function () {
                   let suppliersData = [];
           

@@ -197,6 +197,12 @@ class DailyProduction(models.Model):
                 # print("nomer@@@@@@@@@@@@@@@@@@@@@",nomre_item.nomre)
                 # print("machin@@@@@@@@@@@@@@@@@@@@",self.machine.assetIsLocatedAt.id)
                 nomre=nomre_item.nomre if nomre_item else 36
+                #هیت ست 1و2 26
+                #هیت ست 3 21
+                if(self.machine.id in(7321,7322)):
+                    nomre=36
+                elif(self.machine.id in(7323,7326,7327,7328,7329,7330)):
+                    nomre=21
                 def safe_time_to_minutes(time_str):
                     """Safely convert time string to minutes, handling various formats"""
                     if not time_str or not isinstance(time_str, str):
@@ -272,7 +278,7 @@ class DailyProduction(models.Model):
         #         operator_count = 1  # Fallback to 1 on error
 
         # Calculate formula: (production - wastage - qc) * (enzebat / 100) / operator_count
-        if(self.machine.assetCategory.id in (4,7)):
+        if(self.machine.assetCategory.id in (4,7,58)):
             try:
                 result = ((self.eval_36_tolid() - wastage - qc) * (enzebat / 100.0)) / self.get_operator_count()
             except ZeroDivisionError:
