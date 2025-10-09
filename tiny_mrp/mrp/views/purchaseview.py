@@ -22,9 +22,9 @@ import ast
 from django.contrib.auth.models import User, Permission
 import re
 from mrp.forms import RequestItemForm
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, Q,Sum
 from django.views.decorators.http import require_http_methods
-from .models import RequestItem, Part
+from mrp.models import RequestItem, Part
 # from webpush import send_user_notification
 
 @login_required
@@ -1540,24 +1540,24 @@ def get_part_purchase_history(request, part_id):
         history = []
         for item in purchase_items:
             history.append({
-                'date': item.purchase_request.created_at.strftime('%Y/%m/%d') if hasattr(item.purchase_request, 'created_at') else '',
+                'date': DateJob.to_jalali(item.purchase_request.created_at) if hasattr(item.purchase_request, 'created_at') else '',
                 'quantity': item.quantity,
                 'supplied_quantity': item.supplied_quantity,
                 'price': item.price,
                 'supplier': item.supplier_assigned.name if item.supplier_assigned else 'تعیین نشده',
                 'buyer': item.purchase_request.requested_by.get_full_name() if hasattr(item.purchase_request, 'requested_by') else '',
-                'consume_place': item.consume_place.name if item.consume_place else '',
+                'consume_place': item.consume_place.assetName if item.consume_place else '',
                 'description': item.description or ''
             })
         
         # محاسبه آمار
         avg_price = purchase_items.aggregate(Avg('price'))['price__avg'] or 0
-        total_quantity = purchase_items.aggregate(models.Sum('quantity'))['quantity__sum'] or 0
+        total_quantity = purchase_items.aggregate(Sum('quantity'))['quantity__sum'] or 0
         
         return JsonResponse({
             'success': True,
-            'part_name': part.name,
-            'part_code': part.code if hasattr(part, 'code') else '',
+            'part_name': part.partName,
+            'part_code': part.partCode if hasattr(part, 'code') else '',
             'history': history,
             'stats': {
                 'avg_price': round(avg_price, 2),
@@ -1585,7 +1585,7 @@ def get_similar_parts(request, part_id):
     """
     try:
         part = Part.objects.get(id=part_id)
-        part_name = part.name.lower()
+        part_name = part.partName.lower()
         
         # جستجوی قطعات مشابه
         similar_parts = Part.objects.filter(
@@ -1642,12 +1642,12 @@ def get_all_purchase_requests(request):
             requests.append({
                 'id': item.id,
                 'part_id': item.item_name.id,
-                'part_name': item.item_name.name,
-                'part_code': item.item_name.code if hasattr(item.item_name, 'code') else '',
+                'part_name': item.item_name.partName,
+                'part_code': item.item_name.partCode if hasattr(item.item_name, 'code') else '',
                 'requester': item.purchase_request.requested_by.get_full_name() if hasattr(item.purchase_request, 'requested_by') else '',
                 'date': item.purchase_request.created_at.strftime('%Y/%m/%d') if hasattr(item.purchase_request, 'created_at') else '',
                 'quantity': item.quantity,
-                'consume_place': item.consume_place.name if item.consume_place else ''
+                'consume_place': item.consume_place.assetName if item.consume_place else ''
             })
         
         return JsonResponse({

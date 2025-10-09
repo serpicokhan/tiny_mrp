@@ -325,3 +325,8 @@ class DateJob:
         end_date_gregorian = end_date.togregorian()
 
         return start_date_gregorian, end_date_gregorian
+    @staticmethod
+    def to_jalali(dt, format='%Y/%m/%d'):
+        if not dt:
+            return ''
+        return jdatetime.datetime.fromgregorian(datetime=dt).strftime(format)
