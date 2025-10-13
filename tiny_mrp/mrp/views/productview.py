@@ -25,7 +25,7 @@ from django.views.decorators.http import require_GET
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from mrp.serializers import ProductSerializer
-
+from django.db import transaction
 class ProductListView(ListView):
     model = Product
     template_name = 'mrp/product/partialProductList.html'
@@ -133,3 +133,59 @@ def product_list_api(request):
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)
    
+API_KEY = "2b96a13f35fc"
+
+@csrf_exempt
+def receive_products(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    if request.headers.get("X-API-KEY") != API_KEY:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+
+    try:
+        data = json.loads(request.body)
+        created_count = 0
+        updated_count = 0
+        errors = []
+
+        for idx, row in enumerate(data, start=1):
+            try:
+                # ساخت name از فیلدهای مختلف
+                name_parts = [row.get("fdesc"), row.get("Expr1"), row.get("Expr2"), row.get("Expr3")]
+                name = " - ".join([p for p in name_parts if p])
+
+                code = f"{row.get('CodeKala')}-{row.get('keyfiat')}-{row.get('mogheiat')}-{row.get('vaziat')}"
+                print(row.get('mogheiat'))
+                product, created = Product.objects.update_or_create(
+                    code=code,
+                    defaults={
+                        "name": name or f"Unnamed {code}",
+                        "available_quantity": float(row.get("MeghdarM") or 0),
+                        "sale_price": 0,
+                        "cost_price": 0,
+                        "product_type": Product.RAW_MATERIAL,
+                        "unit_of_measure": Product.UNITS,
+                    }
+                )
+
+                if created:
+                    created_count += 1
+                else:
+                    updated_count += 1
+
+            except Exception as e:
+                errors.append({"index": idx, "code": row.get("CodeKala"), "error": str(e)})
+
+        result = {
+            "status": "success",
+            "created": created_count,
+            "updated": updated_count,
+            "errors": errors
+        }
+        print(result)
+
+        return JsonResponse(result)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

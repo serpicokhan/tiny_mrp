@@ -184,6 +184,7 @@ urlpatterns = [
     url(r'^api/create-asset/$', create_asset2, name="create_asset2"),
     url(r'^api/create-supplier/$', create_supplier, name="create_supplier"),
     url(r'^api/save-purchase-request/', views.save_purchase_request, name='save-purchase-request'),
+    path('api/internal/products/', receive_products, name='receive_products'),
     
     
 

@@ -101,7 +101,7 @@ class UnitOfMeasure(models.Model):
 class BOMComponent(models.Model):
     """Through model for Bill of Materials components with quantity."""
     bom = models.ForeignKey('BillOfMaterials', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,limit_choices_to={'product_type': 'component'},verbose_name="محصول")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,limit_choices_to={'product_type__in': ['component', 'raw']},verbose_name="محصول")
     quantity = models.FloatField("تعداد",validators=[MinValueValidator(0.0)])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
