@@ -191,9 +191,11 @@
                                     </button>
                                 </td>
                                 <td>
+                                    {% if request.user|in_group:"director" %}
                                     <button type="button" class="btn btn-history btn-sm" onclick="showHistory({{i.item_name.id}}, '{{i.item_name.partName}}')">
                                         <i class="fa fa-history"></i> مشاهده سابقه
                                     </button>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
