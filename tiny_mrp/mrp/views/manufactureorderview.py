@@ -58,13 +58,13 @@ def manufacture_order_calendar(request):
     # ]
     # Vacations
     vacations = [
-        {"id": "v1", "title": "Team Vacation", "type": "vacation"},
-        {"id": "v2", "title": "Manager Vacation", "type": "vacation"},
+        {"id": "v1", "title": "تعطیل سالن", "type": "vacation"},
+        {"id": "v2", "title": "قطعی برق", "type": "vacation"},
     ]
     # Off days
     offdays = [
-        {"id": "o1", "title": "National Holiday", "type": "offday"},
-        {"id": "o2", "title": "Maintenance Day", "type": "offday"},
+        {"id": "o1", "title": "تعطیل رسمی", "type": "offday"},
+        {"id": "o2", "title": "آورهال", "type": "offday"},
     ]
     
     # Combine all draggable items

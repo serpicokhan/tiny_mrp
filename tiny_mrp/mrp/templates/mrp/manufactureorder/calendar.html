@@ -6,7 +6,7 @@
  <style media="screen">
    .fc-event {
   direction: rtl;
-  text-align: right; /* Optional: Align text to the right */
+  text-align: right;
 }
 #trash {
     background-color: #f8d7da;
@@ -63,13 +63,8 @@
                                                 </div>
                                             {% endif %}
                                         {% endfor %}
-                                    <!-- Vacations -->
-                                   
-                                        
                                     </div>
                                     <div class="list-group list-group-flush" id="external-events2">
-                                       
-                                    <!-- Vacations -->
                                     <h6 class="list-group-item bg-light">تعطیلات</h6>
                                     {% for item in draggable_items %}
                                         {% if item.type == "vacation" %}
@@ -81,7 +76,6 @@
                                             </div>
                                         {% endif %}
                                     {% endfor %}
-                                    <!-- Off Days -->
                                     <h6 class="list-group-item bg-light">روزهای تعطیل</h6>
                                     {% for item in draggable_items %}
                                         {% if item.type == "offday" %}
@@ -93,7 +87,6 @@
                                             </div>
                                         {% endif %}
                                     {% endfor %}
-                                        
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -118,11 +111,53 @@
                     </div>
                 </div>
 
-           
-
-            <!-- begin::ساخت رویداد Modal -->
-           
-            <!-- end::ساخت رویداد Modal -->
+            <!-- مودال تعیین ظرفیت روزانه -->
+            <div class="modal fade" id="dailyCapacityModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">تعیین ظرفیت تولید روزانه</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <i class="ti-close"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="dailyCapacityForm">
+                                <div class="form-group">
+                                    <label for="orderTitle">عنوان سفارش:</label>
+                                    <input type="text" class="form-control" id="orderTitle" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="totalQuantity">مقدار کل سفارش (کیلوگرم):</label>
+                                    <input type="number" class="form-control" id="totalQuantity" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dailyCapacity">ظرفیت تولید روزانه (کیلوگرم): <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="dailyCapacity" min="1" required>
+                                    <small class="form-text text-muted">لطفا ظرفیت تولید روزانه خط را وارد کنید</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>تعداد روزهای مورد نیاز:</label>
+                                    <input type="text" class="form-control" id="estimatedDays" readonly>
+                                </div>
+                                <div class="form-group" id="independentEditContainer" style="display: none;">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="independentEdit">
+                                        <label class="custom-control-label" for="independentEdit">
+                                            ویرایش مستقل (بدون کسر از سایر روزها)
+                                        </label>
+                                        <small class="form-text text-muted">اگر این گزینه فعال باشد، تغییرات از ظرفیت سایر روزها کسر نمی‌شود</small>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">لغو</button>
+                            <button type="button" class="btn btn-primary" id="confirmCapacity">تایید و ایجاد رویداد</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- begin::Event Info Modal -->
             <div class="modal fade" id="viewEventModal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -149,7 +184,6 @@
             <footer>
                 <div class="container-fluid">
                     <div>© 1400 | قالب مدیریت بورداش ورژن 1.0.0 ارایه از <a href="">AFARIDTEAM</a></div>
-
                     <div>
                         <nav class="nav">
                             <a href="https://www.rtl-theme.com/standard/" class="nav-link">لیسانس</a>
@@ -166,108 +200,97 @@
 
 {% block javascript %}
 <script>
-    var dailyLimit = {{ daily_limit }}; // Pass daily limit to JS
+    var dailyLimit = {{ daily_limit }};
     console.log(dailyLimit);
-    
 </script>
 <script src="{% static 'assets/Cal/cal/js/fullcalendar.min.js' %}"></script>
 <script src="{% static 'assets/Cal/cal/js/fullcalendar.morder.init.js' %}"></script>
 
-    <!-- App scripts -->
-   
-    <script>
-        $(function () {
-            $(document).on('click', '.app-block .app-content .app-action .action-left input[type="checkbox"]',
-                function () {
-                    $('.app-lists ul li input[type="checkbox"]').prop('checked', $(this).prop('checked'));
-                    if ($(this).prop('checked')) {
-                        $('.app-lists ul li input[type="checkbox"]').closest('li').addClass('active');
-                    } else {
-                        $('.app-lists ul li input[type="checkbox"]').closest('li').removeClass('active');
-                    }
-                });
-
-            $(document).on('click', '.app-lists ul li input[type="checkbox"]', function () {
+<script>
+    $(function () {
+        $(document).on('click', '.app-block .app-content .app-action .action-left input[type="checkbox"]',
+            function () {
+                $('.app-lists ul li input[type="checkbox"]').prop('checked', $(this).prop('checked'));
                 if ($(this).prop('checked')) {
-                    $(this).closest('li').addClass('active');
+                    $('.app-lists ul li input[type="checkbox"]').closest('li').addClass('active');
                 } else {
-                    $(this).closest('li').removeClass('active');
+                    $('.app-lists ul li input[type="checkbox"]').closest('li').removeClass('active');
                 }
             });
 
-            $(document).on('click',
-                '.app-block .app-content .app-content-body .app-lists ul.list-group li.list-group-item',
-                function (e) {
-                    if (!$(e.target).is('.custom-control, .custom-control *, a, a *')) {
-                        $('.app-detail').addClass('show').one(
-                            'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend',
-                            function () {
-                                $('.app-block .app-content .app-content-body .app-detail .app-detail-article')
-                                    .niceScroll().resize();
-                            });
-                    }
-                });
-
-            $(document).on('click', 'a.app-detail-close-button', function () {
-                $('.app-detail').removeClass('show');
-                return false;
-            });
-
-            $(document).on('click', '.app-sidebar-menu-button', function () {
-                $('.app-block .app-sidebar, .app-content-overlay').addClass('show');
-                // $('.app-block .app-sidebar .app-sidebar-menu').niceScroll().resize();
-                return false;
-            });
-
-            $(document).on('click', '.app-content-overlay', function () {
-                $('.app-block .app-sidebar, .app-content-overlay').removeClass('show');
-                return false;
-            });
+        $(document).on('click', '.app-lists ul li input[type="checkbox"]', function () {
+            if ($(this).prop('checked')) {
+                $(this).closest('li').addClass('active');
+            } else {
+                $(this).closest('li').removeClass('active');
+            }
         });
-    </script>
 
-    <script type="text/javascript">
-        $(function () {
-            $("#input1, #span1", "#input2", "#span2").persianDatepicker();
-        });
-        $("#input1,#input2").persianDatepicker({
-            months: ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی",
-                "بهمن", "اسفند"
-            ],
-            dowTitle: ["شنبه", "یکشنبه", "دوشنبه", "سه شنبه", "چهارشنبه", "پنج شنبه", "جمعه"],
-            shortDowTitle: ["ش", "ی", "د", "س", "چ", "پ", "ج"],
-            showGregorianDate: !1,
-            persianNumbers: !0,
-            formatDate: "YYYY/MM/DD",
-            selectedBefore: !1,
-            selectedDate: null,
-            startDate: null,
-            endDate: null,
-            prevArrow: '\u25c4',
-            nextArrow: '\u25ba',
-            theme: 'default',
-            alwaysShow: !1,
-            selectableYears: null,
-            selectableMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-            cellWidth: 25, // by px
-            cellHeight: 20, // by px
-            fontSize: 13, // by px                
-            isRTL: !1,
-            format: 'YYYY/MM/DD',
-
-
-            calendarPosition: {
-                x: 0,
-                y: 0,
-            },
-            onShow: function () {},
-            onHide: function () {},
-            onSelect: function () {},
-            onRender: function () {}
-        });
-        $(document).ready(function () {
-          
+        $(document).on('click',
+            '.app-block .app-content .app-content-body .app-lists ul.list-group li.list-group-item',
+            function (e) {
+                if (!$(e.target).is('.custom-control, .custom-control *, a, a *')) {
+                    $('.app-detail').addClass('show').one(
+                        'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend',
+                        function () {
+                            $('.app-block .app-content .app-content-body .app-detail .app-detail-article')
+                                .niceScroll().resize();
+                        });
+                }
             });
-    </script>
+
+        $(document).on('click', 'a.app-detail-close-button', function () {
+            $('.app-detail').removeClass('show');
+            return false;
+        });
+
+        $(document).on('click', '.app-sidebar-menu-button', function () {
+            $('.app-block .app-sidebar, .app-content-overlay').addClass('show');
+            return false;
+        });
+
+        $(document).on('click', '.app-content-overlay', function () {
+            $('.app-block .app-sidebar, .app-content-overlay').removeClass('show');
+            return false;
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(function () {
+        $("#input1, #span1", "#input2", "#span2").persianDatepicker();
+    });
+    $("#input1,#input2").persianDatepicker({
+        months: ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"],
+        dowTitle: ["شنبه", "یکشنبه", "دوشنبه", "سه شنبه", "چهارشنبه", "پنج شنبه", "جمعه"],
+        shortDowTitle: ["ش", "ی", "د", "س", "چ", "پ", "ج"],
+        showGregorianDate: !1,
+        persianNumbers: !0,
+        formatDate: "YYYY/MM/DD",
+        selectedBefore: !1,
+        selectedDate: null,
+        startDate: null,
+        endDate: null,
+        prevArrow: '\u25c4',
+        nextArrow: '\u25ba',
+        theme: 'default',
+        alwaysShow: !1,
+        selectableYears: null,
+        selectableMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        cellWidth: 25,
+        cellHeight: 20,
+        fontSize: 13,
+        isRTL: !1,
+        format: 'YYYY/MM/DD',
+        calendarPosition: {
+            x: 0,
+            y: 0,
+        },
+        onShow: function () {},
+        onHide: function () {},
+        onSelect: function () {},
+        onRender: function () {}
+    });
+</script>
 
 {% endblock %}

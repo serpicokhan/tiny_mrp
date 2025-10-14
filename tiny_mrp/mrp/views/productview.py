@@ -156,18 +156,42 @@ def receive_products(request):
                 name = " - ".join([p for p in name_parts if p])
 
                 code = f"{row.get('CodeKala')}-{row.get('keyfiat')}-{row.get('mogheiat')}-{row.get('vaziat')}"
-                print(row.get('mogheiat'))
-                product, created = Product.objects.update_or_create(
-                    code=code,
-                    defaults={
-                        "name": name or f"Unnamed {code}",
-                        "available_quantity": float(row.get("MeghdarM") or 0),
-                        "sale_price": 0,
-                        "cost_price": 0,
-                        "product_type": Product.RAW_MATERIAL,
-                        "unit_of_measure": Product.UNITS,
-                    }
-                )
+                if(row.get('CodeAnbar')==1):
+                    product, created = Product.objects.update_or_create(
+                        code=code,
+                        defaults={
+                            "name": name or f"Unnamed {code}",
+                            "available_quantity": float(row.get("MeghdarM") or 0),
+                            "sale_price": 0,
+                            "cost_price": 0,
+                            "product_type": Product.RAW_MATERIAL,
+                            "unit_of_measure": Product.KILOGRAMS,
+                        }
+                    )
+                elif(row.get('CodeAnbar')==2):
+                     product, created = Product.objects.update_or_create(
+                        code=code,
+                        defaults={
+                            "name": name or f"Unnamed {code}",
+                            "available_quantity": float(row.get("MeghdarM") or 0),
+                            "sale_price": 0,
+                            "cost_price": 0,
+                            "product_type": Product.COMPONENT,
+                            "unit_of_measure": Product.KILOGRAMS,
+                        }
+                    )
+                else:
+                     product, created = Product.objects.update_or_create(
+                        code=code,
+                        defaults={
+                            "name": name or f"Unnamed {code}",
+                            "available_quantity": float(row.get("MeghdarM") or 0),
+                            "sale_price": 0,
+                            "cost_price": 0,
+                            "product_type": Product.FINISHED_GOOD,
+                            "unit_of_measure": Product.KILOGRAMS,
+                        }
+                    )
 
                 if created:
                     created_count += 1
