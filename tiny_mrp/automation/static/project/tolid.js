@@ -1,0 +1,1311 @@
+
+// document.addEventListener('DOMContentLoaded', function() {
+//   const tables = document.querySelectorAll('.company-table');
+//
+//   // Function to handle cell value change in the second column
+//   const handleCellValueChange = (event) => {
+//     const changedValue = event.target.innerText;
+//     const columnIndex = Array.from(event.target.parentElement.children).indexOf(event.target);
+//
+//     if (columnIndex === 1) { // Assuming the second column is index 1 (0-indexed)
+//       tables.forEach((table) => {
+//         const rows = table.querySelectorAll('tr');
+//         const cellToUpdate = rows[event.target.parentElement.rowIndex].querySelectorAll('.editable-cell')[0];
+//         if (cellToUpdate && cellToUpdate !== event.target) {
+//           // cellToUpdate.innerText = changedValue;
+//           // cellToUpdate.attr('data-nomre',changedValue);
+//           cellToUpdate.setAttribute('data-nomre', changedValue);
+//
+//         }
+//       });
+//     }
+//   };
+//
+//   // Add event listeners to detect cell value changes in the second column
+//   tables.forEach((table) => {
+//     const cells = table.querySelectorAll('.editable-cell');
+//     cells.forEach((cell) => {
+//       cell.addEventListener('input', handleCellValueChange);
+//     });
+//   });
+//
+// });
+
+// document.addEventListener('DOMContentLoaded', function() {
+//   const cells = document.querySelectorAll('.editable-cell');
+
+//   // Function to select all text in an editable cell when clicked
+//   const selectText = (event) => {
+//     const selection = window.getSelection();
+//     const range = document.createRange();
+//     range.selectNodeContents(event.target);
+//     selection.removeAllRanges();
+//     selection.addRange(range);
+//   };
+
+//   // Add click event listener to each editable cell
+
+
+
+//   // Add event listeners to detect keypress in cells
+//   cells.forEach((cell) => {
+//     cell.addEventListener('click', selectText);
+
+
+//   });
+// });
+// document.addEventListener('DOMContentLoaded', function() {
+//   const cells = document.querySelectorAll('.company-table .editable-cell');
+
+//   // Function to handle key press
+//   const handleKeyPress = (event) => {
+//     if (event.key === 'Enter') {
+//       event.preventDefault(); // Prevent default Enter behavior (line break)
+
+//       const cellIndex = Array.from(cells).indexOf(event.target);
+//       const rows = Array.from(event.target.parentElement.parentElement.children);
+//       const rowIndex = rows.indexOf(event.target.parentElement);
+//       const nextRow = rows[rowIndex + 1];
+
+//       if (nextRow) {
+//         const nextCell = nextRow.querySelector('.counter');
+//         if (nextCell) {
+//           nextCell.focus();
+//           window.getSelection().selectAllChildren(nextCell);
+//         }
+//       }
+//     }
+//   };
+
+//   // Add event listeners to detect keypress in cells
+//   cells.forEach((cell) => {
+//     cell.addEventListener('keydown', handleKeyPress);
+//   });
+// });
+
+
+$(function () {
+  $('.tblrows').on('keydown','.editable-cell, .production',(function(e) {
+    console.log("1");
+        if (e.keyCode == 13) { // Enter key
+            e.preventDefault(); // Prevent default Enter behavior
+
+            var $currentCell = $(this);
+            var $nextRow = $currentCell.closest('tr').next('tr');
+
+            if ($nextRow.length) {
+                // Find the same index cell in the next row and focus it
+                var cellIndex = $currentCell.index();
+                var $nextCell = $nextRow.find('td').eq(cellIndex);
+
+                if ($nextCell.length && $nextCell.is('[contenteditable=true]')) {
+                    $nextCell.focus();
+                }
+            }
+        }
+    }));
+
+
+  var handleCellValueChange = function(event) {
+     const tables = $('.company-table');
+
+    const changedValue = $(event.target).text();
+    const columnIndex = $(event.target).index();
+
+    if (columnIndex === 1) { // Assuming the second column is index 1 (0-indexed)
+      tables.each(function() {
+        const rows = $(this).find('tr');
+        const cellToUpdate = $(rows[event.target.parentElement.rowIndex]).find('.editable-cell').eq(0);
+        if (cellToUpdate.length && cellToUpdate[0] !== event.target) {
+          // cellToUpdate.text(changedValue);
+          // cellToUpdate.attr('data-nomre', changedValue);
+          cellToUpdate.attr('data-nomre', changedValue);
+          console.log("change");
+        }
+      });
+    }
+  };
+  $(".tab-content").on("input",'.btc', function() {
+            var row = $(this).closest("tr");
+            var nomre = parseFloat(row.find(".nomre").text()) || 0;
+            
+            var counter1 = parseFloat(row.find(".counter1").text()) || 0;
+            var counter2 = parseFloat(row.find(".counter2").text()) || 0;
+            // var vahed = parseInt(row.find(".vahed").text()) || 0;
+            var z = parseFloat(row.find(".speed").text()) || 0;
+            var p = parseFloat(row.find(".nomre").text()) || 0;
+            var q = parseFloat(row.find(".vahed").text()) || 0;
+            var wastage = parseFloat(row.find(".wastage").text()) || 0;
+            
+            var nezafat = parseFloat(row.find(".nezafat").text()) || 0;
+            var qc = parseFloat(row.find(".qc").text()) || 0;
+            var q1 = parseFloat(row.find(".vahed").data("vahed")) || 0;
+            var formula2 = row.find("[data-maxformula]").data("maxformula");
+            var formula = row.find(".production").data("formula");
+            // console.log(nomre);
+            var counter2Text = row.find(".counter2").text().trim();
+            var counter2 = 0;
+
+            if (counter2Text.includes(":")) {
+                var parts = counter2Text.split(":");
+                if (parts.length === 2) {
+                    var hours = Math.abs(parseFloat(parts[0]) || 0);
+                    var minutes = Math.abs(parseFloat(parts[1]) || 0);
+                    minutes = minutes % 60; // Ensure minutes don't exceed 59
+                    counter2 = (hours * 60) + minutes;
+                    var result = evaluateFormula_4p(formula, nomre,z,counter2,q);
+
+                }
+            } else if (!isNaN(counter2Text)) {
+                counter2 = parseFloat(counter2Text) || 0;
+                 var result = evaluateFormula_4p(formula, nomre,z,counter2-counter1,q);
+
+            }
+            let operatorData = row.find('.operator-data').val();
+            let operatorCount = 0;
+            try {
+              // Parse the JSON to count the number of operators
+              operatorData = JSON.parse(operatorData);
+              operatorCount = Array.isArray(operatorData) ? operatorData.length : 0;
+            } catch (e) {
+              console.error('Error parsing operator_data JSON:', e);
+              operatorCount = 1; // Fallback to 1 to avoid division by zero
+            }
+        
+            // Ensure operatorCount is at least 1 to avoid division by zero
+            operatorCount = operatorCount > 0 ? operatorCount : 1;
+        
+            // Calculate the formula: (result - wastage - qc) * (nezafat / 100) / operatorCount
+            let randemanValue = ((result - wastage - qc) * (nezafat / 100)) / operatorCount;
+        
+            // Round to 2 decimal places
+            randemanValue = isNaN(randemanValue) ? 0 : randemanValue.toFixed(2);
+        
+            // Update the randeman_production cell
+            row.find('.randeman_production').text(randemanValue);
+            // row.find(".randeman_production").text((result-wastage-qc)*(nezafat/100)); 
+
+            
+            
+
+           
+
+            // var result = evaluateFormula(formula, nomre,counter2-counter1,q);
+            row.find("[data-formula]").text(result);
+            var result = evaluateFormula2(formula2, p,z,q1);
+            
+            row.find(".production_full").text(result);
+
+
+        });
+        function calculateRandeman(row) {
+          
+          // Extract values from the row
+          let result = parseFloat(row.find('.production').text()) || 0;
+          let wastage = parseFloat(row.find('.wastage').text()) || 0;
+          let qc = parseFloat(row.find('.qc').text()) || 0;
+          let nezafat = parseFloat(row.find('.nezafat').text()) || 0;
+      
+          // Get the operator_data JSON from the hidden input
+          let operatorData = row.find('.operator-data').val();
+          let operatorCount = 0;
+      
+          try {
+            // Parse the JSON to count the number of operators
+            operatorData = JSON.parse(operatorData);
+            operatorCount = Array.isArray(operatorData) ? operatorData.length : 0;
+          } catch (e) {
+            console.error('Error parsing operator_data JSON:', e);
+            operatorCount = 1; // Fallback to 1 to avoid division by zero
+          }
+      
+          // Ensure operatorCount is at least 1 to avoid division by zero
+          operatorCount = operatorCount > 0 ? operatorCount : 1;
+      
+          // Calculate the formula: (result - wastage - qc) * (nezafat / 100) / operatorCount
+          let randemanValue = ((result - wastage - qc) * (nezafat / 100)) / operatorCount;
+      
+          // Round to 2 decimal places
+          randemanValue = isNaN(randemanValue) ? 0 : randemanValue.toFixed(2);
+      
+          // Update the randeman_production cell
+          row.find('.randeman_production').text(randemanValue);
+        }
+      
+        // Apply the calculation to all rows with class 'randeman_production' on page load
+        
+        
+        
+        $(".tab-content").on('change', '.operator-data', function() {
+          let row = $(this).closest('tr');
+          calculateRandeman(row);
+        });
+
+        function evaluateFormula(formula, P, Q,Z) {
+          console.log(formula,P,Q,Z);
+            formula = formula.replace("P", P).replace("Q", Q).replace("Z",Z);
+            try {
+              // console.log(formula);
+                var result = eval(formula);
+                // console.log(result)
+                return result.toFixed(2); // Adjust as needed
+            } catch (error) {
+                console.error("Error evaluating formula:", error);
+                return 0;
+            }
+        }
+        function evaluateFormula_4p(formula, N,S,T,V) {
+            formula = formula.replace("N", N).replace("S", S).replace("T",T).replace("V",V);
+            try {
+              // console.log(formula);
+              // console.log(N,S,T,V);
+                var result = eval(formula);
+                // console.log(result)
+                return result.toFixed(2); // Adjust as needed
+            } catch (error) {
+                console.error("Error evaluating formula:", error);
+                return 0;
+            }
+        }
+  // $(".tab-content").on("input",'.editable-cell2', function(event) {
+  //           var row = $(this).closest("tr");
+  //           var z = parseFloat(row.find(".speed").text()) || 0;
+  //           var p = parseFloat(row.find(".nomre").text()) || 0;
+  //           var q = parseFloat(row.find(".vahed").text()) || 0;
+  //           var formula = row.find("[data-maxformula]").data("maxformula");
+  //           // console.log( Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement));
+  //           const rowIndex = Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement);
+  //           const tables = document.querySelectorAll('.company-table');
+  //           // console.log(tables);
+  //           console.log(rowIndex);
+
+  //           for (let i = 0; i < tables.length; i++) {
+  //             const correspondingCell = tables[i].querySelectorAll('.editable-cell.editable-cell')[rowIndex];
+
+  //             if (correspondingCell && correspondingCell !== event.target) {
+  //                       // console.log(correspondingCell);
+  //                      // correspondingCell.innerText = newValue;
+  //                      // console.log(correspondingCell);
+  //                      // const correspondingRow = correspondingCell.closest('tr');
+  //                      // console.log(correspondingRow);
+  //                      // correspondingRow.setAttribute('data-speed',z);
+  //                      tables[i].rows[rowIndex+1].setAttribute('data-speed2',z);
+
+
+
+  //                    }
+
+  //           }
+
+
+  //           ///
+  //           var result = evaluateFormula2(formula, z, p,q);
+  //           row.find(".production_full").text(result);
+
+  //       });
+
+        function evaluateFormula2(formula, P,Q,Z) {
+          console.log(formula,Z,P);
+            formula = formula.replace("Z", Z).replace("p", P).replace("Q",Q);
+            try {
+                var result = eval(formula);
+                return result.toFixed(2); // Adjust as needed
+            } catch (error) {
+                console.error("Error evaluating formula:", error);
+                return "Error";
+            }
+        }
+
+
+
+        $('#search').pDatepicker({
+                format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian',
+                calendar:{
+                  persian: {
+                      leapYearMode: 'astronomical'
+                  }
+              }
+              });
+
+//$("#company-table").on("click", ".js-update-wo", initxLoad);
+var tableDataToJSON=function(tableId){
+  var $table = $(tableId);
+  var data = [];
+  $table.find('tr').each(function() {
+
+        if($(this).attr('data-machine')){
+       
+          
+        var machine=$(this).attr('data-machine');
+        var amar_id=$(this).attr('data-id')||'0';
+        var shift = $("#select_shift").val();
+        // var makan = $("#select_makan").val();
+        var dayOfIssue = $("#search").val();
+        var speed = $(this).find('td.speed').text()||0;        
+        var nomre = parseFloat($(this).find('td.nomre').text());
+        // var nomre=100;
+        // console.log($(this).find('td.nomre').text());
+        var counter1 = $(this).find('td.counter1').text()||0;
+        var counter2 = $(this).find('td.counter2').text()||0;
+        var vahed = parseInt($(this).find('td.vahed').text()||0);
+        var wastage = parseFloat($(this).find('td.wastage').text()||0);
+        var enzebat = parseFloat($(this).find('td.nezafat').text()||0);
+        var qc = parseFloat($(this).find('td.qc').text()||0);
+        var actual_vahed = $(this).find('td.editable-cell').attr('data-vahed');
+        var operator_data= $(this).find('.operator-data').val() || '[]';
+        var moshakhase=$(this).find('.nakh-data').val()||'null'
+
+        // if(vahed > actual_vahed){
+        //   toastr.error(`${vahed} ${actual_vahed}`);
+        //   return;
+        // }
+        var production_value =  $(this).find('td.production').text()||0;
+
+
+        data.push({id:amar_id,wastage:wastage, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
+          , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed,operator_data:operator_data,actual_vahed:actual_vahed,moshakhase:moshakhase,qc:qc,enzebat:enzebat
+           });
+         }
+      });
+
+      return data;
+
+
+}
+$("#save_production").click(function(){
+   var sendData = {
+    
+  };
+  var i=1;
+  $("table.company-table").each(function() {
+    
+    // You can perform operations on each table here
+    // console.log($(this)); // This logs each table with the class 'company-table'
+    
+    sendData[i]=tableDataToJSON($(this));
+    i++;
+});
+
+
+console.log(JSON.stringify(sendData));
+  // AJAX request to send data to the server
+  $.ajax({
+    url: '/Tolid/SaveTableInfo',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(sendData),
+    beforeSend:function(){
+      $(".preloader").show();
+    },
+    success: function(response) {
+      // Handle the success response from the server
+      if(response.error)
+      {
+        toastr.error(response.error);
+      }
+      else{
+        console.log('Data sent successfully:', response);
+        toastr.success("اطلاعات با موفقیت ذخیره شد");
+
+      }
+      $(".preloader").hide();
+    },
+    error: function(xhr, status, error) {
+      // Handle any errors that occur during the AJAX request
+      console.error('Error sending data:', error);
+      toastr.error(error);
+      $(".preloader").hide();
+    }
+  });
+  // var tbl2=tableDataToJSON('tbl2');
+  // var tbl3=tableDataToJSON('tbl3');
+});
+  function processDataFromTables() {
+    const tables = $('.tbl-zayeat-vazn'); // Select all tables with class 'table'
+    const allTableData = []; // Array to store data from all tables
+
+    tables.each(function() {
+        const tableData = []; // Array to store data from a single table
+        const rows = $(this).find('tbody tr'); // Find rows in the current table
+
+        rows.each(function() {
+            const rowData = {}; // Object to store data for a single row
+
+            // Find cells in the current row
+            const cells = $(this).find('td');
+
+            cells.each(function(index) {
+              const dataId = $(this).attr('data-id');
+              const cellContent = $(this).text().trim()||0;
+              const datadate = $(this).attr('data-date');
+              const shiftdata=$(this).attr('data-shift');
+              const makan=$("#makan_zayeat").val();
+
+
+              tableData.push({'id':dataId,'vazn':cellContent,'date':datadate,'shift':shiftdata,'makan':makan});
+            });
+
+            // Push rowData object to the tableData array
+
+        });
+
+        // Push tableData array to the allTableData array
+        allTableData.push(tableData);
+    });
+
+    return allTableData;
+}
+  var save_zayeat=function(){
+    form=$(this);
+
+    // Initialize an empty array to store the data
+            const collectedData = processDataFromTables();
+            console.log(collectedData);
+            const url = form.attr('action'); // Replace with your actual POST endpoint URL
+
+            $.ajax({
+              url: form.attr("action"),
+              data: JSON.stringify(collectedData),
+              type: form.attr("method"),
+              dataType: 'json',
+              success: function (data) {
+                
+                if(data.success==true)
+                 $("#modal-company").modal("hide");
+                else{
+                  console.log(data);
+                }
+
+
+              }
+            });
+            return false;
+
+  }
+  $(".add-zayeat").click(function(){
+    var btn=$(this);
+    return $.ajax({
+      url: $(btn).attr("data-url")+'?data='+$("#search").val()+'&makan='+$("#select_makan").val(),
+      type: 'get',
+      dataType: 'json',
+      beforeSend: function () {
+        //alert(btn.attr("data-url"));
+        //alert("321321");
+        // /$("#modal-maintenanceType").modal("hide");
+        $("#modal-company").modal("show");
+      },
+      success: function (data) {
+        console.log(data);
+        //alert("3123@!");
+        $("#modal-company .modal-content").html(data.data);
+
+      }
+    });
+  });
+  function initiate_code_nakh(){
+    $('.nakh-name').select2({
+      dropdownParent: $('body'),
+     
+      ajax: {
+          url: '/api/moshakhase/search/', // Replace with your actual endpoint
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term, // search term
+                  page: params.page || 1
+              };
+          },
+          processResults: function (data, params) {
+              params.page = params.page || 1;
+              
+              return {
+                  results: data.results.map(function(item) {
+                      return {
+                          id: item.id,
+                          text: item.name + ' (' + item.color_name + ')',
+                          
+                          name: item.name,
+                          color_id: item.color_id,
+                          color_name: item.color_name,
+                          tool:item.tool,
+                          la:item.la
+                      };
+                  }),
+                  pagination: {
+                      more: data.has_more
+                  }
+              };
+          },
+          cache: true
+      },
+      minimumInputLength: 2,
+     
+      language: {
+          inputTooShort: function () {
+              return "حداقل 2 کاراکتر وارد کنید";
+          },
+          searching: function () {
+              return "در حال جستجو...";
+          },
+          noResults: function () {
+              return "نتیجه‌ای یافت نشد";
+          },
+          errorLoading: function () {
+              return "خطا در بارگذاری نتایج";
+          }
+      },
+      dir: "rtl" // RTL support for Persian/Arabic text
+  });
+  // Handle selection event for multiple operators
+$('.nakh-name').on('select2:select', function (e) {
+    var data = e.params.data;
+    var $row = $(this).closest('tr');    
+    updateOperatorHiddenFields2($row);    
+    console.log('Selected operator:', data);
+});
+
+// Handle unselecting an operator
+$('.nakh-name').on('select2:unselect', function (e) {
+    var data = e.params.data;
+    var $row = $(this).closest('tr');
+    
+    updateOperatorHiddenFields2($row);
+    
+    console.log('Unselected operator:', data);
+});
+
+// Handle clearing all selections
+$('.nakh-name').on('select2:clear', function (e) {
+    var $row = $(this).closest('tr');
+    
+    // Clear all hidden fields
+    $row.find('.nakh-data').val('');
+});
+
+
+  }
+  function initializeSelect2() {
+    $('.operator-name').select2({
+      dropdownParent: $('body'),
+      multiple: true, // Enable multiple selection
+      ajax: {
+          url: '/api/operators/search/', // Replace with your actual endpoint
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term, // search term
+                  page: params.page || 1
+              };
+          },
+          processResults: function (data, params) {
+              params.page = params.page || 1;
+              
+              return {
+                  results: data.results.map(function(item) {
+                      return {
+                          id: item.id,
+                          text: item.name + ' (' + item.personnel_number + ')',
+                          personnel_number: item.personnel_number,
+                          name: item.name,
+                          pid: item.pid,
+                          cp_code: item.cp_code,
+                          card_no: item.card_no,
+                          first_name: item.first_name,
+                          last_name: item.last_name
+                      };
+                  }),
+                  pagination: {
+                      more: data.has_more
+                  }
+              };
+          },
+          cache: true
+      },
+      placeholder: 'انتخاب اپراتور(ها)',
+      
+      minimumInputLength: 2,
+      closeOnSelect: false, // Keep dropdown open after selection for multiple picks
+      language: {
+          inputTooShort: function () {
+              return "حداقل 2 کاراکتر وارد کنید";
+          },
+          searching: function () {
+              return "در حال جستجو...";
+          },
+          noResults: function () {
+              return "نتیجه‌ای یافت نشد";
+          },
+          errorLoading: function () {
+              return "خطا در بارگذاری نتایج";
+          }
+      },
+      dir: "rtl" // RTL support for Persian/Arabic text
+  });
+  // Handle selection event for multiple operators
+$('.operator-name').on('select2:select', function (e) {
+    var data = e.params.data;
+    var $row = $(this).closest('tr');    
+    updateOperatorHiddenFields($row);    
+});
+
+// Handle unselecting an operator
+$('.operator-name').on('select2:unselect', function (e) {
+    var data = e.params.data;
+    var $row = $(this).closest('tr');
+    
+    updateOperatorHiddenFields($row);
+    
+});
+
+// Handle clearing all selections
+$('.operator-name').on('select2:clear', function (e) {
+    var $row = $(this).closest('tr');
+    
+    // Clear all hidden fields
+    $row.find('.operator-data').val('');
+});
+  }
+  $("#button-addon1").click(function(){
+
+    var btn=$(this);
+    return $.ajax({
+      url: $(btn).attr("data-url")+'?event_id='+$("#search").val()+'&shift_id='+$("#select_shift").val()+'&makan_id='+$("#select_makan").val(),
+      type: 'get',
+      dataType: 'json',
+      beforeSend: function () {
+        //alert(btn.attr("data-url"));
+        //alert("321321");
+        // /$("#modal-maintenanceType").modal("hide");
+    
+
+
+      },
+      success: function (data) {
+        
+    $(".tab-content").empty();
+    $(".tab-content").html(data.html_heatset_result);
+    $("#btn_next_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.next_date}&shift_id=${$("#select_shift").val()}`);
+    $("#btn_prev_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.prev_date}&shift_id=${$("#select_shift").val()}`);
+    $('.nav-link.active').removeClass('active').attr('aria-selected', false);
+    $a = $($(".nav-item a")[0]); // Wrap the first DOM element in a jQuery object
+    $a.addClass('active').attr('aria-selected', true).tab('show');
+    // $('.operator-name').select2({multiple: true});
+    // initializeSelect2();
+    initiate_code_nakh();
+
+      }
+    });
+  }
+);
+$(".page-link").click(function(){
+  var btn=$(this);
+  console.log(btn.attr("data-url"));
+  return $.ajax({
+    url: $(btn).attr("data-url"),
+    type: 'get',
+    dataType: 'json',
+    beforeSend: function () {
+      //alert(btn.attr("data-url"));
+      //alert("321321");
+      // /$("#modal-maintenanceType").modal("hide");
+
+    },
+    success: function (data) {
+
+      $(".tab-content").empty();
+      // console.log(data.html_heatset_result);
+      $(".tab-content").html(data.html_heatset_result);
+      $("#btn_next_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.next_date}&shift_id=${$("#select_shift").val()}`);
+      $("#btn_prev_date").attr('data-url',`/Tolid/Asset/LoadInfo?event=${data.prev_date}&shift_id=${$("#select_shift").val()}`);
+      $("#search").val(data.today_shamsi);
+      $('.nav-link.active').removeClass('active').attr('aria-selected', false);
+      $a = $($(".nav-item a")[0]); // Wrap the first DOM element in a jQuery object
+      $a.addClass('active').attr('aria-selected', true).tab('show');
+
+
+    }
+  });
+
+});
+$(".delete-info").click(function(){
+  var btn=$(this);
+  return $.ajax({
+    url: $(btn).attr("data-url")+'?event_id='+$("#search").val(),
+    type: 'get',
+    dataType: 'json',
+    beforeSend: function (x) {
+      //alert(btn.attr("data-url"));
+      //alert("321321");
+      // /$("#modal-maintenanceType").modal("hide");
+      a=confirm("آیا مظمئن هستید؟همه اطلاعات این تاریخ حذف خواهد شد!");
+      if(!a){
+        x.abort();
+      }
+
+    },
+    success: function (data) {
+      $("#tblrows").empty();
+      $("#tblrows").html(data.html_heatset_result);
+
+    }
+  });
+});
+  // $('.editable-cell').on('input', function() {
+  //       // Allow only numeric input
+  //       var text = $(this).text();
+  //       $(this).text(text.replace(/[^0-9]/g, ''));
+  //   });
+  $("#modal-company").on("submit",'.js-zayeatVazn-create-form',save_zayeat);
+   $(".tblrows").on('input','.editable-cell', handleCellValueChange);
+  $("#new_amar").click(function(){
+    window.location='/Register';
+  });
+  $(".tab-content").on("focus", ".editable-cell, .editable-cell2, .production", function() {
+    var element = $(this);
+    setTimeout(function() {
+        var range = document.createRange();
+        range.selectNodeContents(element[0]);
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }, 0);
+});
+
+// Use event delegation for keydown event to move focus on Enter key
+$(".tab-content").on("keydown", ".editable-cell, .editable-cell2, .production", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault(); // Prevent newline in contenteditable cell
+
+        var currentCell = $(this);
+        var columnIndex = currentCell.index();
+        var nextRow = currentCell.closest("tr").next("tr");
+
+        if (nextRow.length > 0) {
+            // Find the cell in the same column in the next row and focus it
+            var nextCell = nextRow.children().eq(columnIndex);
+            if (nextCell.hasClass("editable-cell") || nextCell.hasClass("editable-cell2")|| nextCell.hasClass("production")) {
+                nextCell.focus();
+            }
+        }
+    }
+});
+  $("#select_shift").change(function(){
+    window.location=`/Register?makan_id=${$("#select_makan").val()}&shift_id=${$("#select_shift").val()}&selected_date=${$("#search").val()}`;
+    // window.location=`/Register?shift_id=${$(this).val()}&selected_date=${$("#search").val()}`;
+  });
+  $("#select_makan").change(function(){
+    window.location=`/Register?makan_id=${$(this).val()}&shift_id=${$("#select_shift").val()}&selected_date=${$("#search").val()}`;
+  });
+  function getQueryParameter(name) {
+    let results = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);
+    return results ? decodeURIComponent(results[1]) : null;
+}
+  $("#select_shift2").change(function(){
+    window.location=`/Tolid/DailyDetails?event_id=${getQueryParameter('event_id')}&shift_id=${$(this).val()}&makan_id=${getQueryParameter('makan_id')}`;
+  });
+
+  $("#select_shift_scroll").change(function(){
+    window.location=`/Tolid/DailyDetails/Scroll?event_id=${getQueryParameter('event_id')}&shift_id=${$(this).val()}&makan_id=${getQueryParameter('makan_id')}`;
+  });
+  
+  // initializeSelect2();
+  initiate_code_nakh();
+
+function updateOperatorHiddenFields($row) {
+  // Get currently selected operators from Select2
+  var selectedOperators = $row.find('.operator-name').select2('data');
+  var selectedIds = selectedOperators.map(op => op.id);
+  
+  // Get existing data from hidden field
+  var existingData = [];
+  var currentValue = $row.find('.operator-data').val();
+  
+  if (currentValue) {
+    try {
+      existingData = JSON.parse(currentValue);
+      // Convert old format if needed
+      if (!Array.isArray(existingData)) {
+        existingData = convertOldFormatToArray(existingData);
+      }
+    } catch (e) {
+      console.error("Error parsing operator data", e);
+    }
+  }
+  
+  // Filter out any existing operators that are no longer selected
+  var updatedOperators = existingData.filter(op => 
+    selectedIds.includes(op.id)
+  );
+  
+  // Add any newly selected operators that aren't already in the data
+  selectedOperators.forEach(newOp => {
+    if (!updatedOperators.some(op => op.id === newOp.id)) {
+      updatedOperators.push({
+        id: newOp.id,
+        personnel_number: newOp.personnel_number,
+        pid: newOp.pid,
+        cp_code: newOp.cp_code,
+        card_no: newOp.card_no,
+        name: newOp.name
+      });
+    }
+  });
+  
+  // Update the hidden field
+  $row.find('.operator-data').val(JSON.stringify(updatedOperators));
+  console.log("!@@@@@@@@@@@@@@@@@@@@@@");
+  
+}
+
+// Convert old format {ids:[], names:[]} to new format [{id:..., name:...}]
+function convertOldFormatToArray(oldData) {
+  if (!oldData.ids) return [];
+  
+  return oldData.ids.map((id, index) => ({
+    id: id,
+    personnel_number: oldData.personnel_numbers?.[index] || null,
+    pid: oldData.pids?.[index] || null,
+    cp_code: oldData.cp_codes?.[index] || null,
+    card_no: oldData.card_nos?.[index] || null,
+    name: oldData.names?.[index] || null
+  }));
+}
+function updateOperatorHiddenFields2($row) {
+  // Get currently selected operators from Select2
+  var selectedOperators = $row.find('.nakh-name').select2('data')[0];
+  console.log(selectedOperators);
+  
+  // var selectedIds = selectedOperators.map(op => op.id);
+  
+  // Get existing data from hidden field
+ 
+  
+  // Add any newly selected operators that aren't already in the data
+  updatedOperators={
+    id: selectedOperators.id,
+    text: selectedOperators.name + ' (' + selectedOperators.color_name + ')',
+    
+    name: selectedOperators.name,
+    color_id: selectedOperators.pid,
+    color_name: selectedOperators.cp_code,
+    tool:selectedOperators.tool,
+    la:selectedOperators.la
+  };
+  
+  // Update the hidden field
+  $row.find('.nakh-data').val(JSON.stringify(updatedOperators));
+}
+
+// Convert old format {ids:[], names:[]} to new format [{id:..., name:...}]
+
+// Optional: Load existing operator data if editing
+// loadExistingOperators();
+// });
+
+// افزودن رویداد کلیک برای دکمه کپی
+function createNewRow($originalRow) {
+  // داده‌های اصلی از سطر موجود
+  var machineId = $originalRow.data("machine");
+  var machineName = $originalRow.find("td:first").text();
+  var speed = $originalRow.data("speed2") || 0;
+  var vahed = $originalRow.find(".vahed").data("vahed") || 0;
+  var maxFormula = $originalRow.find(".production_full").data("maxformula") || "";
+  var formula = $originalRow.find(".production").data("formula") || "";
+
+  // ساخت سطر جدید
+  var $newRow = $("<tr>", {
+      "data-machine": machineId,
+      "data-speed2": speed
+  });
+
+  // ستون نام ماشین
+  $newRow.append($("<td>").text(machineName));
+
+  // ستون اپراتور (Select2)
+  var $operatorCell = $("<td>");
+  var $operatorSelect = $("<select>", {
+      "class": "form-control operator-name",
+      "data-machine-id": machineId,
+      "multiple": "multiple",
+      "style": "width: 100%;"
+  });
+  $operatorCell.append($operatorSelect);
+  $operatorCell.append($('<input type="hidden" class="operator-data" name="operator_data" value="[]">'));
+  $newRow.append($operatorCell);
+
+  // ستون کد نخ (Select2)
+  var $nakhCell = $("<td>");
+  var $nakhSelect = $("<select>", {
+      "class": "form-control nakh-name",
+      "data-machine-id": machineId,
+      "style": "width: 100%;"
+  });
+  $nakhCell.append($nakhSelect);
+  $nakhCell.append($('<input type="hidden" class="nakh-data" name="nakh_data_' + machineId + '">'));
+  $newRow.append($nakhCell);
+
+  // ستون واحد (قابل ویرایش)
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell btc vahed selectable1",
+      "data-vahed": vahed
+  }).text(""));
+
+  // ستون نمره (قابل ویرایش)
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell btc nomre selectable1"
+  }).text(""));
+
+  // ستون سرعت (قابل ویرایش)
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell2 btc speed selectable1",
+      "data-nomre": ""
+  }).text(""));
+
+  // ستون‌های دیگر (کنتور ابتدا، انتها، تولید، ضایعات و عملیات)
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell btc counter1 selectable1"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell btc counter2 selectable1"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell3 production_full selectable1",
+      "data-maxformula": maxFormula,
+      "data-vahed": vahed
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "data-formula": formula,
+      "class": "production"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell2 selectable1 wastage"
+  }).text(""));
+
+  // دکمه کپی برای سطر جدید
+  $newRow.append($("<td>").append(
+      $("<button>", {
+          "class": "btn btn-success copy-row",
+          "text": "کپی"
+      })
+  ));
+
+  return $newRow;
+}
+$(".tab-content").on("click", ".copy-row", function() {
+  var $originalRow = $(this).closest("tr");
+  var $newRow = createNewRow($originalRow);
+  
+  // اضافه کردن سطر جدید بعد از سطر جاری
+  $originalRow.after($newRow);
+  
+  // مقداردهی اولیه Select2ها برای سطر جدید
+  initializeSelect2ForRow($newRow);
+  initiateCodeNakhForRow($newRow);
+  
+  // اسکرول به سطر جدید
+  $('html, body').animate({
+      scrollTop: $newRow.offset().top - 100
+  }, 500);
+});
+// تابع برای مقداردهی اولیه Select2 اپراتورها برای یک سطر خاص
+function initializeSelect2ForRow($row) {
+  $row.find('.operator-name').select2({
+      dropdownParent: $('body'),
+      multiple: true,
+      ajax: {
+          url: '/api/operators/search/',
+          dataType: 'json',
+          delay: 250,
+          data: function(params) {
+              return {
+                  q: params.term,
+                  page: params.page || 1
+              };
+          },
+          processResults: function(data, params) {
+              params.page = params.page || 1;
+              return {
+                  results: data.results.map(function(item) {
+                      return {
+                          id: item.id,
+                          text: item.name + ' (' + item.personnel_number + ')',
+                          personnel_number: item.personnel_number,
+                          name: item.name,
+                          pid: item.pid,
+                          cp_code: item.cp_code,
+                          card_no: item.card_no,
+                          first_name: item.first_name,
+                          last_name: item.last_name
+                      };
+                  }),
+                  pagination: {
+                      more: data.has_more
+                  }
+              };
+          },
+          cache: true
+      },
+      placeholder: 'انتخاب اپراتور(ها)',
+      minimumInputLength: 2,
+      closeOnSelect: false,
+      language: {
+          inputTooShort: function() {
+              return "حداقل 2 کاراکتر وارد کنید";
+          },
+          searching: function() {
+              return "در حال جستجو...";
+          },
+          noResults: function() {
+              return "نتیجه‌ای یافت نشد";
+          },
+          errorLoading: function() {
+              return "خطا در بارگذاری نتایج";
+          }
+      },
+      dir: "rtl"
+  });
+  
+  // افزودن رویدادهای Select2 برای سطر جدید
+  $row.find('.operator-name').on('select2:select', function(e) {
+      updateOperatorHiddenFields($(this).closest('tr'));
+  }).on('select2:unselect', function(e) {
+      updateOperatorHiddenFields($(this).closest('tr'));
+  }).on('select2:clear', function(e) {
+      $(this).closest('tr').find('.operator-data').val('[]');
+  });
+}
+
+// تابع برای مقداردهی اولیه Select2 کد نخ برای یک سطر خاص
+function initiateCodeNakhForRow($row) {
+  $row.find('.nakh-name').select2({
+      dropdownParent: $('body'),
+      ajax: {
+          url: '/api/moshakhase/search/',
+          dataType: 'json',
+          delay: 250,
+          data: function(params) {
+              return {
+                  q: params.term,
+                  page: params.page || 1
+              };
+          },
+          processResults: function(data, params) {
+              params.page = params.page || 1;
+              return {
+                  results: data.results.map(function(item) {
+                      return {
+                          id: item.id,
+                          text: item.name + ' (' + item.color_name + ')',
+                          name: item.name,
+                          color_id: item.color_id,
+                          color_name: item.color_name,
+                          tool: item.tool,
+                          la: item.la
+                      };
+                  }),
+                  pagination: {
+                      more: data.has_more
+                  }
+              };
+          },
+          cache: true
+      },
+      minimumInputLength: 2,
+      language: {
+          inputTooShort: function() {
+              return "حداقل 2 کاراکتر وارد کنید";
+          },
+          searching: function() {
+              return "در حال جستجو...";
+          },
+          noResults: function() {
+              return "نتیجه‌ای یافت نشد";
+          },
+          errorLoading: function() {
+              return "خطا در بارگذاری نتایج";
+          }
+      },
+      dir: "rtl"
+  });
+  
+  // افزودن رویدادهای Select2 برای سطر جدید
+  $row.find('.nakh-name').on('select2:select', function(e) {
+      updateOperatorHiddenFields2($(this).closest('tr'));
+  }).on('select2:unselect', function(e) {
+      updateOperatorHiddenFields2($(this).closest('tr'));
+  }).on('select2:clear', function(e) {
+      $(this).closest('tr').find('.nakh-data').val('');
+  });
+}
+// Operator Modal Handlers
+$(".tab-content").on("click", ".operator-cell", function() {
+  var $row = $(this).closest('tr');
+  var $operatorDataInput = $row.find('.operator-data');
+  var currentOperators = [];
+  try {
+    currentOperators = JSON.parse($operatorDataInput.val() || '[]');
+  } catch (e) {
+    console.error("Error parsing operator data", e);
+  }
+
+  // Populate modal with current operators
+  var $operatorList = $("#operatorModal .operator-list");
+  $operatorList.empty();
+  currentOperators.forEach(function(op) {
+    $operatorList.append(
+      `<div class="operator-item" data-id="${op.id}">
+        ${op.name} (${op.personnel_number})
+        <button class="btn btn-danger btn-sm remove-operator" data-id="${op.id}">حذف</button>
+      </div>`
+    );
+  });
+
+  // Store current row for reference
+  $("#operatorModal").data('current-row', $row);
+  $("#operatorSearch").val(''); // Clear search input
+  $("#operatorSearchResults").empty(); // Clear search results
+  // console.log("Opening modal for row:", $row[0].outerHTML); // Debug row reference
+  $("#operatorModal").modal('show');
+});
+
+$("#operatorSearch").on("input", function() {
+  var query = $(this).val();
+  if (query.length < 2) {
+    $("#operatorSearchResults").empty();
+    return;
+  }
+
+  $.ajax({
+    url: '/api/operators/search/',
+    data: { q: query, page: 1 },
+    dataType: 'json',
+    success: function(data) {
+      var $results = $("#operatorSearchResults");
+      $results.empty();
+      data.results.forEach(function(item) {
+        $results.append(
+          `<div class="operator-search-item" data-id="${item.id}" data-name="${item.name}" data-personnel="${item.personnel_number}" data-pid="${item.pid}" data-cpcode="${item.cp_code}" data-cardno="${item.card_no}">
+            ${item.name} (${item.personnel_number})
+          </div>`
+        );
+      });
+    },
+    error: function(xhr, status, error) {
+      console.error("Error fetching operators:", error);
+    }
+  });
+});
+
+$("#operatorSearchResults").on("click", ".operator-search-item", function() {
+  var $row = $("#operatorModal").data('current-row');
+  if (!$row) {
+    console.error("No current row set for operator modal");
+    return;
+  }
+  var $operatorDisplay = $row.find('.operator-display');
+  if (!$operatorDisplay.length) {
+    console.error("Operator display span not found in row:", $row[0].outerHTML);
+    return;
+  }
+  var operator = {
+    id: $(this).data('id'),
+    name: $(this).data('name'),
+    personnel_number: $(this).data('personnel'),
+    pid: $(this).data('pid'),
+    cp_code: $(this).data('cpcode'),
+    card_no: $(this).data('cardno')
+  };
+
+  var $operatorDataInput = $row.find('.operator-data');
+  var currentOperators = [];
+  try {
+    currentOperators = JSON.parse($operatorDataInput.val() || '[]');
+  } catch (e) {
+    console.error("Error parsing operator data", e);
+  }
+
+  if (!currentOperators.some(op => op.id === operator.id)) {
+    currentOperators.push(operator);
+    $operatorDataInput.val(JSON.stringify(currentOperators));
+    $("#operatorModal .operator-list").append(
+      `<div class="operator-item" data-id="${operator.id}">
+        ${operator.name} (${operator.personnel_number})
+        <button class="btn btn-danger btn-sm remove-operator" data-id="${operator.id}">حذف</button>
+      </div>`
+    );
+
+    // Update table cell display
+    var displayText = currentOperators.map(op => `${op.name} (${op.personnel_number})`).join(', ');
+
+    $operatorDisplay.text(displayText || 'انتخاب اپراتور');
+    // console.log("Updated operator-display with:", displayText, "for row:", $row[0].outerHTML);
+    calculateRandeman($row);
+
+  }
+});
+
+$("#operatorModal").on("click", ".remove-operator", function() {
+  var operatorId = $(this).data('id');
+  console.log(operatorId);
+  
+  var $row = $("#operatorModal").data('current-row');
+  if (!$row || $row.length === 0) {
+    console.error("No current row set for operator modal");
+    return;
+  }
+  var $operatorDisplay = $row.find('.operator-display');
+  if (!$operatorDisplay.length) {
+    console.error("Operator display span not found in row:", $row[0].outerHTML);
+    return;
+  }
+  var $operatorDataInput = $row.find('.operator-data');
+  if (!$operatorDataInput.length) {
+    console.error("Operator data input not found in row:", $row[0].outerHTML);
+    return;
+  }
+  var currentOperators = [];
+  try {
+    currentOperators = JSON.parse($operatorDataInput.val() || '[]');
+  } catch (e) {
+    console.error("Error parsing operator data", e);
+    return;
+  }
+
+  currentOperators = currentOperators.filter(op => op.id != operatorId);
+  console.log(currentOperators);
+  
+  $operatorDataInput.val(JSON.stringify(currentOperators));
+  $(this).parent('.operator-item').remove();
+
+  // Update table cell display
+  var displayText = currentOperators.map(op => `${op.name} (${op.personnel_number})`).join(', ');
+  $operatorDisplay.text(displayText || 'انتخاب اپراتور');
+  calculateRandeman($row);
+
+  // console.log("Updated operator-display after removal with:", displayText, "for row:", $row[0].outerHTML);
+});
+
+$('#operatorModal').on('hidden.bs.modal', function () {
+  $("#operatorSearch").val('');
+  $("#operatorSearchResults").empty();
+  $("#operatorModal .operator-list").empty();
+  $("#operatorModal").data('current-row', null); // Clear current row reference
+  console.log("Modal closed and reset");
+});
+});
