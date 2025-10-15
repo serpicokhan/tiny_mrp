@@ -1,98 +1,104 @@
-<div class="card app-detail">
+<div class="card app-detail" id="mailDetail" style="display: none;">
     <div class="card-header">
         <div class="app-detail-action-left">
-            <a class="app-detail-close-button" href="#">
+            <a class="app-detail-close-button" href="#" id="closeDetail">
                 <i data-feather="arrow-left" class="mr-3"></i>
             </a>
             <h5 class="mb-0">
-                تبلیغات آنلاین
-                <span class="badge bg-success badge-pill ml-1">آزادکاری</span>
+                <span id="detail-title">عنوان نامه</span>
+                <span class="badge bg-success badge-pill mr-1" id="detail-tag">برچسب</span>
             </h5>
         </div>
         <div class="app-detail-action-right">
             <div>
-                <a href="#" class="btn btn-outline-light" data-toggle="tooltip" title="پاسخ">
-                    <i data-feather="corner-up-left"></i>
-                </a>
-                <a href="#" class="btn btn-outline-light ml-2" data-toggle="tooltip"
-                title="اسپم">
-                 <i data-feather="info"></i>
-             </a>
-                <a href="#" class="btn btn-outline-light ml-2" data-toggle="tooltip"
-                   title="رد کردن">
-                    <i data-feather="trash"></i>
-                </a>
+                <button class="btn btn-outline-light refer-mail-detail" data-toggle="tooltip" title="ارجاع">
+                    <i data-feather="share"></i>
+                </button>
+                <button class="btn btn-outline-light mr-2 sign-mail-detail" data-toggle="tooltip" title="امضا">
+                    <i data-feather="edit-3"></i>
+                </button>
+                <button class="btn btn-outline-light mr-2" data-toggle="tooltip" title="چاپ">
+                    <i data-feather="printer"></i>
+                </button>
+                <button class="btn btn-outline-light mr-2" data-toggle="tooltip" title="دانلود">
+                    <i data-feather="download"></i>
+                </button>
             </div>
         </div>
     </div>
     <div class="app-detail-article">
         <div class="card-body">
+            <!-- اطلاعات هدر نامه -->
             <div class="d-flex align-items-center p-l-r-0 m-b-20">
                 <div class="d-flex align-items-center">
-                    <figure class="avatar avatar-sm m-r-15">
-                        <img src="assets/media/image/user/women_avatar5.jpg" class="rounded-circle"
-                             alt="image">
+                    <figure class="avatar avatar-sm m-r-15" id="detail-avatar">
+                        <!-- آواتار اینجا لود می‌شود -->
                     </figure>
                     <div>
                         <h6 class="m-b-0">
-                            <span class="text-primary">ویدا موحد</span>
-                            <span class="d-sm-inline d-none text-muted"> &lt;elnora@gmail.com&gt;</span>
+                            <span class="text-primary" id="detail-from">واحد فرستنده</span>
+                            <span class="d-sm-inline d-none text-muted" id="detail-number">شماره نامه</span>
                         </h6>
-                        <span class="small text-muted">به مهرانا بخشنده</span>
+                        <span class="small text-muted">به <span id="detail-to">واحد مقصد</span></span>
                     </div>
                 </div>
                 <div class="ml-auto">
-                    <a href="#" data-toggle="tooltip" title="Attachment" class="mr-2">
-                        <i class="fa fa-paperclip"></i>
-                    </a>
-                    <a href="#" class="mr-2">
-                        <i class="fa fa-star font-size-16 text-warning"></i>
-                    </a>
-                    <span class="text-muted">4:14 قبل‌ازظهر </span>
+                    <span class="text-muted" id="detail-date-time">تاریخ و زمان</span>
+                    <span class="badge bg-primary mr-2" id="detail-status">وضعیت</span>
+                    <span class="badge bg-danger mr-2" id="detail-priority">اولویت</span>
                 </div>
             </div>
-            <p>تبریک میگوییم!</p>
-            <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد کتابهای زیادی در شصت و سه درصد گذشته حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد</p>
-            <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد کتابهای زیادی در شصت و سه درصد گذشته حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد</p>
-            <p>با احترام,</p>
-            <p>
-                <strong>تیم طراحی ما</strong>
-            </p>
-        </div>
-        <hr class="m-0">
-        <div class="card-body">
-            <h6 class="mb-3 font-size-11 text-uppercase">فایلهای پیوست شده</h6>
-            <ul class="list-unstyled mb-0">
-                <li class="small">
-                    <a href="#">
-                        <i data-feather="paperclip" class="mr-1 width-15 height-15"></i>
-                        uikit-design.psd
-                    </a>
-                </li>
-                <li class="small">
-                    <a href="#">
-                        <i data-feather="paperclip" class="mr-1 width-15 height-15"></i>
-                        uikit-design.sketch
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <hr class="m-0">
-        <div class="card-body">
-            <h6 class="mb-3 font-size-11 text-uppercase">پاسخ</h6>
-            <div class="reply-email-quill-editor mb-3"></div>
-            <div class="d-flex justify-content-between">
-                <div class="reply-email-quill-toolbar">
-                <span class="ql-formats mr-0">
-                  <button class="ql-bold"></button>
-                  <button class="ql-italic"></button>
-                  <button class="ql-underline"></button>
-                  <button class="ql-link"></button>
-                  <button class="ql-image"></button>
-                </span>
+
+            <!-- محتوای نامه -->
+            <div class="mail-content mb-4">
+                <div id="detail-content">
+                    <!-- محتوای نامه اینجا لود می‌شود -->
                 </div>
-                <button class="btn btn-primary">
-                    <i data-feather="send" class="mr-2"></i>ارسال</button>
+            </div>
+
+            <!-- پیوست‌ها -->
+            <div id="attachments-section" style="display: none;">
+                <hr>
+                <h6 class="mb-3 font-size-11 text-uppercase">فایلهای پیوست شده</h6>
+                <ul class="list-unstyled mb-0" id="detail-attachments">
+                    <!-- لیست پیوست‌ها -->
+                </ul>
+            </div>
+
+            <!-- تاریخچه ارجاعات -->
+            <div id="referrals-section" style="display: none;">
+                <hr>
+                <h6 class="mb-3 font-size-11 text-uppercase">تاریخچه ارجاعات</h6>
+                <div id="detail-referrals">
+                    <!-- تاریخچه ارجاعات -->
+                </div>
+            </div>
+
+            <!-- امضاها -->
+            <div id="signatures-section" style="display: none;">
+                <hr>
+                <h6 class="mb-3 font-size-11 text-uppercase">امضاها</h6>
+                <div class="row" id="detail-signatures">
+                    <!-- لیست امضاها -->
+                </div>
+            </div>
+
+            <!-- بخش اقدامات -->
+            <hr>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <button class="btn btn-warning refer-mail-detail">
+                        <i data-feather="share" class="mr-2"></i>ارجاع نامه
+                    </button>
+                    <button class="btn btn-success sign-mail-detail mr-2">
+                        <i data-feather="edit-3" class="mr-2"></i>امضای نامه
+                    </button>
+                </div>
+                <div>
+                    <button class="btn btn-outline-secondary">
+                        <i data-feather="download" class="mr-2"></i>دانلود
+                    </button>
+                </div>
             </div>
         </div>
     </div>

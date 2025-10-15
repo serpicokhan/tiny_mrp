@@ -18,7 +18,7 @@
         <div class="col-md-3 app-sidebar">
             <div class="card">
                 <div class="card-body">
-                    <button class="btn btn-secondary btn-block" data-toggle="modal" data-target="#compose">
+                    <button class="btn btn-secondary btn-block" data-toggle="modal" data-target="#viewMailModal">
                         ارسال ایمیل
                     </button>
                 </div>
@@ -216,6 +216,87 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="viewMailModal" tabindex="-1" aria-labelledby="viewMailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewMailModalLabel"><i class="fas fa-file-alt ms-2"></i>مشاهده نامه</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mail-detail">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>شماره نامه:</strong> <span id="view-mail-number"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>تاریخ:</strong> <span id="view-mail-date"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>از واحد:</strong> <span id="view-mail-from"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>به واحد:</strong> <span id="view-mail-to"></span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>عنوان:</strong> <span id="view-mail-title"></span>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <strong>متن نامه:</strong>
+                        <p class="mt-2" id="view-mail-content"></p>
+                    </div>
+
+                    <!-- Word Document Preview -->
+                    <div id="word-preview-container" style="display: none;">
+                        <hr>
+                        <h6 class="mb-3"><i class="fas fa-file-word ms-2"></i>پیش‌نمایش فایل ورد پیوست</h6>
+                        <div class="word-preview" id="wordPreview">
+                            <!-- Word document content will be displayed here -->
+                        </div>
+                    </div>
+
+                    <!-- Signed Document Preview -->
+                    <div id="signed-document-container" style="display: none;">
+                        <hr>
+                        <h6 class="mb-3"><i class="fas fa-file-signature ms-2"></i>فایل ورد امضا شده</h6>
+                        <div class="signed-document" id="signedDocumentPreview">
+                            <!-- Signed document will be displayed here -->
+                        </div>
+                        <button class="btn btn-primary download-btn" id="downloadSignedDoc">
+                            <i class="fas fa-download ms-2"></i>دانلود فایل امضا شده
+                        </button>
+                    </div>
+
+                    <hr>
+                    <h6 class="mb-3"><i class="fas fa-history ms-2"></i>تاریخچه ارجاعات</h6>
+                    <div id="referralHistoryContainer">
+                        <!-- Referral history will be loaded here -->
+                    </div>
+
+                    <hr>
+                    <h6 class="mb-3"><i class="fas fa-signature ms-2"></i>امضاها</h6>
+                    <div class="row" id="signaturesContainer">
+                        <!-- Signatures will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                <button type="button" class="btn btn-warning refer-mail" id="view-refer-btn">
+                    <i class="fas fa-share ms-2"></i>ارجاع
+                </button>
+                <button type="button" class="btn btn-success sign-mail" id="view-sign-btn">
+                    <i class="fas fa-signature ms-2"></i>امضا
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 {% endblock %}
 {% block javascript %}
