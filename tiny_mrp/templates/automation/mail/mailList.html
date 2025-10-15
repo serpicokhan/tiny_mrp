@@ -6,20 +6,157 @@
      <link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.css">
    
-     
+     <!-- Nice Scroll -->
+     <link rel="stylesheet" href="{% static 'vendors/nicescroll/nicescroll.css' %}">
+   
+     <style>
+        .mail-unread {
+            background-color: #f8f9fa;
+            font-weight: 500;
+        }
+        .mail-item {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .mail-item:hover {
+            background-color: #e9ecef;
+        }
+        .referral-history {
+            background-color: #f8f9fa;
+            border-right: 4px solid #007bff !important;
+        }
+        .signature-display {
+            border: 1px solid #dee2e6;
+            padding: 5px;
+            border-radius: 4px;
+            background: white;
+        }
+        .mail-content table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .mail-content table, .mail-content th, .mail-content td {
+            border: 1px solid #dee2e6;
+        }
+        .mail-content th, .mail-content td {
+            padding: 8px 12px;
+            text-align: right;
+        }
+        .mail-content th {
+            background-color: #f8f9fa;
+        }
+        .app-detail {
+            display: none;
+            height: calc(100vh - 200px);
+        }
+        .app-detail.show {
+            display: block;
+        }
+        .app-detail-article {
+            height: 100%;
+            overflow: hidden;
+        }
+        .mail-detail-content {
+            height: calc(100% - 120px);
+            overflow: hidden;
+        }
+        .signature-pad {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            background: #f8f9fa;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        .signature-controls {
+            margin-top: 10px;
+        }
+        .recipient-tag {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 12px;
+            border-radius: 15px;
+            margin: 3px;
+            font-size: 0.9em;
+        }
+        .recipient-tag i {
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .recipient-tag i:hover {
+            color: #d32f2f;
+        }
+        .word-preview {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f8f9fa;
+            height: 400px;
+            overflow-y: auto;
+        }
+        .word-preview h1, .word-preview h2, .word-preview h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .word-preview p {
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+        .word-preview ul {
+            padding-right: 20px;
+        }
+        .word-preview table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .word-preview table, .word-preview th, .word-preview td {
+            border: 1px solid #ddd;
+        }
+        .word-preview th, .word-preview td {
+            padding: 8px 12px;
+            text-align: right;
+        }
+        .word-preview th {
+            background-color: #f2f2f2;
+        }
+        .signed-document {
+            position: relative;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+            margin: 10px 0;
+        }
+        .signature-in-doc {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            max-width: 200px;
+        }
+        .download-btn {
+            margin-top: 10px;
+        }
+        .min-height-100 {
+            min-height: 100px;
+        }
+     </style>
 
 {% endblock %}
 {% block content %}
 
-
 <div class="container-fluid h-100">
-
     <div class="row app-block">
+        <!-- سایدبار -->
         <div class="col-md-3 app-sidebar">
             <div class="card">
                 <div class="card-body">
-                    <button class="btn btn-secondary btn-block" data-toggle="modal" data-target="#viewMailModal">
-                        ارسال ایمیل
+                    <button class="btn btn-secondary btn-block" data-toggle="modal" data-target="#newMailModal">
+                        ایجاد نامه جدید
                     </button>
                 </div>
                 <div class="app-sidebar-menu">
@@ -27,7 +164,7 @@
                         <a href="#" class="list-group-item active d-flex align-items-center">
                             <i data-feather="mail" class="mr-2 width-15 height-15"></i>
                             صندوق ورودی
-                            <span class="small ml-auto">14</span>
+                            <span class="small ml-auto" id="inbox-count">3</span>
                         </a>
                         <a href="#" class="list-group-item">
                             <i data-feather="send" class="mr-2 width-15 height-15"></i>
@@ -35,21 +172,21 @@
                         </a>
                         <a href="#" class="list-group-item">
                             <i data-feather="edit-3" class="mr-2 width-15 height-15"></i>
-                            ذخیره
+                            پیش‌نویس
                         </a>
                         <a href="#" class="list-group-item d-flex align-items-center">
                             <i data-feather="star" class="mr-2 width-15 height-15"></i>
-                            شروع شده
-                            <span class="small ml-auto">10</span>
+                            مهم
+                            <span class="small ml-auto">2</span>
                         </a>
                         <a href="#" class="list-group-item">
                             <i data-feather="info" class="mr-2 width-15 height-15"></i>
-                            اسپم
+                            بایگانی
                         </a>
                         <a href="#" class="list-group-item d-flex align-items-center">
                             <i data-feather="trash" class="mr-2 width-15 height-15"></i>
                            سطل آشغال 
-                            <span class="small ml-auto">2</span>
+                            <span class="small ml-auto">0</span>
                         </a>
                     </div>
                     <div class="card-body">
@@ -58,29 +195,35 @@
                     <div class="list-group list-group-flush">
                         <a href="#" class="list-group-item d-flex align-items-center">
                             <span class="text-warning fa fa-circle mr-2"></span>
-                            پشتیبانی
-                            <span class="small ml-auto">5</span>
+                            اداری
+                            <span class="small ml-auto">1</span>
                         </a>
                         <a href="#" class="list-group-item d-flex align-items-center">
                             <span class="text-success fa fa-circle mr-2"></span>
-                          آزاد
+                            مالی
+                            <span class="small ml-auto">2</span>
                         </a>
                         <a href="#" class="list-group-item d-flex align-items-center">
                             <span class="text-danger fa fa-circle mr-2"></span>
-                            اجتماعی
+                            فنی
+                            <span class="small ml-auto">1</span>
                         </a>
                         <a href="#" class="list-group-item d-flex align-items-center">
                             <span class="text-info fa fa-circle mr-2"></span>
-                            دوستان
+                            پرسنلی
+                            <span class="small ml-auto">1</span>
                         </a>
                         <a href="#" class="list-group-item d-flex align-items-center">
                             <span class="text-secondary fa fa-circle mr-2"></span>
-                            کدزدن
+                            فوری
+                            <span class="small ml-auto">1</span>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- محتوای اصلی -->
         <div class="col-md-9 app-content">
             <div class="app-content-overlay"></div>
             <div class="app-action">
@@ -97,20 +240,21 @@
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="#">خوانده شده</a>
                                 <a class="dropdown-item" href="#">خوانده نشده</a>
-                                <a class="dropdown-item" href="#">اسپم</a>
+                                <a class="dropdown-item" href="#">امضا شده</a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-danger" href="#">حذف</a>
                             </div>
                         </li>
                         <li class="list-inline-item mb-0">
                             <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown">
-چینش                                     </a>
+                                چینش
+                            </a>
                             <div class="dropdown-menu dropdown-menu-right">
                                 <a class="dropdown-item" href="#">تاریخ</a>
-                                <a class="dropdown-item" href="#">از</a>
-                                <a class="dropdown-item" href="#">موضوغ</a>
+                                <a class="dropdown-item" href="#">واحد مبدا</a>
+                                <a class="dropdown-item" href="#">اولویت</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">اندازه</a>
+                                <a class="dropdown-item" href="#">وضعیت</a>
                             </div>
                         </li>
                     </ul>
@@ -121,7 +265,7 @@
                             <i data-feather="menu" class="width-15 height-15"></i>
                         </a>
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="جستجو ایمیل"
+                            <input type="text" class="form-control" placeholder="جستجو در نامه‌ها"
                                    aria-describedby="button-addon1">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-light" type="button" id="button-addon1">
@@ -131,7 +275,7 @@
                         </div>
                     </form>
                     <div class="app-pager d-flex align-items-center">
-                        <div class="mr-3">1-50 از 253</div>
+                        <div class="mr-3" id="pager-info">1-3 از 3</div>
                         <nav aria-label="Page navigation example">
                             <ul class="pagination">
                                 <li class="page-item">
@@ -149,259 +293,1125 @@
                     </div>
                 </div>
             </div>
-           {% include 'automation/mail/partialMailList.html' %}
+            
+            <!-- لیست نامه‌های اداری -->
+            <div class="card card-body app-content-body">
+                <div class="app-lists">
+                    <ul class="list-group list-group-flush" id="mailListContainer">
+                        <!-- نامه‌ها از طریق JavaScript لود می‌شوند -->
+                    </ul>
+                </div>
+
+                <!-- بخش جزئیات نامه -->
+                <div class="card app-detail" id="mailDetail">
+                    <!-- هدر جزئیات -->
+                    <div class="card-header">
+                        <div class="app-detail-action-left">
+                            <a class="app-detail-close-button" href="#" id="closeDetail">
+                                <i data-feather="arrow-left" class="mr-3"></i>
+                            </a>
+                            <h5 class="mb-0">
+                                <span id="detail-title">عنوان نامه</span>
+                                <span class="badge bg-success badge-pill mr-1" id="detail-tag">برچسب</span>
+                            </h5>
+                        </div>
+                        <div class="app-detail-action-right">
+                            <div>
+                                <button class="btn btn-outline-light" data-toggle="tooltip" title="چاپ">
+                                    <i data-feather="printer"></i>
+                                </button>
+                                <button class="btn btn-outline-light mr-2" data-toggle="tooltip" title="دانلود">
+                                    <i data-feather="download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- محتوای جزئیات -->
+                    <div class="app-detail-article">
+                        <div class="card-body mail-detail-content">
+                            <!-- اطلاعات اصلی نامه -->
+                            <div class="mail-basic-info mb-4">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>شماره نامه:</strong> <span id="detail-number">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>تاریخ:</strong> <span id="detail-date">-</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>از واحد:</strong> <span id="detail-from">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>به واحد:</strong> <span id="detail-to">-</span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>اولویت:</strong> 
+                                    <span class="badge" id="detail-priority-badge">-</span>
+                                    <strong class="mr-3">وضعیت:</strong>
+                                    <span class="badge" id="detail-status-badge">-</span>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- محتوای نامه -->
+                            <div class="mb-4">
+                                <strong>متن نامه:</strong>
+                                <div class="mt-2 p-3 border rounded" id="detail-content">
+                                    <!-- محتوای نامه اینجا لود می‌شود -->
+                                </div>
+                            </div>
+
+                            <!-- پیش‌نمایش فایل ورد -->
+                            <div id="word-preview-container" style="display: none;">
+                                <hr>
+                                <h6 class="mb-3">
+                                    <i data-feather="file-text" class="mr-2"></i>
+                                    پیش‌نمایش فایل ورد پیوست
+                                </h6>
+                                <div class="word-preview" id="wordPreview">
+                                    <!-- محتوای ورد اینجا لود می‌شود -->
+                                </div>
+                            </div>
+
+                            <!-- فایل ورد امضا شده -->
+                            <div id="signed-document-container" style="display: none;">
+                                <hr>
+                                <h6 class="mb-3">
+                                    <i data-feather="file-plus" class="mr-2"></i>
+                                    فایل ورد امضا شده
+                                </h6>
+                                <div class="signed-document" id="signedDocumentPreview">
+                                    <!-- فایل امضا شده اینجا لود می‌شود -->
+                                </div>
+                                <button class="btn btn-primary download-btn" id="downloadSignedDoc">
+                                    <i data-feather="download" class="mr-2"></i>دانلود فایل امضا شده
+                                </button>
+                            </div>
+
+                            <!-- تاریخچه ارجاعات -->
+                            <div id="referrals-section">
+                                <hr>
+                                <h6 class="mb-3">
+                                    <i data-feather="share-2" class="mr-2"></i>
+                                    تاریخچه ارجاعات
+                                </h6>
+                                <div id="detail-referrals">
+                                    <!-- تاریخچه ارجاعات -->
+                                </div>
+                            </div>
+
+                            <!-- امضاها -->
+                            <div id="signatures-section">
+                                <hr>
+                                <h6 class="mb-3">
+                                    <i data-feather="edit-3" class="mr-2"></i>
+                                    امضاها
+                                </h6>
+                                <div class="row" id="detail-signatures">
+                                    <!-- لیست امضاها -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- بخش اقدامات (ثابت در پایین) -->
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <button class="btn btn-warning" id="detail-refer-btn">
+                                        <i data-feather="share" class="mr-2"></i>ارجاع نامه
+                                    </button>
+                                    <button class="btn btn-success mr-2" id="detail-sign-btn">
+                                        <i data-feather="edit-3" class="mr-2"></i>امضای نامه
+                                    </button>
+                                </div>
+                                <div>
+                                    <button class="btn btn-outline-secondary" id="detail-download-btn">
+                                        <i data-feather="download" class="mr-2"></i>دانلود کلی
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
 </div>
 
-<div class="modal fade" tabindex="-1" role="dialog" id="compose">
-    <div class="modal-dialog" role="document">
+<!-- مودال‌ها -->
+<div class="modal fade" tabindex="-1" role="dialog" id="newMailModal">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">ارسال ایمیل به</h5>
+                <h5 class="modal-title">ایجاد نامه جدید</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <i class="ti-close"></i>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="d-flex justify-content-between m-b-20">
-                    <div>
-                        <a href="#" data-toggle="tooltip" title=""
-                           class="btn btn-outline-light btn-sm mr-2"
-                           data-original-title="ذخیره">
-                            <i data-feather="save"></i>
-                        </a>
-                        <a href="#" data-toggle="tooltip" title=""
-                           class="btn btn-outline-light btn-sm mr-2"
-                           data-original-title="حذف">
-                            <i data-feather="trash-2"></i>
-                        </a>
-                    </div>
-                </div>
-                <form>
+                <form id="newMailForm">
                     <div class="form-group">
-                        <input type="text" class="form-control tagsinput" placeholder="به"
-                               value="example@test.com.tr" required>
+                        <label>شماره نامه</label>
+                        <input type="text" class="form-control" placeholder="شماره نامه" required>
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="موضوع" required>
+                        <label>عنوان نامه</label>
+                        <input type="text" class="form-control" placeholder="عنوان نامه" required>
                     </div>
                     <div class="form-group">
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" multiple id="customFileLangHTML">
-                            <label class="custom-file-label" for="customFileLangHTML" data-browse="انتخاب فایل">لورم ایپسوم</label>
-                        </div>
+                        <label>واحد مقصد</label>
+                        <select class="form-control" required>
+                            <option value="">انتخاب واحد مقصد</option>
+                            <option value="مدیریت">واحد مدیریت</option>
+                            <option value="مالی">واحد مالی</option>
+                            <option value="فنی">واحد فنی</option>
+                            <option value="پرسنلی">واحد منابع انسانی</option>
+                        </select>
                     </div>
-                    <div>
+                    <div class="form-group">
+                        <label>اولویت</label>
+                        <select class="form-control">
+                            <option value="عادی">عادی</option>
+                            <option value="مهم">مهم</option>
+                            <option value="فوری">فوری</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>متن نامه</label>
                         <div class="compose-quill-editor mb-3"></div>
-                        <div class="d-flex justify-content-between">
-                            <div class="compose-quill-toolbar">
-                            <span class="ql-formats mr-0">
-                                <button class="ql-bold"></button>
-                                <button class="ql-italic"></button>
-                                <button class="ql-underline"></button>
-                                <button class="ql-link"></button>
-                                <button class="ql-image"></button>
-                            </span>
-                            </div>
-                            <button class="btn btn-primary">
-                                <i data-feather="send" class="mr-2"></i>
-                                ارسال
-                            </button>
+                    </div>
+                    <div class="form-group">
+                        <label>پیوست</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" multiple id="mailAttachment">
+                            <label class="custom-file-label" for="mailAttachment" data-browse="انتخاب فایل">فایلی انتخاب نشده است</label>
                         </div>
                     </div>
                 </form>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary" id="sendMailBtn">
+                    <i data-feather="send" class="mr-2"></i>ارسال نامه
+                </button>
+            </div>
         </div>
     </div>
 </div>
-<div class="modal fade" id="viewMailModal" tabindex="-1" aria-labelledby="viewMailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+
+<div class="modal fade" id="referMailModal" tabindex="-1" aria-labelledby="referMailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="viewMailModalLabel"><i class="fas fa-file-alt ms-2"></i>مشاهده نامه</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="بستن"></button>
+                <h5 class="modal-title" id="referMailModalLabel">
+                    <i data-feather="share" class="mr-2"></i>ارجاع نامه به افراد/واحدها
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="بستن">
+                    <i class="ti-close"></i>
+                </button>
             </div>
             <div class="modal-body">
-                <div class="mail-detail">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <strong>شماره نامه:</strong> <span id="view-mail-number"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>تاریخ:</strong> <span id="view-mail-date"></span>
-                        </div>
+                <div class="mb-3">
+                    <label class="form-label">انتخاب گیرندگان</label>
+                    <select class="form-control" id="recipientSelect">
+                        <option value="">انتخاب کنید...</option>
+                    </select>
+                    <button type="button" class="btn btn-sm btn-primary mt-2" id="addRecipientBtn">
+                        <i data-feather="plus" class="mr-1"></i>افزودن
+                    </button>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">افراد/واحدهای انتخاب شده:</label>
+                    <div id="selectedRecipients" class="border rounded p-3 min-height-100">
+                        <span class="text-muted">هیچ گیرنده‌ای انتخاب نشده است</span>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <strong>از واحد:</strong> <span id="view-mail-from"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>به واحد:</strong> <span id="view-mail-to"></span>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <strong>عنوان:</strong> <span id="view-mail-title"></span>
-                    </div>
-                    <hr>
-                    <div class="mb-3">
-                        <strong>متن نامه:</strong>
-                        <p class="mt-2" id="view-mail-content"></p>
-                    </div>
+                </div>
 
-                    <!-- Word Document Preview -->
-                    <div id="word-preview-container" style="display: none;">
-                        <hr>
-                        <h6 class="mb-3"><i class="fas fa-file-word ms-2"></i>پیش‌نمایش فایل ورد پیوست</h6>
-                        <div class="word-preview" id="wordPreview">
-                            <!-- Word document content will be displayed here -->
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">نوع ارجاع</label>
+                    <select class="form-control" id="referralType">
+                        <option value="اطلاع">اطلاع</option>
+                        <option value="اقدام">اقدام</option>
+                        <option value="بررسی و نظر">بررسی و نظر</option>
+                        <option value="پیگیری">پیگیری</option>
+                    </select>
+                </div>
 
-                    <!-- Signed Document Preview -->
-                    <div id="signed-document-container" style="display: none;">
-                        <hr>
-                        <h6 class="mb-3"><i class="fas fa-file-signature ms-2"></i>فایل ورد امضا شده</h6>
-                        <div class="signed-document" id="signedDocumentPreview">
-                            <!-- Signed document will be displayed here -->
-                        </div>
-                        <button class="btn btn-primary download-btn" id="downloadSignedDoc">
-                            <i class="fas fa-download ms-2"></i>دانلود فایل امضا شده
-                        </button>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">توضیحات ارجاع</label>
+                    <textarea class="form-control" id="referralNote" rows="3" placeholder="توضیحات تکمیلی خود را وارد کنید..."></textarea>
+                </div>
 
-                    <hr>
-                    <h6 class="mb-3"><i class="fas fa-history ms-2"></i>تاریخچه ارجاعات</h6>
-                    <div id="referralHistoryContainer">
-                        <!-- Referral history will be loaded here -->
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="urgentReferral">
+                        <label class="form-check-label" for="urgentReferral">
+                            ارجاع فوری
+                        </label>
                     </div>
+                </div>
 
-                    <hr>
-                    <h6 class="mb-3"><i class="fas fa-signature ms-2"></i>امضاها</h6>
-                    <div class="row" id="signaturesContainer">
-                        <!-- Signatures will be loaded here -->
-                    </div>
+                <div class="alert alert-info">
+                    <i data-feather="info" class="mr-2"></i>
+                    <small>می‌توانید نامه را به چندین فرد یا واحد به صورت همزمان ارجاع دهید</small>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
-                <button type="button" class="btn btn-warning refer-mail" id="view-refer-btn">
-                    <i class="fas fa-share ms-2"></i>ارجاع
-                </button>
-                <button type="button" class="btn btn-success sign-mail" id="view-sign-btn">
-                    <i class="fas fa-signature ms-2"></i>امضا
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-warning" id="submitReferralBtn">
+                    <i data-feather="share" class="mr-2"></i>ارجاع نامه
                 </button>
             </div>
         </div>
     </div>
 </div>
 
+<div class="modal fade" id="signMailModal" tabindex="-1" aria-labelledby="signMailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="signMailModalLabel">
+                    <i data-feather="edit-3" class="mr-2"></i>امضای نامه و فایل ورد
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="بستن">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">نوع تایید</label>
+                    <select class="form-control" id="approvalType">
+                        <option value="تایید">تایید</option>
+                        <option value="تایید با شرط">تایید با شرط</option>
+                        <option value="رد">رد</option>
+                        <option value="نیاز به بررسی بیشتر">نیاز به بررسی بیشتر</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">نظرات و توضیحات</label>
+                    <textarea class="form-control" id="signatureNote" rows="3" placeholder="نظرات خود را وارد کنید..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">امضای دیجیتال</label>
+                    <canvas id="signaturePad" class="signature-pad" width="600" height="200"></canvas>
+                    <div class="signature-controls">
+                        <button type="button" class="btn btn-sm btn-danger" id="clearSignatureBtn">
+                            <i data-feather="trash-2" class="mr-1"></i>پاک کردن
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" id="undoSignatureBtn">
+                            <i data-feather="rotate-ccw" class="mr-1"></i>بازگشت
+                        </button>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        <i data-feather="mouse-pointer" class="mr-1"></i>
+                        با ماوس یا لمس صفحه، امضای خود را در کادر بالا بکشید
+                    </small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">موقعیت امضا در فایل ورد</label>
+                    <select class="form-control" id="signaturePosition">
+                        <option value="end">انتهای سند</option>
+                        <option value="header">سربرگ</option>
+                        <option value="footer">پاورقی</option>
+                        <option value="custom">موقعیت دلخواه</option>
+                    </select>
+                </div>
+
+                <div class="alert alert-warning">
+                    <i data-feather="alert-triangle" class="mr-2"></i>
+                    <small>با امضای این نامه، شما تایید می‌کنید که محتوای آن را مطالعه کرده‌اید</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-success" id="submitSignatureBtn">
+                    <i data-feather="check" class="mr-2"></i>ثبت امضا و الحاق به فایل
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
 {% block javascript %}
   <!-- Plugin scripts -->
   <script src="{% static 'vendors/select2/js/select2.min.js' %}"></script>
-  <!-- <script src="{% static 'assets/js/examples/select2.js' %}"></script>
-  <script>
-    $('.select2-example').select2({
-        placeholder: 'اشخاص',
-        
-    });
-    $('input[name="start"]').pDatepicker({
-        format: 'YYYY-MM-DD',
-                autoClose: true,
-                initialValueType: 'gregorian',
-                calendar:{
-            persian: {
-                leapYearMode: 'astronomical'
-            }
-        },
-      });
-    $('input[name="end"]').pDatepicker({
-        format: 'YYYY-MM-DD',
-                autoClose: true,
-                initialValueType: 'gregorian',
-                calendar:{
-            persian: {
-                leapYearMode: 'astronomical'
-            }
-        },
-      });
-  </script> -->
   
+  <!-- Tagsinput -->
+  <script src="{% static 'vendors/tagsinput/bootstrap-tagsinput.js' %}"></script>
+  <script src="{% static 'assets/js/examples/tagsinput.js' %}"></script>
 
+  <!-- quill -->
+  <script src="{% static 'vendors/quill/quill.js' %}"></script>
 
+  <!-- Nice Scroll -->
+  <script src="{% static 'vendors/nicescroll/nicescroll.min.js' %}"></script>
 
-<!-- Tagsinput -->
-<script src="{% static 'vendors/tagsinput/bootstrap-tagsinput.js' %}"></script>
-<script src="{% static 'assets/js/examples/tagsinput.js' %}"></script>
-
-<!-- quill -->
-<script src="{% static 'vendors/quill/quill.js' %}"></script>
-
-<!-- App scripts -->
-
-<script>
-    new Quill('.compose-quill-editor', {
-        modules: {
-            toolbar: ".compose-quill-toolbar"
+  <!-- App scripts -->
+  <script>
+    // داده‌های نمونه
+    const mailData = [
+        {
+            id: 1,
+            number: "1402/245",
+            title: "درخواست تجهیزات اداری",
+            from: "واحد مالی",
+            fromUnit: "واحد مالی",
+            to: "واحد مدیریت",
+            date: "1402/07/23",
+            time: "10:30",
+            status: "جدید",
+            starred: false,
+            avatar: null,
+            avatarInitials: "م",
+            avatarColor: "primary",
+            hasAttachment: true,
+            attachments: ["document1.docx"],
+            priority: "danger",
+            priorityText: "فوری",
+            excerpt: "با سلام و احترام، در خصوص درخواست تجهیزات اداری مورد نیاز واحد مالی، استدعا دارد دستور فرمایید اقدامات لازم صورت پذیرد.",
+            content: "با سلام و احترام، در خصوص درخواست تجهیزات اداری مورد نیاز واحد مالی، استدعا دارد دستور فرمایید اقدامات لازم صورت پذیرد.",
+            tag: "اداری",
+            tagColor: "info",
+            referrals: [
+                {
+                    name: "احمد رضایی",
+                    department: "واحد مالی",
+                    type: "اقدام",
+                    date: "1402/07/23 - 10:30",
+                    status: "اقدام شده"
+                }
+            ],
+            signatures: [],
+            signedDocument: null
         },
-        placeholder: "اینجا بنویسید...",
-        theme: "snow"
-    });
-
-    new Quill('.reply-email-quill-editor', {
-        modules: {
-            toolbar: ".reply-email-quill-toolbar"
+        {
+            id: 2,
+            number: "1402/244",
+            title: "گزارش عملکرد ماهانه",
+            from: "واحد IT",
+            fromUnit: "واحد IT", 
+            to: "واحد مدیریت",
+            date: "1402/07/22",
+            time: "14:15",
+            status: "در انتظار",
+            starred: true,
+            avatar: null,
+            avatarInitials: "آ",
+            avatarColor: "info",
+            hasAttachment: false,
+            attachments: [],
+            priority: "warning",
+            priorityText: "مهم",
+            excerpt: "گزارش عملکرد ماهانه واحد IT به پیوست ارسال می‌گردد. خواهشمند است بررسی و اعلام نظر فرمایید.",
+            content: "گزارش عملکرد ماهانه واحد IT به پیوست ارسال می‌گردد. خواهشمند است بررسی و اعلام نظر فرمایید.",
+            tag: "فنی",
+            tagColor: "success",
+            referrals: [
+                {
+                    name: "زهرا محمدی",
+                    department: "واحد IT",
+                    type: "بررسی و نظر",
+                    date: "1402/07/22 - 14:15",
+                    status: "در انتظار"
+                }
+            ],
+            signatures: [],
+            signedDocument: null
         },
-        placeholder: "اینجا بنویسید...",
-        theme: "snow"
-    });
+        {
+            id: 3,
+            number: "1402/243",
+            title: "تایید مرخصی کارکنان",
+            from: "واحد منابع انسانی",
+            fromUnit: "واحد منابع انسانی",
+            to: "واحد مدیریت",
+            date: "1402/07/21",
+            time: "16:45",
+            status: "امضا شده",
+            starred: false,
+            avatar: null,
+            avatarInitials: "ن",
+            avatarColor: "success",
+            hasAttachment: true,
+            attachments: ["leave_requests.docx"],
+            priority: "success",
+            priorityText: "انجام شده",
+            excerpt: "لیست درخواست‌های مرخصی کارکنان برای تایید نهایی ارسال می‌گردد.",
+            content: "لیست درخواست‌های مرخصی کارکنان برای تایید نهایی ارسال می‌گردد.",
+            tag: "پرسنلی",
+            tagColor: "warning",
+            referrals: [],
+            signatures: [
+                {
+                    name: "علی احمدی",
+                    date: "1402/07/21 - 16:45",
+                    status: "تایید شده",
+                    signature: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+                }
+            ],
+            signedDocument: "signed_leave_requests.docx"
+        }
+    ];
 
-    $(function () {
-        $(document).on('click', '.app-block .app-content .app-action .action-left input[type="checkbox"]', function () {
-            $('.app-lists ul li input[type="checkbox"]').prop('checked', $(this).prop('checked'));
-            if ($(this).prop('checked')) {
-                $('.app-lists ul li input[type="checkbox"]').closest('li').addClass('active');
-            } else {
-                $('.app-lists ul li input[type="checkbox"]').closest('li').removeClass('active');
+    const recipientsData = [
+        { id: 1, name: "احمد رضایی - مدیر مالی" },
+        { id: 2, name: "زهرا محمدی - مدیر IT" },
+        { id: 3, name: "علی احمدی - مدیر منابع انسانی" },
+        { id: 4, name: "فاطمه کریمی - کارشناس اداری" },
+        { id: 5, name: "محمد نوری - کارشناس فنی" },
+        { id: 6, name: "مریم صادقی - حسابدار" }
+    ];
+
+    // متغیرهای全局
+    let detailScroll = null;
+    let currentMailId = null;
+    let selectedRecipients = [];
+    let canvas, ctx, isDrawing = false;
+    let signatureStrokes = [];
+    let currentStroke = [];
+
+    // تابع addEventListeners که گم شده بود
+    function addEventListeners() {
+        // کلیک روی آیتم نامه
+        document.querySelectorAll('.mail-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (!e.target.closest('.custom-control') && !e.target.closest('.add-star') && !e.target.closest('.dropdown')) {
+                    const mailId = this.getAttribute('data-mail-id');
+                    showMailDetail(mailId);
+                }
+            });
+        });
+
+        // مشاهده از طریق منو
+        document.querySelectorAll('.view-mail-action').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const mailId = this.getAttribute('data-id');
+                showMailDetail(mailId);
+            });
+        });
+
+        // ارجاع از طریق منو
+        document.querySelectorAll('.refer-mail-action').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const mailId = this.getAttribute('data-id');
+                currentMailId = mailId;
+                initReferModal();
+                $('#referMailModal').modal('show');
+            });
+        });
+
+        // امضا از طریق منو
+        document.querySelectorAll('.sign-mail-action').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const mailId = this.getAttribute('data-id');
+                currentMailId = mailId;
+                $('#signMailModal').modal('show');
+            });
+        });
+
+        // ستاره‌دار کردن
+        document.querySelectorAll('.add-star').forEach(star => {
+            star.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const mailId = this.getAttribute('data-id');
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-star-o');
+                icon.classList.toggle('fa-star');
+                icon.classList.toggle('text-warning');
+                
+                // آپدیت داده
+                const mail = mailData.find(m => m.id == mailId);
+                if (mail) {
+                    mail.starred = !mail.starred;
+                }
+            });
+        });
+    }
+
+    // توابع اصلی
+    function renderMailList() {
+        const container = document.getElementById('mailListContainer');
+        container.innerHTML = '';
+
+        mailData.forEach(mail => {
+            const priorityClass = getPriorityClass(mail.priority);
+            const statusClass = getStatusClass(mail.status);
+            const avatar = mail.avatar ? 
+                `<img src="${mail.avatar}" class="rounded-circle" alt="image">` :
+                `<span class="avatar-title bg-${mail.avatarColor}-bright text-${mail.avatarColor} rounded-circle">${mail.avatarInitials}</span>`;
+
+            const mailItem = `
+                <li class="list-group-item ${mail.status === 'جدید' ? 'mail-unread' : ''} mail-item" data-mail-id="${mail.id}">
+                    <div>
+                        <div class="custom-control custom-checkbox mr-2">
+                            <input type="checkbox" class="custom-control-input" id="customCheck${mail.id}">
+                            <label class="custom-control-label" for="customCheck${mail.id}"></label>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="#" class="add-star mr-3" title="محبوب کردن" data-id="${mail.id}">
+                            <i class="fa ${mail.starred ? 'fa-star text-warning' : 'fa-star-o'} font-size-16"></i>
+                        </a>
+                    </div>
+                    <div>
+                        <figure class="avatar avatar-sm mr-3">
+                            ${avatar}
+                        </figure>
+                    </div>
+                    <div class="flex-grow-1 min-width-0">
+                        <div class="mb-1 d-flex justify-content-between align-items-center">
+                            <div class="text-truncate app-list-title">
+                                ${mail.title}
+                                <span class="badge bg-${mail.tagColor} badge-pill mr-1">${mail.tag}</span>
+                            </div>
+                            <div class="pl-3 d-flex">
+                                <span class="text-nowrap text-muted">${mail.date}</span>
+                                <div class="dropdown ml-3">
+                                    <a href="#" class="btn btn-outline-light btn-sm" data-toggle="dropdown">
+                                        <i class="fa fa-ellipsis-v"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item view-mail-action" href="#" data-id="${mail.id}">مشاهده</a>
+                                        <a class="dropdown-item refer-mail-action" href="#" data-id="${mail.id}">ارجاع</a>
+                                        <a class="dropdown-item sign-mail-action" href="#" data-id="${mail.id}">امضا</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger" href="#">حذف</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-muted d-flex justify-content-between">
+                            <div class="text-truncate small">
+                                <strong>${mail.from}</strong> → ${mail.to}: ${mail.excerpt}
+                            </div>
+                            <div class="text-nowrap pl-3">
+                                <ul class="list-inline">
+                                    ${mail.hasAttachment ? `
+                                        <li class="list-inline-item mb-0">
+                                            <a href="#" data-toggle="tooltip" title="پیوست">
+                                                <i class="fa fa-paperclip"></i>
+                                            </a>
+                                        </li>
+                                    ` : ''}
+                                    <li class="list-inline-item mb-0">
+                                        <i class="fa fa-circle text-${priorityClass}" data-toggle="tooltip" title="${mail.priorityText}"></i>
+                                    </li>
+                                    <li class="list-inline-item mb-0">
+                                        <span class="badge badge-${statusClass}">${mail.status}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            `;
+            container.innerHTML += mailItem;
+        });
+
+        addEventListeners();
+    }
+
+    function showMailDetail(mailId) {
+        const mail = mailData.find(m => m.id == mailId);
+        if (!mail) return;
+
+        currentMailId = mailId;
+
+        // پر کردن اطلاعات اصلی
+        document.getElementById('detail-title').textContent = mail.title;
+        document.getElementById('detail-tag').textContent = mail.tag;
+        document.getElementById('detail-tag').className = `badge bg-${mail.tagColor} badge-pill mr-1`;
+        
+        document.getElementById('detail-number').textContent = mail.number;
+        document.getElementById('detail-date').textContent = mail.date;
+        document.getElementById('detail-from').textContent = mail.from;
+        document.getElementById('detail-to').textContent = mail.to;
+        
+        // وضعیت و اولویت
+        document.getElementById('detail-status-badge').textContent = mail.status;
+        document.getElementById('detail-status-badge').className = `badge badge-${getStatusClass(mail.status)}`;
+        document.getElementById('detail-priority-badge').textContent = mail.priorityText;
+        document.getElementById('detail-priority-badge').className = `badge badge-${getPriorityClass(mail.priority)}`;
+
+        // محتوای نامه
+        document.getElementById('detail-content').textContent = mail.content;
+
+        // نمایش پیش‌نمایش ورد اگر پیوست وجود دارد
+        const wordPreviewContainer = document.getElementById('word-preview-container');
+        if (mail.hasAttachment && mail.attachments.length > 0) {
+            wordPreviewContainer.style.display = 'block';
+            displayWordPreview(mail.attachments[0]);
+        } else {
+            wordPreviewContainer.style.display = 'none';
+        }
+
+        // نمایش فایل امضا شده
+        const signedDocContainer = document.getElementById('signed-document-container');
+        if (mail.signedDocument) {
+            signedDocContainer.style.display = 'block';
+            createSignedDocument(mail);
+        } else {
+            signedDocContainer.style.display = 'none';
+        }
+
+        // نمایش تاریخچه ارجاعات
+        displayReferralHistory(mail.referrals);
+
+        // نمایش امضاها
+        displaySignatures(mail.signatures);
+
+        // نمایش بخش جزئیات
+        document.getElementById('mailDetail').classList.add('show');
+        
+        // مقداردهی اولیه Nice Scroll
+        initDetailScroll();
+    }
+
+    // توابع مربوط به امضا
+    function initSignaturePad() {
+        canvas = document.getElementById('signaturePad');
+        ctx = canvas.getContext('2d');
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // رویدادهای ماوس
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // رویدادهای لمسی
+        canvas.addEventListener('touchstart', startDrawingTouch);
+        canvas.addEventListener('touchmove', drawTouch);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        // کنترل‌های امضا
+        document.getElementById('clearSignatureBtn').addEventListener('click', function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            signatureStrokes = [];
+        });
+
+        document.getElementById('undoSignatureBtn').addEventListener('click', function() {
+            if (signatureStrokes.length > 0) {
+                signatureStrokes.pop();
+                redrawSignature();
             }
         });
 
-        $(document).on('click', '.app-lists ul li input[type="checkbox"]', function () {
-            if ($(this).prop('checked')) {
-                $(this).closest('li').addClass('active');
-            } else {
-                $(this).closest('li').removeClass('active');
+        document.getElementById('submitSignatureBtn').addEventListener('click', function() {
+            if (signatureStrokes.length === 0) {
+                alert('لطفا امضای خود را وارد کنید');
+                return;
             }
-        });
-
-        $(document).on('click', '.app-block .app-content .app-content-body .app-lists ul.list-group li.list-group-item', function (e) {
-            if (!$(e.target).is('.custom-control, .custom-control *, a, a *')) {
-                $('.app-detail').addClass('show').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function () {
-                    $('.app-block .app-content .app-content-body .app-detail .app-detail-article').niceScroll().resize();
+            
+            const approvalType = document.getElementById('approvalType').value;
+            const signatureNote = document.getElementById('signatureNote').value;
+            
+            // ذخیره امضا
+            const mail = mailData.find(m => m.id == currentMailId);
+            if (mail) {
+                mail.signatures.push({
+                    name: "کاربر فعلی",
+                    date: new Date().toLocaleDateString('fa-IR') + ' - ' + new Date().toLocaleTimeString('fa-IR'),
+                    status: approvalType,
+                    signature: canvas.toDataURL()
                 });
+                
+                mail.signedDocument = `signed_${mail.attachments[0] || 'document.docx'}`;
+                mail.status = 'امضا شده';
+                
+                alert('امضای شما با موفقیت ثبت شد');
+                $('#signMailModal').modal('hide');
+                showMailDetail(currentMailId);
+            }
+        });
+    }
+
+    function startDrawing(e) {
+        isDrawing = true;
+        currentStroke = [];
+        draw(e);
+    }
+
+    function startDrawingTouch(e) {
+        e.preventDefault();
+        isDrawing = true;
+        currentStroke = [];
+        drawTouch(e);
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        
+        currentStroke.push({x, y});
+    }
+
+    function drawTouch(e) {
+        if (!isDrawing) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        
+        currentStroke.push({x, y});
+    }
+
+    function stopDrawing() {
+        if (isDrawing) {
+            isDrawing = false;
+            ctx.beginPath();
+            if (currentStroke.length > 0) {
+                signatureStrokes.push([...currentStroke]);
+            }
+        }
+    }
+
+    function redrawSignature() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        signatureStrokes.forEach(stroke => {
+            if (stroke.length > 0) {
+                ctx.beginPath();
+                ctx.moveTo(stroke[0].x, stroke[0].y);
+                for (let i = 1; i < stroke.length; i++) {
+                    ctx.lineTo(stroke[i].x, stroke[i].y);
+                }
+                ctx.stroke();
+            }
+        });
+    }
+
+    // توابع مربوط به ارجاع
+    function initReferModal() {
+        // پر کردن لیست گیرندگان
+        const recipientSelect = document.getElementById('recipientSelect');
+        recipientSelect.innerHTML = '<option value="">انتخاب کنید...</option>';
+        recipientsData.forEach(recipient => {
+            recipientSelect.innerHTML += `<option value="${recipient.id}">${recipient.name}</option>`;
+        });
+
+        selectedRecipients = [];
+        updateSelectedRecipients();
+
+        document.getElementById('addRecipientBtn').addEventListener('click', function() {
+            const recipientId = document.getElementById('recipientSelect').value;
+            if (recipientId && !selectedRecipients.includes(recipientId)) {
+                selectedRecipients.push(recipientId);
+                updateSelectedRecipients();
             }
         });
 
-        $(document).on('click', 'a.app-detail-close-button', function () {
-            $('.app-detail').removeClass('show');
-            return false;
+        document.getElementById('submitReferralBtn').addEventListener('click', function() {
+            if (selectedRecipients.length === 0) {
+                alert('لطفا حداقل یک گیرنده انتخاب کنید');
+                return;
+            }
+            
+            const referralType = document.getElementById('referralType').value;
+            const referralNote = document.getElementById('referralNote').value;
+            
+            // ذخیره ارجاع
+            const mail = mailData.find(m => m.id == currentMailId);
+            if (mail) {
+                selectedRecipients.forEach(recipientId => {
+                    const recipient = recipientsData.find(r => r.id == recipientId);
+                    mail.referrals.push({
+                        name: recipient.name,
+                        department: recipient.name.split(' - ')[1] || 'نامشخص',
+                        type: referralType,
+                        date: new Date().toLocaleDateString('fa-IR') + ' - ' + new Date().toLocaleTimeString('fa-IR'),
+                        status: 'ارجاع شده'
+                    });
+                });
+                
+                alert('ارجاع نامه با موفقیت انجام شد');
+                $('#referMailModal').modal('hide');
+                showMailDetail(currentMailId);
+            }
+        });
+    }
+
+    function updateSelectedRecipients() {
+        const container = document.getElementById('selectedRecipients');
+        container.innerHTML = '';
+        
+        if (selectedRecipients.length === 0) {
+            container.innerHTML = '<span class="text-muted">هیچ گیرنده‌ای انتخاب نشده است</span>';
+            return;
+        }
+        
+        selectedRecipients.forEach(id => {
+            const recipient = recipientsData.find(r => r.id == id);
+            if (recipient) {
+                container.innerHTML += `
+                    <div class="recipient-tag">
+                        <i class="fas fa-times remove-recipient" data-id="${id}"></i>
+                        ${recipient.name}
+                    </div>
+                `;
+            }
+        });
+        
+        // اضافه کردن event listener برای حذف
+        document.querySelectorAll('.remove-recipient').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                selectedRecipients = selectedRecipients.filter(r => r != id);
+                updateSelectedRecipients();
+            });
+        });
+    }
+
+    // توابع نمایش محتوا
+    function displayWordPreview(filename) {
+        let preview = document.getElementById('wordPreview');
+        preview.innerHTML = `
+            <h1>${filename}</h1>
+            <p>این یک پیش‌نمایش شبیه‌سازی شده از فایل ورد است.</p>
+            <h2>فهرست مطالب</h2>
+            <ul>
+                <li>مقدمه</li>
+                <li>مواد و روش‌ها</li>
+                <li>نتایج</li>
+                <li>بحث و نتیجه‌گیری</li>
+            </ul>
+            <h2>مقدمه</h2>
+            <p>این یک سند نمونه است که برای نمایش قابلیت پیش‌نمایش فایل‌های ورد در سیستم کارتابل طراحی شده است.</p>
+            <h2>جدول نمونه</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ردیف</th>
+                        <th>عنوان</th>
+                        <th>تاریخ</th>
+                        <th>وضعیت</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>۱</td>
+                        <td>درخواست تجهیزات</td>
+                        <td>۱۴۰۲/۰۷/۲۳</td>
+                        <td>تکمیل شده</td>
+                    </tr>
+                    <tr>
+                        <td>۲</td>
+                        <td>گزارش عملکرد</td>
+                        <td>۱۴۰۲/۰۷/۲۲</td>
+                        <td>در حال بررسی</td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
+    }
+
+    function createSignedDocument(mail) {
+        let signedDocPreview = document.getElementById('signedDocumentPreview');
+        let lastSignature = mail.signatures[mail.signatures.length - 1];
+        
+        signedDocPreview.innerHTML = `
+            <h3>${mail.title}</h3>
+            <p><strong>شماره:</strong> ${mail.number}</p>
+            <p><strong>تاریخ:</strong> ${mail.date}</p>
+            <p><strong>از:</strong> ${mail.from}</p>
+            <p><strong>به:</strong> ${mail.to}</p>
+            <hr>
+            <p>${mail.content}</p>
+            <div class="signature-in-doc">
+                <p><strong>امضا:</strong></p>
+                <img src="${lastSignature.signature}" alt="امضا" style="max-width: 150px;">
+                <p><small>نوع تایید: ${lastSignature.status}</small></p>
+                <p><small>تاریخ: ${lastSignature.date}</small></p>
+            </div>
+        `;
+    }
+
+    function displayReferralHistory(referrals) {
+        let container = document.getElementById('detail-referrals');
+        container.innerHTML = '';
+        
+        if (referrals.length === 0) {
+            container.innerHTML = '<p class="text-muted">تاریخچه‌ای برای این نامه ثبت نشده است</p>';
+            return;
+        }
+        
+        referrals.forEach(ref => {
+            let statusClass = ref.status === 'اقدام شده' ? 'text-success' : 'text-warning';
+            container.innerHTML += `
+                <div class="referral-history mb-3 p-3 border rounded">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>${ref.name} - ${ref.department}</strong>
+                        <span class="text-muted small">${ref.date}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-light text-dark">${ref.type}</span>
+                            <span class="${statusClass} mr-2">${ref.status}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function displaySignatures(signatures) {
+        let container = document.getElementById('detail-signatures');
+        container.innerHTML = '';
+        
+        if (signatures.length === 0) {
+            container.innerHTML = '<p class="text-muted">امضایی برای این نامه ثبت نشده است</p>';
+            return;
+        }
+        
+        signatures.forEach(sig => {
+            let statusClass = sig.status === 'تایید شده' ? 'text-success' : 'text-warning';
+            container.innerHTML += `
+                <div class="col-md-6 mb-3">
+                    <div class="border rounded p-3">
+                        <div class="signature-display mb-2">
+                            <img src="${sig.signature}" alt="امضا" class="img-fluid">
+                        </div>
+                        <div class="mt-2">
+                            <strong>${sig.name}</strong><br>
+                            <small class="text-muted">${sig.date}</small><br>
+                            <span class="${statusClass}">${sig.status}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    // توابع کمکی
+    function getPriorityClass(priority) {
+        const priorityMap = {
+            'danger': 'danger',
+            'warning': 'warning', 
+            'info': 'info',
+            'success': 'success'
+        };
+        return priorityMap[priority] || 'info';
+    }
+
+    function getStatusClass(status) {
+        const statusMap = {
+            'جدید': 'primary',
+            'در انتظار': 'warning',
+            'خوانده شده': 'secondary',
+            'امضا شده': 'success',
+            'ارجاع شده': 'info'
+        };
+        return statusMap[status] || 'secondary';
+    }
+
+    function initDetailScroll() {
+        if (detailScroll) {
+            detailScroll.remove();
+        }
+        
+        detailScroll = $('.mail-detail-content').niceScroll({
+            cursorcolor: "#c1c1c1",
+            cursorwidth: "8px",
+            cursorborder: "1px solid #c1c1c1",
+            cursorborderradius: "4px",
+            autohidemode: "leave",
+            background: "#f1f1f1",
+            horizrailenabled: false,
+            preservenativescrolling: false,
+            railpadding: { top: 0, right: 0, left: 0, bottom: 0 }
+        });
+        
+        setTimeout(function() {
+            if (detailScroll) {
+                detailScroll.resize();
+            }
+        }, 100);
+    }
+
+    function closeMailDetail() {
+        document.getElementById('mailDetail').classList.remove('show');
+        if (detailScroll) {
+            detailScroll.remove();
+            detailScroll = null;
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        renderMailList();
+        initSignaturePad();
+        
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+
+        // مدیریت رویدادها
+        document.getElementById('closeDetail').addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMailDetail();
         });
 
-        $(document).on('click', '.app-sidebar-menu-button', function () {
-            $('.app-block .app-sidebar, .app-content-overlay').addClass('show');
-            // $('.app-block .app-sidebar .app-sidebar-menu').niceScroll().resize();
-            return false;
+        document.getElementById('detail-refer-btn').addEventListener('click', function() {
+            initReferModal();
+            $('#referMailModal').modal('show');
         });
 
-        $(document).on('click', '.app-content-overlay', function () {
-            $('.app-block .app-sidebar, .app-content-overlay').removeClass('show');
-            return false;
+        document.getElementById('detail-sign-btn').addEventListener('click', function() {
+            $('#signMailModal').modal('show');
+        });
+
+        document.getElementById('sendMailBtn').addEventListener('click', function() {
+            alert('نامه با موفقیت ارسال شد');
+            $('#newMailModal').modal('hide');
+        });
+
+        // مدیریت چک‌باکس‌ها
+        $(document).on('click', '#customCheckAll', function () {
+            $('.mail-item input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+        });
+
+        // Initialize Quill
+        new Quill('.compose-quill-editor', {
+            modules: {
+                toolbar: ".compose-quill-toolbar"
+            },
+            placeholder: "متن نامه را اینجا بنویسید...",
+            theme: "snow"
         });
     });
-</script>
-
+  </script>
 
 {% endblock %}
