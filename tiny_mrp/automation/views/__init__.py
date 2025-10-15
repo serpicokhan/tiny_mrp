@@ -1,0 +1,1 @@
+from automation.views.mailview import *

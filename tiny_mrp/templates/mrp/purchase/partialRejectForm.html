@@ -1,0 +1,25 @@
+<form id="rejectForm" action="{% url 'reject_request' id %}" autocomplete="off" class="js-purchase-reject-form" method="post">
+    <div class="modal-header">
+        <h5 class="modal-title">رد درخواست</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+    </div>
+    <div class="modal-body">
+        <p>لطفاً علت رد درخواست را مشخص کنید:</p>
+      
+
+        <div class="mb-3">
+            <label for="rejectReason" class="form-label">علت رد درخواست</label>
+            <textarea class="form-control"  name="rejectReason" rows="4" required placeholder="دلیل رد درخواست را وارد کنید..." 
+            validation-error="dsaDsaDsa"></textarea>
+        </div>
+      
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-danger" >رد درخواست</button>
+
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+    </div>
+   
+</form>

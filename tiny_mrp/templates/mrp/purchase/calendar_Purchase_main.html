@@ -1,0 +1,114 @@
+
+{% extends 'mrp/blank-page.html' %}
+{% load static %}
+
+{% block stylesheet %}
+ <link href="{% static 'assets/css/fullcalendar.min.css' %}" rel="stylesheet" type="text/css">
+ <style media="screen">
+   .fc-event {
+  direction: rtl;
+  text-align: right; /* Optional: Align text to the right */
+}
+ </style>
+{% endblock %}
+<!-- Fullcalendar -->
+
+{% block content %}
+<div class="row app-block">
+    <div class="col-md-3 app-sidebar">
+        <div class="card">
+           
+            <div>
+                <div class="card-body pb-0">
+                    <button class="btn btn-secondary btn-block" data-toggle="modal" data-target="#createEventModal">
+                        ساخت رویداد
+                    </button>
+                </div>
+                <div>
+                    <div class="card-body pb-3">
+                        <h6 class="mb-0">وضعیت ها</h6>
+                        <p class="small text-muted mb-0">وضعیت مورد نظر را انتخاب نمایید</p>
+                    </div>
+                    <div>
+                        <div class="list-group list-group-flush" id="external-events">
+                           <a href="?status=Pending"> 
+                                <div class="list-group-item fc-event">
+                                    <i class="fa fa-circle text-success" data-icon="car"></i> درخواست شده
+                                </div>
+                            
+                            </a>
+                           <a href="?status=Approved">
+                            <div class="list-group-item fc-event">
+                                <i class="fa fa-circle " style="color:#53c797" data-icon="users"></i> تایید انبار
+                            </div>
+                           </a>
+                           <a href="?status=Approve2">
+                            <div class="list-group-item fc-event">
+                                <i class="fa fa-circle " style="color:#f0ad4e" data-icon="users"></i> تایید مهندس اعزامی
+                            </div>
+                           </a>
+                            <a href="?status=Approve3">
+                                <div class="list-group-item fc-event">
+                                    <i class="fa fa-circle " style="color:#0275d8" data-icon="diamond"></i> تایید مهندس ارزنده
+                                </div>
+                             </a>
+                             <a href="?status=Ordered">
+                                <div class="list-group-item fc-event">
+                                    <i class="fa fa-circle text-primary" data-icon="glass"></i> سفارش داده شده
+                                </div>
+                             </a>
+                             <a href="?status=Purchased">
+                                <div class="list-group-item fc-event">
+                                    <i class="fa fa-circle text-secondary" data-icon="glass"></i> خریداری شده
+                                </div>
+                            </a>
+                            <a href="?status=all">
+                                <div class="list-group-item fc-event">
+                                    <i class="fa fa-circle text-secondary" data-icon="glass"></i> همه
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    {% comment %} <div class="card-body">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="drop-remove" checked="">
+                            <label class="custom-control-label" for="drop-remove">حذف بعد از انداختن</label>
+                        </div>
+                    </div> {% endcomment %}
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+                   <div class="col-md-9 app-content">
+                       <div class="app-content-overlay"></div>
+                       <div class="card app-content-body">
+                           <div class="card-body">
+                               <a href="#" class="app-sidebar-menu-button btn btn-outline-light mb-3">
+                                   <i data-feather="menu"></i>
+                               </a>
+                               <div id="calendar"></div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+
+{% endblock %}
+{% load static %}
+
+{% block javascript %}
+<script src="{% static 'assets/Cal/cal/js/fullcalendar.min.js' %}"></script>
+<script src="{% static 'assets/Cal/cal/js/purchasefullcalendar.init.js' %}"></script>
+{% comment %} <script>
+    $(document).ready(function() {
+        $('#makan_select').change(function() {
+            var selectedValue = $(this).val();
+            if (selectedValue) { // check if the value is not empty
+                window.location.href = `/Tolid/Calendar?makan_id=${$("#makan_select").val()}`;
+            }
+        });
+    });
+    
+</script> {% endcomment %}
+{% endblock %}

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'mrp.apps.MrpConfig',
+    'automation.apps.AutomationConfig',
     'widget_tweaks',
     'django.contrib.humanize',
     'mathfilters',
@@ -61,7 +62,8 @@ ROOT_URLCONF = 'tiny_mrp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        # 'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # Add global templates directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -85,10 +87,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mrp581_jason',
-        'USER': 'mrp581_jason',
-        'PASSWORD': 'UuuV4YnQHyDh',
-        'HOST': 'services.irn9.chabokan.net',
-        'PORT': '49495',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
 LOGIN_REDIRECT_URL = 'index'

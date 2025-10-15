@@ -1,0 +1,350 @@
+{% extends 'mrp/temp2.html' %}
+{% load static %}
+{% block stylesheet %}
+     <!-- Select2 -->
+     <link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
+
+{% endblock %}
+{% block content %}
+
+<div class="container-fluid h-100">
+
+    <div class="row app-block">
+        <div class="col-md-3 app-sidebar main_slidebar">
+            <div class="card">
+                <div class="card-body">
+                    <button class="btn btn-outline-dark btn-block btn-block2" id="createreq" data-url="{% url 'create_purchase' %}" >
+                        درخواست جدید                   </button>
+                        <button class="btn btn-outline-dark btn-block btn-block3" data-url="#" >
+                            خروجی اکسل                  </button>
+                       
+                </div>
+                <div class="app-sidebar-menu">
+                    <form class="">
+
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item active d-flex align-items-center">
+                            <i data-feather="filter" class="mr-2 width-15 height-15"></i>
+                            فیلتر تاریخ
+                            <span class="small ml-auto"></span>
+                        </a>
+                        
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            
+                            <input class=" form-control " type="text" name="start" value={{start}}>
+                           
+                           
+                    
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            
+                            <input class=" form-control " type="text" name="end" value={}>
+                           
+                           
+                    
+                        </a>
+                        
+                        {% if perms.mrp.can_admin_purchase %}
+                        <a href="#" class="list-group-item active d-flex align-items-center">
+                            <i data-feather="filter" class="mr-2 width-15 height-15"></i>
+                            فیلتر اشخاص
+                            <span class="small ml-auto"></span>
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <select class="select2-example" multiple>
+                            {% for i in users %}
+                                <option value="{{i.id}}" >{{i}}</option>
+                            {% endfor %}
+                             
+                              </select>
+                        </a>
+                        {% endif %}
+                        <a  class="list-group-item d-flex align-items-center">
+                            
+                            <button class="btn btn-outline-dark btn-block .btn-block4" type="submit" data-url="#" >
+                                فیلتر                </button>
+                           
+                           
+                    
+                        </a>
+                    </form>
+                        {% comment %} <a href="#" class="list-group-item d-flex align-items-center">
+                            <i data-feather="star" class="mr-2 width-15 height-15"></i>
+                            شروع شده
+                            <span class="small ml-auto">10</span>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <i data-feather="info" class="mr-2 width-15 height-15"></i>
+                            اسپم
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <i data-feather="trash" class="mr-2 width-15 height-15"></i>
+                           سطل آشغال 
+                            <span class="small ml-auto">2</span>
+                        </a> {% endcomment %}
+                    </div>
+                    {% comment %} <div class="card-body">
+                        <h6 class="mb-0">برچسب‌ها</h6>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <span class="text-warning fa fa-circle mr-2"></span>
+                            پشتیبانی
+                            <span class="small ml-auto">5</span>
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <span class="text-success fa fa-circle mr-2"></span>
+                          آزاد
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <span class="text-danger fa fa-circle mr-2"></span>
+                            اجتماعی
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <span class="text-info fa fa-circle mr-2"></span>
+                            دوستان
+                        </a>
+                        <a href="#" class="list-group-item d-flex align-items-center">
+                            <span class="text-secondary fa fa-circle mr-2"></span>
+                            کدزدن
+                        </a>
+                    </div> {% endcomment %}
+                </div> 
+            </div>
+        </div>
+        <div class="col-md-3 app-sidebar  d-none" id="update_tab2">
+            <div class="card" id="purchase_tab_card">
+               
+                
+            </div>
+        </div>
+        <div class="col-md-9 app-content">
+            <div class="app-content-overlay"></div>
+            <div class="app-action">
+                <div class="action-left">
+                    <div class="custom-control custom-checkbox mr-3">
+                        <input type="checkbox" class="custom-control-input" id="customCheckAll">
+                        <label class="custom-control-label" for="customCheckAll"></label>
+                    </div>
+                    <ul class="list-inline">
+                        <li class="list-inline-item mb-0">
+                            <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown">
+                                انتخاب بر اساس
+                            </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="?status=Pending{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">درخواست شده</a>
+                                <a class="dropdown-item" href="?status=Approved{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید انبار</a>
+                                <a class="dropdown-item" href="?status=Approve2{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید مدیر تولید</a>
+                                <a class="dropdown-item" href="?status=Approve4{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید بازرگانی</a>
+
+                                <a class="dropdown-item" href="?status=Approve3{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید مهندس ارزنده</a>
+                                <a class="dropdown-item" href="?status=Ordered{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">سفارش داده شده</a>
+                                <a class="dropdown-item" href="?status=Purchased{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">خریداری شده</a>
+                                <a class="dropdown-item" href="?status=GuardApproved{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">دریافت ناقص</a>
+                                <a class="dropdown-item" href="?status=Completed{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">کامل شده</a>
+                                <a class="dropdown-item" href="?status=Rejected{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">رد شده</a>
+                                
+                                <div class="dropdown-divider"></div>
+                                
+                                <!-- Show All -->
+                                <a class="dropdown-item text-danger" href="?{% if sort_by %}sort_by={{ sort_by }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}status=all">همه</a>
+                            </div>
+                        </li>
+                        <li class="list-inline-item mb-0 ">
+                            <a href="#" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                چینش
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right " x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(807px, 60px, 0px);">
+                                <a class="dropdown-item" href="?sort_by=latest_activity_timestamp{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تایید (جدیدترین)</a>
+
+                                <!-- Sorting by Date -->
+                                <a class="dropdown-item" href="?sort_by=-created_at{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تاریخ (جدیدترین)</a>
+                                <a class="dropdown-item" href="?sort_by=created_at{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">تاریخ (قدیمی‌ترین)</a>
+                        
+                                <!-- Sorting by ID -->
+                                <a class="dropdown-item" href="?sort_by=-id{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">کد (بزرگ‌ترین)</a>
+                                <a class="dropdown-item" href="?sort_by=id{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">کد (کوچک‌ترین)</a>
+                        
+                                <!-- Sorting by Status -->
+                                <a class="dropdown-item" href="?sort_by=status{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">وضعیت (صعودی)</a>
+                                <a class="dropdown-item" href="?sort_by=-status{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">وضعیت (نزولی)</a>
+                        
+                                {% comment %} <div class="dropdown-divider"></div> {% endcomment %}
+                        
+                                <!-- Sorting by Size (Example Field) -->
+                                {% comment %} <a class="dropdown-item" href="?sort_by=size">اندازه (صعودی)</a>
+                                <a class="dropdown-item" href="?sort_by=-size">اندازه (نزولی)</a> {% endcomment %}
+                            </div>
+                        </li>
+                        
+                    </ul>
+                </div>
+                <div class="action-right">
+                    <form class="d-flex mr-3">
+                        <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                            <i data-feather="menu" class="width-15 height-15"></i>
+                        </a>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="جستجوی درخواست"
+                                   aria-describedby="button-addon1"  name="q" 
+                                   value="{{ search_query }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-light" type="submit" id="button-addon1">
+                                    <i class="ti-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="app-pager d-flex align-items-center">
+                        <div class="mr-3">{{ req.number }} از {{req.paginator.num_pages}}</div>
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                                <li class="page-item">
+                                {% if req.has_previous %}
+
+                                    <a class="page-link" href="?page={{ req.previous_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" aria-label="Previous">
+                                        <i data-feather="chevron-left" class="width-15 height-15"></i>
+                                    </a>
+                                {% else %}
+                                <a class="page-link" href="#" aria-label="Previous">
+                                    <i data-feather="chevron-left" class="width-15 height-15"></i>
+                                </a>
+                                {% endif %}
+
+                                </li>
+                                <li class="page-item">
+                                    {% if req.has_next %}
+                                    <a class="page-link" href="?page={{ req.next_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" aria-label="Next">
+                                        <i data-feather="chevron-right" class="width-15 height-15"></i>
+                                    </a>
+                                    {% else %}
+                                    <a class="page-link" href="#" aria-label="Next">
+                                        <i data-feather="chevron-right" class="width-15 height-15"></i>
+                                    </a>
+
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div class="card card-body app-content-body">
+                <div class="app-lists">
+                    <ul class="list-group list-group-flush" id="main_ul">
+                       {% include 'mrp/purchase/partialPurchaseList.html' %}
+                        
+                      
+                    </ul>
+                </div>
+                <!-- end::app-lists -->
+
+                <!-- begin:app-detail -->
+                <div class="card app-detail ajax-content" style="overflow: scroll;">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" id="compose">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ارسال ایمیل به</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="d-flex justify-content-between m-b-20">
+                    <div>
+                        <a href="#" data-toggle="tooltip" title=""
+                           class="btn btn-outline-light btn-sm mr-2"
+                           data-original-title="ذخیره">
+                            <i data-feather="save"></i>
+                        </a>
+                        <a href="#" data-toggle="tooltip" title=""
+                           class="btn btn-outline-light btn-sm mr-2"
+                           data-original-title="حذف">
+                            <i data-feather="trash-2"></i>
+                        </a>
+                    </div>
+                </div>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control tagsinput" placeholder="به"
+                               value="example@test.com.tr" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="موضوع" required>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" multiple id="customFileLangHTML">
+                            <label class="custom-file-label" for="customFileLangHTML" data-browse="انتخاب فایل">لورم ایپسوم</label>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="compose-quill-editor mb-3"></div>
+                        <div class="d-flex justify-content-between">
+                            <div class="compose-quill-toolbar">
+                            <span class="ql-formats mr-0">
+                                <button class="ql-bold"></button>
+                                <button class="ql-italic"></button>
+                                <button class="ql-underline"></button>
+                                <button class="ql-link"></button>
+                                <button class="ql-image"></button>
+                            </span>
+                            </div>
+                            <button class="btn btn-primary">
+                                <i data-feather="send" class="mr-2"></i>
+                                ارسال
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block javascript %}
+  <!-- Plugin scripts -->
+  <script src="{% static 'vendors/select2/js/select2.min.js' %}"></script>
+  <script src="{% static 'assets/js/examples/select2.js' %}"></script>
+  <script>
+    $('.select2-example').select2({
+        placeholder: 'اشخاص'
+    });
+    $('input[name="start"]').pDatepicker({
+        format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian',
+                calendar:{
+            persian: {
+                leapYearMode: 'astronomical'
+            }
+        },
+      });
+    $('input[name="end"]').pDatepicker({
+        format: 'YYYY-MM-DD',
+                autoClose: true,
+                initialValueType: 'gregorian',
+                calendar:{
+            persian: {
+                leapYearMode: 'astronomical'
+            }
+        },
+      });
+  </script>
+  
+<script src="{% static 'project/purchase.js' %}"></script>
+
+<script src="{% static 'project/purchaselist.js' %}"></script>
+
+
+{% endblock %}

@@ -1,0 +1,169 @@
+{% load custom_filters %}
+<div class="modal fade" id="modal-company" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+       
+      </div>
+    </div>
+  </div>
+  
+<div class="card-header">
+    <div class="app-detail-action-left">
+        <a class="app-detail-close-button" href="#">
+            <i data-feather="arrow-left" class="mr-3"></i>
+        </a>
+        <h5 class="mb-0">
+            درخواست شماره {{company.id}}
+            <span class="badge bg-primary badge-pill ml-1 badge_status">{{company.get_status_display}}</span>
+        </h5>
+    </div>
+    <div class="app-detail-action-right">
+        <div>
+            <a href="#" class="app-sidebar-menu-button btn btn-outline-light">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu width-15 height-15"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </a>
+            {% if company.is_emergency %}
+            <a href="#" class="btn btn-danger ml-2" data-toggle="tooltip"
+               title="اورژانسی">
+                <i data-feather="alert-triangle"></i>
+            </a> 
+            {% endif %}
+            {% if company.is_tamiri %}
+            <a href="#" class="btn btn-secondary ml-2" data-toggle="tooltip"
+               title="تعمیری">
+                <i data-feather="tool"></i>
+            </a> 
+            {% endif %}
+            <a href="#" class="btn btn-outline-light ml-2 "  data-toggle="tooltip" id="saveButton"
+            title="save">
+             <i data-feather="save"></i> 
+             <a href="#" class="btn btn-outline-light ml-2 "  data-toggle="tooltip" id="printBtn" data-id="{% url 'purchase_request_detail_print' company.id %}"
+            title="چاپ">
+             <i data-feather="printer"></i>
+         </a>
+        
+         {% if request.user|in_group:"anbar" %}
+        <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید انبار">
+            <i data-feather="check-circle"></i>
+        </a>
+        {% elif request.user|in_group:"managers" %}
+        <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید مدیر">
+            <i data-feather="check-circle"></i>
+        </a>
+        {% elif request.user|in_group:"director" %}
+        <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید مدیرعامل">
+            <i data-feather="check-circle"></i>
+        </a>
+        {% elif request.user|in_group:"purchase" %}
+        <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید خرید">
+            <i data-feather="check-circle"></i>
+        </a>
+        {% if company.status == "Approve4" or company.status == "Approve2" %}
+        <a href="#" class="btn btn-outline-light rfq"  data-url="{% url 'create_rfq' company.id %}" data-toggle="tooltip" title="استعلام">
+            <i data-feather="phone"></i>
+        </a>
+        {% endif %}
+       <!-- Modal -->
+
+        {% endif %}
+            {% comment %} <a href="#" class="btn btn-outline-light ml-2 rejected" data-url="{% url 'reject_request' company.id %}" data-toggle="tooltip"
+               title="رد کردن">
+                <i data-feather="trash"></i>
+            </a> {% endcomment %}
+        </div>
+    </div>
+</div>
+<div class="app-detail-article">
+    <div class="card-body">
+        <div class="d-flex align-items-center p-l-r-0 m-b-20">
+            <div class="d-flex align-items-center">
+                <figure class="avatar avatar-sm m-r-15">
+                    <img src="{{company.user.profileImage.url}}" class="rounded-circle" alt="image">
+                </figure>
+                <div>
+                    <h6 class="m-b-0">
+                        <span class="text-primary">{{company.user}}</span>
+                        {% comment %} <span class="d-sm-inline d-none text-muted"> &lt;elnora@gmail.com&gt;</span> {% endcomment %}
+                    </h6>
+                    {% comment %} <span class="small text-muted">به مهرانا بخشنده</span> {% endcomment %}
+                </div>
+            </div>
+            <div class="ml-auto">
+                {% if files %}
+                <a href="#" data-toggle="tooltip" title="" class="mr-2" data-original-title="Attachment">
+                    <i class="fa fa-paperclip"></i>
+                </a>
+                {% endif %}
+                {% if company.is_emergency %}
+                <a href="#" class="mr-2">
+                    <i class="fa fa-star font-size-16 text-warning"></i>
+                </a>
+                {% endif %}
+                <span class="text-muted">{{company.get_dateCreated_jalali}}</span>
+            </div>
+        </div>
+     {% include 'mrp/purchase/purchase_v2.html' %}
+    <hr class="m-0">
+    {% if request.user|in_group:"purchase" or request.user|in_group:"director"  %}
+     {% include 'mrp/rfq/rfqList.html' %}
+    {% endif %}
+    </div>
+    {% if perms.mrp.can_view_faktors and faktors %}
+    <hr class="m-0">
+    <div class="card-body">
+        <h6 class="mb-3 font-size-11 text-uppercase">مدارک پیوست شده</h6>
+        <ul class="list-unstyled mb-0">
+            {% for i in faktors %}
+            <li class="small">
+                <a href="{{i.file.url}}" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip mr-1 width-15 height-15"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                    {{i}}
+                </a>
+            </li>
+            {% endfor %}
+           
+        </ul>
+    </div>
+    {% endif %}
+    {% if perms.mrp.can_upload_faktors %}
+    <hr class="m-0">
+    <div class="card-body">
+        <form id="faktor-upload-form" method="post" enctype="multipart/form-data">
+            <div id="faktor-container" class="mb-3">
+              <!-- Dynamic image input fields will be added here -->
+            </div>
+            <div class="d-flex justify-content-center align-items-center">
+              <button type="button" id="add-faktor-btn" class="btn btn-secondary">
+                <i class="fas fa-plus mr-2"></i>افزودن مدرک
+              </button>
+              
+              
+            
+            </div>
+          </form>
+    </div>
+    {% endif %}
+    {% if perms.mrp.can_create_paraf %}
+    <hr class="m-0">
+    <div class="card-body">
+        <h6 class="mb-3 font-size-11 text-uppercase">نظر مدیریت</h6>
+        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3">{{company.manager_comment}}</textarea>
+    </div>
+    {% endif %}
+    {% if perms.mrp.can_view_paraf and company.manager_comment %}
+    <hr class="m-0">
+    <div class="card-body">
+        <h6 class="mb-3 font-size-11 text-uppercase">نظر مدیریت</h6>
+       <p>{{company.manager_comment}}</p>
+    </div>
+    {% endif %}
+    
+    {% comment %} {% include 'mrp/purchase/tab_updatereq_v2.html' %} {% endcomment %}
+
+
+ 
+</div>
+<script>
+    var purchase_request_id='{{company.id}}';
+    
+     </script>

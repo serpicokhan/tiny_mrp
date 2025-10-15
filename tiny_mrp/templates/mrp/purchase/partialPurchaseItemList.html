@@ -1,0 +1,19 @@
+{% load humanize %}
+
+{% for i in items %} 
+<tr data-id="{{i.id}}">
+    <td  class=" part-name" data-id="{{i.item_name.id}}" data-partcode="{{i.item_name.partCode}}">{{i.item_name.partName}}</td>
+    <td  class="">{{i.quantity}}</td>
+    <td  class=" machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
+    <td  class=" " data-id="">{{i.description}}</td>
+    <td  class=" " data-id="">{{i.supplier_assigned|default_if_none:'مشخص نشده'}}</td>
+    <td  class=" " data-id="">{{i.supplied_quantity|default_if_none:'مشخص نشده'}}</td>
+    <td  class=" " data-id="">{{i.price|intcomma}}</td>
+    <td  class="" data-id=""><a href="#" data-url="{% url 'update_purchase_item' i.id %}" data-toggle="tooltip" title="" data-original-title="جزییات" class="js-purchase-item-update">
+        <i class="fa fa-external-link"></i>
+    </a></td>
+
+    
+    
+</tr>
+{% endfor %}
