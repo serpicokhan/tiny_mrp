@@ -6,15 +6,20 @@ document.addEventListener('DOMContentLoaded', function () {
   var containerE2 = document.getElementById('external-events2');
   var calendarEl = document.getElementById('calendar');
   var checkbox = document.getElementById('drop-remove');
+  var lineSelector = document.querySelector('select[name="line_selector"]');
 
-  // متغیرهای موقت برای ذخیره اطلاعات
   var pendingDropInfo = null;
   var editingEvent = null;
-
-  // ذخیره رنگ‌های سفارشات
   var orderColors = {};
+  var selectedLineId = lineSelector ? lineSelector.value : null;
 
-  // تابع تولید رنگ تصادفی
+  if (lineSelector) {
+    lineSelector.addEventListener('change', function() {
+      selectedLineId = this.value;
+      calendar.refetchEvents();
+    });
+  }
+
   function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '#';
@@ -24,9 +29,8 @@ document.addEventListener('DOMContentLoaded', function () {
     return color;
   }
 
-  // initialize the external events
   new Draggable(containerEl, {
-      itemSelector: '.fc-event',
+    itemSelector: '.fc-event',
   });
   
   new Draggable(containerE2, {
@@ -38,7 +42,116 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // محاسبه تعداد روزهای مورد نیاز بر اساس ظرفیت روزانه
+  function updateOrderInSidebar(orderId, originalTitle, quantity, action) {
+    var unassignedContainer = document.getElementById('unassignedOrdersContainer');
+    var assignedContainer = document.getElementById('assignedOrdersContainer');
+    
+    var existingOrderEl = null;
+    if (unassignedContainer) {
+      existingOrderEl = unassignedContainer.querySelector(`[data-id="${orderId}"]`);
+    }
+    if (!existingOrderEl && assignedContainer) {
+      existingOrderEl = assignedContainer.querySelector(`[data-id="${orderId}"]`);
+    }
+    
+    if (existingOrderEl) {
+      var currentQty = parseFloat(existingOrderEl.getAttribute('data-quantity'));
+      var newQty = action === 'increase' ? currentQty + quantity : currentQty - quantity;
+      
+      if (newQty > 0) {
+        existingOrderEl.setAttribute('data-quantity', newQty);
+        var quantityDivs = existingOrderEl.querySelectorAll('div');
+        for (var i = 0; i < quantityDivs.length; i++) {
+          if (quantityDivs[i].textContent.includes('باقیمانده:') || quantityDivs[i].textContent.includes('مقدار:')) {
+            quantityDivs[i].innerHTML = `باقیمانده: <strong>${newQty.toFixed(0)} kg</strong>`;
+            break;
+          }
+        }
+      } else {
+        var isUnassigned = existingOrderEl.getAttribute('data-has-assigned-line') === 'false';
+        existingOrderEl.remove();
+        
+        if (isUnassigned) {
+          var currentCount = parseInt($('#unassignedOrdersCount').text());
+          $('#unassignedOrdersCount').text(Math.max(0, currentCount - 1));
+        } else {
+          var currentCount = parseInt($('#assignedOrdersCount').text());
+          $('#assignedOrdersCount').text(Math.max(0, currentCount - 1));
+        }
+      }
+    } else if (action === 'increase') {
+      restoreOrderToSidebar(orderId, originalTitle, quantity);
+    }
+  }
+
+  function restoreOrderToSidebar(orderId, originalTitle, quantity) {
+    $.ajax({
+      url: `/MOrder/order-details/${orderId}/`,
+      type: 'GET',
+      success: function(response) {
+        if (response.success) {
+          var order = response.order;
+          var container = order.has_assigned_line ? 
+                         $('#assignedOrdersContainer') : 
+                         $('#unassignedOrdersContainer');
+          
+          var backgroundColor = order.has_assigned_line ? '#e7f1ff' : '#fff3cd';
+          var textColor = order.has_assigned_line ? '#007bff' : '#856404';
+          var borderColor = order.has_assigned_line ? 'transparent' : '#ffc107';
+          
+          var orderHtml = `
+            <div class="list-group-item fc-event order-item" 
+                 data-id="${order.id}" 
+                 data-type="order" 
+                 data-quantity="${quantity}"
+                 data-line-id="${order.line_id || ''}"
+                 data-has-assigned-line="${order.has_assigned_line}"
+                 style="background-color: ${backgroundColor}; color: ${textColor}; cursor: move; border-left: 4px solid ${borderColor};">
+              <div>
+                <i class="fa fa-circle ${order.has_assigned_line ? 'text-success' : 'text-warning'}"></i> 
+                <strong>${order.title}</strong>
+              </div>
+              <div class="small">
+                محصول: ${order.product_name}
+              </div>
+              <div class="small">
+                باقیمانده: <strong>${quantity.toFixed(0)} kg</strong>
+              </div>
+              ${order.has_assigned_line ? 
+                `<div class="small text-muted">
+                  <i class="fa fa-industry"></i> ${order.line_name}
+                </div>
+                <div class="small text-success">
+                  <i class="fa fa-check-circle"></i> قابل استفاده در خطوط دیگر
+                </div>` : 
+                `<div class="small text-muted">
+                  <i class="fa fa-info-circle"></i> قابل تخصیص به هر خطی
+                </div>`
+              }
+            </div>
+          `;
+          
+          container.append(orderHtml);
+          
+          if (order.has_assigned_line) {
+            var currentCount = parseInt($('#assignedOrdersCount').text());
+            $('#assignedOrdersCount').text(currentCount + 1);
+          } else {
+            var currentCount = parseInt($('#unassignedOrdersCount').text());
+            $('#unassignedOrdersCount').text(currentCount + 1);
+          }
+          
+          new Draggable(container[0], {
+            itemSelector: '.fc-event',
+          });
+        }
+      },
+      error: function() {
+        toastr.error('خطا در بارگذاری اطلاعات سفارش');
+      }
+    });
+  }
+
   $('#dailyCapacity').on('input', function() {
     var totalQuantity = parseFloat($('#totalQuantity').val());
     var dailyCapacity = parseFloat($(this).val());
@@ -51,9 +164,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // تایید و ایجاد رویدادها (برای drop جدید)
   $('#confirmCapacity').on('click', function() {
     var dailyCapacity = parseFloat($('#dailyCapacity').val());
+    
+    if (!selectedLineId) {
+      alert('لطفا خط تولید را انتخاب کنید');
+      return;
+    }
     
     if (!dailyCapacity || dailyCapacity <= 0) {
       alert('لطفا ظرفیت روزانه معتبر وارد کنید');
@@ -61,11 +178,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (editingEvent) {
-      // ویرایش رویداد موجود
       var deductFromRemaining = !$('#independentEdit').is(':checked');
       updateEventCapacity(editingEvent, dailyCapacity, deductFromRemaining);
     } else if (pendingDropInfo) {
-      // ایجاد رویدادهای جدید
       createEventsFromDrop(pendingDropInfo, dailyCapacity);
     }
     
@@ -76,34 +191,31 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#independentEditContainer').hide();
   });
 
-  // بستن مودال و پاک کردن اطلاعات
   $('#dailyCapacityModal').on('hidden.bs.modal', function () {
     pendingDropInfo = null;
     editingEvent = null;
     $('#dailyCapacityForm')[0].reset();
     $('#independentEditContainer').hide();
+    $('.order-info-alert').remove();
   });
 
-  // تابع ویرایش ظرفیت رویداد
   function updateEventCapacity(event, newCapacity, deductFromRemaining) {
     var oldQuantity = event.extendedProps.quantity;
     var difference = newCapacity - oldQuantity;
     var orderId = event.extendedProps.orderId;
     var originalTitle = event.extendedProps.originalTitle;
-    var orderColor = event.backgroundColor;
     
-    // به‌روزرسانی مقدار رویداد فعلی
     event.setExtendedProp('quantity', newCapacity);
     event.setProp('title', `${originalTitle} - ${newCapacity}kg`);
     event.setExtendedProp('is_new', true);
     
     if (deductFromRemaining && difference > 0) {
-      // کسر کردن از سایر رویدادهای همین سفارش
       var relatedEvents = calendar.getEvents().filter(function (evt) {
-        return evt.extendedProps.orderId === orderId && evt.id !== event.id;
+        return evt.extendedProps.orderId === orderId && 
+               evt.extendedProps.lineId === selectedLineId &&
+               evt.id !== event.id;
       });
       
-      // مرتب کردن رویدادها بر اساس تاریخ (از جدید به قدیم یا بالعکس)
       relatedEvents.sort(function(a, b) {
         return new Date(a.start) - new Date(b.start);
       });
@@ -111,20 +223,17 @@ document.addEventListener('DOMContentLoaded', function () {
       var remainingDifference = difference;
       var removedEvents = 0;
       
-      // کسر کردن به صورت متوالی از رویدادهای بعدی
       for (var i = 0; i < relatedEvents.length && remainingDifference > 0; i++) {
         var relatedEvent = relatedEvents[i];
         var currentQuantity = relatedEvent.extendedProps.quantity;
         
         if (currentQuantity > remainingDifference) {
-          // این رویداد کافیه برای کسر کردن
           var newQty = currentQuantity - remainingDifference;
           relatedEvent.setExtendedProp('quantity', newQty);
           relatedEvent.setProp('title', `${originalTitle} - ${newQty}kg`);
           relatedEvent.setExtendedProp('is_new', true);
           remainingDifference = 0;
         } else {
-          // این رویداد رو کامل حذف میکنیم (ظرفیت صفر یا کمتر شده)
           remainingDifference -= currentQuantity;
           relatedEvent.remove();
           removedEvents++;
@@ -139,7 +248,6 @@ document.addEventListener('DOMContentLoaded', function () {
         toastr.warning('ظرفیت کافی در سایر روزها وجود نداشت. مقدار ' + remainingDifference + 'kg باقی مانده است.');
       }
     } else if (deductFromRemaining && difference < 0) {
-      // کاهش ظرفیت - به سفارشات بازگردانده میشه
       var absDeficit = Math.abs(difference);
       updateOrderInSidebar(orderId, originalTitle, absDeficit, 'increase');
     }
@@ -147,114 +255,201 @@ document.addEventListener('DOMContentLoaded', function () {
     toastr.success('ظرفیت رویداد به‌روزرسانی شد');
   }
 
-  // تابع به‌روزرسانی سفارش در سایدبار
-  function updateOrderInSidebar(orderId, originalTitle, quantity, action) {
-    var ordersContainer = document.getElementById('external-events');
-    var existingOrderEl = ordersContainer.querySelector(`[data-id="${orderId}"]`);
-    
-    if (existingOrderEl) {
-      var currentQty = parseFloat(existingOrderEl.getAttribute('data-quantity'));
-      var newQty = action === 'increase' ? currentQty + quantity : currentQty - quantity;
-      
-      if (newQty > 0) {
-        existingOrderEl.setAttribute('data-quantity', newQty);
-        existingOrderEl.innerHTML = `<i class="fa fa-circle text-success" data-icon="car"></i> ${originalTitle} - ${newQty}kg`;
-      } else {
-        existingOrderEl.remove();
-      }
-    } else if (action === 'increase' && quantity > 0) {
-      // ایجاد آیتم جدید در سایدبار
-      var newOrderEl = document.createElement('div');
-      newOrderEl.className = 'list-group-item fc-event';
-      newOrderEl.setAttribute('data-id', orderId);
-      newOrderEl.setAttribute('data-type', 'order');
-      newOrderEl.setAttribute('data-quantity', quantity);
-      newOrderEl.style.backgroundColor = '#e7f1ff';
-      newOrderEl.style.color = '#007bff';
-      newOrderEl.innerHTML = `<i class="fa fa-circle text-success" data-icon="car"></i> ${originalTitle} - ${quantity}kg`;
-
-      var ordersHeader = ordersContainer.querySelector('h6');
-      if (ordersHeader) {
-        ordersHeader.insertAdjacentElement('afterend', newOrderEl);
-      } else {
-        ordersContainer.appendChild(newOrderEl);
-      }
-    }
-  }
-
-  // تابع ایجاد رویدادها
   function createEventsFromDrop(info, dailyCapacity) {
     var quantity = parseFloat(info.draggedEl.getAttribute('data-quantity'));
     var orderId = info.draggedEl.getAttribute('data-id');
-    var title = info.draggedEl.innerText.split(' - ')[0];
+    var titleElement = info.draggedEl.querySelector('strong');
+    var title = titleElement ? titleElement.textContent.trim() : info.draggedEl.innerText.split('محصول:')[0].trim();
     var dropDate = info.date;
 
-    // اگر این سفارش رنگ نداره، یه رنگ تصادفی بهش بده
     if (!orderColors[orderId]) {
       orderColors[orderId] = getRandomColor();
     }
     var orderColor = orderColors[orderId];
 
     var daysNeeded = Math.ceil(quantity / dailyCapacity);
+    var eventsToCreate = [];
     
     for (var i = 0; i < daysNeeded; i++) {
-        var eventDate = new Date(dropDate);
-        eventDate.setDate(dropDate.getDate() + i);
-        
-        var dayQuantity = (i < daysNeeded - 1) ? dailyCapacity : 
-                         (quantity - (dailyCapacity * (daysNeeded - 1)));
-        
+      var eventDate = new Date(dropDate);
+      eventDate.setDate(dropDate.getDate() + i);
+      
+      var dayQuantity = (i < daysNeeded - 1) ? dailyCapacity : 
+                       (quantity - (dailyCapacity * (daysNeeded - 1)));
+      
+      eventsToCreate.push({
+        date: eventDate,
+        quantity: dayQuantity,
+        index: i,
+        orderId: orderId,
+        title: title
+      });
+    }
+    
+    checkMultipleDaysCapacity(eventsToCreate, 0, orderColor, function(approvedEvents) {
+      var totalApproved = 0;
+      approvedEvents.forEach(function(eventData) {
         calendar.addEvent({
-            title: `${title} - ${dayQuantity}kg`,
-            start: eventDate,
-            backgroundColor: orderColor,
-            borderColor: orderColor,
-            textColor: '#ffffff',
-            id: `${orderId}-${Date.now()}-${i}`,
-            extendedProps: {
-                quantity: dayQuantity,
-                orderId: orderId,
-                type: 'order',
-                originalTitle: title,
-                originalQuantity: quantity,
-                is_new: true
-            },
+          title: `${eventData.title} - ${eventData.quantity}kg`,
+          start: eventData.date,
+          backgroundColor: orderColor,
+          borderColor: orderColor,
+          textColor: '#ffffff',
+          id: `temp-${orderId}-${Date.now()}-${eventData.index}`,
+          extendedProps: {
+            quantity: eventData.quantity,
+            orderId: orderId,
+            lineId: selectedLineId,
+            type: 'order',
+            originalTitle: eventData.title,
+            originalQuantity: quantity,
+            is_new: true
+          },
         });
-    }
-
-    if (checkbox.checked) {
+        totalApproved += eventData.quantity;
+      });
+      
+      if (checkbox.checked && approvedEvents.length > 0) {
         info.draggedEl.parentNode.removeChild(info.draggedEl);
+      }
+      
+      var totalRejected = quantity - totalApproved;
+      
+      if (approvedEvents.length < eventsToCreate.length) {
+        toastr.warning(`${approvedEvents.length} روز از ${eventsToCreate.length} روز ایجاد شد. ${totalRejected.toFixed(0)}kg به دلیل کمبود ظرفیت ایجاد نشد.`);
+      } else {
+        toastr.success(`${approvedEvents.length} رویداد با موفقیت ایجاد شد (${totalApproved.toFixed(0)}kg)`);
+      }
+    });
+  }
+  
+  // تابع بررسی ظرفیت با محاسبه رویدادهای موقت
+  function checkMultipleDaysCapacity(events, index, orderColor, callback) {
+    if (index >= events.length) {
+      callback(events);
+      return;
     }
+    
+    var event = events[index];
+    var dateStr = event.date.toISOString().split('T')[0];
+    
+    // محاسبه ظرفیت استفاده شده از رویدادهای موقت (is_new=true)
+    var tempEventsOnDate = calendar.getEvents().filter(function(evt) {
+      var evtDateStr = evt.start.toISOString().split('T')[0];
+      return evtDateStr === dateStr && 
+             evt.extendedProps.lineId === selectedLineId &&
+             evt.extendedProps.type === 'order' &&
+             evt.extendedProps.is_new === true;
+    });
+    
+    var tempUsedCapacity = 0;
+    tempEventsOnDate.forEach(function(evt) {
+      tempUsedCapacity += evt.extendedProps.quantity || 0;
+    });
+    
+    $.ajax({
+      url: `/MOrder/line-capacity/${selectedLineId}/${dateStr}/`,
+      type: 'GET',
+      success: function(response) {
+        if (response.success) {
+          // ظرفیت واقعی استفاده شده از دیتابیس + ظرفیت موقت
+          var totalUsedCapacity = response.used_capacity + tempUsedCapacity;
+          var actualAvailableCapacity = response.total_capacity - totalUsedCapacity;
+          
+          console.log(`تاریخ ${dateStr}: ظرفیت کل=${response.total_capacity}, DB=${response.used_capacity}, موقت=${tempUsedCapacity}, باقیمانده=${actualAvailableCapacity}, نیاز=${event.quantity}`);
+          
+          if (event.quantity > actualAvailableCapacity) {
+            // اگر ظرفیت کافی نیست، اما مقداری باقی مانده
+            if (actualAvailableCapacity > 0) {
+              var userChoice = confirm(
+                `ظرفیت کامل در تاریخ ${dateStr} وجود ندارد.\n\n` +
+                `ظرفیت کل: ${response.total_capacity}kg\n` +
+                `استفاده شده (ذخیره شده): ${response.used_capacity}kg\n` +
+                `استفاده شده (موقت): ${tempUsedCapacity.toFixed(0)}kg\n` +
+                `باقیمانده: ${actualAvailableCapacity.toFixed(0)}kg\n` +
+                `مورد نیاز: ${event.quantity}kg\n` +
+                `کسری: ${(event.quantity - actualAvailableCapacity).toFixed(0)}kg\n\n` +
+                `آیا می‌خواهید ${actualAvailableCapacity.toFixed(0)}kg را برای این روز اختصاص دهید؟`
+              );
+              
+              if (userChoice) {
+                event.quantity = actualAvailableCapacity;
+                checkMultipleDaysCapacity(events, index + 1, orderColor, callback);
+              } else {
+                // حذف این روز و ادامه
+                events.splice(index, 1);
+                checkMultipleDaysCapacity(events, index, orderColor, callback);
+              }
+            } else {
+              // ظرفیت صفر است
+              var userChoice = confirm(
+                `ظرفیت در تاریخ ${dateStr} تکمیل است.\n\n` +
+                `ظرفیت کل: ${response.total_capacity}kg\n` +
+                `استفاده شده (ذخیره شده): ${response.used_capacity}kg\n` +
+                `استفاده شده (موقت): ${tempUsedCapacity.toFixed(0)}kg\n` +
+                `باقیمانده: 0kg\n` +
+                `مورد نیاز: ${event.quantity}kg\n\n` +
+                `آیا می‌خواهید این روز را رد کنید و ادامه دهید؟`
+              );
+              
+              if (userChoice) {
+                events.splice(index, 1);
+                checkMultipleDaysCapacity(events, index, orderColor, callback);
+              } else {
+                callback([]);
+              }
+            }
+          } else {
+            // ظرفیت کافی است
+            checkMultipleDaysCapacity(events, index + 1, orderColor, callback);
+          }
+        } else {
+          toastr.error('خطا در بررسی ظرفیت');
+          callback([]);
+        }
+      },
+      error: function() {
+        toastr.error('خطا در ارتباط با سرور');
+        callback([]);
+      }
+    });
   }
 
   var trashEl = document.getElementById('trash');
 
-  // initialize the calendar
   var calendar = new Calendar(calendarEl, {
-      headerToolbar: {
-          left: 'prev,next today addEventButton',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay',
-      },
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay',
+    },
+    
+    businessHours: true,
+    editable: true,
+    locale: 'fa',
+    
+    eventDidMount: function(info) {
+      if (info.event.backgroundColor) {
+        info.el.style.backgroundColor = info.event.backgroundColor;
+        info.el.style.borderColor = info.event.backgroundColor;
+      }
       
-      businessHours: true,
-      editable: true,
-      locale: 'fa',
-      eventDidMount: function(info) {
-        // اطمینان از اینکه رنگ پس‌زمینه صحیح اعمال شده
-        if (info.event.backgroundColor) {
-          info.el.style.backgroundColor = info.event.backgroundColor;
-          info.el.style.borderColor = info.event.backgroundColor;
-        }
-      },
-      events: {
+      if (info.event.extendedProps.lineName) {
+        info.el.title = `خط: ${info.event.extendedProps.lineName}\nمقدار: ${info.event.extendedProps.quantity}kg`;
+      }
+    },
+    
+    events: function(fetchInfo, successCallback, failureCallback) {
+      if (!selectedLineId) {
+        successCallback([]);
+        return;
+      }
+      
+      $.ajax({
         url: '/MOrder/Calendar/GetInfo/',
-        method: 'GET',
-        failure: function() {
-          alert('خطا در دریافت رویدادها!');
-        },
+        type: 'GET',
+        data: { line_id: selectedLineId },
         success: function(events) {
-          // ذخیره رنگ‌های رویدادهای موجود
           events.forEach(function(event) {
             if (event.extendedProps && event.extendedProps.orderId) {
               if (!orderColors[event.extendedProps.orderId]) {
@@ -262,93 +457,96 @@ document.addEventListener('DOMContentLoaded', function () {
               }
             }
           });
+          successCallback(events);
+        },
+        error: function() {
+          toastr.error('خطا در دریافت رویدادها');
+          failureCallback();
         }
-      },
+      });
+    },
 
-      customButtons: {
-          addEventButton: {
-              text: 'افزودن رویداد',
-              click: function () {
-                  var dateStr = prompt('تاریخ را وارد کنید YYYY-MM-DD فرمت');
-                  var date = new Date(dateStr + 'T00:00:00');
+    eventClick: function(info) {
+      var event = info.event;
+      
+      if (event.extendedProps.type === 'order') {
+        editingEvent = event;
+        
+        var originalTitle = event.extendedProps.originalTitle || event.title.split(' - ')[0];
+        var currentQuantity = event.extendedProps.quantity || 0;
+        
+        $('#orderTitle').val(originalTitle);
+        $('#totalQuantity').val(currentQuantity);
+        $('#dailyCapacity').val(currentQuantity);
+        $('#estimatedDays').val('1 روز');
+        $('#independentEdit').prop('checked', false);
+        $('#independentEditContainer').show();
+        $('#dailyCapacityModal .modal-title').text('ویرایش ظرفیت تولید روزانه');
+        $('#dailyCapacityModal').modal('show');
+      } else {
+        alert('نوع رویداد: ' + event.extendedProps.type + '\nعنوان: ' + event.title);
+      }
+    },
 
-                  if (!isNaN(date.valueOf())) {
-                      calendar.addEvent({
-                          title: 'dynamic event',
-                          start: date,
-                          allDay: true
-                      });
-                      alert('عالی. در حال حاضر، پایگاه داده خود را به روز کنید...');
-                  } else {
-                      alert('تاریخ نامعتبر.');
-                  }
+    drop: function(info) {
+      var eventType = info.draggedEl.getAttribute('data-type');
+      
+      if (eventType === 'order') {
+          var quantity = parseFloat(info.draggedEl.getAttribute('data-quantity'));
+          var titleElement = info.draggedEl.querySelector('strong');
+          var title = titleElement ? titleElement.textContent.trim() : info.draggedEl.innerText.split('محصول:')[0].trim();
+          var orderLineId = info.draggedEl.getAttribute('data-line-id');
+          var hasAssignedLine = info.draggedEl.getAttribute('data-has-assigned-line') === 'true';
+          
+          if (!selectedLineId) {
+              alert('لطفا ابتدا خط تولید را انتخاب کنید');
+              return;
+          }
+          
+          // اجازه دادن به استفاده از سفارشات در خطوط مختلف
+          if (hasAssignedLine && orderLineId && selectedLineId != orderLineId) {
+              var lineNameEl = info.draggedEl.querySelector('.small.text-muted');
+              var lineName = lineNameEl ? lineNameEl.textContent.replace('خط:', '').trim() : 'خط دیگر';
+              
+              // نمایش پیام تأیید با اطلاعات بیشتر
+              var confirmMessage = 
+                  `این سفارش به "${lineName}" تخصیص داده شده است.\n\n` +
+                  `مقدار باقیمانده: ${quantity} kg\n` +
+                  `آیا می‌خواهید بخشی از آن را در خط فعلی نیز برنامه‌ریزی کنید؟\n\n` +
+                  `توجه: این کار باعث کاهش مقدار باقیمانده سفارش می‌شود.`;
+              
+              if (!confirm(confirmMessage)) {
+                  return;
               }
           }
-      },
-      
-      editable: true,
-      droppable: true,
-
-      // کلیک روی رویداد برای ویرایش
-      eventClick: function(info) {
-        var event = info.event;
-        
-        // فقط برای رویدادهای نوع order
-        if (event.extendedProps.type === 'order') {
-          editingEvent = event;
           
-          var originalTitle = event.extendedProps.originalTitle || event.title.split(' - ')[0];
-          var currentQuantity = event.extendedProps.quantity || 0;
-          
-          // پر کردن فرم مودال
-          $('#orderTitle').val(originalTitle);
-          $('#totalQuantity').val(currentQuantity);
-          $('#dailyCapacity').val(currentQuantity);
-          $('#estimatedDays').val('1 روز');
-          $('#independentEdit').prop('checked', false);
-          
-          // نمایش تیک "ویرایش مستقل"
-          $('#independentEditContainer').show();
-          
-          // تغییر عنوان مودال
-          $('#dailyCapacityModal .modal-title').text('ویرایش ظرفیت تولید روزانه');
-          
-          // نمایش مودال
-          $('#dailyCapacityModal').modal('show');
-        } else {
-          // برای رویدادهای دیگر، اطلاعات را نمایش بده
-          alert('نوع رویداد: ' + event.extendedProps.type + '\nعنوان: ' + event.title);
-        }
-      },
-
-      drop: function(info) {
-        var eventType = info.draggedEl.getAttribute('data-type');
-        
-        // اگر نوع رویداد Order باشد، مودال را نمایش بده
-        if (eventType === 'order') {
-          var quantity = parseFloat(info.draggedEl.getAttribute('data-quantity'));
-          var title = info.draggedEl.innerText.split(' - ')[0];
-          
-          // ذخیره اطلاعات drop
           pendingDropInfo = info;
           
-          // پر کردن فرم مودال
           $('#orderTitle').val(title);
           $('#totalQuantity').val(quantity);
           $('#dailyCapacity').val('');
           $('#estimatedDays').val('');
-          
-          // مخفی کردن تیک "ویرایش مستقل"
           $('#independentEditContainer').hide();
           
-          // بازگشت عنوان مودال به حالت اولیه
+          // نمایش اطلاعات اضافی برای سفارشات خطوط دیگر
+          if (hasAssignedLine && orderLineId && selectedLineId != orderLineId) {
+              // حذف آلرت‌های قبلی
+              $('.order-info-alert').remove();
+              
+              $('#orderTitle').after(
+                  '<div class="alert alert-info mt-2 order-info-alert">' +
+                  '<i class="fa fa-info-circle"></i> ' +
+                  'این سفارش در خط دیگری نیز برنامه‌ریزی شده است. ' +
+                  'مقدار باقیمانده: ' + quantity + ' kg. ' +
+                  'می‌توانید بخشی از آن را در این خط نیز برنامه‌ریزی کنید.' +
+                  '</div>'
+              );
+          }
+          
           $('#dailyCapacityModal .modal-title').text('تعیین ظرفیت تولید روزانه');
-          
-          // نمایش مودال
           $('#dailyCapacityModal').modal('show');
-          
-        } else {
-          // برای رویدادهای دیگر (تعطیلات و ...) مستقیم اضافه کن
+      } else {
+          // کد قبلی برای سایر انواع رویدادها
           var title = info.draggedEl.innerText;
           
           calendar.addEvent({
@@ -357,125 +555,162 @@ document.addEventListener('DOMContentLoaded', function () {
               backgroundColor: info.draggedEl.style.backgroundColor,
               extendedProps: {
                   type: eventType,
+                  lineId: selectedLineId,
                   is_new: true
               }
           });
-
+  
           if (checkbox.checked) {
               info.draggedEl.parentNode.removeChild(info.draggedEl);
           }
-        }
-      },
-
-      eventDragStop: function (info) {
-        var trashRect = trashEl.getBoundingClientRect();
-        var x = info.jsEvent.clientX;
-        var y = info.jsEvent.clientY;
-
-        if (x >= trashRect.left && x <= trashRect.right && 
-            y >= trashRect.top && y <= trashRect.bottom) {
-            if (confirm('آیا مطمئن هستید که می‌خواهید این رویداد را حذف کنید?')) {
-                var event = info.event;
-                var orderId = event.extendedProps.orderId;
-                var deletedQuantity = event.extendedProps.quantity;
-                var originalTitle = event.extendedProps.originalTitle;
-                var originalQuantity = event.extendedProps.originalQuantity;
-                
-                info.event.remove();
-                console.log('Event removed:', info.event.id);
-                
-                var remainingQuantity = 0;
-                var total_val = 0;
-                var relatedEvents = calendar.getEvents().filter(function (evt) {
-                    return evt.extendedProps.orderId === orderId;
-                });
-
-                relatedEvents.forEach(function (evt) {
-                    remainingQuantity += evt.extendedProps.quantity;
-                });
-
-                if (relatedEvents.length === 0) {
-                    remainingQuantity = originalQuantity;
-                    total_val = originalQuantity;
-                } else {
-                    total_val = originalQuantity - remainingQuantity;
-                }
-                
-                if (total_val > 0 && event.extendedProps.type === 'order') {
-                    updateOrderInSidebar(orderId, originalTitle, total_val, 'increase');
-                }
-            }
-        }
-      },
-
-      eventDrop: function(info) {
-        console.log('Event moved:', info.event);
-        // علامت‌گذاری به عنوان تغییر یافته
-        info.event.setExtendedProp('is_new', true);
       }
+  },
+
+    eventDragStop: function (info) {
+      var trashRect = trashEl.getBoundingClientRect();
+      var x = info.jsEvent.clientX;
+      var y = info.jsEvent.clientY;
+
+      if (x >= trashRect.left && x <= trashRect.right && 
+          y >= trashRect.top && y <= trashRect.bottom) {
+        if (confirm('آیا مطمئن هستید که می‌خواهید این رویداد را حذف کنید?')) {
+          var event = info.event;
+          var orderId = event.extendedProps.orderId;
+          var deletedQuantity = event.extendedProps.quantity;
+          var originalTitle = event.extendedProps.originalTitle;
+          
+          info.event.remove();
+          
+          if (orderId && deletedQuantity > 0 && event.extendedProps.type === 'order') {
+            updateOrderInSidebar(orderId, originalTitle, deletedQuantity, 'increase');
+            toastr.success(`${deletedQuantity}kg به سفارش بازگردانده شد`);
+          }
+          
+          updateLineCapacityDisplay();
+        }
+      }
+    },
+
+    eventDrop: function(info) {
+      console.log('Event moved:', info.event);
+      info.event.setExtendedProp('is_new', true);
+      updateLineCapacityDisplay();
+    }
   });
 
   calendar.render();
 
-  // ذخیره رویدادها
-  $('.save_event').on('click', function (e) {
-    var allEvents = calendar.getEvents().filter(function (evt) {
+  function updateLineCapacityDisplay() {
+    if (selectedLineId) {
+      var today = new Date().toISOString().split('T')[0];
+      
+      $.ajax({
+        url: `/MOrder/line-capacity/${selectedLineId}/${today}/`,
+        type: 'GET',
+        success: function(response) {
+          if (response.success) {
+            var percentage = response.usage_percentage.toFixed(1);
+            $('#capacityBar').css('width', percentage + '%');
+            $('#capacityText').text(
+              response.used_capacity + ' / ' + response.total_capacity + ' kg (' + percentage + '%)'
+            );
+            
+            if (percentage < 50) {
+              $('#capacityBar').css('background', '#28a745');
+            } else if (percentage < 80) {
+              $('#capacityBar').css('background', '#ffc107');
+            } else {
+              $('#capacityBar').css('background', '#dc3545');
+            }
+          }
+        }
+      });
+    }
+  }
+
+// در بخش save_event فایل fullcalendar.morder.init.js
+$('.save_event').on('click', function (e) {
+  if (!selectedLineId) {
+      alert('لطفا خط تولید را انتخاب کنید');
+      return;
+  }
+  
+  // فقط رویدادهای جدید را فیلتر کنید
+  var allEvents = calendar.getEvents().filter(function (evt) {
       return evt.extendedProps.is_new === true;
-    });
-    
-    if (allEvents.length === 0) {
+  });
+  
+  if (allEvents.length === 0) {
       alert('هیچ رویداد جدیدی در تقویم وجود ندارد.');
       return;
-    }
-    
-    var eventDetails = allEvents.map(function (evt) {
+  }
+  
+  var eventDetails = allEvents.map(function (evt) {
       return {
-        id: evt.extendedProps.orderId,
-        title: evt.title,
-        start: evt.start ? evt.start.toISOString().split('T')[0] : 'N/A',
-        quantity: evt.extendedProps.quantity || 0,
-        orderId: evt.extendedProps.orderId || null,
-        type: evt.extendedProps.type || 'unknown',
-        backgroundColor: evt.backgroundColor
+          title: evt.title,
+          start: evt.start ? evt.start.toISOString().split('T')[0] : 'N/A',
+          quantity: evt.extendedProps.quantity || 0,
+          orderId: evt.extendedProps.orderId || null,
+          type: evt.extendedProps.type || 'order',
+          description: evt.extendedProps.description || '',
+          tempId: evt.id // اضافه کردن tempId برای ردیابی
       };
-    });
+  });
 
-    $.ajax({
+  $.ajax({
       url: '/MOrder/bulk-create-events/',
       type: 'POST',
       contentType: 'application/json',
-      data: JSON.stringify({ events: eventDetails }),
+      data: JSON.stringify({ 
+          events: eventDetails,
+          line_id: selectedLineId
+      }),
       success: function (response) {
-        if (response.success) {
-          allEvents.forEach(function (evt) {
-            evt.remove();
-          });
-          response.events.forEach(function (savedEvent) {
-            calendar.addEvent({
-              id: savedEvent.id,
-              title: savedEvent.title,
-              start: savedEvent.start,
-              backgroundColor: savedEvent.backgroundColor,
-              borderColor: savedEvent.backgroundColor,
-              textColor: '#ffffff',
-              extendedProps: {
-                quantity: savedEvent.extendedProps.quantity,
-                orderId: savedEvent.extendedProps.orderId,
-                originalTitle: savedEvent.extendedProps.originalTitle,
-                originalQuantity: savedEvent.extendedProps.originalQuantity,
-                type: savedEvent.extendedProps.type,
-                is_new: false
+          if (response.success) {
+              // حذف رویدادهای موقت از تقویم
+              allEvents.forEach(function (evt) {
+                  evt.remove();
+              });
+              
+              toastr.success(response.message || 'رویدادها با موفقیت ذخیره شدند.');
+              
+              if (response.errors && response.errors.length > 0) {
+                  response.errors.forEach(function(error) {
+                      toastr.warning(error.error);
+                  });
               }
-            });
-          });
-          toastr.success('رویدادها با موفقیت ذخیره شدند.');
-        } else {
-          toastr.error('خطا در ذخیره رویدادها: ' + response.error);
-        }
+              
+              // اضافه کردن رویدادهای ذخیره شده به تقویم
+              if (response.events && response.events.length > 0) {
+                  response.events.forEach(function(savedEvent) {
+                      calendar.addEvent({
+                          id: savedEvent.id,
+                          title: savedEvent.title,
+                          start: savedEvent.start,
+                          backgroundColor: savedEvent.backgroundColor,
+                          borderColor: savedEvent.borderColor,
+                          textColor: savedEvent.textColor,
+                          extendedProps: savedEvent.extendedProps
+                      });
+                      
+                      // به‌روزرسانی موجودی سفارش در سایدبار
+                      if (savedEvent.extendedProps && savedEvent.extendedProps.orderId) {
+                          var orderId = savedEvent.extendedProps.orderId;
+                          var quantity = savedEvent.extendedProps.quantity;
+                          var originalTitle = savedEvent.extendedProps.originalTitle;
+                          updateOrderInSidebar(orderId, originalTitle, quantity, 'decrease');
+                      }
+                  });
+              }
+              
+              updateLineCapacityDisplay();
+          } else {
+              toastr.error('خطا در ذخیره رویدادها: ' + (response.error || 'خطای ناشناخته'));
+          }
       },
       error: function (xhr) {
-        alert('خطا در ارتباط با سرور: ' + (xhr.responseJSON?.error || 'خطایی ناشناخته'));
+          toastr.error('خطا در ارتباط با سرور: ' + (xhr.responseJSON?.error || 'خطایی ناشناخته'));
       }
-    });
   });
+});
 });

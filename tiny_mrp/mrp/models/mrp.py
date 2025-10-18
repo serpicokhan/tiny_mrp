@@ -360,18 +360,70 @@ class Customer(models.Model):
 
 
 class CalendarEvent(models.Model):
-    order = models.ForeignKey(ManufacturingOrder, on_delete=models.CASCADE, related_name='calendar_events', null=True, blank=True)
-    quantity = models.FloatField(default=0)
-    event_date = models.DateField()
-    title = models.CharField(max_length=255)
-    type = models.CharField(max_length=50, default='appointment')
-    description = models.TextField(blank=True)
+    order = models.ForeignKey(
+        ManufacturingOrder, 
+        on_delete=models.CASCADE, 
+        related_name='calendar_events', 
+        null=True, 
+        blank=True
+    )
+    line = models.ForeignKey(
+        Line,
+        on_delete=models.CASCADE,
+        related_name='calendar_events',
+        verbose_name="خط تولید",
+        help_text="خط تولیدی که این رویداد در آن اجرا می‌شود"
+    )
+    quantity = models.FloatField(default=0, verbose_name="مقدار")
+    event_date = models.DateField(verbose_name="تاریخ رویداد")
+    title = models.CharField(max_length=255, verbose_name="عنوان")
+    type = models.CharField(
+        max_length=50, 
+        default='appointment',
+        choices=[
+            ('order', 'سفارش تولید'),
+            ('vacation', 'تعطیلات'),
+            ('offday', 'روز تعطیل'),
+            ('maintenance', 'تعمیر و نگهداری'),
+        ],
+        verbose_name="نوع رویداد"
+    )
+    description = models.TextField(blank=True, verbose_name="توضیحات")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Calendar Event"
-        verbose_name_plural = "Calendar Events"
+        verbose_name = "رویداد تقویم"
+        verbose_name_plural = "رویدادهای تقویم"
+        ordering = ['event_date', 'line']
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(quantity__gte=0),
+                name='calendar_event_quantity_positive'
+            )
+        ]
 
     def __str__(self):
-        return f"{self.title} on {self.event_date}"
+        return f"{self.title} - {self.line.name} - {self.event_date}"
+
+    def clean(self):
+        """اعتبارسنجی سفارشی"""
+        from django.core.exceptions import ValidationError
+        
+        # بررسی ظرفیت خط تولید
+        if self.type == 'order' and self.quantity > 0:
+            # محاسبه مجموع مقدار رویدادهای همان روز و خط
+            same_day_events = CalendarEvent.objects.filter(
+                event_date=self.event_date,
+                line=self.line,
+                type='order'
+            ).exclude(pk=self.pk)
+            
+            total_quantity = sum(event.quantity for event in same_day_events)
+            
+            if total_quantity + self.quantity > self.line.capacity_per_day:
+                raise ValidationError(
+                    f"ظرفیت خط {self.line.name} در تاریخ {self.event_date} "
+                    f"تکمیل است. ظرفیت باقی‌مانده: "
+                    f"{self.line.capacity_per_day - total_quantity} کیلوگرم"
+                )

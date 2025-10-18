@@ -54,19 +54,18 @@
       <ul>
         {% if perms.mrp.can_operator_mrp %}
         <li>
-          <a href="#" data-toggle="tooltip" data-placement="right" title="اطلاعات"
+          <a href="#" data-toggle="tooltip" data-placement="right" title="تولید"
           data-nav-target="#dashboards">
           <i data-feather="bar-chart-2"></i>
         </a>
       </li>
       {% endif %}
-      {% if request.user.is_superuser%}
       <li>
-        <a href="#" data-toggle="tooltip" data-placement="right" title="تنظیمات" data-nav-target="#apps">
-          <i data-feather="tool"></i>
+        <a href="#" data-toggle="tooltip" data-placement="right" title="برنامه ریزی تولید" data-nav-target="#apps6">
+          <i data-feather="calendar"></i>
         </a>
       </li>
-      {% endif %}
+      
       {% if perms.mrp.can_operator_mrp %}
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="راندمان" data-nav-target="#apps2">
@@ -96,11 +95,14 @@
         </a>
       </li>
       {% endif %}
+      {% if request.user.is_superuser%}
       <li>
-        <a href="#" data-toggle="tooltip" data-placement="right" title="سفارش تولید" data-nav-target="#apps6">
-          <i data-feather="command"></i>
+        <a href="#" data-toggle="tooltip" data-placement="right" title="تنظیمات" data-nav-target="#apps">
+          <i data-feather="tool"></i>
         </a>
       </li>
+      {% endif %}
+     
 
   </ul>
 </div>
@@ -338,6 +340,13 @@
   
         </a>
       </li>
+      
+      <li>
+        <a href="{% url 'bom_list' %}">
+          <span>BOM</span>
+  
+        </a>
+      </li>
       <li>
         <a href="{% url 'manufacture_order_list' %}">
           <span>سفارش ساخت</span>
@@ -345,8 +354,8 @@
         </a>
       </li>
       <li>
-        <a href="{% url 'bom_list' %}">
-          <span>BOM</span>
+        <a href="{% url 'manufacture_order_calendar' %}">
+          <span>برنامه ریزی</span>
   
         </a>
       </li>

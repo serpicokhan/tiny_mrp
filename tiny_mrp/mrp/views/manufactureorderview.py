@@ -31,51 +31,7 @@ from django.core.cache import cache
 def manufacture_order_list(request):
     return render(request,"mrp/manufactureorder/mOrderList.html",{})
 
-def manufacture_order_calendar(request):
-    lines=Line.objects.all()
-    orders = ManufacturingOrder.objects.all()
-    event_quantities = CalendarEvent.objects.values('order_id').annotate(
-        total_quantity=Sum('quantity')
-    ).filter(order_id__in=[order.id for order in orders])
-    
-    # Create a dictionary for quick lookup
-    quantity_map = {item['order_id']: item['total_quantity'] for item in event_quantities}
 
-    # Create list of dictionaries for draggable items
-    morders = [
-        {
-            "id": order.id,
-            "title": order.reference,
-            "quantity": max(0, order.quantity_to_produce - quantity_map.get(order.id, 0)),
-            "type": "order"
-        }
-        for order in orders
-    ]
-
-    # morders = [
-    #     {"id": 1, "title": "Order 1", "quantity": 2000, "type": "order"},
-    #     {"id": 2, "title": "Order 2", "quantity": 1000, "type": "order"},
-    # ]
-    # Vacations
-    vacations = [
-        {"id": "v1", "title": "تعطیل سالن", "type": "vacation"},
-        {"id": "v2", "title": "قطعی برق", "type": "vacation"},
-    ]
-    # Off days
-    offdays = [
-        {"id": "o1", "title": "تعطیل رسمی", "type": "offday"},
-        {"id": "o2", "title": "آورهال", "type": "offday"},
-    ]
-    
-    # Combine all draggable items
-    draggable_items = morders + vacations + offdays
-    
-    context = {
-        "draggable_items": draggable_items,
-        "lines":lines,
-        "daily_limit": 5000  # kg/day for orders
-    }
-    return render(request, "mrp/manufactureorder/calendar.html", context)
 def manufacture_order_detail(request):
     return render(request,"mrp/manufactureorder/dgrok2.html",{})
 
@@ -215,68 +171,354 @@ def get_customers(request):
             'error': str(e)
         }, status=500)
     
+
+@require_GET
+def get_order_details(request, order_id):
+    """دریافت جزئیات یک سفارش برای نمایش در sidebar"""
+    from django.db.models import Sum
+    
+    try:
+        order = ManufacturingOrder.objects.select_related(
+            'product_to_manufacture', 'line'
+        ).get(id=order_id)
+        
+        # محاسبه مقدار استفاده شده
+        total_used = CalendarEvent.objects.filter(
+            order=order
+        ).aggregate(total=Sum('quantity'))['total'] or 0
+        
+        remaining = order.quantity_to_produce - total_used
+        
+        return JsonResponse({
+            'success': True,
+            'order': {
+                'id': order.id,
+                'title': order.reference,
+                'product_name': order.product_to_manufacture.name,
+                'total_quantity': float(order.quantity_to_produce),
+                'used_quantity': float(total_used),
+                'remaining_quantity': float(remaining),
+                'line_id': order.line.id if order.line else None,
+                'line_name': order.line.name if order.line else None,
+                'has_assigned_line': order.line is not None
+            }
+        })
+    except ManufacturingOrder.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'سفارش یافت نشد.'
+        }, status=404)
+
+
+def manufacture_order_calendar(request):
+    """صفحه اصلی تقویم تولید - اصلاح شده"""
+    from django.db.models import Sum, Q
+    
+    lines = Line.objects.all()
+    selected_line_id = request.GET.get('line_id')
+    
+    # دریافت تمام سفارشات فعال
+    orders = ManufacturingOrder.objects.filter(
+        Q(status__in=['confirmed', 'in_progress', 'draft']) | Q(status__isnull=True)
+    ).select_related('product_to_manufacture', 'line')
+    
+    morders = []
+    
+    for order in orders:
+        # محاسبه مجموع مقدار استفاده شده در تمام خطوط
+        total_used_quantity = CalendarEvent.objects.filter(
+            order=order
+        ).aggregate(total=Sum('quantity'))['total'] or 0
+        
+        remaining_quantity = order.quantity_to_produce - total_used_quantity
+        
+        # فقط سفارشاتی که مقدار باقیمانده دارند
+        if remaining_quantity > 0:
+            morders.append({
+                "id": order.id,
+                "title": order.reference,
+                "product_name": order.product_to_manufacture.name,
+                "quantity": remaining_quantity,
+                "total_quantity": float(order.quantity_to_produce),
+                "used_quantity": float(total_used_quantity),
+                "line_id": order.line.id if order.line else None,
+                "line_name": order.line.name if order.line else "بدون خط",
+                "has_assigned_line": order.line is not None,  # این خط اصلاح شده
+                "type": "order"
+            })
+    
+    # Vacations
+    vacations = [
+        {"id": "v1", "title": "تعطیل سالن", "type": "vacation"},
+        {"id": "v2", "title": "قطعی برق", "type": "vacation"},
+    ]
+    
+    # Off days
+    offdays = [
+        {"id": "o1", "title": "تعطیل رسمی", "type": "offday"},
+        {"id": "o2", "title": "آورهال", "type": "offday"},
+    ]
+    
+    # Combine all draggable items
+    draggable_items = morders + vacations + offdays
+    
+    context = {
+        "draggable_items": draggable_items,
+        "morders": morders,
+        "vacations": vacations,
+        "offdays": offdays,
+        "lines": lines,
+        "selected_line_id": selected_line_id,
+        "daily_limit": 5000
+    }
+    return render(request, "mrp/manufactureorder/calendar.html", context)
+
+
+def get_order_calendar_info(request):
+    """دریافت رویدادهای تقویم با فیلتر خط تولید - اصلاح شده"""
+    line_id = request.GET.get('line_id')
+    
+    if not line_id:
+        return JsonResponse({
+            'success': False,
+            'error': 'خط تولید مشخص نشده است.'
+        }, status=400)
+    
+    try:
+        line = Line.objects.get(id=line_id)
+    except Line.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'خط تولید یافت نشد.'
+        }, status=404)
+    
+    data = []
+    user_info = CalendarEvent.objects.filter(line=line).select_related('order', 'line')
+
+    def get_random_color():
+        return "#{:06x}".format(random.randint(0, 0xFFFFFF))
+
+    non_order_color = '#cccccc'
+    order_ids = set(event.order.id for event in user_info if event.order)
+    order_colors = cache.get(f'order_colors_line_{line_id}', {})
+    
+    if not order_colors:
+        order_colors = {order_id: get_random_color() for order_id in order_ids}
+        cache.set(f'order_colors_line_{line_id}', order_colors, timeout=3600)
+    
+    # اضافه کردن رنگ برای order های جدید
+    for order_id in order_ids:
+        if order_id not in order_colors:
+            order_colors[order_id] = get_random_color()
+    
+    # به‌روزرسانی cache
+    cache.set(f'order_colors_line_{line_id}', order_colors, timeout=3600)
+
+    for i in user_info:
+        background_color = order_colors.get(i.order.id) if i.order else non_order_color
+
+        event_data = {
+            'id': f"event-{i.id}",
+            'title': i.title,
+            'start': i.event_date.isoformat(),
+            'backgroundColor': background_color,
+            'borderColor': background_color,
+            'textColor': '#ffffff',
+            'extendedProps': {
+                'quantity': i.quantity,
+                'orderId': i.order.id if i.order else None,
+                'lineId': i.line.id,
+                'lineName': i.line.name,
+                'originalTitle': i.title.split(" - ")[0] if " - " in i.title else i.title,
+                'originalQuantity': i.order.quantity_to_produce if i.order else i.quantity,
+                'type': i.type,
+                'description': i.description,
+                'is_new': False
+            }
+        }
+        data.append(event_data)
+
+    return JsonResponse(data, safe=False)
+
+
+def get_line_capacity_info(request, line_id, date):
+    """دریافت اطلاعات ظرفیت خط در یک تاریخ خاص"""
+    try:
+        line = Line.objects.get(id=line_id)
+        event_date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        
+        # فقط رویدادهای نوع order را حساب کنیم
+        used_capacity = CalendarEvent.objects.filter(
+            
+            line=line,
+            type='order'
+        ).aggregate(total=models.Sum('quantity'))['total'] or 0
+        
+        available_capacity = line.capacity_per_day - used_capacity
+        
+        return JsonResponse({
+            'success': True,
+            'line_name': line.name,
+            'date': date,
+            'total_capacity': float(line.capacity_per_day),
+            'used_capacity': float(used_capacity),
+            'available_capacity': float(available_capacity),
+            'usage_percentage': (used_capacity / line.capacity_per_day * 100) if line.capacity_per_day > 0 else 0
+        })
+    except Line.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'خط تولید یافت نشد.'
+        }, status=404)
+    except ValueError:
+        return JsonResponse({
+            'success': False,
+            'error': 'فرمت تاریخ نامعتبر است.'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
 @csrf_exempt
 def bulk_create_events(request):
+    """ذخیره دسته‌ای رویدادها - اصلاح شده"""
     if request.method == 'POST':
         try:
+            from django.db.models import Sum
+            
             data = json.loads(request.body)
             events = data.get('events', [])
+            line_id = data.get('line_id')
+            
+            if not line_id:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'لطفا خط تولید را انتخاب کنید.'
+                }, status=400)
+            
+            try:
+                line = Line.objects.get(id=line_id)
+            except Line.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'خط تولید یافت نشد.'
+                }, status=404)
+            
             saved_events = []
+            errors = []
 
             for event_data in events:
-                title = event_data.get('title')
-                event_date = event_data.get('start')
-                quantity = event_data.get('quantity', 0)
-                order_id = event_data.get('orderId')
-                event_type = event_data.get('type', 'order')
-                description = event_data.get('description', '')
-                temp_id = event_data.get('tempId')
-                print(title,event_data,'$$$$$$$$$$$$$$$$$$')
-                if not title or not event_date:
-                    return JsonResponse({
-                        'success': False,
-                        'error': 'عنوان و تاریخ رویداد الزامی هستند.'
-                    }, status=400)
+                try:
+                    title = event_data.get('title')
+                    event_date = event_data.get('start')
+                    quantity = float(event_data.get('quantity', 0))
+                    order_id = event_data.get('orderId')
+                    event_type = event_data.get('type', 'order')
+                    description = event_data.get('description', '')
+                    temp_id = event_data.get('tempId', 'unknown')
 
-                event_dict = {
-                    'title': title,
-                    'quantity': float(quantity),
-                    'event_date': datetime.datetime.strptime(event_date, '%Y-%m-%d').date(),
-                    'type': event_type,
-                    'description': description
-                }
+                    if not title or not event_date:
+                        errors.append({
+                            'tempId': temp_id,
+                            'error': 'عنوان و تاریخ رویداد الزامی هستند.'
+                        })
+                        continue
 
-                if order_id:
-                    try:
-                        order = ManufacturingOrder.objects.get(id=order_id)
-                        event_dict['order'] = order
-                    except ManufacturingOrder.DoesNotExist:
-                        return JsonResponse({
-                            'success': False,
-                            'error': f'سفارش با شناسه {order_id} یافت نشد.'
-                        }, status=404)
+                    # بررسی ظرفیت خط تولید برای رویدادهای نوع order
+                    if event_type == 'order' and quantity > 0:
+                        event_date_obj = datetime.datetime.strptime(event_date, '%Y-%m-%d').date()
+                        
+                        # محاسبه ظرفیت استفاده شده (فقط رویدادهای order)
+                        used_capacity = CalendarEvent.objects.filter(
+                            event_date=event_date_obj,
+                            line=line,
+                            type='order'
+                        ).aggregate(total=models.Sum('quantity'))['total'] or 0
+                        
+                        available_capacity = line.capacity_per_day - used_capacity
+                        
+                        if quantity > available_capacity:
+                            errors.append({
+                                'tempId': temp_id,
+                                'error': f'ظرفیت کافی در تاریخ {event_date} وجود ندارد. '
+                                        f'ظرفیت باقیمانده: {available_capacity}kg، مورد نیاز: {quantity}kg'
+                            })
+                            continue
 
-                event = CalendarEvent.objects.create(**event_dict)
-                saved_events.append({
-                    'id': f"event-{event.id}",
-                    'tempId': temp_id,
-                    'title': event.title,
-                    'start': event.event_date.isoformat(),
-                    'backgroundColor': 'red' if event.order else '#e7f1ff',
-                    'extendedProps': {
-                        'quantity': event.quantity,
-                        'orderId': event.order.id if event.order else None,
-                        'originalTitle': event.title.split(" - ")[0] if " - " in event.title else event.title,
-                        'originalQuantity': event.order.quantity_to_produce if event.order else event.quantity,
+                    event_dict = {
+                        'title': title,
+                        'quantity': quantity,
+                        'event_date': datetime.datetime.strptime(event_date, '%Y-%m-%d').date(),
                         'type': event_type,
-                        'is_new': False
+                        'description': description,
+                        'line': line
                     }
-                })
 
-            return JsonResponse({
-                'success': True,
+                    if order_id:
+                        try:
+                            order = ManufacturingOrder.objects.get(id=order_id)
+                            event_dict['order'] = order
+                        except ManufacturingOrder.DoesNotExist:
+                            errors.append({
+                                'tempId': temp_id,
+                                'error': f'سفارش با شناسه {order_id} یافت نشد.'
+                            })
+                            continue
+
+                    event = CalendarEvent.objects.create(**event_dict)
+                    
+                    # دریافت یا ایجاد رنگ برای سفارش
+                    event_color = '#e7f1ff'
+                    if event.order:
+                        order_colors = cache.get(f'order_colors_line_{line_id}', {})
+                        if event.order.id in order_colors:
+                            event_color = order_colors[event.order.id]
+                        else:
+                            event_color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
+                            order_colors[event.order.id] = event_color
+                            cache.set(f'order_colors_line_{line_id}', order_colors, timeout=3600)
+                    
+                    saved_events.append({
+                        'id': f"event-{event.id}",
+                        'tempId': temp_id,
+                        'title': event.title,
+                        'start': event.event_date.isoformat(),
+                        'backgroundColor': event_color,
+                        'borderColor': event_color,
+                        'textColor': '#ffffff',
+                        'extendedProps': {
+                            'quantity': event.quantity,
+                            'orderId': event.order.id if event.order else None,
+                            'lineId': event.line.id,
+                            'lineName': event.line.name,
+                            'originalTitle': event.title.split(" - ")[0] if " - " in event.title else event.title,
+                            'originalQuantity': event.order.quantity_to_produce if event.order else event.quantity,
+                            'type': event_type,
+                            'is_new': False
+                        }
+                    })
+                    
+                except Exception as e:
+                    errors.append({
+                        'tempId': temp_id,
+                        'error': f'خطا در ذخیره: {str(e)}'
+                    })
+
+            response = {
+                'success': len(saved_events) > 0,
                 'events': saved_events
-            })
+            }
+            
+            if errors:
+                response['errors'] = errors
+                response['message'] = f'{len(saved_events)} رویداد ذخیره شد، {len(errors)} رویداد با خطا مواجه شد.'
+            else:
+                response['message'] = f'{len(saved_events)} رویداد با موفقیت ذخیره شد.'
+
+            return JsonResponse(response)
 
         except ValueError as e:
             return JsonResponse({
@@ -293,46 +535,130 @@ def bulk_create_events(request):
         'success': False,
         'error': 'درخواست نامعتبر'
     }, status=400)
-def get_order_calendar_info(request):
-    data = []
-    user_info = CalendarEvent.objects.all()
 
-    # Function to generate a random hex color
-    def get_random_color():
-        return "#{:06x}".format(random.randint(0, 0xFFFFFF))
-
-    # Map order IDs to colors
+@require_GET
+def get_order_usage_summary(request, order_id):
+    """دریافت خلاصه استفاده از سفارش در خطوط مختلف"""
+    from django.db.models import Sum
     
-    non_order_color = get_random_color()  # Single color for non-order events
-
-    # Pre-fetch unique order IDs to assign colors
-    order_ids = set(event.order.id for event in user_info if event.order)
-    order_colors = cache.get('order_colors', {})
-    if not order_colors:
-        order_colors = {order_id: get_random_color() for order_id in order_ids}
-        cache.set('order_colors', order_colors, timeout=3600)  # Cache for 1 hour
-    for order_id in order_ids:
-        order_colors[order_id] = get_random_color()
-
-    for i in user_info:
-        # Assign background color based on order
-        background_color = order_colors.get(i.order.id) if i.order else non_order_color
-
-        event_data = {
-            'id': f"event-{i.id}",
-            'title': i.title,
-            'start': i.event_date.isoformat(),
-            'backgroundColor': background_color,
-            'extendedProps': {
-                'quantity': i.quantity,
-                'orderId': i.order.id if i.order else None,
-                'originalTitle': i.title.split(" - ")[0] if " - " in i.title else i.title,
-                'originalQuantity': i.order.quantity_to_produce if i.order else i.quantity,
-                'type': i.type,
-                'description': i.description,
-                'is_new': False  # Assume all database events are saved
+    try:
+        order = ManufacturingOrder.objects.get(id=order_id)
+        
+        # دریافت استفاده در هر خط
+        usage_per_line = CalendarEvent.objects.filter(
+            order=order
+        ).values('line__id', 'line__name').annotate(
+            total_used=Sum('quantity')
+        ).order_by('line__name')
+        
+        total_used = CalendarEvent.objects.filter(
+            order=order
+        ).aggregate(total=Sum('quantity'))['total'] or 0
+        
+        remaining = order.quantity_to_produce - total_used
+        
+        return JsonResponse({
+            'success': True,
+            'order_reference': order.reference,
+            'product_name': order.product_to_manufacture.name,
+            'total_quantity': float(order.quantity_to_produce),
+            'total_used': float(total_used),
+            'remaining': float(remaining),
+            'usage_per_line': [
+                {
+                    'line_id': item['line__id'],
+                    'line_name': item['line__name'],
+                    'quantity': float(item['total_used'])
+                }
+                for item in usage_per_line
+            ],
+            'assigned_line': {
+                'id': order.line.id if order.line else None,
+                'name': order.line.name if order.line else None
             }
-        }
-        data.append(event_data)
-
-    return JsonResponse(data, safe=False)
+        })
+        
+    except ManufacturingOrder.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'سفارش یافت نشد.'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+    
+@require_GET
+def get_line_orders(request):
+    """دریافت سفارشات مربوط به یک خط تولید با مقدار باقیمانده"""
+    from django.db.models import Sum
+    
+    line_id = request.GET.get('line_id')
+    
+    if not line_id:
+        return JsonResponse({
+            'success': False,
+            'error': 'خط تولید مشخص نشده است.'
+        }, status=400)
+    
+    try:
+        line = Line.objects.get(id=line_id)
+        
+        # دریافت تمام سفارشات فعال
+        orders = ManufacturingOrder.objects.filter(
+            status__in=['confirmed', 'in_progress', 'draft']
+        ).select_related('product_to_manufacture', 'line')
+        
+        orders_data = []
+        
+        for order in orders:
+            # محاسبه مجموع مقدار استفاده شده در تمام خطوط
+            total_used_quantity = CalendarEvent.objects.filter(
+                order=order
+            ).aggregate(total=Sum('quantity'))['total'] or 0
+            
+            # محاسبه مقدار استفاده شده در این خط خاص
+            used_in_this_line = CalendarEvent.objects.filter(
+                order=order,
+                line=line
+            ).aggregate(total=Sum('quantity'))['total'] or 0
+            
+            # محاسبه مقدار استفاده شده در سایر خطوط
+            used_in_other_lines = total_used_quantity - used_in_this_line
+            
+            remaining_quantity = order.quantity_to_produce - total_used_quantity
+            
+            # نمایش سفارشات بدون خط یا سفارشات این خط یا سفارشاتی که مقدار باقیمانده دارند
+            if remaining_quantity > 0:
+                orders_data.append({
+                    'id': order.id,
+                    'title': order.reference,
+                    'product_name': order.product_to_manufacture.name,
+                    'total_quantity': float(order.quantity_to_produce),
+                    'used_quantity': float(total_used_quantity),
+                    'used_in_this_line': float(used_in_this_line),
+                    'used_in_other_lines': float(used_in_other_lines),
+                    'remaining_quantity': float(remaining_quantity),
+                    'assigned_line_id': order.line.id if order.line else None,
+                    'assigned_line_name': order.line.name if order.line else None,
+                    'is_assigned_to_selected_line': order.line.id == line.id if order.line else False,
+                    'has_assigned_line': order.line is not None
+                })
+        
+        return JsonResponse({
+            'success': True,
+            'orders': orders_data,
+            'line_name': line.name
+        })
+        
+    except Line.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'خط تولید یافت نشد.'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

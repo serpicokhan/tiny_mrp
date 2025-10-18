@@ -167,11 +167,18 @@ urlpatterns = [
     url(r'^MOrder/Detail$', manufacture_order_detail, name='manufacture_order_detail'),
     url(r'^MOrder/bulk-create-events/', bulk_create_events, name='bulk_create_events'),
     url(r'^MOrder/Calendar/GetInfo/$', get_order_calendar_info, name='get_order_calendar_info'),
+      # API های جدید برای خط تولید
+    path('MOrder/get-line-orders/', get_line_orders, name='get_line_orders'),
+    path('MOrder/line-capacity/<int:line_id>/<str:date>/', get_line_capacity_info, name='get_line_capacity_info'),
 
     path('api/responsible-persons/', get_responsible_persons, name='get_responsible_persons'),
     path('api/customers/', get_customers, name='get_customers'),
     path('api/MOrder/', manufacturing_orders_api, name='manufacturing_orders_api'),
     path('Morder/Calendar/', manufacture_order_calendar, name='manufacture_order_calendar'),
+    path('MOrder/order-details/<int:order_id>/', get_order_details, name='order_details'),
+
+     # API برای دریافت خلاصه استفاده از سفارش
+    path('MOrder/order-usage-summary/<int:order_id>/', get_order_usage_summary, name='get_order_usage_summary'),
 
     url(r'^Workcenter/$', workcenter_list, name='workcenter_list'),
     url(r'^Workcenter/Create$', create_workcenter, name='create_workcenter'),
