@@ -258,8 +258,10 @@ class ProductFilterForm(forms.Form):
         return queryset
 class BOMForm(forms.ModelForm):
     class Meta:
-         model = BillOfMaterials
-         fields = '__all__'
+        model = BillOfMaterials
+        fields = ['reference', 'product', 'operation_time']  # بدون فیلد components
+        # یا به صورت explicit فیلدها را مشخص کنید
+        exclude = ['components']  # این فیلد را حذف کنید
 class BomComponentForm(forms.ModelForm):
     class Meta:
          model = BOMComponent

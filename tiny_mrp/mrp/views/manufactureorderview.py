@@ -26,14 +26,215 @@ from rest_framework.response import Response
 from mrp.serializers import CustomerSerializer
 from rest_framework.decorators import api_view
 import random
+from django.template.defaulttags import register
+from decimal import Decimal
+from django.db.models import Sum, Avg, Q
+from django.db.models import Count, Sum, Avg
+from collections import defaultdict
+
+@register.filter
+def mul(value, arg):
+    """فیلتر template برای ضرب دو عدد"""
+    try:
+        return Decimal(value) * Decimal(arg)
+    except (ValueError, TypeError):
+        return 0
+
+@register.filter
+def sub(value, arg):
+    """فیلتر template برای تفریق دو عدد"""
+    try:
+        return Decimal(value) - Decimal(arg)
+    except (ValueError, TypeError):
+        return 0
 from django.core.cache import cache
 
 def manufacture_order_list(request):
     return render(request,"mrp/manufactureorder/mOrderList.html",{})
 
 
-def manufacture_order_detail(request):
-    return render(request,"mrp/manufactureorder/dgrok2.html",{})
+@login_required
+# views.py
+
+def manufacture_order_detail(request, order_id):
+    """صفحه جزئیات سفارش تولید"""
+    order = get_object_or_404(ManufacturingOrder, id=order_id)
+    
+    # محاسبه اطلاعات اضافی
+    components = BOMComponent.objects.filter(bom=order.bom)
+    
+    # دریافت داده‌های تولید روزانه مرتبط با این سفارش
+    daily_productions = DailyProduction.objects.filter(
+        dayOfIssue=order.scheduled_date,
+    ).select_related('machine', 'shift', 'machine__assetCategory')
+    
+    # ساخت Work Orderهای مجازی از داده‌های تولید
+    virtual_work_orders = []
+    
+    # گروه‌بندی بر اساس دسته‌بندی ماشین‌آلات
+    category_groups = defaultdict(list)
+    for production in daily_productions:
+        if production.machine.assetCategory:
+            category_groups[production.machine.assetCategory].append(production)
+    
+    # ایجاد Work Order برای هر دسته‌بندی
+    for i, (category, productions) in enumerate(category_groups.items(), 1):
+        # محاسبات aggregate برای این دسته‌بندی
+        total_production = sum(p.production_value or 0 for p in productions)
+        avg_speed = sum(p.speed or 0 for p in productions) / len(productions) if productions else 0
+        total_duration = len(productions) * 8  # فرض: هر رکورد 8 ساعت
+        
+        virtual_work_orders.append({
+            'id': f"WO-{order.reference}-{i:03d}",
+            'work_center': category.categoryName if category else "دسته‌بندی نامشخص",
+            'duration': total_duration,
+            'status': 'in_progress',  # یا از status واقعی استفاده کنید
+            'productions': productions,
+            'total_production': total_production,
+            'avg_speed': avg_speed,
+            'production_count': len(productions)
+        })
+    
+    # اگر داده‌ای گروه‌بندی نشد، از همه داده‌ها یک Work Order بساز
+    if not virtual_work_orders and daily_productions:
+        total_production = sum(p.production_value or 0 for p in daily_productions)
+        avg_speed = sum(p.speed or 0 for p in daily_productions) / len(daily_productions)
+        total_duration = len(daily_productions) * 8
+        
+        virtual_work_orders.append({
+            'id': f"WO-{order.reference}-001",
+            'work_center': "تولید کلی",
+            'duration': total_duration,
+            'status': 'in_progress',
+            'productions': daily_productions,
+            'total_production': total_production,
+            'avg_speed': avg_speed,
+            'production_count': len(daily_productions)
+        })
+    
+    # محاسبات وضعیت موجودی
+    sufficient_count = 0
+    shortage_count = 0
+    total_required_quantity = 0
+    
+    for component in components:
+        total_required = component.quantity * order.quantity_to_produce
+        total_required_quantity += total_required
+        
+        if component.product.available_quantity >= total_required:
+            sufficient_count += 1
+        else:
+            shortage_count += 1
+    
+    sufficient_components = shortage_count == 0
+    
+    context = {
+        'order': order,
+        'components': components,
+        'virtual_work_orders': virtual_work_orders,
+        'sufficient_count': sufficient_count,
+        'shortage_count': shortage_count,
+        'total_required_quantity': total_required_quantity,
+        'sufficient_components': sufficient_components,
+    }
+    return render(request, "mrp/manufactureorder/dgrok2.html", context)
+
+@csrf_exempt
+@login_required
+def update_order_status_api(request, order_id):
+    """API برای تغییر وضعیت سفارش"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            new_status = data.get('status')
+            
+            order = get_object_or_404(ManufacturingOrder, id=order_id)
+            
+            # اعتبارسنجی تغییر وضعیت
+            valid_transitions = {
+                'draft': ['confirmed', 'canceled'],
+                'confirmed': ['progress', 'canceled'],
+                'progress': ['done', 'canceled'],
+                'done': [],
+                'canceled': ['draft']
+            }
+            
+            if new_status not in valid_transitions.get(order.status, []):
+                return JsonResponse({
+                    'success': False,
+                    'error': f'تغییر وضعیت از {order.status} به {new_status} مجاز نیست'
+                })
+            
+            # تغییر وضعیت
+            order.status = new_status
+            order.save()
+            
+            # اگر وضعیت به "in_progress" تغییر کرد، work orderها را شروع کن
+            if new_status == 'progress':
+                work_orders = WorkOrder.objects.filter(manufacturing_order=order)
+                for wo in work_orders:
+                    if wo.status == 'planned':
+                        wo.status = 'in_progress'
+                        wo.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'وضعیت سفارش به {order.get_status_display()} تغییر یافت',
+                'new_status': order.status,
+                'new_status_display': order.get_status_display()
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'متد غیرمجاز'
+    })
+
+@csrf_exempt
+@login_required
+def update_work_order_status_api(request, work_order_id):
+    """API برای تغییر وضعیت Work Order"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            action = data.get('action')  # start, pause, stop
+            
+            work_order = get_object_or_404(WorkOrder, id=work_order_id)
+            
+            if action == 'start':
+                if work_order.status in ['planned', 'paused']:
+                    work_order.status = 'in_progress'
+                    work_order.save()
+            elif action == 'pause':
+                if work_order.status == 'in_progress':
+                    work_order.status = 'paused'
+                    work_order.save()
+            elif action == 'stop':
+                if work_order.status in ['in_progress', 'paused']:
+                    work_order.status = 'done'
+                    work_order.save()
+            
+            return JsonResponse({
+                'success': True,
+                'new_status': work_order.status,
+                'new_status_display': work_order.get_status_display()
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'متد غیرمجاز'
+    })
 
 def save_morder_form(request, form, template_name):
 

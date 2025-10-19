@@ -1,19 +1,23 @@
-<form method="post" action="{% url 'create_bom'   %}" class="js-bom-create-form" autocomplete="off">
+<form method="post"
+      action="{% if form.instance.pk %}
+                  {% url 'edit_bom' form.instance.pk %}
+               {% else %}
+                  {% url 'create_bom' %}
+               {% endif %}"
+      class="js-bom-create-form"
+      autocomplete="off">
     {% csrf_token %}
-    <div class="modal-header bg-primary" >
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-      <h4 class="modal-title">جدید</h4>
+    <div class="modal-header bg-primary">
+      <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">
+            {% if form.instance.pk %}ویرایش{% else %}جدید{% endif %}
+        </h4>
     </div>
     <div class="modal-body">
-     {% include 'mrp/bom/partialBOMForm.html' %}
+        {% include 'mrp/bom/partialBOMForm.html' %}
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-default" data-dismiss="modal">انصراف</button>
-      
-      <button type="submit" class="btn btn-primary" >ذخیره</button>
-     
+        <button type="button" class="btn btn-default" data-bs-dismiss="modal">انصراف</button>
+        <button type="submit" class="btn btn-primary">ذخیره</button>
     </div>
-  </form>
-
+</form>

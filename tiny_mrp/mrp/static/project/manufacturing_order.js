@@ -166,9 +166,20 @@ let componentChart = null;
         `);
         updateForecastButtonState();
     });
-
+// Product select change - update BOM options
+    $('#newOrderModal').on('change','#id_product_to_manufacture',function() {
+        const productId = $(this).val();
+        loadBomOptions2(productId);
+        $('#id_bom').val('');
+        $('#bomPreviewBody').html(`
+            <tr>
+                <td colspan="4" class="text-center text-muted">Select a product and BOM to see components</td>
+            </tr>
+        `);
+        updateForecastButtonState();
+    });
     // BOM select change - update component preview
-    $('#newOrderModal').on('change','#bomSelect',function() {
+    $('#newOrderModal').on('change','#bomSelect,#id_bom',function() {
         const bomId = $(this).val();
         if(bomId) {
             $('#bomPreviewBody').html(`
@@ -196,7 +207,7 @@ let componentChart = null;
 
     // Quantity change - update BOM preview and button state
     $('#newOrderModal').on('input change','#quantityInput', function() {
-        const bomId = $('#bomSelect').val();
+        const bomId = $('#bomSelect').val()||$('#id_bom').val();
         if(bomId) {
             updateBomPreview(bomId);
         }
@@ -345,7 +356,7 @@ function loadOrdersTable() {
                 <td>${order.customer ? order.customer.name : '-'}</td>
                 <td>${order.responsible ? order.responsible.name : '-'}</td>
                 <td>
-                    <a class="btn btn-sm btn-outline-primary me-1" href="/MOrder/Detail?orderId=${order.id}" title="View">
+                    <a class="btn btn-sm btn-outline-primary me-1" href="/MOrder/${order.id}" target='_blank' title="View">
                         <i class="fas fa-eye"></i>
                     </a>
                     <button class="btn btn-sm btn-outline-secondary js-morder-edit" title="Edit" data-url="/MOrder/${order.id}/Update">
@@ -458,7 +469,7 @@ function filterGridOrders(statusFilter, searchTerm = '') {
 // Function to load product options
 function loadProducts() {
     $.ajax({
-        url: '/api/products/',  // Your Django endpoint
+        url: '/api/products/?type=finished',  // Your Django endpoint
         type: 'GET',
         dataType: 'json',
         success: function(response) {
@@ -600,12 +611,34 @@ function loadBomOptions(productId) {
      }
     
 }
-// Function to update BOM preview
-function updateBomPreview(bomId) {
-    const quantity = parseFloat($('#quantityInput').val()) || 1;
+function loadBomOptions2(productId) {
+    const select = $('#id_bom');
+    select.empty();
+    select.append('<option value="" selected disabled>Select a BOM</option>');
+    
+    if (!productId) return;
+    const productBoms = boms.filter(bom => bom.product.id == productId);
+    
+    if (productBoms.length === 0) {
+        select.append('<option value="" disabled>No BOMs available for this product</option>');
+    } else {
+        productBoms.forEach(bom => {
+            select.append(`<option value="${bom.id}">${bom.reference} - ${bom.product}</option>`);
+        });
+     }
+    
+}
+// نسخه پیشرفته‌تر با مدیریت بهتر خطا و پارامترهای قابل تنظیم
+function updateBomPreview(bomId, options = {}) {
+    const {
+        quantitySelector = '#quantityInput',
+        tableBodySelector = '#bomPreviewBody',
+        quantity = parseFloat($(quantitySelector).val()) || 1,
+        apiUrl = `/api/bom/${bomId}/components/`
+    } = options;
     
     if(!bomId) {
-        $('#bomPreviewBody').html(`
+        $(tableBodySelector).html(`
             <tr>
                 <td colspan="4" class="text-center text-muted">Select a BOM to see components</td>
             </tr>
@@ -613,39 +646,57 @@ function updateBomPreview(bomId) {
         return;
     }
     
-    const bomData = bomComponents.find(bc => bc.bomId == bomId);
-    let components = [];
+    // Show loading state
+    $(tableBodySelector).html(`
+        <tr>
+            <td colspan="4" class="text-center text-muted">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                Loading components...
+            </td>
+        </tr>
+    `);
     
-    if(bomData) {
-        components = bomData.components;
-    }
-    
-    if(components.length === 0) {
-        $('#bomPreviewBody').html(`
+    return $.ajax({
+        url: apiUrl,
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            renderBomPreview(response, quantity, tableBodySelector);
+        },
+        error: function(xhr, status, error) {
+            handleBomPreviewError(error, tableBodySelector);
+        }
+    });
+}
+
+// تابع برای رندر کردن پیش‌نمایش BOM
+function renderBomPreview(response, quantity, tableBodySelector) {
+    if(response.components && response.components.length > 0) {
+        let bomRows = '';
+        response.components.forEach(component => {
+            const totalQty = component.quantity * quantity;
+            const availableQty = component.available || component.stock_quantity || 0;
+            const statusClass = totalQty <= availableQty ? 'bg-success' : 'bg-danger';
+            const statusText = availableQty > 0 ? availableQty.toFixed(2) : 'N/A';
+            
+            bomRows += `
+                <tr>
+                    <td>${component.product_name || component.name}</td>
+                    <td>${totalQty.toFixed(2)}</td>
+                    <td>${component.uom_name || component.uom}</td>
+                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                </tr>
+            `;
+        });
+        
+        $(tableBodySelector).html(bomRows);
+    } else {
+        $(tableBodySelector).html(`
             <tr>
                 <td colspan="4" class="text-center text-muted">No components defined for this BOM</td>
             </tr>
         `);
-        return;
     }
-    
-    // Generate the BOM preview rows
-    let bomRows = '';
-    components.forEach(component => {
-        const totalQty = component.qty * quantity;
-        const statusClass = totalQty <= component.available ? 'bg-success' : 'bg-danger';
-        
-        bomRows += `
-            <tr>
-                <td>${component.name}</td>
-                <td>${totalQty.toFixed(1)}</td>
-                <td>${component.uom}</td>
-                <td><span class="badge ${statusClass}">${component.available.toFixed(1)}</span></td>
-            </tr>
-        `;
-    });
-    
-    $('#bomPreviewBody').html(bomRows);
 }
 
 // Function to update work order table
@@ -819,6 +870,9 @@ var loadForm =function (btn1) {
         
 
         $("#newOrderModal .modal-content").html(data.html_morder_form);
+        $("#id_product_to_manufacture").select2({dropdownParent: $('#newOrderModal')});
+        $("#productSelect").select2({dropdownParent: $('#newOrderModal')});
+       
         $('.pdate').pDatepicker({
             format: 'YYYY-MM-DD',
             autoClose: true,
@@ -831,15 +885,23 @@ var loadForm =function (btn1) {
           persianDigit: false,  // This should disable Persian digits
           });
         // $('[data-input-mask="date"]').mask('0000-00-00');
-        loadOrdersTable();
-        loadGridView();
+        // loadOrdersTable();
+        // loadGridView();
         
         // Load dropdown options
         loadProductOptions();
         loadCustomerOptions();
         loadResponsibleOptions();
+        // const productId =$("#id_product_to_manufacture").val();
+        // // console.log();
+        
+        // loadBomOptions2(productId);
         
         // $(".select2").select2();
+        const bomId=$("#id_bom").val();
+        if(bomId){
+        updateBomPreview(bomId);
+      }
 
 
       }

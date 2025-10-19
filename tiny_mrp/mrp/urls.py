@@ -144,12 +144,20 @@ urlpatterns = [
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
     url(r'^Supplier/GetSuplier$', wo_getSuppliers, name='wo_getSuppliers'),
     url(r'^Asset/GetAssets$', asset_getAssets2, name='asset_getAssets2'),
-    url(r'^BOM/$', bom_list, name='bom_list'),
-    url(r'^BOM/Create$', create_bom, name='create_bom'),
-    url(r'^BOM/Component/(?P<id>\d+)/Create$', create_bom_component, name='create_bom_component'),
-    url(r'^BOM/(?P<id>\d+)/view$', view_bom, name='view_bom'),
-    path('api/boms/', BOMListView.as_view(), name='bom-list'),
-    path('api/<int:product_id>/boms/', BOMDetailedListView.as_view(), name='bom-list-detail'),
+
+    path('BOM/list/', bom_list, name='bom_list'),
+    path('BOM/create/', create_bom, name='create_bom'),
+    path('BOM/<int:id>/edit', edit_bom, name='edit_bom'),
+    path('BOM/<int:id>/view', view_bom, name='view_bom'),
+    
+    # BOM Component URLs
+    path('BOM/<int:id>/component/create', create_bom_component, name='create_bom_component'),
+    path('BOM/component/<int:id>/delete', delete_bom_component, name='delete_bom_component'),
+    
+    # API URLs
+    path('api/boms/', BOMListView.as_view(), name='api_bom_list'),
+    path('api/boms/<int:product_id>/', BOMDetailedListView.as_view(), name='api_bom_detailed_list'),
+    path('api/bom/<int:bom_id>/components/', get_bom_components, name='bom_components_api'),
 
     url(r'^Product/$', product_list, name='product_list'),
     path('Product/List', views.ProductListView.as_view(), name='product_list'),
@@ -157,14 +165,18 @@ urlpatterns = [
 
     path('api/products/', product_list_api, name='product-list-api'),
 
-
-
+  path('low-stock-products/', low_stock_products, name='low_stock_products'),
+  path('api/products/<int:product_id>/detail/', product_detail_api, name='product_detail_api'),
+    path('api/products/<int:product_id>/purchase-suggestion/', purchase_suggestion_api, name='purchase_suggestion_api'),
+    path('api/purchase-orders/create/', create_purchase_order_api, name='create_purchase_order_api'),
 
     url(r'^MOrder/$', manufacture_order_list, name='manufacture_order_list'),
     url(r'^MOrder/Create$', create_morder, name='create_morder'),
     url(r'^MOrder/(?P<id>\d+)/Update$', update_morder, name='update_morder'),
     
-    url(r'^MOrder/Detail$', manufacture_order_detail, name='manufacture_order_detail'),
+    path('MOrder/<int:order_id>/', manufacture_order_detail, name='manufacture_order_detail'),
+    path('api/manufacturing-order/<int:order_id>/update-status/', update_order_status_api, name='update_order_status_api'),
+    path('api/work-order/<int:work_order_id>/update-status/', update_work_order_status_api, name='update_work_order_status_api'),
     url(r'^MOrder/bulk-create-events/', bulk_create_events, name='bulk_create_events'),
     url(r'^MOrder/Calendar/GetInfo/$', get_order_calendar_info, name='get_order_calendar_info'),
       # API های جدید برای خط تولید

@@ -218,6 +218,26 @@ class Operation(models.Model):
 class ManufacturingOrder(models.Model):
     def get_dateCreated_jalali(self):
         return jdatetime.date.fromgregorian(date=self.created_at)
+    def get_status_color(self):
+        status_colors = {
+            'draft': 'secondary',
+            'confirmed': 'primary', 
+            'progress': 'warning',
+            'done': 'success',
+            'canceled': 'danger'
+        }
+        return status_colors.get(self.status, 'secondary')
+    
+    def can_change_status(self, new_status):
+        """بررسی امکان تغییر وضعیت"""
+        valid_transitions = {
+            'draft': ['confirmed', 'canceled'],
+            'confirmed': ['progress', 'canceled'],
+            'progress': ['done', 'canceled'],
+            'done': [],
+            'canceled': ['draft']
+        }
+        return new_status in valid_transitions.get(self.status, [])
     """Model representing a manufacturing order in the MRP system."""
     reference = models.CharField(max_length=50, unique=True)
     line = models.ForeignKey(
