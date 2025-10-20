@@ -297,25 +297,25 @@ let componentChart = null;
     });
 
     // Forecast button click with validation
-    $('#newOrderModal').on('click','#forecastBtn',function() {
+    $('#newOrderModal').on('click', '#forecastBtn', function() {
         console.log('Forecast button clicked');
-        const productId = $('#productSelect').val();
-        const bomId = $('#bomSelect').val();
-        const quantity = parseFloat($('#quantityInput').val());
-
+        const productId = $('#productSelect').val() || $('#id_product_to_manufacture').val();
+        const bomId = $('#bomSelect').val() || $('#id_bom').val();
+        const quantity = parseFloat($('#quantityInput').val() || $('#id_quantity_to_produce').val());
+    
         if (!productId) {
-            alert('Please select a product.');
+            alert('لطفا یک محصول انتخاب کنید.');
             return;
         }
         if (!bomId) {
-            alert('Please select a Bill of Materials.');
+            alert('لطفا لیست مواد اولیه (BOM) را انتخاب کنید.');
             return;
         }
         if (!quantity || quantity <= 0) {
-            alert('Please enter a valid quantity greater than 0.');
+            alert('لطفا مقدار معتبری بزرگتر از صفر وارد کنید.');
             return;
         }
-
+    
         console.log('Showing forecast for Product ID:', productId, 'BOM ID:', bomId, 'Quantity:', quantity);
         showForecast(bomId, quantity);
         $('#forecastModal').modal('show');
@@ -746,108 +746,346 @@ function updateWorkOrderTable() {
 
 // Function to show forecast
 function showForecast(bomId, quantity) {
-    console.log('Generating forecast for BOM ID:', bomId);
-    const bomData = bomComponents.find(bc => bc.bomId == bomId);
-    const components = bomData ? bomData.components : [];
+    console.log('Generating forecast for BOM ID:', bomId, 'Quantity:', quantity);
     
-    // Destroy previous chart if it exists
-    if (componentChart) {
-        componentChart.destroy();
-    }
+    // Show loading state
+    $('#forecastModal .modal-body').html(`
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">در حال محاسبه پیش‌بینی تولید...</p>
+        </div>
+    `);
+    
+    // Fetch forecast data
+    Promise.all([
+        fetchForecastData(bomId, quantity),
+        fetchTimelineData(bomId)
+    ]).then(([forecastData, timelineData]) => {
+        renderForecastModal(forecastData, timelineData, quantity);
+    }).catch(error => {
+        console.error('Error loading forecast:', error);
+        $('#forecastModal .modal-body').html(`
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                خطا در بارگذاری داده‌های پیش‌بینی: ${error.message}
+            </div>
+        `);
+    });
+}
 
-    // Component Availability Chart
-    const labels = components.map(c => c.name);
-    const requiredData = components.map(c => c.qty * quantity);
-    const availableData = components.map(c => c.available);
-
-    const ctx = document.getElementById('componentChart').getContext('2d');
-    try {
-        componentChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Required Quantity',
-                        data: requiredData,
-                        backgroundColor: 'rgba(0, 123, 255, 0.5)',
-                        borderColor: 'rgba(0, 123, 255, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Available Quantity',
-                        data: availableData,
-                        backgroundColor: 'rgba(40, 167, 69, 0.5)',
-                        borderColor: 'rgba(40, 167, 69, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Quantity'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Components'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    },
-                    title: {
-                        display: true,
-                        text: 'Component Availability Forecast'
-                    }
+// Fetch forecast data from API
+function fetchForecastData(bomId, quantity) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: `/api/production-forecast/?bom_id=${bomId}&quantity=${quantity}`,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    resolve(response.forecast);
+                } else {
+                    reject(new Error(response.error));
                 }
+            },
+            error: function(xhr, status, error) {
+                reject(new Error('خطا در ارتباط با سرور'));
             }
         });
-        console.log('Chart created successfully');
-    } catch (e) {
-        console.error('Error creating chart:', e);
-    }
+    });
+}
 
-    // Production Timeline
-    const totalDuration = workOrderList.reduce((sum, wo) => sum + parseFloat(wo.duration), 0);
-    const timelineHtml = workOrderList.length > 0 ? `
-        <p><strong>Total Duration:</strong> ${totalDuration.toFixed(1)} hours</p>
-        <ul>
-            ${workOrderList.map(wo => `
-                <li>${wo.id} (${wo.workCenter}): ${wo.duration} hours - ${wo.description || 'No description'}</li>
-            `).join('')}
-        </ul>
-    ` : '<p class="text-muted">No work orders added to estimate production timeline.</p>';
-    $('#timelineInfo').html(timelineHtml);
+// Fetch timeline data from API
+function fetchTimelineData(bomId) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: `/api/bom/${bomId}/timeline/`,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    resolve(response);
+                } else {
+                    reject(new Error(response.error));
+                }
+            },
+            error: function(xhr, status, error) {
+                // اگر خطا داد، با داده‌های پیش‌فرض ادامه بده
+                resolve({
+                    timeline: [],
+                    total_duration_hours: 0,
+                    estimated_days: 0
+                });
+            }
+        });
+    });
+}
 
-    // Stock Status
-    const allSufficient = components.every(c => c.qty * quantity <= c.available);
-    const stockStatusHtml = components.length > 0 ? `
-        <p><strong>Stock Sufficiency:</strong> 
-            <span class="${allSufficient ? 'text-success' : 'text-danger'}">
-                ${allSufficient ? 'Sufficient stock for all components' : 'Insufficient stock for some components'}
-            </span>
-        </p>
-        <ul>
-            ${components.map(c => `
-                <li>${c.name}: ${c.qty * quantity.toFixed(1)} required, ${c.available.toFixed(1)} available 
-                    <span class="${c.qty * quantity <= c.available ? 'text-success' : 'text-danger'}">
-                        (${c.qty * quantity <= c.available ? 'OK' : 'Shortage'})
+// Render forecast modal with data
+function renderForecastModal(forecastData, timelineData, quantity) {
+    const modalBody = $('#forecastModal .modal-body');
+    
+    let html = `
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <h6 class="alert-heading">خلاصه پیش‌بینی تولید</h6>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>محصول:</strong> ${forecastData.bom_info.product_name}
+                        </div>
+                        <div class="col-md-4">
+                            <strong>تعداد تولید:</strong> ${quantity}
+                        </div>
+                        <div class="col-md-4">
+                            <strong>BOM:</strong> ${forecastData.bom_info.reference}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>وضعیت موجودی کامپوننت‌ها</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="componentChart" class="forecast-chart mb-3"></canvas>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="text-success">
+                                    <h4>${forecastData.summary.sufficient_components}</h4>
+                                    <small>کافی</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-danger">
+                                    <h4>${forecastData.summary.insufficient_components}</h4>
+                                    <small>ناکافی</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="fas fa-calculator me-2"></i>خلاصه مالی</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>هزینه کل مواد اولیه:</strong>
+                            <h4 class="text-success">${forecastData.summary.total_required_cost.toLocaleString('fa-IR')} تومان</h4>
+                        </div>
+                        <div class="mb-3">
+                            <strong>زمان تولید تخمینی:</strong>
+                            <h5>${forecastData.summary.production_time_hours.toFixed(1)} ساعت</h5>
+                        </div>
+                        <div class="progress mb-3" style="height: 10px;">
+                            <div class="progress-bar bg-success" style="width: ${(forecastData.summary.sufficient_components / forecastData.bom_info.total_components * 100)}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            ${forecastData.summary.sufficient_components} از ${forecastData.bom_info.total_components} کامپوننت موجود است
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0"><i class="fas fa-list-alt me-2"></i>جزئیات کامپوننت‌ها</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>نام کامپوننت</th>
+                                        <th>مقدار مورد نیاز</th>
+                                        <th>موجودی</th>
+                                        <th>کمبود</th>
+                                        <th>هزینه</th>
+                                        <th>وضعیت</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+    `;
+    
+    // Add components rows
+    forecastData.components_analysis.forEach(component => {
+        const statusClass = component.is_sufficient ? 'success' : 'danger';
+        const statusText = component.is_sufficient ? 'کافی' : 'ناکافی';
+        const statusIcon = component.is_sufficient ? 'fa-check' : 'fa-exclamation-triangle';
+        
+        html += `
+            <tr>
+                <td>${component.name}</td>
+                <td>${component.required_quantity.toFixed(2)} ${component.uom}</td>
+                <td>${component.available_quantity.toFixed(2)} ${component.uom}</td>
+                <td>${component.shortage.toFixed(2)} ${component.uom}</td>
+                <td>${component.cost.toLocaleString('fa-IR')} تومان</td>
+                <td>
+                    <span class="badge bg-${statusClass}">
+                        <i class="fas ${statusIcon} me-1"></i>${statusText}
                     </span>
-                </li>
-            `).join('')}
-        </ul>
-    ` : '<p class="text-muted">No components defined for this BOM.</p>';
-    $('#stockStatus').html(stockStatusHtml);
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-project-diagram me-2"></i>زمان‌بندی تولید</h6>
+                    </div>
+                    <div class="card-body">
+    `;
+    
+    if (timelineData.timeline && timelineData.timeline.length > 0) {
+        html += `
+            <div class="mb-3">
+                <strong>مدت زمان کل:</strong> ${timelineData.total_duration_hours.toFixed(1)} ساعت 
+                (${timelineData.estimated_days.toFixed(1)} روز کاری)
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>قالب دستور کار</th>
+                            <th>عملیات</th>
+                            <th>مرکز کار</th>
+                            <th>مدت زمان (ساعت)</th>
+                            <th>دستورالعمل</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        timelineData.timeline.forEach((operation, index) => {
+            html += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${operation.template_name}</td>
+                    <td>${operation.operation_name}</td>
+                    <td>${operation.work_center}</td>
+                    <td>${operation.duration_hours}</td>
+                    <td>${operation.instructions || '-'}</td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="alert alert-warning">
+                <i class="fas fa-info-circle"></i>
+                هیچ قالب دستور کاری برای این BOM تعریف نشده است.
+            </div>
+        `;
+    }
+    
+    html += `
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modalBody.html(html);
+    
+    // Render chart
+    renderForecastChart(forecastData);
+}
+
+// Render forecast chart
+function renderForecastChart(forecastData) {
+    const ctx = document.getElementById('componentChart').getContext('2d');
+    
+    // Destroy previous chart if exists
+    if (window.componentChart instanceof Chart) {
+        window.componentChart.destroy();
+    }
+    
+    const labels = forecastData.components_analysis.map(c => c.name);
+    const requiredData = forecastData.components_analysis.map(c => c.required_quantity);
+    const availableData = forecastData.components_analysis.map(c => c.available_quantity);
+    
+    window.componentChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'مقدار مورد نیاز',
+                    data: requiredData,
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'موجودی',
+                    data: availableData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'مقدار'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'کامپوننت‌ها'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    rtl: true
+                },
+                title: {
+                    display: true,
+                    text: 'مقایسه مقدار مورد نیاز و موجودی'
+                }
+            }
+        }
+    });
 }
 var loadForm =function (btn1) {
     var btn=0;

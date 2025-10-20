@@ -158,7 +158,9 @@ urlpatterns = [
     path('api/boms/', BOMListView.as_view(), name='api_bom_list'),
     path('api/boms/<int:product_id>/', BOMDetailedListView.as_view(), name='api_bom_detailed_list'),
     path('api/bom/<int:bom_id>/components/', get_bom_components, name='bom_components_api'),
-
+   path('api/bom/<int:bom_id>/components/', get_bom_components_api, name='bom_components_api'),
+    path('api/production-forecast/', get_production_forecast_api, name='production_forecast_api'),
+    path('api/bom/<int:bom_id>/timeline/', get_workorder_timeline_api, name='workorder_timeline_api'),
     url(r'^Product/$', product_list, name='product_list'),
     path('Product/List', views.ProductListView.as_view(), name='product_list'),
     url(r'^Product/Create$', create_product, name='create_product'),

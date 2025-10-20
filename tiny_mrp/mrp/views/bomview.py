@@ -20,6 +20,7 @@ from rest_framework import generics
 from mrp.models import BillOfMaterials
 from mrp.serializers import BillOfMaterialsSerializer
 from mrp.forms import BOMForm,BomComponentForm
+from django.views.decorators.http import require_GET
 
 def bom_list(request):
     return render(request,"mrp/bom/partialBOMList.html",{})
@@ -185,3 +186,42 @@ def calculate_available_quantity(product):
         return product.available_quantity if product else 0
     except:
         return 0
+    
+
+@require_GET
+def get_bom_components_api(request, bom_id):
+    """API برای دریافت کامپوننت‌های BOM"""
+    try:
+        bom = BillOfMaterials.objects.get(id=bom_id)
+        components = BOMComponent.objects.filter(bom=bom).select_related('product', 'uom')
+        
+        components_data = []
+        for component in components:
+            components_data.append({
+                'id': component.id,
+                'product_name': component.product.name,
+                'product_code': component.product.code,
+                'quantity': float(component.quantity),
+                'uom': component.uom.name if component.uom else component.product.unit_of_measure,
+                'available_quantity': float(component.product.available_quantity),
+                'cost_price': float(component.product.cost_price),
+                'stock_status': component.product.get_stock_status()
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'bom_reference': bom.reference,
+            'product_name': bom.product.name,
+            'components': components_data
+        })
+        
+    except BillOfMaterials.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'BOM یافت نشد'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

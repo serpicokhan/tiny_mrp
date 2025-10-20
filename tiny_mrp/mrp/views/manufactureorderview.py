@@ -863,3 +863,115 @@ def get_line_orders(request):
             'success': False,
             'error': str(e)
         }, status=500)
+@require_GET
+def get_production_forecast_api(request):
+    """API برای پیش‌بینی تولید"""
+    try:
+        bom_id = request.GET.get('bom_id')
+        quantity = float(request.GET.get('quantity', 1))
+        
+        if not bom_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'BOM ID الزامی است'
+            }, status=400)
+        
+        bom = BillOfMaterials.objects.get(id=bom_id)
+        components = BOMComponent.objects.filter(bom=bom).select_related('product')
+        
+        # محاسبات پیش‌بینی
+        forecast_data = {
+            'bom_info': {
+                'reference': bom.reference,
+                'product_name': bom.product.name,
+                'operation_time': bom.operation_time,
+                'total_components': components.count()
+            },
+            'production_quantity': quantity,
+            'components_analysis': [],
+            'summary': {
+                'total_required_cost': 0,
+                'sufficient_components': 0,
+                'insufficient_components': 0,
+                'production_time_hours': 0
+            }
+        }
+        
+        # تحلیل کامپوننت‌ها
+        for component in components:
+            required_quantity = component.quantity * quantity
+            available_quantity = component.product.available_quantity
+            is_sufficient = available_quantity >= required_quantity
+            cost = required_quantity * float(component.product.cost_price)
+            
+            component_data = {
+                'name': component.product.name,
+                'required_quantity': required_quantity,
+                'available_quantity': available_quantity,
+                'uom': component.product.unit_of_measure,
+                'is_sufficient': is_sufficient,
+                'shortage': max(0, required_quantity - available_quantity),
+                'cost': cost,
+                'unit_cost': float(component.product.cost_price)
+            }
+            
+            forecast_data['components_analysis'].append(component_data)
+            forecast_data['summary']['total_required_cost'] += cost
+            
+            if is_sufficient:
+                forecast_data['summary']['sufficient_components'] += 1
+            else:
+                forecast_data['summary']['insufficient_components'] += 1
+        
+        # محاسبه زمان تولید
+        forecast_data['summary']['production_time_hours'] = (bom.operation_time * quantity) / 60
+        
+        return JsonResponse({
+            'success': True,
+            'forecast': forecast_data
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+@require_GET
+def get_workorder_timeline_api(request, bom_id):
+    """API برای دریافت timeline دستور کارها"""
+    try:
+        bom = BillOfMaterials.objects.get(id=bom_id)
+        workorder_templates = WorkOrderTemplate.objects.filter(bom=bom, active=True)
+        
+        timeline_data = []
+        total_duration = 0
+        
+        for template in workorder_templates:
+            operations = Operation.objects.filter(
+                work_order_template=template
+            ).order_by('sequence').select_related('work_center')
+            
+            for operation in operations:
+                timeline_data.append({
+                    'template_name': template.name,
+                    'operation_name': operation.name,
+                    'work_center': operation.work_center.name,
+                    'sequence': operation.sequence,
+                    'duration_hours': operation.duration,
+                    'instructions': operation.instructions
+                })
+                total_duration += operation.duration
+        
+        return JsonResponse({
+            'success': True,
+            'timeline': timeline_data,
+            'total_duration_hours': total_duration,
+            'estimated_days': total_duration / 8  # فرض 8 ساعت کار در روز
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
