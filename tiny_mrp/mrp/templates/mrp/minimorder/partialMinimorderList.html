@@ -7,9 +7,9 @@
   <td>{{c.grade|default_if_none:'نامشخص'}}</td>
   <td>{{c.hb_type|default_if_none:'نامشخص'}}</td>
   <td>{{c.quantity_to_produce}}</td>
-  <td>{{c.delivery_date|default_if_none:'نامشخص'}}</td>
+  <td>{{c.scheduled_date|default_if_none:'نامشخص'}}</td>
   <td>
-    <button type="button" class="btn btn-outline-light js-update-morder" data-url="" >  <i class="ti-eye"></i></button>
+    <button type="button" class="btn btn-outline-light js-update-morder" data-url="{% url 'minimorder_update' c.id %}" >  <i class="ti-eye"></i></button>
 
     </td>
 </tr>

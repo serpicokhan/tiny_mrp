@@ -13,7 +13,7 @@ $(function () {
       const params = new URLSearchParams(filters).toString();
   
       $.ajax({
-          url: `/Formula/RefereshList?${params}`, // Append filters to the URL
+          url: `/MOrder/Mini/RefereshList?${params}`, // Append filters to the URL
           method: 'GET',
           success: function (data) {
               // $('#list-container').html(data.parchase_req_html);
@@ -46,7 +46,9 @@ $(function () {
           success: function (data) {
   
             $("#modal-company .modal-content").html(data.html_formula_form);
-            $('#id_delivery_date').pDatepicker({
+            console.log(data);
+            
+            $('#id_scheduled_date').pDatepicker({
                 format: 'YYYY-MM-DD',
                 autoClose: true,
                 initialValueType: 'gregorian',
@@ -98,7 +100,7 @@ $(function () {
   
      var myWoLoader= function(){
        btn=$(this);
-       console.log(1);
+       
   
   
   
@@ -111,8 +113,8 @@ $(function () {
   
     // // Update book
     $("#btn-new").click(loadForm);
-    $("#company-table").on("click", ".js-update-formula", myWoLoader);
-    $("#modal-company").on("submit", ".js-formula-update-form", saveForm);
+    $("#company-table").on("click", ".js-update-morder", myWoLoader);
+    $("#modal-company").on("submit", ".js-morder-update-form", saveForm);
     $("#modal-company").on("submit", ".js-minimorder-create-form", saveForm);
   
     });

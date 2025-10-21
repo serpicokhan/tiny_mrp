@@ -158,7 +158,7 @@ urlpatterns = [
     path('api/boms/', BOMListView.as_view(), name='api_bom_list'),
     path('api/boms/<int:product_id>/', BOMDetailedListView.as_view(), name='api_bom_detailed_list'),
     path('api/bom/<int:bom_id>/components/', get_bom_components, name='bom_components_api'),
-   path('api/bom/<int:bom_id>/components/', get_bom_components_api, name='bom_components_api'),
+    path('api/bom/<int:bom_id>/components/', get_bom_components_api, name='bom_components_api'),
     path('api/production-forecast/', get_production_forecast_api, name='production_forecast_api'),
     path('api/bom/<int:bom_id>/timeline/', get_workorder_timeline_api, name='workorder_timeline_api'),
     url(r'^Product/$', product_list, name='product_list'),
@@ -177,6 +177,9 @@ urlpatterns = [
     url(r'^MOrder/(?P<id>\d+)/Update$', update_morder, name='update_morder'),
     url(r'^MOrder/Mini/$', list_minimorder, name='list_minimorder'),
     url(r'^MOrder/Mini/Create$', minimorder_create, name='minimorder_create'),
+    url(r'^MOrder/Mini/(?P<id>\d+)/Update$', minimorder_update, name='minimorder_update'),
+    url(r'^MOrder/Mini/RefereshList$', referesh_minimorder_list, name='referesh_minimorder_list'),
+
     
     path('MOrder/<int:order_id>/', manufacture_order_detail, name='manufacture_order_detail'),
     path('api/manufacturing-order/<int:order_id>/update-status/', update_order_status_api, name='update_order_status_api'),

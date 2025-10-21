@@ -58,23 +58,28 @@ def save_minimorder_form(request, form, template_name):
     return JsonResponse(data)
 
 def minimorder_update(request, id):
-    company= get_object_or_404(Formula, id=id)
+    company= get_object_or_404(ManufacturingOrder, id=id)
     template=""
     if (request.method == 'POST'):
-        form = FormulaForm(request.POST, instance=company)
+        post_data = request.POST.copy()
+        
+        # تبدیل تاریخ شمسی به میلادی
+        jalali_date = post_data.get('scheduled_date')
+        post_data['scheduled_date']=DateJob.getTaskDate(jalali_date)
+        form = ManufacturingOrderForm2(post_data, instance=company)
     else:
-        form = FormulaForm(instance=company)
+        form = ManufacturingOrderForm2(instance=company)
 
 
-    return save_minimorder_form(request, form,"mrp/formula/partialFormulaUpdate.html")
+    return save_minimorder_form(request, form,"mrp/minimorder/partialMinimorderUpdate.html")
 def minimorder_create(request):
     template=""
     if (request.method == 'POST'):
         post_data = request.POST.copy()
         
         # تبدیل تاریخ شمسی به میلادی
-        jalali_date = post_data.get('delivery_date')
-        post_data['delivery_date']=DateJob.getTaskDate(jalali_date)
+        jalali_date = post_data.get('scheduled_date')
+        post_data['scheduled_date']=DateJob.getTaskDate(jalali_date)
         form = ManufacturingOrderForm2(post_data)
     else:
         form = ManufacturingOrderForm2()
@@ -85,16 +90,16 @@ def minimorder_create(request):
 def referesh_minimorder_list(request):
     makan = request.GET.get('makan', False)
     if(makan): 
-        requests=Formula.objects.filter(machine__assetIsLocatedAt__id=makan).order_by("machine__assetCategory__priority","machine__tavali")
+        requests=ManufacturingOrder.objects.filter(status='draft').order_by("-id")
     else:
         # if request.user.is_superuser:
-        requests = Formula.objects.all().order_by("machine__assetCategory__priority")
-    ws= PurchaseUtility.doPaging2(request,requests)
+        requests = ManufacturingOrder.objects.filter(status='draft').order_by("-id")
+    ws= PurchaseUtility.doPaging(request,requests)
     data=dict()
     data["status"]="ok"
-    data["formula_html"]=render_to_string('mrp/formula/partialFormulaList.html', {
+    data["formula_html"]=render_to_string('mrp/minimorder/partialMinimorderList.html', {
                         
-                        'formulas':ws,
+                        'morders':ws,
                          'perms': PermWrapper(request.user) 
 
                        
