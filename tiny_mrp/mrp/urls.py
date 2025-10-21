@@ -214,6 +214,72 @@ urlpatterns = [
     path('api/part/<int:part_id>/history/', get_part_purchase_history, name='get_part_history'),
     path('api/part/<int:part_id>/similar/', get_similar_parts, name='get_similar_parts'),
 
+    path('BOM/list/', bom_list, name='bom_list'),
+    path('BOM/create/', create_bom, name='create_bom'),
+    path('BOM/<int:id>/edit', edit_bom, name='edit_bom'),
+    path('BOM/<int:id>/view', view_bom, name='view_bom'),
+    
+    # BOM Component URLs
+    path('BOM/<int:id>/component/create', create_bom_component, name='create_bom_component'),
+    path('BOM/component/<int:id>/delete', delete_bom_component, name='delete_bom_component'),
+    
+    # API URLs
+    path('api/boms/', BOMListView.as_view(), name='api_bom_list'),
+    path('api/boms/<int:product_id>/', BOMDetailedListView.as_view(), name='api_bom_detailed_list'),
+    path('api/bom/<int:bom_id>/components/', get_bom_components, name='bom_components_api'),
+    path('api/bom/<int:bom_id>/components/', get_bom_components_api, name='bom_components_api'),
+    path('api/production-forecast/', get_production_forecast_api, name='production_forecast_api'),
+    path('api/bom/<int:bom_id>/timeline/', get_workorder_timeline_api, name='workorder_timeline_api'),
+    url(r'^Product/$', product_list, name='product_list'),
+    path('Product/List', views.ProductListView.as_view(), name='product_list'),
+    url(r'^Product/Create$', create_product, name='create_product'),
+
+    path('api/products/', product_list_api, name='product-list-api'),
+
+  path('low-stock-products/', low_stock_products, name='low_stock_products'),
+  path('api/products/<int:product_id>/detail/', product_detail_api, name='product_detail_api'),
+    path('api/products/<int:product_id>/purchase-suggestion/', purchase_suggestion_api, name='purchase_suggestion_api'),
+    path('api/purchase-orders/create/', create_purchase_order_api, name='create_purchase_order_api'),
+
+    url(r'^MOrder/$', manufacture_order_list, name='manufacture_order_list'),
+    url(r'^MOrder/Create$', create_morder, name='create_morder'),
+    url(r'^MOrder/(?P<id>\d+)/Update$', update_morder, name='update_morder'),
+    url(r'^MOrder/Mini/$', list_minimorder, name='list_minimorder'),
+    url(r'^MOrder/Mini/Create$', minimorder_create, name='minimorder_create'),
+    url(r'^MOrder/Mini/(?P<id>\d+)/Update$', minimorder_update, name='minimorder_update'),
+    url(r'^MOrder/Mini/RefereshList$', referesh_minimorder_list, name='referesh_minimorder_list'),
+
+    
+    path('MOrder/<int:order_id>/', manufacture_order_detail, name='manufacture_order_detail'),
+    path('api/manufacturing-order/<int:order_id>/update-status/', update_order_status_api, name='update_order_status_api'),
+    path('api/work-order/<int:work_order_id>/update-status/', update_work_order_status_api, name='update_work_order_status_api'),
+    url(r'^MOrder/bulk-create-events/', bulk_create_events, name='bulk_create_events'),
+    url(r'^MOrder/Calendar/GetInfo/$', get_order_calendar_info, name='get_order_calendar_info'),
+      # API های جدید برای خط تولید
+    path('MOrder/get-line-orders/', get_line_orders, name='get_line_orders'),
+    path('MOrder/line-capacity/<int:line_id>/<str:date>/', get_line_capacity_info, name='get_line_capacity_info'),
+
+    path('api/responsible-persons/', get_responsible_persons, name='get_responsible_persons'),
+    path('api/customers/', get_customers, name='get_customers'),
+    path('api/MOrder/', manufacturing_orders_api, name='manufacturing_orders_api'),
+    path('Morder/Calendar/', manufacture_order_calendar, name='manufacture_order_calendar'),
+    path('MOrder/order-details/<int:order_id>/', get_order_details, name='order_details'),
+
+     # API برای دریافت خلاصه استفاده از سفارش
+    path('MOrder/order-usage-summary/<int:order_id>/', get_order_usage_summary, name='get_order_usage_summary'),
+
+    url(r'^Workcenter/$', workcenter_list, name='workcenter_list'),
+    url(r'^Workcenter/Create$', create_workcenter, name='create_workcenter'),
+    path('api/workcenter/', WorkcenterListView.as_view(), name='workcenter-list'),
+
+    url(r'^Workorder/Create$', workorder_create, name='workorder_create'),
+    url(r'^Workorder/Detail$', workorder_detail, name='workorder_detail'),
+    path('api/internal/products/', receive_products, name='receive_products'),
+    path('api/internal/shade/', receive_shade, name='receive_shade'),
+    path('api/internal/grade/', receive_grade, name='receive_grade'),
+    path('api/internal/moshtari/', receive_moshtari, name='receive_moshtari'),
+    
+
 
 
     

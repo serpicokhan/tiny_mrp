@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from datetime import datetime, timedelta
+import jdatetime
 
 MO_STATUS = [
     ('draft', 'Draft'),
@@ -16,6 +17,13 @@ WO_STATUS = [
     ('done', 'Done'),
     ('cancelled', 'Cancelled'),
 ]
+class Line(models.Model):
+    name = models.CharField(max_length=100)
+    capacity_per_day = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.name
+
 class Product(models.Model):
     """Model representing products (raw materials or finished goods) in the MRP system."""
     
@@ -93,7 +101,7 @@ class UnitOfMeasure(models.Model):
 class BOMComponent(models.Model):
     """Through model for Bill of Materials components with quantity."""
     bom = models.ForeignKey('BillOfMaterials', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,limit_choices_to={'product_type': 'component'},verbose_name="محصول")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,limit_choices_to={'product_type__in': ['component', 'raw']},verbose_name="محصول")
     quantity = models.FloatField("تعداد",validators=[MinValueValidator(0.0)])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -207,16 +215,72 @@ class Operation(models.Model):
 
     def __str__(self):
         return f"{self.name} (Seq: {self.sequence}) - {self.work_order_template}"
+    
+    
+class Shade(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+class ColorCode(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+    
+class Grade(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
 class ManufacturingOrder(models.Model):
+    def get_dateCreated_jalali(self):
+        return jdatetime.date.fromgregorian(date=self.created_at)
+    def get_scheduled_jalali(self):
+        return jdatetime.date.fromgregorian(date=self.scheduled_date)
+    def get_status_color(self):
+        status_colors = {
+            'draft': 'secondary',
+            'confirmed': 'primary', 
+            'progress': 'warning',
+            'done': 'success',
+            'canceled': 'danger'
+        }
+        return status_colors.get(self.status, 'secondary')
+    
+    def can_change_status(self, new_status):
+        """بررسی امکان تغییر وضعیت"""
+        valid_transitions = {
+            'draft': ['confirmed', 'canceled'],
+            'confirmed': ['progress', 'canceled'],
+            'progress': ['done', 'canceled'],
+            'done': [],
+            'canceled': ['draft']
+        }
+        return new_status in valid_transitions.get(self.status, [])
     """Model representing a manufacturing order in the MRP system."""
+    HB_TYPE_CHOICES = [
+        ('HS', 'HS'),
+        ('HB', 'HB'),
+    ]
     reference = models.CharField(max_length=50, unique=True)
+    line = models.ForeignKey(
+        Line,
+        on_delete=models.SET_NULL,
+        blank=True,null=True,
+        
+        related_name="orderd_line"
+    )
     product_to_manufacture = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        limit_choices_to={'product_type': 'finished'}
+        limit_choices_to={'product_type': 'finished'},blank=True,null=True
     )
     quantity_to_produce = models.FloatField(validators=[MinValueValidator(0.0)])
-    bom = models.ForeignKey(BillOfMaterials, on_delete=models.CASCADE)
+    bom = models.ForeignKey(BillOfMaterials, on_delete=models.SET_NULL,blank=True,null=True)
     work_order_template = models.ForeignKey(
         'WorkOrderTemplate',
         on_delete=models.SET_NULL,
@@ -225,9 +289,18 @@ class ManufacturingOrder(models.Model):
         help_text="Template for generating work orders"
     )  # Added to link to template
     status = models.CharField(max_length=20, choices=MO_STATUS, default='draft')
-    scheduled_date = models.DateTimeField()
+    scheduled_date = models.DateField(null=True,blank=True)
+    first_date = models.DateField(null=True,blank=True)
+    second_date = models.DateField(null=True,blank=True)
+    
     responsible = models.ForeignKey(
         'SysUser',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    customer = models.ForeignKey(
+        'Customer',
         on_delete=models.SET_NULL,
         null=True,
         blank=True
@@ -235,7 +308,11 @@ class ManufacturingOrder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     notes=models.TextField(null=True,blank=True)
-
+    hb_type = models.CharField(max_length=2, choices=HB_TYPE_CHOICES, verbose_name="هایبالک/رگولار",blank=True,null=True)
+    shade = models.ForeignKey(Shade, on_delete=models.PROTECT, verbose_name="شید/رنگ",blank=True,null=True)
+    color_code = models.ForeignKey(ColorCode, on_delete=models.PROTECT, verbose_name="کد رنگ",blank=True,null=True)
+    grade = models.ForeignKey(Grade, on_delete=models.PROTECT, verbose_name="نمره",blank=True,null=True)
+    delivery_date = models.DateField(verbose_name="تاریخ تحویل",blank=True,null=True)
     class Meta:
         ordering = ['-scheduled_date', 'reference']
         constraints = [
@@ -270,6 +347,7 @@ class ManufacturingOrder(models.Model):
                 end_date=end_date,
                 status='planned'
             )
+
 class WorkOrder(models.Model):
     """Model representing a specific work order within a manufacturing order."""
     manufacturing_order = models.ForeignKey(
@@ -306,3 +384,99 @@ class WorkOrder(models.Model):
 
     def __str__(self):
         return f"WO for {self.manufacturing_order.reference} - {self.work_center}"
+    
+class Customer(models.Model):
+    """Model representing a customer in the MRP system."""
+
+    name = models.CharField(
+        max_length=100,
+        help_text="Full name or company name of the customer"
+    )
+    email = models.EmailField(
+        null=True,
+        blank=True,
+        help_text="Customer's contact email"
+    )
+
+
+    class Meta:
+        ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'email'], name='unique_customer_name_email')
+        ]
+
+    def __str__(self):
+        return f"{self.name}"
+    
+
+
+    
+    
+class CalendarEvent(models.Model):
+    order = models.ForeignKey(
+        ManufacturingOrder, 
+        on_delete=models.CASCADE, 
+        related_name='calendar_events', 
+        null=True, 
+        blank=True
+    )
+    line = models.ForeignKey(
+        Line,
+        on_delete=models.CASCADE,
+        related_name='calendar_events',
+        verbose_name="خط تولید",
+        help_text="خط تولیدی که این رویداد در آن اجرا می‌شود"
+    )
+    quantity = models.FloatField(default=0, verbose_name="مقدار")
+    event_date = models.DateField(verbose_name="تاریخ رویداد")
+    title = models.CharField(max_length=255, verbose_name="عنوان")
+    type = models.CharField(
+        max_length=50, 
+        default='appointment',
+        choices=[
+            ('order', 'سفارش تولید'),
+            ('vacation', 'تعطیلات'),
+            ('offday', 'روز تعطیل'),
+            ('maintenance', 'تعمیر و نگهداری'),
+        ],
+        verbose_name="نوع رویداد"
+    )
+    description = models.TextField(blank=True, verbose_name="توضیحات")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "رویداد تقویم"
+        verbose_name_plural = "رویدادهای تقویم"
+        ordering = ['event_date', 'line']
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(quantity__gte=0),
+                name='calendar_event_quantity_positive'
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.title} - {self.line.name} - {self.event_date}"
+
+    def clean(self):
+        """اعتبارسنجی سفارشی"""
+        from django.core.exceptions import ValidationError
+        
+        # بررسی ظرفیت خط تولید
+        if self.type == 'order' and self.quantity > 0:
+            # محاسبه مجموع مقدار رویدادهای همان روز و خط
+            same_day_events = CalendarEvent.objects.filter(
+                event_date=self.event_date,
+                line=self.line,
+                type='order'
+            ).exclude(pk=self.pk)
+            
+            total_quantity = sum(event.quantity for event in same_day_events)
+            
+            if total_quantity + self.quantity > self.line.capacity_per_day:
+                raise ValidationError(
+                    f"ظرفیت خط {self.line.name} در تاریخ {self.event_date} "
+                    f"تکمیل است. ظرفیت باقی‌مانده: "
+                    f"{self.line.capacity_per_day - total_quantity} کیلوگرم"
+                )
