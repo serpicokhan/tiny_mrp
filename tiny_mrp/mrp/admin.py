@@ -9,6 +9,7 @@ admin.site.register(AssetFailure)
 admin.site.register(SysUser)
 admin.site.register(Comment)
 admin.site.register(MakanHamgen)
+
 class OperatorAdmin(admin.ModelAdmin):
     # Fields to display in the list view
     list_display = ('Pid', 'PNumber', 'CpCode', 'CardNo', 'FName', 'LName')
@@ -60,3 +61,8 @@ class UserShiftAccessAdmin(admin.ModelAdmin):
     list_filter = ['production_line', 'shift', 'is_active']
     search_fields = ['user__fullName', 'production_line__assetName', 'shift__name']
     list_editable = ['is_active']
+
+admin.site.register(Customer)
+admin.site.register(Grade)
+admin.site.register(Shade)
+admin.site.register(ColorCode)

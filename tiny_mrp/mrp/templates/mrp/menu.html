@@ -307,13 +307,27 @@
   <div id="apps3">
     <ul>
       <li class="navigation-divider">گزارشات</li>
-    </ul>
     <li>
-      <a href="{% url 'daily_tolid_with_chart' %}">
-        <span>نمودار میله ای روزانه تولید</span>
+      <a href="{% url 'daily_tolid_main' %}">
+        <span>گزارش</span>
 
       </a>
     </li>
+    <li>
+      <a href="{% url 'graph_index' %}">
+        <span>گراف سفارش</span>
+
+      </a>
+    </li>
+    <!-- <li>
+      <a href="{% url 'list_report' %}">
+        <span>گزارشات</span>
+
+
+      </a>
+    </li> -->
+  </ul>
+
   </div>
   {% endif %}
   {% if perms.mrp.can_operate_guard %}
