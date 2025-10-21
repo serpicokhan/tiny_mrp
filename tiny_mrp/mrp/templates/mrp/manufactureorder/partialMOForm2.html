@@ -1,0 +1,117 @@
+{% load widget_tweaks %}
+
+<input type="hidden" name="status" value="draft">
+
+<div class="mb-4">
+    <label for="referenceInput" class="form-label">کد سفارش *</label>
+    {% render_field form.reference class="form-control"  maxlength="50" required=""  placeholder="کد سفارش یکتا وارد کنید" %}
+</div>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <label for="productSelect" class="form-label">محصول *</label>
+        {% render_field form.product_to_manufacture class="form-control"  required=""  %}
+    </div>
+    <div class="col-md-6">
+        <label for="bomSelect" class="form-label">لیست BOM *</label>
+        {% render_field form.bom class="form-control"  required=""  %}
+    </div>
+</div>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <label for="dateInput" class="form-label">تاریخ شروع *</label>
+        {% render_field form.scheduled_date  class="form-control pdate" id="dateInput"   %}
+    </div>
+   
+    <div class="col-md-4">
+        <label for="dateInput1" class="form-label">تاریخ ارایه نمونه *</label>
+        {% render_field form.first_date class="form-control pdate"    %}
+    </div>
+    <div class="col-md-4">
+        <label for="dateInput2" class="form-label">تاریخ تحویل نمونه *</label>
+        {% render_field form.second_date class="form-control pdate"    %}
+    </div>
+</div>
+<div class="row mb-4">
+    <div class="col-md-3">
+        <label for="quantityInput" class="form-label">کمیت *</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-calculator"></i></span>
+            {% render_field form.quantity_to_produce class="form-control " id="quantityInput" min="0.1" step="0.1" value="1.0" required=""  %}
+        </div>
+    </div>
+   
+    <div class="col-md-4">
+        <label for="customerSelect" class="form-label">مشتری</label>
+        {% render_field form.customer class="form-control"  %}
+    </div>
+    <div class="col-md-4">
+        <label for="responsibleSelect" class="form-label">مسئول</label>
+        {% render_field form.responsible class="form-control"  %}
+    </div>
+</div>
+
+<!-- Tabs for Components and Work Orders -->
+<ul class="nav nav-tabs mb-3" id="moTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="components-tab" data-bs-toggle="tab" data-bs-target="#components" type="button" role="tab" aria-controls="components" aria-selected="true">اجزا</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="workorders-tab" data-bs-toggle="tab" data-bs-target="#workorders" type="button" role="tab" aria-controls="workorders" aria-selected="false">دستور کارها</button>
+    </li>
+</ul>
+
+<div class="tab-content" id="moTabContent">
+    <!-- Components Tab -->
+    <div class="tab-pane fade show active" id="components" role="tabpanel" aria-labelledby="components-tab">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>اجزا</th>
+                        <th>کمیت</th>
+                        <th>واحد</th>
+                        <th>در دسترس</th>
+                    </tr>
+                </thead>
+                <tbody id="bomPreviewBody">
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Select a product and BOM to see components</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Work Orders Tab -->
+    <div class="tab-pane fade" id="workorders" role="tabpanel" aria-labelledby="workorders-tab">
+        <div class="d-flex justify-content-between mb-3">
+            <h6 class="mb-0 fw-bold">Work Orders</h6>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="addWorkOrderBtn">
+                <i class="fas fa-plus me-1"></i> Add Work Order
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm work-order-table">
+                <thead>
+                    <tr>
+                        <th>دستور تولید</th>
+                        <th>مرکز کار</th>
+                        <th>مدت</th>
+                        <th>شرح</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody id="workOrderTableBody">
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No work orders added</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <label for="notesTextarea" class="form-label">Notes</label>
+    {% render_field form.notes class="form-control" id="notesTextarea" rows="4" %}
+</div>

@@ -108,47 +108,45 @@
         
         
         </div>
-        <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="profile-tab" >
+        <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="profile-tab">
             <div id="notes-section">
                 {% for comment in notes %}
-                <div class="card card-body border p-3" id="comment-{{ comment.id }}">
-                    <div class="d-flex mb-3">
-                        <div class="d-flex align-items-center">
-                            <figure class="avatar avatar-sm mr-3">
-                                <img src="{{ comment.user.profileImage.url }}" class="rounded-circle" alt="...">
-                            </figure>
-                            <div class="d-inline-block">
-                                <div><strong>{{ comment.user.fullName }}</strong></div>
-                                <small class="text-muted">{{ comment.created_at|timesince }} قبل</small>
+                   
+                    <div class="card card-body border p-3">
+                        <div class="d-flex mb-3">
+                            <div class="d-flex align-items-center">
+                                <figure class="avatar avatar-sm mr-3">
+                                    <img src="{{ comment.user.profileImage.url }}" class="rounded-circle" alt="...">
+                                </figure>
+                                <div class="d-inline-block">
+                                    <div><strong>{{comment.user.fullName}}</strong></div>
+                                    <small class="text-muted">{{ comment.created_at|timesince }} قبل</small>
+                                </div>
+                            </div>
+                            <div class="dropdown ml-auto">
+                                <a href="#" data-toggle="dropdown">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a href="#" class="dropdown-item">اشتراک</a>
+                                    <a href="#" class="dropdown-item">ویرایش</a>
+                                    <a href="#" class="dropdown-item">حذف</a>
+                                </div>
                             </div>
                         </div>
-                        
-                        <div class="dropdown ml-auto">
-                            <a href="#"  data-comment-id="{{ comment.id }}" class="edit-comment">
-                                <i class="fa fa-ellipsis-v"></i>
-                            </a>
-                        
-                        </div>
-                        
+                        <p>{{comment.content}}</p>
+                       
                     </div>
-                    <p class="comment-content">{{ comment.content }}</p>
-                    
-                    <div class="edit-comment-section" style="display: none;">
-                        <div class="form-group">
-                            <textarea rows="2" class="form-control edit-comment-text">{{ comment.content }}</textarea>
-                        </div>
-                        <button class="btn btn-outline-primary save-comment-btn" data-comment-id="{{ comment.id }}">ذخیره</button>
-                        <button class="btn btn-outline-secondary cancel-edit-btn">لغو</button>
-                    </div>
-                </div>
-                {% endfor %}
+                    {% endfor %}
+                
+               
             </div>
-            <div class="card-body">
+            <div class="card-body" >
                 <h6 class="mb-3 font-size-11 text-uppercase">پاسخ</h6>
                 <div class="d-flex">
                     <div>
                         <figure class="avatar avatar-sm mr-3">
-                            <img src="{{ request.user.sysuser.profileImage.url }}" class="rounded-circle" alt="...">
+                            <img src="{{ request.user.sysuser.profileImage.url}}" class="rounded-circle" alt="...">
                         </figure>
                     </div>
                     <div class="flex-grow-1">
@@ -156,60 +154,14 @@
                             <textarea rows="2" class="form-control" id="note-text"></textarea>
                         </div>
                         <button class="btn btn-outline-light" id="add-note-btn">
-                            <i data-feather="send"></i>
+                                            <i data-feather="send"></i>
                         </button>
                     </div>
                 </div>
             </div>
+        
+        
         </div>
-        
-        <script>
-        $(document).ready(function() {
-            // Handle edit button click
-            $('.edit-comment').on('click', function(e) {
-                e.preventDefault();
-                var commentId = $(this).data('comment-id');
-                var commentCard = $('#comment-' + commentId);
-                commentCard.find('.comment-content').hide();
-                commentCard.find('.edit-comment-section').show();
-            });
-        
-            // Handle cancel button click
-            $('.cancel-edit-btn').on('click', function() {
-                var commentCard = $(this).closest('.card');
-                commentCard.find('.edit-comment-section').hide();
-                commentCard.find('.comment-content').show();
-            });
-        
-            // Handle save button click
-            
-            $('.save-comment-btn').on('click', function() {
-                var commentId = $(this).data('comment-id');
-                var commentCard = $('#comment-' + commentId);
-                var newContent = commentCard.find('.edit-comment-text').val();
-        
-                $.ajax({
-                    url: '/Purchases/UpdateNotes/' + commentId + '/', // Replace with your actual endpoint
-                    type: 'POST',
-                    data: {
-                        content: newContent,
-                       
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            commentCard.find('.comment-content').text(newContent).show();
-                            commentCard.find('.edit-comment-section').hide();
-                        } else {
-                            alert('خطا در ذخیره تغییرات: ' + response.error);
-                        }
-                    },
-                    error: function() {
-                        alert('خطا در ارتباط با سرور');
-                    }
-                });
-            });
-        });
-        </script>
         <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab" style="max-height: 800px; overflow-y: auto;">
             {% for i in logs %}
             <div class="d-flex align-items-center p-l-r-0 m-b-20">
@@ -236,13 +188,7 @@
 <script>
     // Dummy users list
     $(document).ready(function () {
-        $("#profile").niceScroll({
-            cursorcolor: "#00f", // Customize scrollbar color
-            cursorwidth: "8px", // Width of the scrollbar
-            background: "#ddd", // Background of the scrollbar track
-            autohidemode: true  // Hide scrollbar when not scrolling
-        });
-        $("#notes").niceScroll({
+        $("#contact").niceScroll({
             cursorcolor: "#00f", // Customize scrollbar color
             cursorwidth: "8px", // Width of the scrollbar
             background: "#ddd", // Background of the scrollbar track
@@ -250,43 +196,20 @@
         });
         // Dummy users list
         let users1000 = [
-            // { key: "arzande", value: "arzande" },
-            // { key: "ezami", value: "ezami" },
+            { key: "arzande", value: "arzande" },
+            { key: "ezami", value: "ezami" },
 
-            // { key: "torabi", value: "torabi" },
-            // { key: "abedi", value: "abedi" },
+            { key: "torabi", value: "torabi" },
+            { key: "abedi", value: "abedi" },
             
         ];
-        $.ajax({
-                url: '/api/users/', // Django endpoint
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    let users = data.users;
-                    // let output = '<ul>';
-                    $.each(users, function(index, user) {
-                        // output += `<li>ID: ${user.key} - Full Name: ${user.value}</li>`;
-                        users1000.push({ key: user.value, value: user.key });
-                    });
-                    // output += '</ul>';
-                    // $('#user-list').html(output);
-
-                    // =data.users
-                    console.log(users1000);
-                    
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error:', error);
-                    $('#user-list').html('<p>Error loading data</p>');
-                }
-            });
 
         // Initialize Tribute.js
         let tribute = new Tribute({
             trigger: "@",
             values: users1000,
             selectTemplate: function (item) {
-                return "@" + item.original.value; // Inserts @username into text
+                return "@" + item.original.key; // Inserts @username into text
             }
         });
 

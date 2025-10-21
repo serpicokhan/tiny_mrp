@@ -1,9 +1,13 @@
 from rest_framework import serializers
-from mrp.models import Product,BOMComponent,BillOfMaterials,UnitOfMeasure,WorkCenter
+from mrp.models import Product,BOMComponent,BillOfMaterials,UnitOfMeasure,WorkCenter,Customer
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
+        fields = '__all__'
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
         fields = '__all__'
 class BOMComponentSerializer(serializers.ModelSerializer):
     product = ProductSerializer()

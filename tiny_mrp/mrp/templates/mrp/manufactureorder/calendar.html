@@ -1,0 +1,593 @@
+{% extends 'mrp/blank-page.html' %}
+{% load static %}
+
+{% block stylesheet %}
+ <link href="{% static 'assets/css/fullcalendar.min.css' %}" rel="stylesheet" type="text/css">
+ <style media="screen">
+   .fc-event {
+     direction: rtl;
+     text-align: right;
+   }
+   
+   #trash {
+     background-color: #f8d7da;
+     padding: 10px;
+     text-align: center;
+     border: 2px dashed #dc3545;
+     margin-top: 10px;
+   }
+   
+   #trash:hover {
+     background-color: #f5c6cb;
+   }
+   
+   .line-info-box {
+     background-color: #f8f9fa;
+     padding: 15px;
+     border-radius: 5px;
+     margin-bottom: 15px;
+   }
+   
+   .capacity-indicator {
+     height: 20px;
+     background-color: #e9ecef;
+     border-radius: 10px;
+     overflow: hidden;
+     margin-top: 5px;
+   }
+   
+   .capacity-bar {
+     height: 100%;
+     background: linear-gradient(to right, #28a745, #ffc107, #dc3545);
+     transition: width 0.3s ease;
+   }
+   
+   .line-selector {
+     font-size: 16px;
+     padding: 10px;
+     border-radius: 5px;
+   }
+ </style>
+{% endblock %}
+
+{% block content %}
+<div class="row app-block">
+    <div class="col-md-3 app-sidebar">
+        <div class="card">
+            <!-- انتخاب خط تولید -->
+            <div class="card-body pb-0">
+                <label for="lineSelector" class="font-weight-bold">انتخاب خط تولید:</label>
+                <select name="line_selector" id="lineSelector" class="form-control line-selector">
+                    <option value="">-- انتخاب کنید --</option>
+                    {% for line in lines %}
+                    <option value="{{line.id}}" data-capacity="{{line.capacity_per_day}}">
+                        {{line.name}} (ظرفیت: {{line.capacity_per_day}} kg/روز)
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- نمایش اطلاعات خط -->
+            <div class="card-body pb-0" id="lineInfoBox" style="display: none;">
+                <div class="line-info-box">
+                    <h6 class="mb-2">اطلاعات خط تولید</h6>
+                    <p class="mb-1 small">
+                        <strong>نام:</strong> <span id="lineNameDisplay">-</span>
+                    </p>
+                    <p class="mb-1 small">
+                        <strong>ظرفیت روزانه:</strong> <span id="lineCapacityDisplay">-</span> kg
+                    </p>
+                    <p class="mb-2 small">
+                        <strong>وضعیت امروز:</strong>
+                    </p>
+                    <div class="capacity-indicator">
+                        <div class="capacity-bar" id="capacityBar" style="width: 0%"></div>
+                    </div>
+                    <p class="small text-center mt-1 mb-0">
+                        <span id="capacityText">0 / 0 kg</span>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- دکمه ذخیره -->
+            <div class="card-body pb-0">
+                <button class="btn btn-secondary btn-block save_event">
+                    <i class="fa fa-save"></i> ذخیره رویدادها
+                </button>
+            </div>
+            
+            <!-- راهنما -->
+            <div class="card-body pb-3">
+                <h6 class="mb-0">رویدادها</h6>
+                <p class="small text-muted mb-0">رویداد را بکشید و در محل مورد نظر رها کنید</p>
+            </div>
+            
+            <!-- سطل زباله -->
+            <div id="trash" class="card-body text-center">
+                <i class="fa fa-trash"></i> رها کردن آیتم انتخابی در اینجا
+            </div>
+            
+            <!-- لیست سفارشات -->
+            <div>
+                <div class="list-group list-group-flush" id="external-events">
+                    <!-- سفارشات بدون خط تخصیصی -->
+                    <h6 class="list-group-item bg-warning text-dark">
+                        <i class="fa fa-exclamation-triangle"></i> سفارشات بدون خط
+                        <span class="badge badge-dark float-left" id="unassignedOrdersCount">0</span>
+                    </h6>
+                    <div id="unassignedOrdersContainer">
+                        {% if morders %}
+                            {% for item in morders %}
+                                {% if not item.has_assigned_line %}
+                                <div class="list-group-item fc-event order-item" 
+                                     data-id="{{ item.id }}" 
+                                     data-type="{{ item.type }}" 
+                                     data-quantity="{{ item.quantity }}"
+                                     data-line-id=""
+                                     data-has-assigned-line="false"
+                                     style="background-color: #fff3cd; color: #856404; cursor: move; border-left: 4px solid #ffc107;">
+                                    <div>
+                                        <i class="fa fa-circle text-warning"></i> 
+                                        <strong>{{ item.title }}</strong>
+                                    </div>
+                                    <div class="small">
+                                        محصول: {{ item.product_name }}
+                                    </div>
+                                    <div class="small">
+                                        باقیمانده: <strong>{{ item.quantity|floatformat:0 }} kg</strong>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="fa fa-info-circle"></i> قابل تخصیص به هر خطی
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-center text-muted small p-3">سفارش بدون خطی وجود ندارد</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- سفارشات با خط تخصیصی -->
+                    <h6 class="list-group-item bg-light">
+                        <i class="fa fa-industry"></i> سفارشات با خط تخصیصی
+                        <span class="badge badge-primary float-left" id="assignedOrdersCount">0</span>
+                    </h6>
+                    <div id="assignedOrdersContainer">
+                        {% if morders %}
+                            {% for item in morders %}
+                                {% if item.has_assigned_line %}
+                                <div class="list-group-item fc-event order-item" 
+                                     data-id="{{ item.id }}" 
+                                     data-type="{{ item.type }}" 
+                                     data-quantity="{{ item.quantity }}"
+                                     data-line-id="{{ item.line_id }}"
+                                     data-has-assigned-line="true"
+                                     style="background-color: #e7f1ff; color: #007bff; cursor: move;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="flex: 1;">
+                                            <i class="fa fa-circle text-success"></i> 
+                                            <strong>{{ item.title }}</strong>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-info order-usage-btn" 
+                                                data-order-id="{{ item.id }}"
+                                                title="مشاهده جزئیات استفاده"
+                                                style="padding: 2px 6px;">
+                                            <i class="fa fa-info-circle"></i>
+                                        </button>
+                                    </div>
+                                    <div class="small">
+                                        محصول: {{ item.product_name }}
+                                    </div>
+                                    <div class="small">
+                                        باقیمانده: <strong>{{ item.quantity|floatformat:0 }} kg</strong>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="fa fa-industry"></i> {{ item.line_name }}
+                                    </div>
+                                    <div class="small text-success">
+                                        <i class="fa fa-check-circle"></i> قابل استفاده در خطوط دیگر
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-center text-muted small p-3">سفارشی وجود ندارد</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- تعطیلات و روزهای تعطیل -->
+                <div class="list-group list-group-flush" id="external-events2">
+                    <h6 class="list-group-item bg-light">تعطیلات</h6>
+                    {% for item in draggable_items %}
+                        {% if item.type == "vacation" %}
+                            <div class="list-group-item fc-event" 
+                                data-id="{{ item.id }}" 
+                                data-type="{{ item.type }}"
+                                style="background-color: #ffe7e7; color: #dc3545;">
+                                <i class="fa fa-circle text-danger"></i> {{ item.title }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <h6 class="list-group-item bg-light">روزهای تعطیل</h6>
+                    {% for item in draggable_items %}
+                        {% if item.type == "offday" %}
+                            <div class="list-group-item fc-event" 
+                                data-id="{{ item.id }}" 
+                                data-type="{{ item.type }}"
+                                style="background-color: #f0f0f0; color: #6c757d;">
+                                <i class="fa fa-circle text-secondary"></i> {{ item.title }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- حذف بعد از انداختن -->
+            <div class="card-body">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="drop-remove" checked="">
+                    <label class="custom-control-label" for="drop-remove">حذف بعد از انداختن</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- تقویم -->
+    <div class="col-md-9 app-content">
+        <div class="app-content-overlay"></div>
+        <div class="card app-content-body">
+            <div class="card-body">
+                <a href="#" class="app-sidebar-menu-button btn btn-outline-light mb-3">
+                    <i data-feather="menu"></i>
+                </a>
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- مودال تعیین ظرفیت روزانه -->
+<div class="modal fade" id="dailyCapacityModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تعیین ظرفیت تولید روزانه</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="dailyCapacityForm">
+                    <div class="form-group">
+                        <label for="orderTitle">عنوان سفارش:</label>
+                        <input type="text" class="form-control" id="orderTitle" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="totalQuantity">مقدار کل سفارش (کیلوگرم):</label>
+                        <input type="number" class="form-control" id="totalQuantity" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="dailyCapacity">ظرفیت تولید روزانه (کیلوگرم): <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="dailyCapacity" min="1" required>
+                        <small class="form-text text-muted">لطفا ظرفیت تولید روزانه خط را وارد کنید</small>
+                    </div>
+                    <div class="form-group">
+                        <label>تعداد روزهای مورد نیاز:</label>
+                        <input type="text" class="form-control" id="estimatedDays" readonly>
+                    </div>
+                    <div class="form-group" id="independentEditContainer" style="display: none;">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="independentEdit">
+                            <label class="custom-control-label" for="independentEdit">
+                                ویرایش مستقل (بدون کسر از سایر روزها)
+                            </label>
+                            <small class="form-text text-muted">اگر این گزینه فعال باشد، تغییرات از ظرفیت سایر روزها کسر نمی‌شود</small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">لغو</button>
+                <button type="button" class="btn btn-primary" id="confirmCapacity">تایید و ایجاد رویداد</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- مودال نمایش جزئیات استفاده از سفارش -->
+<div class="modal fade" id="orderUsageModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fa fa-chart-pie"></i> جزئیات استفاده از سفارش
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="orderUsageContent">
+                    <div class="text-center">
+                        <i class="fa fa-spinner fa-spin fa-2x"></i>
+                        <p>در حال بارگذاری...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+    var dailyLimit = {{ daily_limit }};
+</script>
+<script src="{% static 'assets/Cal/cal/js/fullcalendar.min.js' %}"></script>
+<script src="{% static 'assets/Cal/cal/js/fullcalendar.morder.init.js' %}"></script>
+
+<script>
+    // اضافه کردن رویداد تغییر خط برای نمایش اطلاعات
+    $(document).ready(function() {
+        // فیلتر کردن سفارشات بر اساس خط انتخابی
+        function filterOrdersByLine(lineId) {
+    var $unassignedOrders = $('#unassignedOrdersContainer .order-item');
+    var $assignedOrders = $('#assignedOrdersContainer .order-item');
+    
+    var unassignedCount = 0;
+    var assignedCount = 0;
+    
+    // سفارشات بدون خط همیشه قابل مشاهده
+    $unassignedOrders.each(function() {
+        $(this).show();
+        $(this).css('opacity', '1');
+        unassignedCount++;
+    });
+    
+    if (!lineId || lineId === '') {
+        // نمایش همه سفارشات دارای خط
+        $assignedOrders.each(function() {
+            $(this).show();
+            $(this).css('opacity', '1');
+            assignedCount++;
+        });
+    } else {
+        // نمایش سفارشات دارای خط (هم خط انتخابی و هم خطوط دیگر)
+        $assignedOrders.each(function() {
+            var orderLineId = $(this).data('line-id');
+            
+            $(this).show();
+            
+            if (orderLineId == lineId) {
+                // سفارشات خط انتخابی - نمای کامل
+                $(this).css({
+                    'opacity': '1',
+                    'border-left': '4px solid #28a745'
+                });
+            } else {
+                // سفارشات خطوط دیگر - نمای کمرنگ‌تر
+                $(this).css({
+                    'opacity': '0.7',
+                    'border-left': '4px solid #6c757d'
+                });
+            }
+            assignedCount++;
+        });
+    }
+    
+    // به‌روزرسانی تعداد
+    $('#unassignedOrdersCount').text(unassignedCount);
+    $('#assignedOrdersCount').text(assignedCount);
+    
+    // نمایش پیام در صورت نبود سفارش
+    updateNoOrdersMessage('#unassignedOrdersContainer', unassignedCount);
+    updateNoOrdersMessage('#assignedOrdersContainer', assignedCount);
+}
+
+function updateNoOrdersMessage(containerSelector, count) {
+    if (count === 0) {
+        if ($(containerSelector + ' .no-orders-message').length === 0) {
+            $(containerSelector).append(
+                '<p class="text-center text-muted small p-3 no-orders-message">سفارشی وجود ندارد</p>'
+            );
+        }
+    } else {
+        $(containerSelector + ' .no-orders-message').remove();
+    }
+}
+   // شمارش اولیه سفارشات
+        var unassignedCount = $('#unassignedOrdersContainer .order-item').length;
+        var assignedCount = $('#assignedOrdersContainer .order-item').length;
+        $('#unassignedOrdersCount').text(unassignedCount);
+        $('#assignedOrdersCount').text(assignedCount);
+        
+        $('#lineSelector').on('change', function() {
+            var selectedLineId = $(this).val();
+            var selectedOption = $(this).find('option:selected');
+            var lineName = selectedOption.text().split('(')[0].trim();
+            var lineCapacity = selectedOption.data('capacity');
+            
+            // فیلتر کردن سفارشات
+            filterOrdersByLine(selectedLineId);
+            
+            if (selectedLineId && lineName && lineCapacity) {
+                $('#lineInfoBox').show();
+                $('#lineNameDisplay').text(lineName);
+                $('#lineCapacityDisplay').text(lineCapacity);
+                
+                // به‌روزرسانی ظرفیت امروز
+                updateTodayCapacity(selectedLineId);
+            } else {
+                $('#lineInfoBox').hide();
+            }
+        });
+        
+// در بخش javascript فایل calendar.html
+function updateTodayCapacity(lineId) {
+    if (!lineId) return;
+    
+    var today = new Date().toISOString().split('T')[0];
+    
+    $.ajax({
+        url: `/MOrder/line-capacity/${lineId}/${today}/`,
+        type: 'GET',
+        success: function(response) {
+            if (response.success) {
+                console.log(response);
+                
+                var percentage = response.usage_percentage.toFixed(1);
+                $('#capacityBar').css('width', percentage + '%');
+                $('#capacityText').text(
+                    response.used_capacity + ' / ' + response.total_capacity + ' kg (' + percentage + '%)'
+                );
+                
+                // تغییر رنگ بر اساس درصد استفاده
+                if (percentage < 50) {
+                    $('#capacityBar').css('background', '#28a745');
+                } else if (percentage < 80) {
+                    $('#capacityBar').css('background', '#ffc107');
+                } else {
+                    $('#capacityBar').css('background', '#dc3545');
+                }
+            }
+        },
+        error: function() {
+            $('#capacityText').text('خطا در دریافت اطلاعات');
+            $('#capacityBar').css('width', '0%');
+        }
+    });
+}
+        
+        // بارگذاری اطلاعات خط اول به صورت پیش‌فرض (اختیاری)
+        var firstLineId = $('#lineSelector option:eq(1)').val();
+        if (firstLineId) {
+            $('#lineSelector').val(firstLineId).trigger('change');
+        }
+        
+        // رویداد کلیک روی دکمه جزئیات سفارش
+        $(document).on('click', '.order-usage-btn', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // جلوگیری از drag شدن
+            
+            var orderId = $(this).data('order-id');
+            showOrderUsageDetails(orderId);
+        });
+        
+        function showOrderUsageDetails(orderId) {
+            $('#orderUsageModal').modal('show');
+            
+            $.ajax({
+                url: `/MOrder/order-usage-summary/${orderId}/`,
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        var html = `
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title"><i class="fa fa-file-alt"></i> ${response.order_reference}</h6>
+                                    <p class="card-text"><strong>محصول:</strong> ${response.product_name}</p>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-md-4 text-center">
+                                            <h4 class="text-primary">${response.total_quantity} kg</h4>
+                                            <small class="text-muted">مقدار کل سفارش</small>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <h4 class="text-success">${response.total_used} kg</h4>
+                                            <small class="text-muted">برنامه‌ریزی شده</small>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <h4 class="text-warning">${response.remaining} kg</h4>
+                                            <small class="text-muted">باقیمانده</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        if (response.assigned_line && response.assigned_line.name) {
+                            html += `
+                                <div class="alert alert-info">
+                                    <i class="fa fa-industry"></i> 
+                                    <strong>خط تخصیصی اصلی:</strong> ${response.assigned_line.name}
+                                </div>
+                            `;
+                        }
+                        
+                        if (response.usage_per_line && response.usage_per_line.length > 0) {
+                            html += `
+                                <h6><i class="fa fa-list"></i> توزیع در خطوط تولید:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>خط تولید</th>
+                                                <th>مقدار (kg)</th>
+                                                <th>درصد از کل</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                            `;
+                            
+                            response.usage_per_line.forEach(function(item) {
+                                var percentage = ((item.quantity / response.total_quantity) * 100).toFixed(1);
+                                html += `
+                                    <tr>
+                                        <td><i class="fa fa-industry text-primary"></i> ${item.line_name}</td>
+                                        <td><strong>${item.quantity}</strong></td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                     style="width: ${percentage}%" 
+                                                     aria-valuenow="${percentage}" aria-valuemin="0" aria-valuemax="100">
+                                                    ${percentage}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                        } else {
+                            html += `
+                                <div class="alert alert-warning">
+                                    <i class="fa fa-exclamation-circle"></i> 
+                                    هنوز برای این سفارش برنامه‌ریزی انجام نشده است.
+                                </div>
+                            `;
+                        }
+                        
+                        $('#orderUsageContent').html(html);
+                    } else {
+                        $('#orderUsageContent').html(`
+                            <div class="alert alert-danger">
+                                <i class="fa fa-exclamation-triangle"></i> 
+                                خطا در بارگذاری اطلاعات: ${response.error}
+                            </div>
+                        `);
+                    }
+                },
+                error: function() {
+                    $('#orderUsageContent').html(`
+                        <div class="alert alert-danger">
+                            <i class="fa fa-exclamation-triangle"></i> 
+                            خطا در ارتباط با سرور
+                        </div>
+                    `);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

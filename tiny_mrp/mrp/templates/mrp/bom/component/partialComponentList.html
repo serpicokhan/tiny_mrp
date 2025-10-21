@@ -2,20 +2,22 @@
 <tr>
     <td>
         {{c.product}}
-       
     </td>
     <td>{{c.quantity}}</td>
     <td>{{c.uom}}</td>
-    <td><button class="btn btn-sm btn-outline-danger remove-component-btn">
-                                 <i class="fas fa-trash"></i>
-                            </button></td>
-
+    <td>
+        <button class="btn btn-sm btn-outline-danger remove-component-btn" 
+                data-component-id="{{c.id}}" 
+                type="button">
+            <i class="fas fa-trash"></i>
+        </button>
+    </td>
 </tr>
 
-{%empty%}
+{% empty %}
 <tr id="empty-components">
     <td colspan="4" class="text-center py-3 text-muted">
-       لیست خالی
+        لیست خالی
     </td>
 </tr>
 {% endfor %}

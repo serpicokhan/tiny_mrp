@@ -1,0 +1,16 @@
+{% for c in morders %}
+<tr>
+  <td>{{ forloop.counter }}</td>
+  <td>{{c.customer}}</td>
+  <td>{{c.shade|default_if_none:'نامشخص'}}</td>
+  <td>{{c.color_code|default_if_none:'نامشخص'}}</td>
+  <td>{{c.grade|default_if_none:'نامشخص'}}</td>
+  <td>{{c.hb_type|default_if_none:'نامشخص'}}</td>
+  <td>{{c.quantity_to_produce}}</td>
+  <td>{{c.scheduled_date|default_if_none:'نامشخص'}}</td>
+  <td>
+    <button type="button" class="btn btn-outline-light js-update-morder" data-url="{% url 'minimorder_update' c.id %}" >  <i class="ti-eye"></i></button>
+
+    </td>
+</tr>
+{% endfor %}

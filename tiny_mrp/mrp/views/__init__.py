@@ -17,6 +17,7 @@ from mrp.views.guardview import *
 from mrp.views.bomview import *
 from mrp.views.productview import *
 from mrp.views.manufactureorderview import *
+from mrp.views.minimorderview import *
 from mrp.views.workcenterview import *
 from mrp.views.workorderview import *
 from mrp.views.formulaview import *

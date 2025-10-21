@@ -1,7 +1,7 @@
 {% load static %}
 {% load custom_filters %}
 {% for i in req %}
-                        <li class="list-group-item {% if i.is_rejected %} bg-danger {% endif %} {% if request.user.id in i.get_viwer and not i.is_rejected  %} active {% endif %}  " data-id={{i.id}} data-url="{% url 'update_purchase_v2' i.id %}" >
+                        <li class="list-group-item {% if request.user.id in i.get_viwer %} active {% endif %}" data-id={{i.id}} data-url="{% url 'update_purchase_v2' i.id %}" >
                             <div>
                                 <div class="custom-control  mr-2">
                                     
@@ -36,8 +36,6 @@
                                                 <a class="dropdown-item" href="#">محبوب</a>
                                                 <a class="dropdown-item" href="#">برچسب</a> -->
                                                 <a class="dropdown-item text-success confirm-purchase-request" data-url="{% url 'confirm_request' i.id %}" href="#">تایید</a>
-                                                <a class="dropdown-item text-danger reject-purchase-request" data-url="{% url 'reject_request' i.id %}" href="#">رد درخواست</a>
-
 
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger delete-purchase-request" data-url="{% url 'delete_purchase_request_v2' i.id %}" href="#">حذف</a>
@@ -82,13 +80,6 @@
                                             <li class="list-inline-item mb-0">
                                                 <a href="#" data-toggle="tooltip" title="" data-original-title="اسناد مالی">
                                                     <i class="fa fa-money"></i>
-                                                </a>
-                                            </li>
-                                            {% endif %}
-                                            {% if i.is_rejected %}
-                                            <li class="list-inline-item mb-0">
-                                                <a href="#" data-toggle="tooltip" title="" data-original-title="رد شده">
-                                                    <i class="fa fa-exclamation-circle"></i>
                                                 </a>
                                             </li>
                                             {% endif %}

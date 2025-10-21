@@ -1,46 +1,59 @@
 {% load widget_tweaks %}
+<input type="hidden" name="status" value="draft">
 
+<div class="mb-4">
+    <label for="referenceInput" class="form-label">کد سفارش *</label>
+    <input type="text" class="form-control" id="referenceInput" name="reference" maxlength="50" required placeholder="کد سفارش یکتا وارد کنید" value="{{form.reference.value}}">
+</div>
     <div class="row mb-4">
         <div class="col-md-6">
-            <label for="productSelect" class="form-label">Product to Manufacture *</label>
-            <select class="form-control" id="productSelect" required>
-                <option value="" selected disabled>Select a product</option>
+            <label for="productSelect" class="form-label">محصول *</label>
+            <select class="form-control" id="productSelect" required name="product_to_manufacture">
+                <option value="" selected disabled>انتخاب محصول</option>
                 <!-- Options will be loaded from JSON -->
             </select>
         </div>
         <div class="col-md-6">
-            <label for="bomSelect" class="form-label">Bill of Materials *</label>
-            <select class="form-control" id="bomSelect" required>
-                <option value="" selected disabled>Select a BOM</option>
+            <label for="bomSelect" class="form-label">لیست BOM *</label>
+            <select class="form-control" id="bomSelect" required name="bom">
+                <option value="" selected disabled>انتخاب BOM</option>
                 <!-- Options will be loaded from JSON -->
             </select>
         </div>
     </div>
     <div class="row mb-4">
         <div class="col-md-3">
-            <label for="quantityInput" class="form-label">Quantity *</label>
+            <label for="quantityInput" class="form-label">کمیت *</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-calculator"></i></span>
-                <input type="number" class="form-control" id="quantityInput" min="0.1" step="0.1" value="1.0" required>
+                <input type="number" class="form-control " id="quantityInput" min="0.1" step="0.1" value="1.0" required name="quantity_to_produce">
             </div>
+        </div>
+        <div class="col-md-4">
+            <label for="dateInput" class="form-label">تاریخ ارایه نمونه *</label>
+            <input type="text" class="form-control pdate" id="dateInput1" required name="first_date">
+        </div>
+        <div class="col-md-4">
+            <label for="dateInput" class="form-label">تاریخ تحویل نمونه *</label>
+            <input type="text" class="form-control pdate" id="dateInput2" required name="second_date">
         </div>
     </div>
     <div class="row mb-4">
         <div class="col-md-4">
-            <label for="dateInput" class="form-label">Scheduled Date *</label>
-            <input type="datetime-local" class="form-control" id="dateInput" required>
+            <label for="dateInput" class="form-label">تاریخ شروع *</label>
+            <input type="text" class="form-control pdate" id="dateInput" required name="scheduled_date">
         </div>
         <div class="col-md-4">
-            <label for="customerSelect" class="form-label">Customer</label>
-            <select class="form-control" id="customerSelect">
-                <option value="" selected>No customer</option>
+            <label for="customerSelect" class="form-label">مشتری</label>
+            <select class="form-control" id="customerSelect" name="customer">
+                <option value="" selected>بدون مشتری</option>
                 <!-- Options will be loaded from JSON -->
             </select>
         </div>
         <div class="col-md-4">
-            <label for="responsibleSelect" class="form-label">Responsible</label>
-            <select class="form-control" id="responsibleSelect">
-                <option value="" selected>No responsible</option>
+            <label for="responsibleSelect" class="form-label">مسئول</label>
+            <select class="form-control" id="responsibleSelect" name="responsible">
+                <option value="" selected>بدون مسئول</option>
                 <!-- Options will be loaded from JSON -->
             </select>
         </div>
@@ -49,10 +62,10 @@
     <!-- Tabs for Components and Work Orders -->
     <ul class="nav nav-tabs mb-3" id="moTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="components-tab" data-bs-toggle="tab" data-bs-target="#components" type="button" role="tab" aria-controls="components" aria-selected="true">Components</button>
+            <button class="nav-link active" id="components-tab" data-bs-toggle="tab" data-bs-target="#components" type="button" role="tab" aria-controls="components" aria-selected="true">اجزا</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="workorders-tab" data-bs-toggle="tab" data-bs-target="#workorders" type="button" role="tab" aria-controls="workorders" aria-selected="false">Work Orders</button>
+            <button class="nav-link" id="workorders-tab" data-bs-toggle="tab" data-bs-target="#workorders" type="button" role="tab" aria-controls="workorders" aria-selected="false">دستور کارها</button>
         </li>
     </ul>
 
@@ -63,15 +76,15 @@
                 <table class="table table-sm">
                     <thead>
                         <tr>
-                            <th>Component</th>
-                            <th>Quantity</th>
-                            <th>Unit of Measure</th>
-                            <th>Available</th>
+                            <th>اجزا</th>
+                            <th>کمیت</th>
+                            <th>واحد</th>
+                            <th>در دسترس</th>
                         </tr>
                     </thead>
                     <tbody id="bomPreviewBody">
                         <tr>
-                            <td colspan="4" class="text-center text-muted">Select a product and BOM to see components</td>
+                            <td colspan="4" class="text-center text-muted">برای دیدن اجزا باید یک محصول انتخاب کنید</td>
                         </tr>
                     </tbody>
                 </table>
@@ -90,11 +103,11 @@
                 <table class="table table-sm work-order-table">
                     <thead>
                         <tr>
-                            <th>Work Order</th>
-                            <th>Work Center</th>
-                            <th>Duration (hours)</th>
-                            <th>Description</th>
-                            <th>Actions</th>
+                            <th>دستور تولید</th>
+                            <th>مرکز کار</th>
+                            <th>مدت</th>
+                            <th>شرح</th>
+                            <th>عملیات</th>
                         </tr>
                     </thead>
                     <tbody id="workOrderTableBody">
@@ -109,5 +122,7 @@
 
     <div class="mt-4">
         <label for="notesTextarea" class="form-label">Notes</label>
-        <textarea class="form-control" id="notesTextarea" rows="4"></textarea>
+        <textarea class="form-control" id="notesTextarea" rows="4" name="notes"></textarea>
     </div>
+
+  

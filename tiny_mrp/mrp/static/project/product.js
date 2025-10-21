@@ -103,7 +103,7 @@ $(function () {
                                  product.product_type === 'raw' ? 'Raw' : 'Component';
                 
                 const productCard = $(`
-                    <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="col-md-6 col-lg-4 col-xl-3 mt-3">
                         <div class="card product-card" data-product-id="${product.id}">
                             <span class="badge ${typeBadgeClass} product-type-badge">${typeLabel}</span>
                             <div class="card-body">

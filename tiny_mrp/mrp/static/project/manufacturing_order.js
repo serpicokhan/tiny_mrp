@@ -57,11 +57,11 @@ const responsibles = [
     { id: 4, name: "Sarah Williams" }
 ];
 
-const customers = [
-    { id: 1, name: "Acme Corp" },
-    { id: 2, name: "Beta Industries" },
-    { id: 3, name: "Gamma Retail" },
-    { id: 4, name: "Delta Enterprises" }
+customers = [
+    // { id: 1, name: "Acme Corp" },
+    // { id: 2, name: "Beta Industries" },
+    // { id: 3, name: "Gamma Retail" },
+    // { id: 4, name: "Delta Enterprises" }
 ];
 
 const workCenters = [
@@ -79,6 +79,7 @@ let componentChart = null;
     load_morders();
     loadProducts();
     load_boms();
+    loadCustomers();
 
    
     
@@ -165,9 +166,20 @@ let componentChart = null;
         `);
         updateForecastButtonState();
     });
-
+// Product select change - update BOM options
+    $('#newOrderModal').on('change','#id_product_to_manufacture',function() {
+        const productId = $(this).val();
+        loadBomOptions2(productId);
+        $('#id_bom').val('');
+        $('#bomPreviewBody').html(`
+            <tr>
+                <td colspan="4" class="text-center text-muted">Select a product and BOM to see components</td>
+            </tr>
+        `);
+        updateForecastButtonState();
+    });
     // BOM select change - update component preview
-    $('#newOrderModal').on('change','#bomSelect',function() {
+    $('#newOrderModal').on('change','#bomSelect,#id_bom',function() {
         const bomId = $(this).val();
         if(bomId) {
             $('#bomPreviewBody').html(`
@@ -194,8 +206,8 @@ let componentChart = null;
     });
 
     // Quantity change - update BOM preview and button state
-    $('#quantityInput').on('input change', function() {
-        const bomId = $('#bomSelect').val();
+    $('#newOrderModal').on('input change','#quantityInput', function() {
+        const bomId = $('#bomSelect').val()||$('#id_bom').val();
         if(bomId) {
             updateBomPreview(bomId);
         }
@@ -285,25 +297,25 @@ let componentChart = null;
     });
 
     // Forecast button click with validation
-    $('#newOrderModal').on('click','#forecastBtn',function() {
+    $('#newOrderModal').on('click', '#forecastBtn', function() {
         console.log('Forecast button clicked');
-        const productId = $('#productSelect').val();
-        const bomId = $('#bomSelect').val();
-        const quantity = parseFloat($('#quantityInput').val());
-
+        const productId = $('#productSelect').val() || $('#id_product_to_manufacture').val();
+        const bomId = $('#bomSelect').val() || $('#id_bom').val();
+        const quantity = parseFloat($('#quantityInput').val() || $('#id_quantity_to_produce').val());
+    
         if (!productId) {
-            alert('Please select a product.');
+            alert('لطفا یک محصول انتخاب کنید.');
             return;
         }
         if (!bomId) {
-            alert('Please select a Bill of Materials.');
+            alert('لطفا لیست مواد اولیه (BOM) را انتخاب کنید.');
             return;
         }
         if (!quantity || quantity <= 0) {
-            alert('Please enter a valid quantity greater than 0.');
+            alert('لطفا مقدار معتبری بزرگتر از صفر وارد کنید.');
             return;
         }
-
+    
         console.log('Showing forecast for Product ID:', productId, 'BOM ID:', bomId, 'Quantity:', quantity);
         showForecast(bomId, quantity);
         $('#forecastModal').modal('show');
@@ -330,29 +342,32 @@ function loadOrdersTable() {
         const workOrderText = order.workOrders.length > 0 ? order.workOrders.map(wo => wo.id).join(', ') : '-';
         
         const row = `
-            <tr data-id="${order.id}" data-status="${order.status}">
-                <td><strong>${order.reference}</strong></td>
-                <td>
-                    <img src="${order.product.image}" class="product-image me-2">
-                    ${order.product.name} (${order.product.code})
-                </td>
-                <td>${order.quantity.toFixed(1)}</td>
-                <td>${order.bom}</td>
-                <td>${workOrderText}</td>
-                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                <td>${order.scheduledDate}</td>
-                <td>${order.customer ? order.customer.name : '-'}</td>
-                <td>${order.responsible ? order.responsible.name : '-'}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-primary me-1" title="View">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
+        <tr data-id="${order.id}" data-status="${order.status}">
+            <td><strong>${order.reference || '-'}</strong></td>
+            <td>
+                ${order.product && order.product.image ? 
+                    `<img src="${order.product.image}" class="product-image me-2">` : ''}
+                ${order.product ? 
+                    `${order.product.name || ''} ${order.product.code ? `(${order.product.code})` : ''}` : 
+                    '-'}
+            </td>
+            <td>${order.quantity ? order.quantity.toFixed(1) : '-'}</td>
+            <td>${order.bom || '-'}</td>
+            <td>${workOrderText || '-'}</td>
+            <td><span class="status-badge ${statusClass}">${statusText || '-'}</span></td>
+            <td>${order.scheduledDate || '-'}</td>
+            <td>${order.customer && order.customer.name ? order.customer.name : '-'}</td>
+            <td>${order.responsible && order.responsible.name ? order.responsible.name : '-'}</td>
+            <td>
+                <a class="btn btn-sm btn-outline-primary me-1" href="/MOrder/${order.id}" target='_blank' title="View">
+                    <i class="fas fa-eye"></i>
+                </a>
+                <button class="btn btn-sm btn-outline-secondary js-morder-edit" title="Edit" data-url="/MOrder/${order.id}/Update">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </td>
+        </tr>
+    `;
         
         tbody.append(row);
     });
@@ -378,31 +393,37 @@ function loadGridView() {
         const workOrderText = order.workOrders.length > 0 ? order.workOrders.map(wo => wo.id).join(', ') : 'None';
         
         const card = `
-            <div class="grid-card" data-id="${order.id}" data-status="${order.status}">
-                <div class="grid-card-title">${order.reference}</div>
-                <div class="d-flex align-items-center mb-3">
-                    <img src="${order.product.image}" class="product-image me-2">
-                    <div>${order.product.name} (${order.product.code})</div>
-                </div>
-                <div class="grid-card-details">
-                    <div><strong>Quantity:</strong> ${order.quantity.toFixed(1)}</div>
-                    <div><strong>BOM:</strong> ${order.bom}</div>
-                    <div><strong>Work Orders:</strong> ${workOrderText}</div>
-                    <div><strong>Scheduled Date:</strong> ${order.scheduledDate}</div>
-                    <div><strong>Customer:</strong> ${order.customer ? order.customer.name : 'None'}</div>
-                    <div><strong>Responsible:</strong> ${order.responsible ? order.responsible.name : 'None'}</div>
-                    <div class="mt-3"><span class="status-badge ${statusClass}">${statusText}</span></div>
-                </div>
-                <div class="d-flex justify-content-end mt-3">
-                    <button class="btn btn-sm btn-outline-primary me-1" title="View">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </div>
+    <div class="grid-card" data-id="${order.id}" data-status="${order.status}">
+        <div class="grid-card-title">${order.reference || 'بدون شماره'}</div>
+        <div class="d-flex align-items-center mb-3">
+            ${order.product?.image ? 
+                `<img src="${order.product.image}" class="product-image me-2">` : 
+                `<img src="https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img/https://tabseer.co/wp-content/uploads/2021/02/Articles-1593028629.png" class="product-image me-2">`
+            }
+            <div>
+                ${order.product?.name || 'محصول نامشخص'} 
+                ${order.product?.code ? `(${order.product.code})` : ''}
             </div>
-        `;
+        </div>
+        <div class="grid-card-details">
+            <div><strong>حجم:</strong> ${order.quantity ? order.quantity.toFixed(1) + ' واحد' : 'تعیین نشده'}</div>
+            <div><strong>لیست مواد:</strong> ${order.bom || 'تعیین نشده'}</div>
+            <div><strong>دستور تولید:</strong> ${workOrderText || 'تعیین نشده'}</div>
+            <div><strong>تاریخ تولید:</strong> ${order.scheduledDate || 'تعیین نشده'}</div>
+            <div><strong>مشتری:</strong> ${order.customer?.name || 'ندارد'}</div>
+            <div><strong>مسئول:</strong> ${order.responsible?.name || 'تعیین نشده'}</div>
+            <div class="mt-3"><span class="status-badge ${statusClass}">${statusText || 'نامشخص'}</span></div>
+        </div>
+        <div class="d-flex justify-content-end mt-3">
+            <a class="btn btn-sm btn-outline-primary me-1" href="/MOrder/${order.id}" target='_blank' title="مشاهده">
+                <i class="fas fa-eye"></i>
+            </a>
+            <button class="btn btn-sm btn-outline-secondary js-morder-edit" title="ویرایش" data-url="/MOrder/${order.id}/Update">
+                <i class="fas fa-edit"></i>
+            </button>
+        </div>
+    </div>
+`;
         
         container.append(card);
     });
@@ -457,7 +478,7 @@ function filterGridOrders(statusFilter, searchTerm = '') {
 // Function to load product options
 function loadProducts() {
     $.ajax({
-        url: '/api/products/',  // Your Django endpoint
+        url: '/api/products/?type=finished',  // Your Django endpoint
         type: 'GET',
         dataType: 'json',
         success: function(response) {
@@ -481,10 +502,36 @@ function loadProducts() {
     });
 
 }
+function loadCustomers() {
+    $.ajax({
+        url: '/api/customers/',  // Your Django endpoint
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            // Process the response data (similar to your mockProducts)
+            // console.log('Received products:', response);
+            // Example: Display products in a table
+            
+            
+            if (response.length > 0) {
+                customers=response;
+                
+               
+                
+            } else {
+               
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching products:', error);
+        }
+    });
+
+}
 function loadProductOptions() {
     const select = $('#productSelect');
     select.empty();
-    select.append('<option value="" selected disabled>Select a product</option>');
+    select.append('<option value="" selected disabled>انتخاب محصول</option>');
     
     
     products.forEach(product => {
@@ -506,12 +553,24 @@ function loadCustomerOptions() {
 
 // Function to load responsible options
 function loadResponsibleOptions() {
-    const select = $('#responsibleSelect');
-    select.empty();
-    select.append('<option value="" selected>No responsible</option>');
-    
-    responsibles.forEach(responsible => {
-        select.append(`<option value="${responsible.id}">${responsible.name}</option>`);
+    $.ajax({
+        url: '/api/responsible-persons/',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            var $responsibleSelect = $('#responsibleSelect');
+            $responsibleSelect.empty();
+            $responsibleSelect.append('<option value="" selected>No responsible</option>');
+            
+            $.each(data.responsible_persons, function(index, person) {
+                $responsibleSelect.append(
+                    $('<option>').val(person.id).text(person.fullName)
+                );
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching responsible persons:', error);
+        }
     });
 }
 
@@ -561,12 +620,34 @@ function loadBomOptions(productId) {
      }
     
 }
-// Function to update BOM preview
-function updateBomPreview(bomId) {
-    const quantity = parseFloat($('#quantityInput').val()) || 1;
+function loadBomOptions2(productId) {
+    const select = $('#id_bom');
+    select.empty();
+    select.append('<option value="" selected disabled>Select a BOM</option>');
+    
+    if (!productId) return;
+    const productBoms = boms.filter(bom => bom.product.id == productId);
+    
+    if (productBoms.length === 0) {
+        select.append('<option value="" disabled>No BOMs available for this product</option>');
+    } else {
+        productBoms.forEach(bom => {
+            select.append(`<option value="${bom.id}">${bom.reference} - ${bom.product}</option>`);
+        });
+     }
+    
+}
+// نسخه پیشرفته‌تر با مدیریت بهتر خطا و پارامترهای قابل تنظیم
+function updateBomPreview(bomId, options = {}) {
+    const {
+        quantitySelector = '#quantityInput',
+        tableBodySelector = '#bomPreviewBody',
+        quantity = parseFloat($(quantitySelector).val()) || 1,
+        apiUrl = `/api/bom/${bomId}/components/`
+    } = options;
     
     if(!bomId) {
-        $('#bomPreviewBody').html(`
+        $(tableBodySelector).html(`
             <tr>
                 <td colspan="4" class="text-center text-muted">Select a BOM to see components</td>
             </tr>
@@ -574,39 +655,57 @@ function updateBomPreview(bomId) {
         return;
     }
     
-    const bomData = bomComponents.find(bc => bc.bomId == bomId);
-    let components = [];
+    // Show loading state
+    $(tableBodySelector).html(`
+        <tr>
+            <td colspan="4" class="text-center text-muted">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                Loading components...
+            </td>
+        </tr>
+    `);
     
-    if(bomData) {
-        components = bomData.components;
-    }
-    
-    if(components.length === 0) {
-        $('#bomPreviewBody').html(`
+    return $.ajax({
+        url: apiUrl,
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            renderBomPreview(response, quantity, tableBodySelector);
+        },
+        error: function(xhr, status, error) {
+            handleBomPreviewError(error, tableBodySelector);
+        }
+    });
+}
+
+// تابع برای رندر کردن پیش‌نمایش BOM
+function renderBomPreview(response, quantity, tableBodySelector) {
+    if(response.components && response.components.length > 0) {
+        let bomRows = '';
+        response.components.forEach(component => {
+            const totalQty = component.quantity * quantity;
+            const availableQty = component.available || component.stock_quantity || 0;
+            const statusClass = totalQty <= availableQty ? 'bg-success' : 'bg-danger';
+            const statusText = availableQty > 0 ? availableQty.toFixed(2) : 'N/A';
+            
+            bomRows += `
+                <tr>
+                    <td>${component.product_name || component.name}</td>
+                    <td>${totalQty.toFixed(2)}</td>
+                    <td>${component.uom_name || component.uom}</td>
+                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                </tr>
+            `;
+        });
+        
+        $(tableBodySelector).html(bomRows);
+    } else {
+        $(tableBodySelector).html(`
             <tr>
                 <td colspan="4" class="text-center text-muted">No components defined for this BOM</td>
             </tr>
         `);
-        return;
     }
-    
-    // Generate the BOM preview rows
-    let bomRows = '';
-    components.forEach(component => {
-        const totalQty = component.qty * quantity;
-        const statusClass = totalQty <= component.available ? 'bg-success' : 'bg-danger';
-        
-        bomRows += `
-            <tr>
-                <td>${component.name}</td>
-                <td>${totalQty.toFixed(1)}</td>
-                <td>${component.uom}</td>
-                <td><span class="badge ${statusClass}">${component.available.toFixed(1)}</span></td>
-            </tr>
-        `;
-    });
-    
-    $('#bomPreviewBody').html(bomRows);
 }
 
 // Function to update work order table
@@ -656,108 +755,346 @@ function updateWorkOrderTable() {
 
 // Function to show forecast
 function showForecast(bomId, quantity) {
-    console.log('Generating forecast for BOM ID:', bomId);
-    const bomData = bomComponents.find(bc => bc.bomId == bomId);
-    const components = bomData ? bomData.components : [];
+    console.log('Generating forecast for BOM ID:', bomId, 'Quantity:', quantity);
     
-    // Destroy previous chart if it exists
-    if (componentChart) {
-        componentChart.destroy();
-    }
+    // Show loading state
+    $('#forecastModal .modal-body').html(`
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">در حال محاسبه پیش‌بینی تولید...</p>
+        </div>
+    `);
+    
+    // Fetch forecast data
+    Promise.all([
+        fetchForecastData(bomId, quantity),
+        fetchTimelineData(bomId)
+    ]).then(([forecastData, timelineData]) => {
+        renderForecastModal(forecastData, timelineData, quantity);
+    }).catch(error => {
+        console.error('Error loading forecast:', error);
+        $('#forecastModal .modal-body').html(`
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                خطا در بارگذاری داده‌های پیش‌بینی: ${error.message}
+            </div>
+        `);
+    });
+}
 
-    // Component Availability Chart
-    const labels = components.map(c => c.name);
-    const requiredData = components.map(c => c.qty * quantity);
-    const availableData = components.map(c => c.available);
-
-    const ctx = document.getElementById('componentChart').getContext('2d');
-    try {
-        componentChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Required Quantity',
-                        data: requiredData,
-                        backgroundColor: 'rgba(0, 123, 255, 0.5)',
-                        borderColor: 'rgba(0, 123, 255, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Available Quantity',
-                        data: availableData,
-                        backgroundColor: 'rgba(40, 167, 69, 0.5)',
-                        borderColor: 'rgba(40, 167, 69, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Quantity'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Components'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    },
-                    title: {
-                        display: true,
-                        text: 'Component Availability Forecast'
-                    }
+// Fetch forecast data from API
+function fetchForecastData(bomId, quantity) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: `/api/production-forecast/?bom_id=${bomId}&quantity=${quantity}`,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    resolve(response.forecast);
+                } else {
+                    reject(new Error(response.error));
                 }
+            },
+            error: function(xhr, status, error) {
+                reject(new Error('خطا در ارتباط با سرور'));
             }
         });
-        console.log('Chart created successfully');
-    } catch (e) {
-        console.error('Error creating chart:', e);
-    }
+    });
+}
 
-    // Production Timeline
-    const totalDuration = workOrderList.reduce((sum, wo) => sum + parseFloat(wo.duration), 0);
-    const timelineHtml = workOrderList.length > 0 ? `
-        <p><strong>Total Duration:</strong> ${totalDuration.toFixed(1)} hours</p>
-        <ul>
-            ${workOrderList.map(wo => `
-                <li>${wo.id} (${wo.workCenter}): ${wo.duration} hours - ${wo.description || 'No description'}</li>
-            `).join('')}
-        </ul>
-    ` : '<p class="text-muted">No work orders added to estimate production timeline.</p>';
-    $('#timelineInfo').html(timelineHtml);
+// Fetch timeline data from API
+function fetchTimelineData(bomId) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: `/api/bom/${bomId}/timeline/`,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    resolve(response);
+                } else {
+                    reject(new Error(response.error));
+                }
+            },
+            error: function(xhr, status, error) {
+                // اگر خطا داد، با داده‌های پیش‌فرض ادامه بده
+                resolve({
+                    timeline: [],
+                    total_duration_hours: 0,
+                    estimated_days: 0
+                });
+            }
+        });
+    });
+}
 
-    // Stock Status
-    const allSufficient = components.every(c => c.qty * quantity <= c.available);
-    const stockStatusHtml = components.length > 0 ? `
-        <p><strong>Stock Sufficiency:</strong> 
-            <span class="${allSufficient ? 'text-success' : 'text-danger'}">
-                ${allSufficient ? 'Sufficient stock for all components' : 'Insufficient stock for some components'}
-            </span>
-        </p>
-        <ul>
-            ${components.map(c => `
-                <li>${c.name}: ${c.qty * quantity.toFixed(1)} required, ${c.available.toFixed(1)} available 
-                    <span class="${c.qty * quantity <= c.available ? 'text-success' : 'text-danger'}">
-                        (${c.qty * quantity <= c.available ? 'OK' : 'Shortage'})
+// Render forecast modal with data
+function renderForecastModal(forecastData, timelineData, quantity) {
+    const modalBody = $('#forecastModal .modal-body');
+    
+    let html = `
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <h6 class="alert-heading">خلاصه پیش‌بینی تولید</h6>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>محصول:</strong> ${forecastData.bom_info.product_name}
+                        </div>
+                        <div class="col-md-4">
+                            <strong>تعداد تولید:</strong> ${quantity}
+                        </div>
+                        <div class="col-md-4">
+                            <strong>BOM:</strong> ${forecastData.bom_info.reference}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>وضعیت موجودی کامپوننت‌ها</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="componentChart" class="forecast-chart mb-3"></canvas>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="text-success">
+                                    <h4>${forecastData.summary.sufficient_components}</h4>
+                                    <small>کافی</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-danger">
+                                    <h4>${forecastData.summary.insufficient_components}</h4>
+                                    <small>ناکافی</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="fas fa-calculator me-2"></i>خلاصه مالی</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>هزینه کل مواد اولیه:</strong>
+                            <h4 class="text-success">${forecastData.summary.total_required_cost.toLocaleString('fa-IR')} تومان</h4>
+                        </div>
+                        <div class="mb-3">
+                            <strong>زمان تولید تخمینی:</strong>
+                            <h5>${forecastData.summary.production_time_hours.toFixed(1)} ساعت</h5>
+                        </div>
+                        <div class="progress mb-3" style="height: 10px;">
+                            <div class="progress-bar bg-success" style="width: ${(forecastData.summary.sufficient_components / forecastData.bom_info.total_components * 100)}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            ${forecastData.summary.sufficient_components} از ${forecastData.bom_info.total_components} کامپوننت موجود است
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0"><i class="fas fa-list-alt me-2"></i>جزئیات کامپوننت‌ها</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>نام کامپوننت</th>
+                                        <th>مقدار مورد نیاز</th>
+                                        <th>موجودی</th>
+                                        <th>کمبود</th>
+                                        <th>هزینه</th>
+                                        <th>وضعیت</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+    `;
+    
+    // Add components rows
+    forecastData.components_analysis.forEach(component => {
+        const statusClass = component.is_sufficient ? 'success' : 'danger';
+        const statusText = component.is_sufficient ? 'کافی' : 'ناکافی';
+        const statusIcon = component.is_sufficient ? 'fa-check' : 'fa-exclamation-triangle';
+        
+        html += `
+            <tr>
+                <td>${component.name}</td>
+                <td>${component.required_quantity.toFixed(2)} ${component.uom}</td>
+                <td>${component.available_quantity.toFixed(2)} ${component.uom}</td>
+                <td>${component.shortage.toFixed(2)} ${component.uom}</td>
+                <td>${component.cost.toLocaleString('fa-IR')} تومان</td>
+                <td>
+                    <span class="badge bg-${statusClass}">
+                        <i class="fas ${statusIcon} me-1"></i>${statusText}
                     </span>
-                </li>
-            `).join('')}
-        </ul>
-    ` : '<p class="text-muted">No components defined for this BOM.</p>';
-    $('#stockStatus').html(stockStatusHtml);
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-project-diagram me-2"></i>زمان‌بندی تولید</h6>
+                    </div>
+                    <div class="card-body">
+    `;
+    
+    if (timelineData.timeline && timelineData.timeline.length > 0) {
+        html += `
+            <div class="mb-3">
+                <strong>مدت زمان کل:</strong> ${timelineData.total_duration_hours.toFixed(1)} ساعت 
+                (${timelineData.estimated_days.toFixed(1)} روز کاری)
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>قالب دستور کار</th>
+                            <th>عملیات</th>
+                            <th>مرکز کار</th>
+                            <th>مدت زمان (ساعت)</th>
+                            <th>دستورالعمل</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        timelineData.timeline.forEach((operation, index) => {
+            html += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${operation.template_name}</td>
+                    <td>${operation.operation_name}</td>
+                    <td>${operation.work_center}</td>
+                    <td>${operation.duration_hours}</td>
+                    <td>${operation.instructions || '-'}</td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="alert alert-warning">
+                <i class="fas fa-info-circle"></i>
+                هیچ قالب دستور کاری برای این BOM تعریف نشده است.
+            </div>
+        `;
+    }
+    
+    html += `
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modalBody.html(html);
+    
+    // Render chart
+    renderForecastChart(forecastData);
+}
+
+// Render forecast chart
+function renderForecastChart(forecastData) {
+    const ctx = document.getElementById('componentChart').getContext('2d');
+    
+    // Destroy previous chart if exists
+    if (window.componentChart instanceof Chart) {
+        window.componentChart.destroy();
+    }
+    
+    const labels = forecastData.components_analysis.map(c => c.name);
+    const requiredData = forecastData.components_analysis.map(c => c.required_quantity);
+    const availableData = forecastData.components_analysis.map(c => c.available_quantity);
+    
+    window.componentChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'مقدار مورد نیاز',
+                    data: requiredData,
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'موجودی',
+                    data: availableData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'مقدار'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'کامپوننت‌ها'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    rtl: true
+                },
+                title: {
+                    display: true,
+                    text: 'مقایسه مقدار مورد نیاز و موجودی'
+                }
+            }
+        }
+    });
 }
 var loadForm =function (btn1) {
     var btn=0;
@@ -780,15 +1117,38 @@ var loadForm =function (btn1) {
         
 
         $("#newOrderModal .modal-content").html(data.html_morder_form);
-        loadOrdersTable();
-        loadGridView();
+        $("#id_product_to_manufacture").select2({dropdownParent: $('#newOrderModal')});
+        $("#productSelect").select2({dropdownParent: $('#newOrderModal')});
+       
+        $('.pdate').pDatepicker({
+            format: 'YYYY-MM-DD',
+            autoClose: true,
+            initialValueType: 'gregorian',
+            calendar:{
+              persian: {
+                  leapYearMode: 'astronomical'
+              }
+          },
+          persianDigit: false,  // This should disable Persian digits
+          });
+        // $('[data-input-mask="date"]').mask('0000-00-00');
+        // loadOrdersTable();
+        // loadGridView();
         
         // Load dropdown options
         loadProductOptions();
         loadCustomerOptions();
         loadResponsibleOptions();
+        // const productId =$("#id_product_to_manufacture").val();
+        // // console.log();
+        
+        // loadBomOptions2(productId);
         
         // $(".select2").select2();
+        const bomId=$("#id_bom").val();
+        if(bomId){
+        updateBomPreview(bomId);
+      }
 
 
       }
@@ -797,5 +1157,62 @@ var loadForm =function (btn1) {
 
 
 };
+function convertPersianToEnglish(str) {
+    if (!str) return str;
+    
+    var persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    var englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    
+    for (var i = 0; i < 10; i++) {
+        str = str.replace(new RegExp(persianNumbers[i], 'g'), englishNumbers[i]);
+    }
+    return str;
+}
+var saveForm= function () {
+    $('.pdate').each(function() {
+        var persianDate = $(this).val();
+        var englishDate = convertPersianToEnglish(persianDate);
+        $(this).val(englishDate);
+    });
+    var form = $(this);
+
+    console.log(form);
+    
+    $.ajax({
+      url: form.attr("action"),
+      data: form.serialize(),
+      type: form.attr("method"),
+      dataType: 'json',
+      beforeSend:function(){
+       
+        console.log(form.serialize());
+
+      },
+      success: function (data) {
+        console.log(data);
+
+        if (data.form_is_valid) {
+          $("#newOrderModal").modal("hide");
+          load_morders();
+            
+        }
+        else {
+            
+          $("#company-table tbody").html(data.html_assetFailure_list);
+          $("#modal-company .modal-content").html(data.html_assetFailure_form);
+        }
+      }
+    });
+    return false;
+  };
+
 $("#createNewMorder").click(loadForm);
+$("#newOrderModal").on("submit", ".js-morder-create-form", saveForm);
+$("#tableView").on("click", ".js-morder-edit", loadForm);
+$("#newOrderModal").on("submit", ".js-morder-update-form", saveForm);
+$("#newOrderModal").on("load", function(){
+    
+});
+
+
 });

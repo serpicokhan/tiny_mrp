@@ -1,0 +1,16 @@
+{% load widget_tweaks %}
+<div class="row">
+    <div class="col-md-4 mb-3"><label>نوع هایبالک</label>{% render_field form.hb_type class='form-control' placeholder='نوع هایبالک را انتخاب کنید' %}</div>
+    <div class="col-md-4 mb-3"><label>شید/رنگ</label>{% render_field form.shade class='form-control select2' placeholder='شید را انتخاب کنید' %}</div>
+    <div class="col-md-4 mb-3"><label>کد رنگ</label>{% render_field form.color_code class='form-control select2' placeholder='کد رنگ را انتخاب کنید' %}</div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3"><label>نمره</label>{% render_field form.grade class='form-control select2' placeholder='نمره را انتخاب کنید' %}</div>
+    <div class="col-md-4 mb-3"><label>تاریخ تحویل</label>{% render_field form.scheduled_date class='form-control' placeholder='تاریخ تحویل' %}</div>
+    <div class="col-md-4 mb-3"><label>مشتری</label>{% render_field form.customer class='form-control select2' placeholder='مشتری را انتخاب کنید' %}</div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3"><label>مقدار تولید</label>{% render_field form.quantity_to_produce class='form-control' placeholder='مقدار تولید' min='0.0' step='0.1' %}</div>
+</div>

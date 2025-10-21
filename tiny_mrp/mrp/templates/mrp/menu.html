@@ -52,21 +52,20 @@
     </div>
     <div class="flex-grow-1">
       <ul>
-        {% if perms.mrp.can_operator_mrp or perms.mrp.is_supervisor_user %}
+        {% if perms.mrp.can_operator_mrp %}
         <li>
-          <a href="#" data-toggle="tooltip" data-placement="right" title="اطلاعات"
+          <a href="#" data-toggle="tooltip" data-placement="right" title="تولید"
           data-nav-target="#dashboards">
           <i data-feather="bar-chart-2"></i>
         </a>
       </li>
       {% endif %}
-      {% if request.user.is_superuser%}
       <li>
-        <a href="#" data-toggle="tooltip" data-placement="right" title="تنظیمات" data-nav-target="#apps">
-          <i data-feather="command"></i>
+        <a href="#" data-toggle="tooltip" data-placement="right" title="برنامه ریزی تولید" data-nav-target="#apps6">
+          <i data-feather="calendar"></i>
         </a>
       </li>
-      {% endif %}
+      
       {% if perms.mrp.can_operator_mrp %}
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="راندمان" data-nav-target="#apps2">
@@ -96,6 +95,14 @@
         </a>
       </li>
       {% endif %}
+      {% if request.user.is_superuser%}
+      <li>
+        <a href="#" data-toggle="tooltip" data-placement="right" title="تنظیمات" data-nav-target="#apps">
+          <i data-feather="tool"></i>
+        </a>
+      </li>
+      {% endif %}
+     
 
   </ul>
 </div>
@@ -137,24 +144,16 @@
 <!-- end::navigation-logo -->
 
 <div class="navigation-menu-group">
-  {% if perms.mrp.can_operator_mrp or perms.mrp.is_supervisor_user %}
+  {% if perms.mrp.can_operator_mrp %}
   <div id="dashboards">
     <ul>
       <li class="navigation-divider">اطلاعات</li>
-      {% if perms.mrp.can_operator_mrp %}
       <li><a href="{% url 'list_dashboard' %}">داشبورد</a></li>
-  {% endif %}
-  {% if perms.mrp.can_operator_mrp or perms.mrp.is_supervisor_user %}
-      
       <li><a href="{% url 'register_daily_amar' %}">ورود اطلاعات روزانه</a></li>
 
       <li><a href="{% url 'calendar_main' %}">مشاهده آمار روزانه</a></li>
-      <li><a href="{% url 'calendar_main_scroll' %}">مشاهده آمار روزانه با اسکرول</a></li>
-  {% endif %}
-  {% if perms.mrp.can_operator_mrp %}
-
       {% comment %} <li><a href="{% url 'calendar_randeman_brief' %}">راندمان روزانه تولید</a></li> {% endcomment %}
-       <li><a href="{% url 'calendar_randeman' %}">راندمان روزانه تولید به تفکیک شیفت</a></li> 
+      {% comment %} <li><a href="{% url 'calendar_randeman' %}">راندمان روزانه تولید به تفکیک شیفت</a></li> {% endcomment %}
       <li><a href="{% url 'monthly_detaild_report_ezami' %}">سرانه تولید</a></li>
       {% comment %} <li><a href="{% url 'calendar_tahlil' %}">تحلیل تولید روزانه</a></li> {% endcomment %}
       <li><a href="{% url 'monthly_detaild_report' %}">آمار تولید ماهانه</a></li>
@@ -166,7 +165,7 @@
       </a></li>
       {% comment %} <li><a href="{% url 'monthly_detaild_failured_report' %}">مشاهده توقفات ماهانه</a></li> {% endcomment %}
 
-  {% endif %}
+
 
 
     </ul>
@@ -190,12 +189,6 @@
       <li>
         <a href="{% url 'list_shifts' %}">
           <span>شیفت ها</span>
-
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'moshakhase_list' %}">
-          <span>مشخصه ها</span>
 
         </a>
       </li>
@@ -314,27 +307,13 @@
   <div id="apps3">
     <ul>
       <li class="navigation-divider">گزارشات</li>
+    </ul>
     <li>
-      <a href="{% url 'daily_tolid_main' %}">
-        <span>گزارش</span>
+      <a href="{% url 'daily_tolid_with_chart' %}">
+        <span>نمودار میله ای روزانه تولید</span>
 
       </a>
     </li>
-    <li>
-      <a href="{% url 'graph_index' %}">
-        <span>گراف سفارش</span>
-
-      </a>
-    </li>
-    <!-- <li>
-      <a href="{% url 'list_report' %}">
-        <span>گزارشات</span>
-
-
-      </a>
-    </li> -->
-  </ul>
-
   </div>
   {% endif %}
   {% if perms.mrp.can_operate_guard %}
@@ -351,6 +330,49 @@
     
   </div>
   {% endif %}
+  
+  <div id="apps6">
+    <ul>
+      <li class="navigation-divider">سفارش تولید</li>
+      <li>
+        <a href="{% url 'product_list' %}">
+          <span>محصول</span>
+  
+        </a>
+      </li>
+      
+      <li>
+        <a href="{% url 'bom_list' %}">
+          <span>BOM</span>
+  
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'manufacture_order_list' %}">
+          <span>سفارش ساخت</span>
+  
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'manufacture_order_calendar' %}">
+          <span>برنامه ریزی</span>
+  
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'low_stock_products' %}">
+            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+            کالاهای با کمبود
+            <span class="badge bg-danger" id="lowStockCount">0</span>
+        </a>
+    </li>
+      
+
+   
+      
+
+    </ul>
+  </div>
 
 </div>
 </div>
