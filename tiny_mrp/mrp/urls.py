@@ -202,15 +202,19 @@ urlpatterns = [
 
     url(r'^Workorder/Create$', workorder_create, name='workorder_create'),
     url(r'^Workorder/Detail$', workorder_detail, name='workorder_detail'),
+    path('api/internal/products/', receive_products, name='receive_products'),
+    path('api/internal/shade/', receive_shade, name='receive_shade'),
+    path('api/internal/grade/', receive_grade, name='receive_grade'),
+    path('api/internal/moshtari/', receive_moshtari, name='receive_moshtari'),
+    
+    
+
     
     url(r'^api/create-part/$', create_part, name="create_part"),
     url(r'^api/create-asset/$', create_asset2, name="create_asset2"),
     url(r'^api/create-supplier/$', create_supplier, name="create_supplier"),
     url(r'^api/save-purchase-request/', views.save_purchase_request, name='save-purchase-request'),
-    path('api/internal/products/', receive_products, name='receive_products'),
-    
-    
-
+  
 
 
 

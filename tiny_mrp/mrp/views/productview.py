@@ -210,15 +210,160 @@ def receive_products(request):
             "updated": updated_count,
             "errors": errors
         }
-        print(result)
 
         return JsonResponse(result)
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
     
+@csrf_exempt
+def receive_shade(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
 
+    if request.headers.get("X-API-KEY") != API_KEY:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
 
+    try:
+        data = json.loads(request.body)
+        created_count = 0
+        updated_count = 0
+        errors = []
+
+        for idx, row in enumerate(data, start=1):
+            try:
+                # ساخت name از فیلدهای مختلف
+                name = row.get("name")
+
+                code = f"{row.get('id')}"
+                
+                shade, created = Shade.objects.update_or_create(
+                    id=code,
+                    defaults={
+                        "name": name or f"Unnamed {code}",
+                      
+                    }
+                )
+               
+
+                if created:
+                    created_count += 1
+                else:
+                    updated_count += 1
+
+            except Exception as e:
+                errors.append({"index": idx, "code": row.get("id"), "error": str(e)})
+
+        result = {
+            "status": "success",
+            "created": created_count,
+            "updated": updated_count,
+            "errors": errors
+        }
+
+        return JsonResponse(result)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def receive_grade(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    if request.headers.get("X-API-KEY") != API_KEY:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+
+    try:
+        data = json.loads(request.body)
+        created_count = 0
+        updated_count = 0
+        errors = []
+
+        for idx, row in enumerate(data, start=1):
+            try:
+                # ساخت name از فیلدهای مختلف
+                name = row.get("name")
+
+                code = f"{row.get('id')}"
+                
+                grade, created = Grade.objects.update_or_create(
+                    id=code,
+                    defaults={
+                        "name": name or f"Unnamed {code}",
+                      
+                    }
+                )
+               
+
+                if created:
+                    created_count += 1
+                else:
+                    updated_count += 1
+
+            except Exception as e:
+                errors.append({"index": idx, "code": row.get("id"), "error": str(e)})
+
+        result = {
+            "status": "success",
+            "created": created_count,
+            "updated": updated_count,
+            "errors": errors
+        }
+
+        return JsonResponse(result)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+@csrf_exempt
+def receive_moshtari(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    if request.headers.get("X-API-KEY") != API_KEY:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+
+    try:
+        data = json.loads(request.body)
+        created_count = 0
+        updated_count = 0
+        errors = []
+
+        for idx, row in enumerate(data, start=1):
+            try:
+                # ساخت name از فیلدهای مختلف
+                name = row.get("name")
+
+                code = f"{row.get('id')}"
+                
+                grade, created = Customer.objects.update_or_create(
+                    id=code,
+                    defaults={
+                        "name": name or f"Unnamed {code}",
+                      
+                    }
+                )
+               
+
+                if created:
+                    created_count += 1
+                else:
+                    updated_count += 1
+
+            except Exception as e:
+                errors.append({"index": idx, "code": row.get("id"), "error": str(e)})
+
+        result = {
+            "status": "success",
+            "created": created_count,
+            "updated": updated_count,
+            "errors": errors
+        }
+
+        return JsonResponse(result)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 @login_required
 def low_stock_products(request):
