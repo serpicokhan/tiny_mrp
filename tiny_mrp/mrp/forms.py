@@ -379,7 +379,7 @@ class ManufacturingOrderForm2(forms.ModelForm):
             }),
             'delivery_date': forms.DateInput(attrs={
                 'class': 'form-control',
-                'type': 'date',
+                
                 'placeholder': 'تاریخ تحویل'
             }),
             'customer': forms.Select(attrs={
@@ -408,3 +408,18 @@ class ManufacturingOrderForm2(forms.ModelForm):
         if quantity <= 0:
             raise forms.ValidationError("مقدار تولید باید بزرگتر از صفر باشد")
         return quantity
+def clean_delivery_date(self):
+    print("Entering clean_delivery_date")
+    delivery_date = self.cleaned_data.get('delivery_date')
+    print(f"Raw delivery_date: {delivery_date}")
+    if delivery_date:
+        try:
+            print("Attempting to process date")
+            result = DateJob.getTaskDate(delivery_date)
+            print(f"Processed date: {result}")
+            return result
+        except Exception as e:
+            print(f"Error in clean_delivery_date: {str(e)}")
+            raise forms.ValidationError(f"خطا در تبدیل تاریخ: {str(e)}")
+    print("Returning original delivery_date")
+    return delivery_date

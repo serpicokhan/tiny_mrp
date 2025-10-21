@@ -175,6 +175,8 @@ urlpatterns = [
     url(r'^MOrder/$', manufacture_order_list, name='manufacture_order_list'),
     url(r'^MOrder/Create$', create_morder, name='create_morder'),
     url(r'^MOrder/(?P<id>\d+)/Update$', update_morder, name='update_morder'),
+    url(r'^MOrder/Mini/$', list_minimorder, name='list_minimorder'),
+    url(r'^MOrder/Mini/Create$', minimorder_create, name='minimorder_create'),
     
     path('MOrder/<int:order_id>/', manufacture_order_detail, name='manufacture_order_detail'),
     path('api/manufacturing-order/<int:order_id>/update-status/', update_order_status_api, name='update_order_status_api'),

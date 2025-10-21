@@ -342,6 +342,7 @@ def manufacturing_orders_api(request):
         return JsonResponse({'manufacturingOrders': orders_data})
 
     except Exception as e:
+        print(e)
         return JsonResponse({'error': str(e)}, status=500)
 @require_GET
 def get_responsible_persons(request):

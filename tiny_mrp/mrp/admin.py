@@ -8,5 +8,8 @@ admin.site.register(AssetFailure)
 admin.site.register(SysUser)
 admin.site.register(Comment)
 admin.site.register(Customer)
+admin.site.register(Grade)
+admin.site.register(Shade)
+admin.site.register(ColorCode)
 
 # Register your models here.

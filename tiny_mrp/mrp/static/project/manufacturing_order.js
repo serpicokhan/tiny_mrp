@@ -342,29 +342,32 @@ function loadOrdersTable() {
         const workOrderText = order.workOrders.length > 0 ? order.workOrders.map(wo => wo.id).join(', ') : '-';
         
         const row = `
-            <tr data-id="${order.id}" data-status="${order.status}">
-                <td><strong>${order.reference}</strong></td>
-                <td>
-                    <img src="${order.product.image}" class="product-image me-2">
-                    ${order.product.name} (${order.product.code})
-                </td>
-                <td>${order.quantity.toFixed(1)}</td>
-                <td>${order.bom}</td>
-                <td>${workOrderText}</td>
-                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                <td>${order.scheduledDate}</td>
-                <td>${order.customer ? order.customer.name : '-'}</td>
-                <td>${order.responsible ? order.responsible.name : '-'}</td>
-                <td>
-                    <a class="btn btn-sm btn-outline-primary me-1" href="/MOrder/${order.id}" target='_blank' title="View">
-                        <i class="fas fa-eye"></i>
-                    </a>
-                    <button class="btn btn-sm btn-outline-secondary js-morder-edit" title="Edit" data-url="/MOrder/${order.id}/Update">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
+        <tr data-id="${order.id}" data-status="${order.status}">
+            <td><strong>${order.reference || '-'}</strong></td>
+            <td>
+                ${order.product && order.product.image ? 
+                    `<img src="${order.product.image}" class="product-image me-2">` : ''}
+                ${order.product ? 
+                    `${order.product.name || ''} ${order.product.code ? `(${order.product.code})` : ''}` : 
+                    '-'}
+            </td>
+            <td>${order.quantity ? order.quantity.toFixed(1) : '-'}</td>
+            <td>${order.bom || '-'}</td>
+            <td>${workOrderText || '-'}</td>
+            <td><span class="status-badge ${statusClass}">${statusText || '-'}</span></td>
+            <td>${order.scheduledDate || '-'}</td>
+            <td>${order.customer && order.customer.name ? order.customer.name : '-'}</td>
+            <td>${order.responsible && order.responsible.name ? order.responsible.name : '-'}</td>
+            <td>
+                <a class="btn btn-sm btn-outline-primary me-1" href="/MOrder/${order.id}" target='_blank' title="View">
+                    <i class="fas fa-eye"></i>
+                </a>
+                <button class="btn btn-sm btn-outline-secondary js-morder-edit" title="Edit" data-url="/MOrder/${order.id}/Update">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </td>
+        </tr>
+    `;
         
         tbody.append(row);
     });
@@ -390,31 +393,37 @@ function loadGridView() {
         const workOrderText = order.workOrders.length > 0 ? order.workOrders.map(wo => wo.id).join(', ') : 'None';
         
         const card = `
-            <div class="grid-card" data-id="${order.id}" data-status="${order.status}">
-                <div class="grid-card-title">${order.reference}</div>
-                <div class="d-flex align-items-center mb-3">
-                    <img src="https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img/https://tabseer.co/wp-content/uploads/2021/02/Articles-1593028629.png" class="product-image me-2">
-                    <div>${order.product.name} (${order.product.code})</div>
-                </div>
-                <div class="grid-card-details">
-                    <div><strong>حجم:</strong> ${order.quantity.toFixed(1)}</div>
-                    <div><strong>لیست مواد:</strong> ${order.bom}</div>
-                    <div><strong>دستور تولید:</strong> ${workOrderText}</div>
-                    <div><strong>تاریخ تولید:</strong> ${order.scheduledDate}</div>
-                    <div><strong>مشتری:</strong> ${order.customer ? order.customer.name : 'None'}</div>
-                    <div><strong>مسئول:</strong> ${order.responsible ? order.responsible.name : 'None'}</div>
-                    <div class="mt-3"><span class="status-badge ${statusClass}">${statusText}</span></div>
-                </div>
-                <div class="d-flex justify-content-end mt-3">
-                    <button class="btn btn-sm btn-outline-primary me-1" title="View">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </div>
+    <div class="grid-card" data-id="${order.id}" data-status="${order.status}">
+        <div class="grid-card-title">${order.reference || 'بدون شماره'}</div>
+        <div class="d-flex align-items-center mb-3">
+            ${order.product?.image ? 
+                `<img src="${order.product.image}" class="product-image me-2">` : 
+                `<img src="https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img/https://tabseer.co/wp-content/uploads/2021/02/Articles-1593028629.png" class="product-image me-2">`
+            }
+            <div>
+                ${order.product?.name || 'محصول نامشخص'} 
+                ${order.product?.code ? `(${order.product.code})` : ''}
             </div>
-        `;
+        </div>
+        <div class="grid-card-details">
+            <div><strong>حجم:</strong> ${order.quantity ? order.quantity.toFixed(1) + ' واحد' : 'تعیین نشده'}</div>
+            <div><strong>لیست مواد:</strong> ${order.bom || 'تعیین نشده'}</div>
+            <div><strong>دستور تولید:</strong> ${workOrderText || 'تعیین نشده'}</div>
+            <div><strong>تاریخ تولید:</strong> ${order.scheduledDate || 'تعیین نشده'}</div>
+            <div><strong>مشتری:</strong> ${order.customer?.name || 'ندارد'}</div>
+            <div><strong>مسئول:</strong> ${order.responsible?.name || 'تعیین نشده'}</div>
+            <div class="mt-3"><span class="status-badge ${statusClass}">${statusText || 'نامشخص'}</span></div>
+        </div>
+        <div class="d-flex justify-content-end mt-3">
+            <a class="btn btn-sm btn-outline-primary me-1" href="/MOrder/${order.id}" target='_blank' title="مشاهده">
+                <i class="fas fa-eye"></i>
+            </a>
+            <button class="btn btn-sm btn-outline-secondary js-morder-edit" title="ویرایش" data-url="/MOrder/${order.id}/Update">
+                <i class="fas fa-edit"></i>
+            </button>
+        </div>
+    </div>
+`;
         
         container.append(card);
     });

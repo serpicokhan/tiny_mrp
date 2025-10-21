@@ -275,10 +275,10 @@ class ManufacturingOrder(models.Model):
     product_to_manufacture = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        limit_choices_to={'product_type': 'finished'}
+        limit_choices_to={'product_type': 'finished'},blank=True,null=True
     )
     quantity_to_produce = models.FloatField(validators=[MinValueValidator(0.0)])
-    bom = models.ForeignKey(BillOfMaterials, on_delete=models.CASCADE)
+    bom = models.ForeignKey(BillOfMaterials, on_delete=models.SET_NULL,blank=True,null=True)
     work_order_template = models.ForeignKey(
         'WorkOrderTemplate',
         on_delete=models.SET_NULL,
@@ -287,7 +287,7 @@ class ManufacturingOrder(models.Model):
         help_text="Template for generating work orders"
     )  # Added to link to template
     status = models.CharField(max_length=20, choices=MO_STATUS, default='draft')
-    scheduled_date = models.DateField()
+    scheduled_date = models.DateField(null=True,blank=True)
     first_date = models.DateField(null=True,blank=True)
     second_date = models.DateField(null=True,blank=True)
     
