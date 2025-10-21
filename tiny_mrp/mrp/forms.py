@@ -348,5 +348,63 @@ class ManufacturingOrderForm(forms.ModelForm):
             raise forms.ValidationError("فرمت تاریخ شروع نامعتبر است. لطفاً از فرمت ۱۴۰۴-۰۳-۱۴ یا 2025-06-03 استفاده کنید.")
        
 
+class ManufacturingOrderForm2(forms.ModelForm):
+    class Meta:
+        model = ManufacturingOrder
+        fields = [
+            'hb_type', 
+            'shade', 
+            'color_code', 
+            'grade', 
+            'delivery_date',
+            'customer', 
+            'quantity_to_produce'
+        ]
+        widgets = {
+            'hb_type': forms.Select(attrs={
+                'class': 'form-select',
+                'placeholder': 'نوع هایبالک را انتخاب کنید'
+            }),
+            'shade': forms.Select(attrs={
+                'class': 'form-select',
+                'placeholder': 'شید را انتخاب کنید'
+            }),
+            'color_code': forms.Select(attrs={
+                'class': 'form-select', 
+                'placeholder': 'کد رنگ را انتخاب کنید'
+            }),
+            'grade': forms.Select(attrs={
+                'class': 'form-select',
+                'placeholder': 'نمره را انتخاب کنید'
+            }),
+            'delivery_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'placeholder': 'تاریخ تحویل'
+            }),
+            'customer': forms.Select(attrs={
+                'class': 'form-select',
+                'placeholder': 'مشتری را انتخاب کنید'
+            }),
+            'quantity_to_produce': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'مقدار تولید',
+                'min': '0.0',
+                'step': '0.1'
+            })
+        }
+        labels = {
+            'hb_type': 'نوع هایبالک',
+            'shade': 'شید/رنگ',
+            'color_code': 'کد رنگ',
+            'grade': 'نمره',
+            'delivery_date': 'تاریخ تحویل',
+            'customer': 'مشتری',
+            'quantity_to_produce': 'مقدار تولید'
+        }
 
-    
+    def clean_quantity_to_produce(self):
+        quantity = self.cleaned_data.get('quantity_to_produce')
+        if quantity <= 0:
+            raise forms.ValidationError("مقدار تولید باید بزرگتر از صفر باشد")
+        return quantity

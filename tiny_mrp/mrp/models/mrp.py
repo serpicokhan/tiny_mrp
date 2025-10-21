@@ -215,6 +215,27 @@ class Operation(models.Model):
 
     def __str__(self):
         return f"{self.name} (Seq: {self.sequence}) - {self.work_order_template}"
+    
+    
+class Shade(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+class ColorCode(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+    
+class Grade(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
 class ManufacturingOrder(models.Model):
     def get_dateCreated_jalali(self):
         return jdatetime.date.fromgregorian(date=self.created_at)
@@ -239,6 +260,10 @@ class ManufacturingOrder(models.Model):
         }
         return new_status in valid_transitions.get(self.status, [])
     """Model representing a manufacturing order in the MRP system."""
+    HB_TYPE_CHOICES = [
+        ('HS', 'HS'),
+        ('HB', 'HB'),
+    ]
     reference = models.CharField(max_length=50, unique=True)
     line = models.ForeignKey(
         Line,
@@ -281,7 +306,11 @@ class ManufacturingOrder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     notes=models.TextField(null=True,blank=True)
-
+    hb_type = models.CharField(max_length=2, choices=HB_TYPE_CHOICES, verbose_name="هایبالک/رگولار",blank=True,null=True)
+    shade = models.ForeignKey(Shade, on_delete=models.PROTECT, verbose_name="شید/رنگ",blank=True,null=True)
+    color_code = models.ForeignKey(ColorCode, on_delete=models.PROTECT, verbose_name="کد رنگ",blank=True,null=True)
+    grade = models.ForeignKey(Grade, on_delete=models.PROTECT, verbose_name="نمره",blank=True,null=True)
+    delivery_date = models.DateField(verbose_name="تاریخ تحویل",blank=True,null=True)
     class Meta:
         ordering = ['-scheduled_date', 'reference']
         constraints = [
@@ -379,6 +408,8 @@ class Customer(models.Model):
     
 
 
+    
+    
 class CalendarEvent(models.Model):
     order = models.ForeignKey(
         ManufacturingOrder, 
