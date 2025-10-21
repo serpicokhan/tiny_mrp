@@ -5,16 +5,8 @@
      <!-- Select2 -->
      <link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.css">
-     <style>
-        .modal-backdrop {
-            z-index: 1040 !important; /* Lower z-index for backdrop */
-        }
-        
-        .modal {
-            z-index: 1050 !important; /* Higher z-index for modal */
-        }
-        
-     </style>
+   
+     
 
 {% endblock %}
 {% block content %}
@@ -28,7 +20,7 @@
                     <button class="btn btn-outline-dark btn-block btn-block2" id="createreq" data-url="{% url 'create_purchase' %}" >
                         درخواست جدید                   </button>
                         <button class="btn btn-outline-dark btn-block btn-block3" data-url="#" >
-                            برون ریزی                 </button>
+                        خروجی اکسل                 </button>
                        
                 </div>
                 <div class="app-sidebar-menu">
@@ -124,7 +116,7 @@
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="?status=Pending{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">درخواست شده</a>
                                 <a class="dropdown-item" href="?status=Approved{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید انبار</a>
-                                <a class="dropdown-item" href="?status=Approve2{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید مهندس اعزامی</a>
+                                <a class="dropdown-item" href="?status=Approve2{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید مدیرتولید</a>
                                 <a class="dropdown-item" href="?status=Approve4{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید بازرگانی</a>
 
                                 <a class="dropdown-item" href="?status=Approve3{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if is_tamiri %}&customSwitch3_={{ is_tamiri }}{% endif %}{% if start_j %}&start={{ start_j }}{% endif %}{% if end_j %}&end={{ end_j }}{% endif %}">تایید مهندس ارزنده</a>
@@ -240,65 +232,11 @@
     </div>
 
 </div>
-<div class="modal fade" tabindex="-1" role="dialog" id="compose">
-    <div class="modal-dialog modal-lg" role="document">
+
+<div class="modal fade" tabindex="-1" role="dialog" id="rejectRequestModal">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">ارسال ایمیل به</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <i class="ti-close"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                
-                <div class="d-flex justify-content-between m-b-20">
-                    <div>
-                        <a href="#" data-toggle="tooltip" title=""
-                           class="btn btn-outline-light btn-sm mr-2"
-                           data-original-title="ذخیره">
-                            <i data-feather="save"></i>
-                        </a>
-                        <a href="#" data-toggle="tooltip" title=""
-                           class="btn btn-outline-light btn-sm mr-2"
-                           data-original-title="حذف">
-                            <i data-feather="trash-2"></i>
-                        </a>
-                    </div>
-                </div>
-                <form>
-                    <div class="form-group">
-                        <input type="text" class="form-control tagsinput" placeholder="به"
-                               value="example@test.com.tr" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="موضوع" required>
-                    </div>
-                    <div class="form-group">
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" multiple id="customFileLangHTML">
-                            <label class="custom-file-label" for="customFileLangHTML" data-browse="انتخاب فایل">لورم ایپسوم</label>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="compose-quill-editor mb-3"></div>
-                        <div class="d-flex justify-content-between">
-                            <div class="compose-quill-toolbar">
-                            <span class="ql-formats mr-0">
-                                <button class="ql-bold"></button>
-                                <button class="ql-italic"></button>
-                                <button class="ql-underline"></button>
-                                <button class="ql-link"></button>
-                                <button class="ql-image"></button>
-                            </span>
-                            </div>
-                            <button class="btn btn-primary">
-                                <i data-feather="send" class="mr-2"></i>
-                                ارسال
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+            
         </div>
     </div>
 </div>
@@ -310,7 +248,8 @@
   <script src="{% static 'assets/js/examples/select2.js' %}"></script>
   <script>
     $('.select2-example').select2({
-        placeholder: 'اشخاص'
+        placeholder: 'اشخاص',
+        
     });
     $('input[name="start"]').pDatepicker({
         format: 'YYYY-MM-DD',
@@ -338,7 +277,11 @@
 
 <script src="{% static 'project/purchaselist.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.min.js"></script>
-
+<script>
+    //var users1000 = {{ json_dict_list|safe }};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    
 
 
 {% endblock %}

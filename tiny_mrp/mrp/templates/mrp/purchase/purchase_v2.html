@@ -1,4 +1,82 @@
+{% load custom_filters %}
+{% load humanize %}
 
+<!-- استایل‌های اضافه -->
+<style>
+    .suggestions-container {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        border: 2px solid #ffc107;
+        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2);
+    }
+    .suggestions-container h6 {
+        color: #856404;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    .suggestion-item {
+        display: inline-block;
+        background: white;
+        padding: 10px 20px;
+        margin: 5px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid #ffc107;
+        font-weight: 500;
+    }
+    .suggestion-item:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    .suggestion-item i {
+        margin-left: 5px;
+    }
+    .history-item {
+        background: #f8f9ff;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-right: 4px solid #667eea;
+        transition: all 0.3s;
+    }
+    .history-item:hover {
+        transform: translateX(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .price-badge {
+        background: #667eea;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+    .chart-container {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9ff;
+        border-radius: 10px;
+    }
+    .btn-history {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 25px;
+        transition: all 0.3s;
+        font-size: 14px;
+    }
+    .btn-history:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+</style>
 
 <div class="row">
     
@@ -8,6 +86,62 @@
             <div class="card-body">
                 <h6 class="card-title">{{title}}</h6>
                 <input type="hidden" id="companyId" name="companyId" value="{{company.id}}" />
+                {% if company.is_rejected %}
+                <div class="alert alert-danger" role="alert">
+                    رد درخواست توسط {{company.rejected_by}} در {{company.get_rejected_at_jalali|date:"Y/m/d"}} بعلت {{company.rejection_reason}}
+                 </div>
+                {% endif %}
+                {% if request.user|in_group:"purchase" %}
+
+               
+
+                <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;" >
+                    <table class="table  table-bordered">
+                        <thead>
+                            <tr  class="bg-dark">
+                                <th>نام کالا</th>
+                                <th>تعداد</th>
+                                <th>قسمت مورد مصرف</th>
+
+                                <th>شرح</th>
+                                <th>تامین کننده</th>
+                                <th>تعداد تامینی</th>
+                                <th>فی</th>
+                               
+                                <th> عملیات</th>
+                                
+
+                                
+                            </tr>
+                        </thead>
+                        <tbody id="table-body-purchase">
+                            
+                            {% for i in items %} 
+                            <tr data-id="{{i.id}}">
+                                <td  class=" part-name" data-id="{{i.item_name.id}}" data-partcode="{{i.item_name.partCode}}">{{i.item_name.partName}}</td>
+                                <td  class="">{{i.quantity}}</td>
+                                <td  class=" machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
+                                <td  class=" " data-id="">{{i.description}}</td>
+                                <td  class=" " data-id="">{{i.supplier_assigned|default_if_none:'مشخص نشده'}}</td>
+                                <td  class=" " data-id="">{{i.supplied_quantity|default_if_none:'مشخص نشده'}}</td>
+                                <td  class=" " data-id="">{{i.price|intcomma}}</td>
+                                <td  class="" data-id=""><a href="#" data-url="{% url 'update_purchase_item' i.id %}" data-toggle="tooltip" title="" data-original-title="جزییات" class="js-purchase-item-update">
+                                    <i class="fa fa-external-link"></i>
+                                </a></td>
+
+                                
+                                
+                            </tr>
+                            {% endfor %}
+                           
+                        </tbody>
+                      
+                       
+                    </table>
+                </div>
+                
+
+                {% else %}
 
                 <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
                     <table class="table  table-bordered">
@@ -20,6 +154,7 @@
                                 {% if company.status == "Pending" and perms.mrp.can_edit_purchase %}
                                 <th> عملیات</th>
                                 {% endif%}
+                                <th>سوابق</th>
 
                                 
                             </tr>
@@ -32,6 +167,16 @@
                                 <td  class="editable-cell">{{i.quantity}}</td>
                                 <td  class="editable-cell machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
                                 <td  class="editable-cell description" data-id="">{{i.description}}</td>
+                                <td  class="editable-cell " data-id="">
+
+                                {% if request.user|in_group:"director" %}
+                                    <button type="button" class="btn btn-history btn-sm" onclick="showHistory({{i.item_name.id}}, '{{i.item_name.partName}}')">
+                                        <i class="fa fa-history"></i> مشاهده سابقه
+                                    </button>
+                                {% endif %}
+                            </td>
+
+                                
                                 
                                 
                             </tr>
@@ -42,11 +187,18 @@
                                 <td contenteditable="true" class="editable-cell part-name" data-id="{{i.item_name.id}}" data-partcode="{{i.item_name.partCode}}">{{i.item_name.partName}}</td>
                                 <td contenteditable="true" class="editable-cell">{{i.quantity}}</td>
                                 <td contenteditable="true" class="editable-cell machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
-                                <td contenteditable="true" class="editable-cell description" data-id="">{{i.description}}</td>
-                                <td>
-                                    <button class="btn btn-sm  delete-row">
-                                        <i class="fa fa-trash"></i> <!-- Tiny Trash Icon -->
+                                <td contenteditable="true" class="editable-cell description" data-id="" >{{i.description}}</td>
+                                <td >
+                                    <button class="btn btn-sm  delete-row" >
+                                        <i class="fa fa-trash"></i>
                                     </button>
+                                </td>
+                                <td>
+                                    {% if request.user|in_group:"director" %}
+                                    <button type="button" class="btn btn-history btn-sm" onclick="showHistory({{i.item_name.id}}, '{{i.item_name.partName}}')">
+                                        <i class="fa fa-history"></i> مشاهده سابقه
+                                    </button>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
@@ -57,7 +209,11 @@
                                 <td  class="editable-cell">{{i.quantity}}</td>
                                 <td  class="editable-cell machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
                                 <td  class="editable-cell description" data-id="">{{i.description}}</td>
-                                
+                                <td>
+                                    <button type="button" class="btn btn-history btn-sm" onclick="showHistory({{i.item_name.id}}, '{{i.item_name.partName}}')">
+                                        <i class="fa fa-history"></i> مشاهده سابقه
+                                    </button>
+                                </td>
                             </tr>
                             {% endfor %}
                             {% endif %}
@@ -65,7 +221,7 @@
                         {% if company.status == "Pending" and perms.mrp.can_edit_purchase %}
                         <tfoot>
                             <tr class="add-row" id="add-row">
-                                <td colspan="5">  <button class="btn btn-primary  btn-floating">
+                                <td colspan="6">  <button class="btn btn-primary  btn-floating">
                                     <i class="ti-plus"></i></button></td>
                             </tr>
                         </tfoot>
@@ -73,6 +229,7 @@
                        
                     </table>
                 </div>
+                {% endif %}
 
             </div>
         </div>
@@ -82,5 +239,306 @@
     </div>
 </div>
 
+<!-- Modal برای نمایش سابقه -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fa fa-history"></i> سابقه خرید و روند قیمت
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="partInfo" class="mb-4"></div>
+                
+                <div id="suggestionsContainer"></div>
+                
+                <h6 class="mb-3"><i class="fa fa-shopping-cart"></i> سابقه خریدهای قبلی:</h6>
+                <div id="historyList"></div>
+                
+                <div class="chart-container">
+                    <h6><i class="fa fa-chart-line"></i> نمودار روند قیمت:</h6>
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- اسکریپت‌های مورد نیاز -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
+<script>
+    // تنظیمات CSRF برای Django
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+    let currentChart = null;
+
+    // تابع فرمت اعداد
+    function formatNumber(num) {
+        if (!num) return '0';
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // تابع نمایش سابقه خرید
+    function showHistory(partId, partName) {
+        // نمایش لودینگ
+        $('#partInfo').html(`
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">در حال بارگذاری...</span>
+                </div>
+                <p class="mt-2">در حال دریافت اطلاعات...</p>
+            </div>
+        `);
+        $('#suggestionsContainer').html('');
+        $('#historyList').html('');
+        
+        // نمایش مودال
+        // $('#historyModal').modal('show');
+        $('#historyModal').modal({
+                backdrop: false
+            });
+        
+        // دریافت سابقه خرید از API
+        $.ajax({
+            url: `/api/part/${partId}/history/`,
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    displayPartHistory(response);
+                    loadSimilarParts(partId);
+                } else {
+                    $('#partInfo').html(`
+                        <div class="alert alert-danger">
+                            خطا: ${response.error}
+                        </div>
+                    `);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('خطا در دریافت سابقه:', error);
+                $('#partInfo').html(`
+                    <div class="alert alert-danger">
+                        <i class="fa fa-exclamation-triangle"></i> خطا در دریافت اطلاعات از سرور
+                    </div>
+                `);
+            }
+        });
+    }
+
+    // نمایش سابقه دریافت شده
+    function displayPartHistory(data) {
+        // نمایش اطلاعات قطعه
+        $('#partInfo').html(`
+            <div class="alert alert-info">
+                <h5><strong>${data.part_name}</strong> ${data.part_code ? `<small class="text-muted">(کد: ${data.part_code})</small>` : ''}</h5>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <i class="fa fa-money-bill-wave"></i> <strong>میانگین قیمت:</strong> 
+                        <span class="price-badge">${formatNumber(Math.round(data.stats.avg_price))} تومان</span>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fa fa-shopping-cart"></i> <strong>تعداد خریدها:</strong> 
+                        <span class="badge badge-primary">${data.stats.total_purchases}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fa fa-boxes"></i> <strong>مجموع تعداد:</strong> 
+                        <span class="badge badge-success">${data.stats.total_quantity}</span>
+                    </div>
+                </div>
+            </div>
+        `);
+        
+        // نمایش لیست سابقه
+        if (data.history && data.history.length > 0) {
+            let historyHtml = '';
+            data.history.forEach((item) => {
+                historyHtml += `
+                    <div class="history-item">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <small class="text-muted">تاریخ</small><br>
+                                <i class="fa fa-calendar"></i> <strong>${item.date}</strong>
+                            </div>
+                            <div class="col-md-2">
+                                <small class="text-muted">تعداد</small><br>
+                                <i class="fa fa-box"></i> <strong>${item.quantity}</strong>
+                                ${item.supplied_quantity ? ` / <span class="text-success">${item.supplied_quantity}</span>` : ''}
+                            </div>
+                            <div class="col-md-2">
+                                <small class="text-muted">قیمت</small><br>
+                                <i class="fa fa-money-bill"></i> <strong>${formatNumber(item.price)}</strong> تومان
+                            </div>
+                            <div class="col-md-2">
+                                <small class="text-muted">تامین‌کننده</small><br>
+                                <i class="fa fa-truck"></i> ${item.supplier}
+                            </div>
+                            <div class="col-md-2">
+                                <small class="text-muted">خریدار</small><br>
+                                <i class="fa fa-user"></i> ${item.buyer}
+                            </div>
+                            <div class="col-md-2">
+                                <small class="text-muted">محل مصرف</small><br>
+                                <i class="fa fa-map-marker"></i> ${item.consume_place}
+                            </div>
+                            ${item.description ? `
+                            <div class="col-md-12 mt-2">
+                                <small class="text-muted"><i class="fa fa-info-circle"></i> ${item.description}</small>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            $('#historyList').html(historyHtml);
+            
+            // رسم نمودار
+            drawChartFromData(data.history);
+        } else {
+            $('#historyList').html(`
+                <div class="alert alert-warning">
+                    <i class="fa fa-exclamation-triangle"></i> هیچ سابقه خریدی برای این قطعه یافت نشد
+                </div>
+            `);
+        }
+    }
+
+    // دریافت قطعات مشابه
+    function loadSimilarParts(partId) {
+        $.ajax({
+            url: `/api/part/${partId}/similar/`,
+            method: 'GET',
+            success: function(response) {
+                if (response.success && response.similar_parts.length > 0) {
+                    displaySimilarParts(response.similar_parts);
+                }
+            },
+            error: function(xhr) {
+                console.error('خطا در دریافت قطعات مشابه:', xhr);
+            }
+        });
+    }
+
+    // نمایش قطعات مشابه
+    function displaySimilarParts(similarParts) {
+        let suggestionsHtml = `
+            <div class="suggestions-container">
+                <h6><i class="fa fa-lightbulb"></i> این قطعات مشابه نیز ممکن است مد نظر شما باشند:</h6>
+                <div>
+        `;
+        
+        similarParts.forEach(similar => {
+            suggestionsHtml += `
+                <span class="suggestion-item" onclick="showHistory(${similar.id}, '${similar.name}')">
+                    <i class="fa fa-eye"></i> ${similar.name} 
+                    ${similar.code ? `<small class="text-muted">(${similar.code})</small>` : ''}
+                    <br>
+                    <small style="color: #666;">
+                        آخرین قیمت: ${formatNumber(similar.latest_price)} تومان | 
+                        تعداد خرید: ${similar.purchase_count}
+                    </small>
+                </span>
+            `;
+        });
+        
+        suggestionsHtml += `
+                </div>
+            </div>
+        `;
+        
+        $('#suggestionsContainer').html(suggestionsHtml);
+    }
+
+    // رسم نمودار
+    function drawChartFromData(history) {
+        const ctx = document.getElementById('priceChart');
+        if (!ctx) return;
+        
+        const context = ctx.getContext('2d');
+        
+        if (currentChart) {
+            currentChart.destroy();
+        }
+        
+        // داده‌ها از جدید به قدیم هستند، برعکس می‌کنیم
+        const labels = history.map(h => h.date).reverse();
+        const prices = history.map(h => h.price).reverse();
+        
+        currentChart = new Chart(context, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'قیمت (تومان)',
+                    data: prices,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'قیمت: ' + formatNumber(context.parsed.y) + ' تومان';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return formatNumber(value);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // بستن مودال با دکمه
+    $('.btn-close').on('click', function() {
+        $('#historyModal').modal('hide');
+    });
+</script>

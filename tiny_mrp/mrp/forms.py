@@ -1,5 +1,6 @@
 from django import forms
 from mrp.models import *
+from mrp.business.DateJob import *
 class ZayeatVaznForm(forms.ModelForm):
     class Meta:
          model = ZayeatVaz
@@ -300,7 +301,6 @@ class ManufacturingOrderForm(forms.ModelForm):
             # Try parsing as Gregorian first (since input might be 2025-06-03)
             try:
                 gregorian_date = DateJob.getTaskDate(date_str)
-                print(gregorian_date,'!!!!!!!!!!!!')
             except ValueError:
                 # Fallback to Jalali if Gregorian parsing fails
                 jalali_date = jdatetime.date.fromisoformat(date_str)

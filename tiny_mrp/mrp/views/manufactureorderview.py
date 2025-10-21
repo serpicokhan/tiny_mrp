@@ -86,7 +86,7 @@ def manufacture_order_detail(request, order_id):
         
         virtual_work_orders.append({
             'id': f"WO-{order.reference}-{i:03d}",
-            'work_center': category.categoryName if category else "دسته‌بندی نامشخص",
+            'work_center':  "دسته‌بندی نامشخص",
             'duration': total_duration,
             'status': 'in_progress',  # یا از status واقعی استفاده کنید
             'productions': productions,
