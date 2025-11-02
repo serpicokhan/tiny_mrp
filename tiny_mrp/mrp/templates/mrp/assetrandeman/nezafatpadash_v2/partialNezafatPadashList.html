@@ -1,0 +1,11 @@
+{% load humanize %}
+{% for c in formulas %}
+<tr>
+  <td>{{c.assetMachineCategory}}</td>
+  <td>{{c.rank}}</td>
+  <td>{{c.price_personnel|floatformat:0|intcomma}}</td>
+  
+<td><button type="button" class="btn btn-outline-light js-update-tolidPadash" data-url="{% url 'nezafatPadash_update_v2' c.id %}">  <i class="ti-eye"></i></button></td>
+  
+</tr>
+{% endfor %}

@@ -32,6 +32,10 @@ class TolidPadashForm_V2(forms.ModelForm):
     class Meta:
          model = TolidPadash_V2
          exclude = ('profile',)
+class NezafatPadashForm_V2(forms.ModelForm):
+    class Meta:
+         model = NezafatPadash_V2
+         exclude = ('profile',)
 class NezafatPadashForm(forms.ModelForm):
     class Meta:
          model = NezafatPadash

@@ -1,0 +1,19 @@
+
+<form method="post" action="{% url 'tolidPadash_update_v2' form.instance.id  %}" class="js-tolidPadash-update-form" autocomplete="off">
+    {% csrf_token %}
+    <div class="modal-header bg-primary" >
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <h4 class="modal-title">جدید</h4>
+    </div>
+    <div class="modal-body">
+     {% include 'mrp/assetrandeman/nezafatpadash_v2/partialNezafatPadashForm.html' %}
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default">انصراف</button>
+      {% if perms.mrp.add_tolidpadash %}
+      <button type="submit" class="btn btn-primary" >ذخیره</button>
+      {% endif %}
+    </div>
+  </form>

@@ -485,6 +485,24 @@ def create_related_nezafat_padash(id):
             new_padash.pk=None
             new_padash.profile=FinancialProfile.objects.get(id=id)
             new_padash.save()
+#################################
+def create_related_nezafat_padash_v2(id):
+     nezafat_padash=NezafatPadash_V2.objects.order_by('-id')[:3]
+     if(nezafat_padash.count()<3):
+        profile=FinancialProfile.objects.get(id=id)
+        mc=MachineCategory_Nezafat.objects.all()
+        for m in mc:
+            NezafatPadash_V2.objects.create(profile=profile,assetMachineCategory=m,rank=1,price_personnel=95000000)
+            NezafatPadash_V2.objects.create(profile=profile,rank=2,assetMachineCategory=m,price_personnel=75000000)
+            NezafatPadash_V2.objects.create(profile=profile,rank=3,assetMachineCategory=m,price_personnel=55000000)
+        
+     else:         
+
+        for i in nezafat_padash:
+            new_padash=i
+            new_padash.pk=None
+            new_padash.profile=FinancialProfile.objects.get(id=id)
+            new_padash.save()
 def create_related_randemanInit_padash(id):
      init_randeman=AssetRandemanInit.objects.order_by('-id')[:10]
      for i in init_randeman:

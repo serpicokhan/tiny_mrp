@@ -35,6 +35,19 @@ class MachineCategory(models.Model):
 
     class Meta:
        db_table = "machinecategory"
+       
+       
+class MachineCategory_Nezafat(models.Model):
+    name=models.CharField("نام",max_length = 50)
+    description=models.CharField("توضیحات",max_length = 50)
+
+
+    isPartOf = models.ForeignKey('self',on_delete=models.CASCADE,verbose_name="زیر مجموعه",null=True,blank=True)
+    def __str__(self):
+        return self.name
+
+    class Meta:
+       db_table = "machinecategorynezafat"
 
 class Asset(models.Model):
     def __str__(self):
@@ -131,6 +144,7 @@ class Asset(models.Model):
     assetSerialNumber=models.CharField("شماره سریال",max_length = 50,null=True,blank=True)
     assetStatus=models.BooleanField("وضعیت",default=True)
     assetMachineCategory=models.ForeignKey(MachineCategory,on_delete=models.CASCADE,null=True,blank=True,verbose_name="نوع دستگاه")
+    assetMachineCategory_nezafat=models.ForeignKey(MachineCategory_Nezafat,on_delete=models.CASCADE,null=True,blank=True,verbose_name="نوع دستگاه")
     assetIsStock=models.BooleanField("انبار",default=False)
     assetTavali=models.IntegerField("شماره توالی",null=True,blank=True)
 
