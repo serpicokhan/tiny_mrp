@@ -1,0 +1,140 @@
+<form method="post" action="{% url 'assetRandeman_ranking_create_v2' %}" class="js-assetRandeman-ranking-form_v2" id='assetRandeman-ranking-form_v2' autocomplete="off">
+
+  <div class="modal-header bg-primary">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">جدید</h4>
+  </div>
+  <div class="modal-body">
+    <div class="container mt-4">
+      <h2>{{title}} {{mah}} ماه {{sal}}</h2>
+      
+      <!-- تب‌های بوت‌استرپ -->
+      <ul class="nav nav-tabs" id="machineCategoryTabs" role="tablist">
+        {% for category in categories %}
+        <li class="nav-item">
+          <a class="nav-link {% if forloop.first %}active{% endif %}" 
+             id="tab-{{ category.id }}" 
+             data-toggle="tab" 
+             href="#content-{{ category.id }}" 
+             role="tab" 
+             aria-controls="content-{{ category.id }}" 
+             aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+            {{ category.name }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <!-- محتوای تب‌ها -->
+      <div class="tab-content" id="machineCategoryTabsContent">
+        {% for category in categories %}
+        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+             id="content-{{ category.id }}" 
+             role="tabpanel" 
+             aria-labelledby="tab-{{ category.id }}">
+          
+          <div class="row mt-3">
+            <div class="table-responsive" tabindex="1" style="overflow: hidden; outline: none;">
+              <table class="table table-striped table-bordered" id="sortable-table-{{ category.id }}">
+                <thead class="bg-dark">
+                  <tr>
+                    <th>نام شیفت</th>
+                    <th>رتبه نظافت</th>
+                    <th>پاداش سرشیفت</th>
+                    <th>پاداش پرسنل</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody_sortable_{{ category.id }}">
+                  {% for i in shifts %}
+                    {% if i.assetMachineCategory.id == category.id %}
+                    <tr data-assetrandeman="{{ i.asset_randeman_list.id }}" data-id="{{ i.id }}" data-position="{{ i.rank }}">
+                      <td>{{ i.shift.name }}</td>
+                      <td>
+                        <select class="form-control rank" data-rank="{{ i.rank }}">
+                          <option value="1" {% if i.rank == 1 %} selected {% endif %}>رتبه اول</option>
+                          <option value="2" {% if i.rank == 2 %} selected {% endif %}>رتبه دوم</option>
+                          <option value="3" {% if i.rank == 3 %} selected {% endif %}>رتبه سوم</option>
+                        </select>
+                      </td>
+                      <td><input type="number" name="" value="{{ i.price_sarshift }}" class="form-control sarshift_val"></td>
+                      <td><input type="number" name="" value="{{ i.price_personnel }}" class="form-control operator_val"></td>
+                    </tr>
+                    {% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">انصراف</button>
+    <button type="button" class="btn btn-default js-calc_assetRandeman_nezafat_ranking_v2" data-url='{% url "calc_assetRandeman_nezafat_ranking_v2" %}'>محاسبه رتبه</button>
+    {% if perms.mrp.add_assetfailure %}
+    <button type="submit" class="btn btn-primary">ذخیره</button>
+    {% endif %}
+  </div>
+</form>
+
+<style>
+  .sortable-list {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .sortable-list li {
+    margin: 5px 0;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+  }
+
+  .move-up, .move-down {
+    cursor: pointer;
+  }
+  
+  .nav-tabs .nav-link {
+    color: #495057;
+  }
+  
+  .nav-tabs .nav-link.active {
+    color: #495057;
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+  }
+</style>
+
+<script type="text/javascript">
+  function moveItemUp(element) {
+    var li = $(element).closest('li');
+    var position = parseInt(li.attr("data-position"));
+    if (position > 1) {
+      position = position - 1;
+      prev_pos = parseInt(li.prev().attr("data-position"));
+      prev_pos = prev_pos + 1;
+      li.attr("data-position", position);
+      li.prev().attr("data-position", prev_pos);
+    }
+    li.insertBefore(li.prev());
+  }
+
+  function moveItemDown(element) {
+    var li = $(element).closest('li');
+    var position = parseInt(li.attr("data-position"));
+    if (position < 3) {
+      position = position + 1;
+      prev_pos = parseInt(li.next().attr("data-position"));
+      prev_pos = prev_pos - 1;
+      li.attr("data-position", position);
+      li.next().attr("data-position", prev_pos);
+    }
+    li.insertAfter(li.next());
+  }
+</script>

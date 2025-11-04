@@ -6,25 +6,31 @@
 <style>
 /* General table styling */
 #company-table {
-    
     margin-bottom: 4rem;
-
 }
 
 table.table-bordered {
-    border: 2px solid #03346E !important; /* Adjust thickness (2px) and color as needed */
+    border: 2px solid #03346E !important;
 }
 
 table.table-bordered th,
 table.table-bordered td {
-    border: 2px solid #03346E !important; /* Ensure cells have the same border thickness */
+    border: 2px solid #03346E !important;
+}
+
+.nezafat-row {
+    background-color: #e8f5e8 !important;
+}
+
+.tolid-row {
+    background-color: #e8f4f8 !important;
 }
 
 /* Print-specific styles */
 @media print {
     table.table-bordered {
         border: 2px solid #03346E !important;
-        border-collapse: collapse; /* Ensure borders are not ignored */
+        border-collapse: collapse;
     }
 
     table.table-bordered th,
@@ -32,215 +38,227 @@ table.table-bordered td {
         border: 2px solid #03346E !important;
     }
 
-    /* Optional: Ensure text and background colors are visible when printing */
     .bg-info-gradient, .bg-success-gradient {
-        background: none !important; /* Remove gradients for print */
-        color: #000000 !important; /* Ensure text is black for readability */
+        background: none !important;
+        color: #000000 !important;
     }
 
     th, td {
-        color: #000000 !important; /* Ensure text is black */
+        color: #000000 !important;
+    }
+    
+    .nezafat-row {
+        background-color: #f0f0f0 !important;
+    }
+    
+    .tolid-row {
+        background-color: #f8f8f8 !important;
     }
 }
 </style>
 {% endblock %}
+
 {% block content %}
 <div class="row app-block">
+    <div class="col-md-12">
+        <div class="card card-body app-content-body">
+            <div class="card-body">
+                <h5 class="card-title"></h5>
 
-
-            <div class="col-md-12">
-              <div class="card card-body app-content-body">
-
-                  <div class="card-body">
-                    <h5 class="card-title"></h5>
-
-                    {% for i in shift_list %}
-                    <div class="row mb-5" >
-                      <div class="col text-center ">
+                {% for i in shift_list %}
+                <div class="row mb-5">
+                    <div class="col text-center">
                         <h3 style="font-family: 'iransans-bold'">
-
-                           راندمان اپراتورهای شیفت {{i.name}} {{mah}} ماه {{sal}}
-                        <img src="{% static 'assets/media/image/IMG_20180602_111455_515.jpg' %}" width="10%" alt="">
-                          
-                          </h3>
-                      </div>
-                      <div class="table-responsive"> <!-- Required for Responsive -->
+                            راندمان اپراتورهای شیفت {{i.name}} {{mah}} ماه {{sal}}
+                            <img src="{% static 'assets/media/image/IMG_20180602_111455_515.jpg' %}" width="10%" alt="">
+                        </h3>
+                    </div>
+                    <div class="table-responsive">
                         <table class="table table-striped table-bordered" id="company-table">
-                          <thead class="bg-info-gradient">
-                            <tr>
-
-                              <th style="color: #03346E;">نام دستگاه</th>
-                            {% for x in randeman_list %}
-
-                            {% if i.id == x.randeman.shift.id %}
-                            <th style="color: #03346E;"><b>{{x.randeman.asset_category}}</b></th>
-                            {% endif %}
-                            {% endfor %}
-
-
-
-
-                            </tr>
-                          <tr>
-                            <th style="color: #03346E;">اپراتور</th>
-                            {% for x in randeman_list %}
-                            {% if i.id == x.randeman.shift.id %}
-                            <th style="color: #03346E;">{{x.operator_num}}</th>
-                            {% endif %}
-                            {% endfor %}
-                          </tr>
-
-                          </thead>
-                          <tbody id="tbody_company">
-                            <tr>
-                              <td><b>جمع دستگاه</b></td>
-                              {% for x in randeman_list %}
-                              {% if i.id == x.randeman.shift.id %}
-                              <td><b>{{x.randeman.tolid_value|floatformat:0|intcomma}}</b></td>
-                              {% endif %}
-                              {% endfor %}
-                            </tr>
-                            <tr>
-                              <td colspan="4">
-                                <b>جمع راندمان تولید</b>
-                              </td>
-                              <td colspan="2" class="text-center">
-                                {% for x in randeman_kol %}
-                                  {% if i.id == x.shift.id %}
-                                 <b> {{x.randeman_kol|round_to_100k|floatformat:0|intcomma}}</b>
-                                  {% endif %}
-                                  {% endfor %}</td>
-                              <td colspan="2"><b>جمع راندمان نظافت</b></td>
-                              <td>  {% for x in randeman_kol %}
-                                  {% if i.id == x.shift.id %}
-                                 <b> {{x.nezafat_rank}}</b>
-                                  {% endif %}
-                                  {% endfor %}</td>
-                              <td colspan="2" class="text-center">  {% for x in randeman_kol %}
-                                  {% if i.id == x.shift.id %}
-                                  <b>
-                                  {{x.padashe_nezafat|round_to_100k|floatformat:0|intcomma}}
-
-                                  </b>
-                                  {% endif %}
-                                  {% endfor %}</td>
-
-                            </tr>
-                            <tr class="text-center">
-                              
-                              {% for x in randeman_kol %}
-
-                              {% if i.id == x.shift.id %}
-                              {% for mc in x.tolid_rank %}
-                              <td >
-                               
-                               <b> رتبه   {{mc.mc}}</b>
-
-                              </td>
-                              
-                              <td >
+                            <thead class="bg-info-gradient">
+                                <tr>
+                                    <th style="color: #03346E;">نام دستگاه</th>
+                                    {% for x in randeman_list %}
+                                    {% if i.id == x.randeman.shift.id %}
+                                    <th style="color: #03346E;"><b>{{x.randeman.asset_category}}</b></th>
+                                    {% endif %}
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th style="color: #03346E;">اپراتور</th>
+                                    {% for x in randeman_list %}
+                                    {% if i.id == x.randeman.shift.id %}
+                                    <th style="color: #03346E;">{{x.operator_num}}</th>
+                                    {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody id="tbody_company">
+                                <tr>
+                                    <td><b>جمع دستگاه</b></td>
+                                    {% for x in randeman_list %}
+                                    {% if i.id == x.randeman.shift.id %}
+                                    <td><b>{{x.randeman.tolid_value|floatformat:0|intcomma}}</b></td>
+                                    {% endif %}
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <td colspan="4">
+                                        <b>جمع راندمان تولید</b>
+                                    </td>
+                                    <td colspan="2" class="text-center">
+                                        {% for x in randeman_kol %}
+                                        {% if i.id == x.shift.id %}
+                                        <b>{{x.randeman_kol|round_to_100k|floatformat:0|intcomma}}</b>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td colspan="2"><b>جمع پاداش نظافت</b></td>
+                                    <td colspan="2" class="text-center">
+                                        {% for x in randeman_kol %}
+                                        {% if i.id == x.shift.id %}
+                                        <b>{{x.padashe_nezafat|round_to_100k|floatformat:0|intcomma}}</b>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
                                 
-                                  {% if i.id == x.shift.id %}
-
-                                  <b>{{mc.rank_l}}</b>
-                                  {% endif %}
-                                  
-                              </td>
-                              <td>
+                                <!-- سطر رتبه‌های نظافت -->
+                                <tr class="text-center bg-light">
+                                    <td colspan="{{ randeman_list|length|add:1 }}">
+                                        <b>رتبه‌های نظافت</b>
+                                    </td>
+                                </tr>
                                 {% for x in randeman_kol %}
                                 {% if i.id == x.shift.id %}
-
-                                <b> {{mc.mablagh|round_to_100k|floatformat:0|intcomma}}  </b>
+                                {% for nezafat in x.nezafat_rank %}
+                                {% if forloop.first %}
+                                <tr class="text-center nezafat-row">
+                                {% endif %}
+                                    <td>
+                                        <b>{{nezafat.mc}}</b>
+                                    </td>
+                                    <td>
+                                        <b>{{nezafat.rank_l}}</b>
+                                    </td>
+                                    <td>
+                                        <b>{{nezafat.mablagh|round_to_100k|floatformat:0|intcomma}}</b>
+                                    </td>
+                                {% if forloop.counter|divisibleby:3 or forloop.last %}
+                                </tr>
+                                {% if not forloop.last %}
+                                <tr class="text-center nezafat-row">
+                                {% endif %}
+                                {% endif %}
+                                {% empty %}
+                                <tr class="text-center">
+                                    <td colspan="{{ randeman_list|length|add:1 }}">
+                                        <b>هیچ رتبه نظافتی ثبت نشده</b>
+                                    </td>
+                                </tr>
+                                {% endfor %}
                                 {% endif %}
                                 {% endfor %}
-                              </td>
-                              {% endfor %}
-                              {% endif %}
-
-                              {% endfor %}
-                              <td >
-
-                              <b>مبلغ قابل پرداخت</b>
-                            </td>
-                              <td> {% for x in randeman_kol %}
+                                
+                                <!-- سطر رتبه‌های تولید -->
+                                <tr class="text-center bg-light">
+                                    <td colspan="{{ randeman_list|length|add:1 }}">
+                                        <b>رتبه‌های تولید</b>
+                                    </td>
+                                </tr>
+                                {% for x in randeman_kol %}
                                 {% if i.id == x.shift.id %}
-
-                                <b>{{x.sum|round_to_100k|floatformat:0|intcomma}}</b>
+                                {% for tolid in x.tolid_rank %}
+                                {% if forloop.first %}
+                                <tr class="text-center tolid-row">
                                 {% endif %}
-                                {% endfor %}</td>
-                            </tr>
-                          </tbody>
-
+                                    <td>
+                                        <b>{{tolid.mc}}</b>
+                                    </td>
+                                    <td>
+                                        <b>{{tolid.rank_l}}</b>
+                                    </td>
+                                    <td>
+                                        <b>{{tolid.mablagh|round_to_100k|floatformat:0|intcomma}}</b>
+                                    </td>
+                                {% if forloop.counter|divisibleby:3 or forloop.last %}
+                                </tr>
+                                {% if not forloop.last %}
+                                <tr class="text-center tolid-row">
+                                {% endif %}
+                                {% endif %}
+                                {% empty %}
+                                <tr class="text-center">
+                                    <td colspan="{{ randeman_list|length|add:1 }}">
+                                        <b>هیچ رتبه تولیدی ثبت نشده</b>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                                {% endfor %}
+                                
+                                <!-- سطر مبلغ قابل پرداخت -->
+                                <tr class="text-center bg-success text-white">
+                                    <td colspan="10">
+                                        <b>مبلغ قابل پرداخت</b>
+                                    </td>
+                                    <td colspan="2">
+                                        {% for x in randeman_kol %}
+                                        {% if i.id == x.shift.id %}
+                                        <b>{{x.sum|round_to_100k|floatformat:0|intcomma}}</b>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            </tbody>
                         </table>
-                      </div>
-
-
-
-
-
-
                     </div>
-                    <hr/>
-                    {% endfor %}
-
-
-
-                    <p>  <div class="row" >
-                      <div class="col text-center ">
-                        <h3 style="font-family: 'iransans-bold'">
-
-                           {{mah}} ماه {{sal}}
-                          
-                        <img src="{% static 'assets/media/image/IMG_20180602_111455_515.jpg' %}" width="10%" alt="">
-                          
-                          </h3>
-                      </div>
-                        <div class="table-responsive"> <!-- Required for Responsive -->
-                          <table class="table table-striped table-bordered" id="company-table">
-                            <thead class="bg-success-gradient">
-                              <tr>
-
-                                <th style="color:#000000">مجموع راندمان تولید</th>
-                                <th style="color:#000000">مجموع پاداش رتبه تولید</th>
-                                <th style="color:#000000">مجموع پاداش نظافت</th>
-                                <th style="color:#000000">مجموع کل</th>
-                              </tr>
-                              </thead>
-                              <tbody>
-                                <td><b>{{sum_randeman_tolid_kol|round_to_100k|floatformat:0|intcomma}}</b></td>
-                                <td><b>{{sum_padash_tolid_kol|round_to_100k|floatformat:0|intcomma}}</b></td>
-                                <td><b>{{sum_nezafat_kol|round_to_100k|floatformat:0|intcomma}}</b></td>
-                                <td><b>{{sum_randeman_tolid_kol_majmu|round_to_100k|floatformat:0|intcomma}}</b></td>
-                              </tbody>
-                              </table>
-                        </div>
-
-                      </div></p>
-                  </div>
-
-                  <div class="modal fade" id="modal-company">
-                   <div class="modal-dialog  modal-lg ">
-
-                     <div class="modal-content ">
-                     </div>
-                   </div>
-                  </div>
                 </div>
+                <hr/>
+                {% endfor %}
 
+                <p>
+                    <div class="row">
+                        <div class="col text-center">
+                            <h3 style="font-family: 'iransans-bold'">
+                                {{mah}} ماه {{sal}}
+                                <img src="{% static 'assets/media/image/IMG_20180602_111455_515.jpg' %}" width="10%" alt="">
+                            </h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered" id="company-table">
+                                <thead class="bg-success-gradient">
+                                    <tr>
+                                        <th style="color:#000000">مجموع راندمان تولید</th>
+                                        <th style="color:#000000">مجموع پاداش رتبه تولید</th>
+                                        <th style="color:#000000">مجموع پاداش نظافت</th>
+                                        <th style="color:#000000">مجموع کل</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <td><b>{{sum_randeman_tolid_kol|round_to_100k|floatformat:0|intcomma}}</b></td>
+                                    <td><b>{{sum_padash_tolid_kol|round_to_100k|floatformat:0|intcomma}}</b></td>
+                                    <td><b>{{sum_nezafat_kol|round_to_100k|floatformat:0|intcomma}}</b></td>
+                                    <td><b>{{sum_randeman_tolid_kol_majmu|round_to_100k|floatformat:0|intcomma}}</b></td>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </p>
             </div>
 
-
-
-
-          </div>
-
-
+            <div class="modal fade" id="modal-company">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
+
 {% load static %}
-
 {% block javascript %}
-
-
- <script src="{% static 'project/assetrandeman.js' %}"></script>
- <script src="{% static 'vendors/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+<script src="{% static 'project/assetrandeman.js' %}"></script>
+<script src="{% static 'vendors/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
 {% endblock %}

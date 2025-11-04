@@ -41,6 +41,7 @@ def save_assetRandeman_form(request, form, template_name,id=None,is_new=None):
                         calc_assetrandeman(bts.mah,bts.sal)
                         create_first_padash(bts.id)
                         create_first_padash_v2(bts.id)
+                        create_first_nezafat_padash_v2(bts.id)
                     data['form_is_valid'] = True
                     books = AssetRandemanList.objects.all()
                     wos=doPaging(request,books)
@@ -137,7 +138,66 @@ def assetRandeman_nezafat_ranking(request,id):
             'perms': PermWrapper(request.user),'title':'انتخاب رتبه نظافت'
         },request=request)
     return JsonResponse(data)
+# def assetRandeman_nezafat_ranking_v2(request,id):
+#     data=dict()
+#     if (request.method == 'POST'):
+#         pass
+#     else:
+#         shamsi_months = [
+#                 'فروردین',
+#                 'اردیبهشت',
+#                 'خرداد',
+#                 'تیر',
+#                 'مرداد',
+#                 'شهریور',
+#                 'مهر',
+#                 'آبان',
+#                 'آذر',
+#                 'دی',
+#                 'بهمن',
+#                 'اسفند'
+#             ]
+#         asset_randeman=AssetRandemanList.objects.get(id=id)
+#         shift=NezafatRanking_V2.objects.filter(asset_randeman_list=asset_randeman).order_by('rank')
 
+#         # shift2=NezafatPadash.objects.filter(asset_randeman_list=asset_randeman).order_by('rank')
+#         # shift=[]
+#         # for i in shift1:
+#         #     shift.push({'id_rank':})
+#         # print(shift)
+
+#         data['html_assetRandeman_form'] = render_to_string('mrp/assetrandeman/partialRankingList_v2.html', {
+#             'shifts':shift,'mah':shamsi_months[asset_randeman.mah-1],'sal':asset_randeman.sal,
+#             'perms': PermWrapper(request.user),'title':'انتخاب رتبه نظافت'
+#         },request=request)
+#     return JsonResponse(data)
+
+def assetRandeman_nezafat_ranking_v2(request, id):
+    data = dict()
+    if request.method == 'POST':
+        pass
+    else:
+        shamsi_months = [
+            'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+            'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
+        ]
+        asset_randeman = AssetRandemanList.objects.get(id=id)
+        shifts = NezafatRanking_V2.objects.filter(asset_randeman_list=asset_randeman).order_by('rank')
+        
+        # دریافت دسته‌بندی‌های منحصربه‌فرد
+        categories = MachineCategory_Nezafat.objects.all(
+            
+        )
+
+        data['html_assetRandeman_form'] = render_to_string('mrp/assetrandeman/partialRankingList_v2.html', {
+            'shifts': shifts,
+            'categories': categories,
+            'mah': shamsi_months[asset_randeman.mah - 1],
+            'sal': asset_randeman.sal,
+            'perms': PermWrapper(request.user),
+            'title': 'انتخاب رتبه نظافت'
+        }, request=request)
+    return JsonResponse(data)
 def assetRandeman_padash_ranking(request,id):
     data=dict()
     if (request.method == 'POST'):
@@ -200,6 +260,41 @@ def assetRandeman_ranking_create(request):
         return JsonResponse({'status': 'error'})
     else:
             return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+        
+
+@csrf_exempt
+def assetRandeman_ranking_create_v2(request):
+    if request.method == 'POST':
+        try:
+            # Access the 'items' key from the POST data
+            received_data = json.loads(request.body)
+            
+            for item in received_data:
+                # دریافت آبجکت مورد نظر
+                ranking_obj = NezafatRanking_V2.objects.get(id=item["id"])
+                
+                # آپدیت فیلدها
+                ranking_obj.rank = item['rank']
+                ranking_obj.price_sarshift = item['price_sarshift']
+                ranking_obj.price_personnel = item['price_personnel']
+                ranking_obj.save()
+
+            return JsonResponse({'status': 'success', 'message': 'داده‌ها با موفقیت ذخیره شد'})
+            
+        except NezafatRanking_V2.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'رکورد مورد نظر یافت نشد'})
+            
+        except KeyError as e:
+            return JsonResponse({'status': 'error', 'message': f'فیلد اجباری یافت نشد: {str(e)}'})
+            
+        except json.JSONDecodeError as e:
+            return JsonResponse({'status': 'error', 'message': 'فرمت JSON نامعتبر است'})
+            
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': f'خطای سیستمی: {str(e)}'})
+    
+    else:
+        return JsonResponse({'status': 'error', 'message': 'متد درخواست نامعتبر است'})
 @csrf_exempt
 def calc_assetRandeman_nezafat_ranking(request):
     if request.method == 'POST':
@@ -319,7 +414,126 @@ def calc_assetRandeman_nezafat_ranking(request):
         return JsonResponse({'status': 'error'})
     else:
             return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+@csrf_exempt
+def calc_assetRandeman_nezafat_ranking_v2(request):
+    if request.method == 'POST':
+        try:
+            received_data = json.loads(request.body)
+            
+            if not received_data:
+                return JsonResponse({'status': 'error', 'message': 'هیچ داده‌ای دریافت نشد'})
 
+            result = []
+            categories_data = {}
+
+            # گروه‌بندی داده‌ها بر اساس assetMachineCategory
+            for item in received_data:
+                try:
+                    ranking_obj = NezafatRanking_V2.objects.get(id=item["id"])
+                    category = ranking_obj.assetMachineCategory
+                    profile = ranking_obj.asset_randeman_list.profile
+                    
+                    if category.id not in categories_data:
+                        categories_data[category.id] = {
+                            'category': category,
+                            'profile': profile,
+                            'rank_groups': {1: [], 2: [], 3: []}
+                        }
+                    
+                    # اضافه کردن به گروه رتبه مربوطه
+                    rank = int(item.get('rank', 0))
+                    if rank in [1, 2, 3]:
+                        categories_data[category.id]['rank_groups'][rank].append(ranking_obj)
+                        
+                except NezafatRanking_V2.DoesNotExist:
+                    continue
+
+            # پردازش برای هر دسته‌بندی
+            for category_id, category_data in categories_data.items():
+                category = category_data['category']
+                profile = category_data['profile']
+                rank_groups = category_data['rank_groups']
+                
+                # دریافت پاداش‌های مربوط به این دسته‌بندی
+                padash_data = {}
+                for rank in [1, 2, 3]:
+                    try:
+                        # اول سعی می‌کنیم پاداش مخصوص این دسته‌بندی را پیدا کنیم
+                        padash_data[rank] = NezafatPadash_V2.objects.get(
+                            rank=rank, 
+                            profile=profile,
+                            assetMachineCategory=category
+                        )
+                    except NezafatPadash_V2.DoesNotExist:
+                        try:
+                            # اگر پیدا نشد، از پاداش عمومی استفاده می‌کنیم
+                            padash_data[rank] = NezafatPadash_V2.objects.get(
+                                rank=rank, 
+                                profile=profile,
+                                assetMachineCategory__isnull=True
+                            )
+                        except NezafatPadash_V2.DoesNotExist:
+                            # اگر پاداش عمومی هم وجود نداشت، خطا می‌دهیم
+                            return JsonResponse({
+                                'status': 'error', 
+                                'message': f'پاداش برای رتبه {rank} یافت نشد'
+                            })
+
+                # محاسبه پاداش برای هر رتبه
+                for rank in [1, 2, 3]:
+                    items = rank_groups[rank]
+                    if not items:
+                        continue
+                        
+                    if rank == 1:
+                        calculate_rewards_for_rank(items, padash_data[1], padash_data[2], padash_data[3])
+                    elif rank == 2:
+                        calculate_rewards_for_rank(items, padash_data[2], padash_data[3], padash_data[1])
+                    elif rank == 3:
+                        calculate_rewards_for_rank(items, padash_data[3], padash_data[2], padash_data[1])
+
+                # جمع‌آوری نتایج
+                for rank in [1, 2, 3]:
+                    for obj in rank_groups[rank]:
+                        result.append({
+                            'id': obj.id,
+                            'rank': obj.rank,
+                            # 'price_sarshift': float(obj.price_sarshift),
+                            'price_personnel': float(obj.price_personnel),
+                            'category_id': category_id,
+                            'category_name': category.name,
+                            'shift_name': obj.shift.name
+                        })
+
+            return JsonResponse({'status': 'success', 'result': result})
+
+        except json.JSONDecodeError as e:
+            return JsonResponse({'status': 'error', 'message': 'فرمت JSON نامعتبر است'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': f'خطای سیستمی: {str(e)}'})
+    
+    else:
+        return JsonResponse({'status': 'error', 'message': 'متد درخواست نامعتبر است'})
+
+# تابع کمکی برای محاسبه پاداش‌ها
+def calculate_rewards_for_rank(items, primary_padash, secondary_padash, tertiary_padash):
+    count = len(items)
+    
+    if count == 1:
+        # items[0].price_sarshift = primary_padash.price_sarshift
+        items[0].price_personnel = primary_padash.price_personnel
+    elif count == 2:
+        # avg_sarshift = (primary_padash.price_sarshift + secondary_padash.price_sarshift) / 2
+        avg_personnel = (primary_padash.price_personnel + secondary_padash.price_personnel) / 2
+        for item in items:
+            # item.price_sarshift = avg_sarshift
+            item.price_personnel = avg_personnel
+    elif count >= 3:
+        # avg_sarshift = (primary_padash.price_sarshift + secondary_padash.price_sarshift + tertiary_padash.price_sarshift) / 3
+        avg_personnel = (primary_padash.price_personnel + secondary_padash.price_personnel + tertiary_padash.price_personnel) / 3
+        for item in items:
+            # item.price_sarshift = avg_sarshift
+            item.price_personnel = avg_personnel
 @csrf_exempt
 def calc_assetRandeman_tolid_ranking(request):
     if request.method == 'POST':

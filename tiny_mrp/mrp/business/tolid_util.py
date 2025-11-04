@@ -321,6 +321,20 @@ def create_first_padash(AssetRandemanListId):
         NezafatRanking.objects.create(asset_randeman_list=asset_randeman,shift=i,rank=i.id,price_sarshift=0,price_personnel=0)
         # NezafatPadash.objects.create(asset_randeman_list=asset_randeman,rank=i.id,price_sarshift=0,price_personnel=0)
         # TolidPadash.objects.create(asset_randeman_list=asset_randeman,rank=i.id,price_sarshift=0,price_personnel=0)
+def create_first_nezafat_padash_v2(AssetRandemanListId):
+    asset_randeman=AssetRandemanList.objects.get(id=AssetRandemanListId)
+    shifts=Shift.objects.all()
+    mc=MachineCategory_Nezafat.objects.all()
+    
+
+
+   
+    for i in shifts:
+        for m in mc:
+     
+        
+            NezafatRanking_V2.objects.create(asset_randeman_list=asset_randeman,shift=i,rank=i.id,price_sarshift=0,price_personnel=0,assetMachineCategory=m)
+       
 def get_tolid_rank(sal,mah):
     shifts=Shift.objects.all()
     asset_cats=AssetCategory.objects.all().order_by('priority')
@@ -454,6 +468,7 @@ def create_related_tolid_padash(id):
 
 
 def create_related_tolid_padash_v2(id):
+     print("here!")
      tolid_padash=TolidPadash_V2.objects.order_by('-id')[:3]
      if(tolid_padash.count()<3):
         profile=FinancialProfile.objects.get(id=id)
