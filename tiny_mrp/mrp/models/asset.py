@@ -40,6 +40,8 @@ class MachineCategory(models.Model):
 class MachineCategory_Nezafat(models.Model):
     name=models.CharField("نام",max_length = 50)
     description=models.CharField("توضیحات",max_length = 50)
+    operator_count = models.IntegerField("تعداد اپراتور",default=0)
+
 
 
     isPartOf = models.ForeignKey('self',on_delete=models.CASCADE,verbose_name="زیر مجموعه",null=True,blank=True)

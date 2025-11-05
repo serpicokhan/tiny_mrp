@@ -971,7 +971,16 @@ def get_monthly_workbook(request):
 #                             'sum_randeman_tolid_kol_majmu':sum_randeman_tolid_kol_majmu,
 #                             'sum_padash_tolid_kol':sum_padash_tolid_kol,'sum_nezafat_kol':sum_nezafat_kol,
 #                             'sum_randeman_tolid_kol':sum_randeman_tolid_kol})
+def get_operator_count_optimized(machine_category_nezafat_id,profile_id):
+    # print(AssetRandemanInit.objects.filter(
+    #     asset_category__asset__assetMachineCategory_nezafat_id=machine_category_nezafat_id,profile__id=profile_id
+    # ).query)
 
+    return AssetRandemanInit.objects.filter(
+        asset_category__asset__assetMachineCategory_nezafat_id=machine_category_nezafat_id,profile__id=profile_id
+    ).aggregate(
+        total_operators=Sum('operator_count')
+    )['total_operators'] or 0
 def get_monthly_workbook_v2(request):
     my_dict = {
         1: 'اول',
@@ -1011,23 +1020,54 @@ def get_monthly_workbook_v2(request):
         
         for m in machine_categories_nezafat:
             try:
-                print(randeman_list_obj.id,i.id,m.id)
-                nezafat_rank = NezafatRanking_V2.objects.get(                    asset_randeman_list=randeman_list_obj,                     shift=i,                     assetMachineCategory=m                )
+                nezafat_rank = NezafatRanking_V2.objects.get(                    asset_randeman_list=randeman_list_obj, 
+                                                                                 shift=i,           
+                                                                                                     assetMachineCategory=m                )
+               
+                operator_count = 0
+                
+                # روش 1: از طریق Asset‌هایی که به این MachineCategory_Nezafat مرتبط هستند
+                try:
+                    # فرض: Asset رابطه با MachineCategory_Nezafat دارد
+                    operator_count = m.operator_count
+                    print(operator_count,'!!!!!!!!!!')
+
+                            
+                except AttributeError as ex:
+                    # اگر رابطه مستقیم وجود ندارد
+                    print(ex)
+                
+                # اگر از روش بالا تعداد اپراتور پیدا نشد، از روش جایگزین استفاده کن
+                if operator_count == 0:
+                    try:
+                        # روش 2: استفاده از اولین AssetCategory موجود
+                       
+                        operator_count = 1
+                    except (AssetCategory.DoesNotExist, AssetRandemanInit.DoesNotExist):
+                        operator_count = 1  # مقدار پیش‌فرض
+                
+                # محاسبه پاداش کل نظافت با ضرب در تعداد اپراتورها
+                total_nezafat_personnel = nezafat_rank.price_personnel * operator_count
+                sum_nezafat_v2 += nezafat_rank.price_personnel
+                sum_nezafat_kol += total_nezafat_personnel
                 nezafat_rank_v2.append({
                     'mc': m.name,
                     'rank_l': my_dict[nezafat_rank.rank],
                     'rank': nezafat_rank.rank,
-                    'mablagh': nezafat_rank.price_personnel
+                    'mablagh_per_operator': nezafat_rank.price_personnel,
+                    'operator_count': operator_count,
+                    'mablagh': total_nezafat_personnel
                 })
-                sum_nezafat_v2 += nezafat_rank.price_personnel
-                sum_nezafat_kol += nezafat_rank.price_personnel
+                
             except NezafatRanking_V2.DoesNotExist:
                 # اگر رکوردی وجود ندارد، مقدار پیش‌فرض قرار دهید
                 nezafat_rank_v2.append({
                     'mc': m.name,
-                    'rank_l': 'نامشخص',
-                    'rank': 0,
-                    'mablagh': 0
+                    'rank_l': my_dict[nezafat_rank.rank],
+                    'rank': nezafat_rank.rank,
+                    'mablagh_per_operator': nezafat_rank.price_personnel,
+                    'operator_count': operator_count,
+                    'mablagh': total_nezafat_personnel
                 })
         
         # محاسبه مجموع پاداش نظافت
@@ -1035,7 +1075,7 @@ def get_monthly_workbook_v2(request):
             asset_randeman_list=randeman_list_obj, 
             shift=i
         ).aggregate(total_price_personnel=Sum('price_personnel'))
-        padashe_nezafat_personel = result_nezafat['total_price_personnel'] or 0
+        padashe_nezafat_personel = sum(item['mablagh'] for item in nezafat_rank_v2)
         
         # محاسبه رتبه‌های تولید برای هر دسته‌بندی (بر اساس MachineCategory)
         tolid_rank_v2 = []
@@ -1066,11 +1106,8 @@ def get_monthly_workbook_v2(request):
                 })
         
         # محاسبه مجموع پاداش تولید
-        result_tolid = TolidRanking_V2.objects.filter(
-            asset_randeman_list=randeman_list_obj, 
-            shift=i
-        ).aggregate(total_price_personnel=Sum('price_personnel'))
-        padashe_tolid_personel = result_tolid['total_price_personnel'] or 0
+       
+        padashe_tolid_personel = sum(item['mablagh'] for item in tolid_rank_v2)
         
         randeman_kol = get_sum_randeman_by_shift(mah, sal, i)
         
