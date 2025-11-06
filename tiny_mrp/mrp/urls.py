@@ -61,6 +61,7 @@ urlpatterns = [
     url(r'^Asset/Randeman/(?P<id>\d+)/delete/$', assetRandeman_delete, name='assetRandeman_delete'),
     url(r'^Asset/Randeman/WorkBook/$', get_monthly_workbook, name='get_monthly_workbook'),
     url(r'^Asset/Randeman/V2/WorkBook/$', get_monthly_workbook_v2, name='get_monthly_workbook_v2'),
+    url(r'^Asset/Randeman/V3/WorkBook/$', get_monthly_workbook_v3, name='get_monthly_workbook_v3'),
     url(r'^Asset/Randeman/Sarshift/Workprofile/$', get_monthly_sarshift_workbook, name='get_monthly_sarshift_workbook'),
     url(r'^Asset/Randeman/(?P<id>\d+)/NezafatRanking/$', assetRandeman_nezafat_ranking, name='assetRandeman_nezafat_ranking'),
     url(r'^Asset/Randeman/(?P<id>\d+)/V2/NezafatRanking/$', assetRandeman_nezafat_ranking_v2, name='assetRandeman_nezafat_ranking_v2'),
