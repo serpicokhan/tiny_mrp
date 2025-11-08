@@ -17,7 +17,8 @@ from mrp.business.tolid_util import *
 import datetime
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-
+from django.db.models import Avg
+from django.db.models import Q
 
 @login_required
 def asset_randeman_list(request):
@@ -261,6 +262,100 @@ def assetRandeman_ranking_create(request):
     else:
             return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
         
+def calculate_sarshift_rankings(asset_randeman_list):
+    """
+    محاسبه و ذخیره رتبه‌بندی سرشیفت‌ها بر اساس میانگین رتبه‌های V2
+    شیفت با پایین‌ترین میانگین، رتبه 1 می‌گیرد
+    """
+    from django.db import transaction
+    
+    # گرفتن لیست تمام شیفت‌هایی که در V2 دارند
+    shifts_with_data = NezafatRanking_V2.objects.filter(
+        asset_randeman_list=asset_randeman_list
+    ).values_list('shift', flat=True).distinct()
+    
+    # محاسبه میانگین رتبه برای هر شیفت
+    shift_averages = []
+    for shift_id in shifts_with_data:
+        shift = Shift.objects.get(id=shift_id)
+        
+        # محاسبه میانگین رتبه
+        avg_rank = NezafatRanking_V2.objects.filter(
+            asset_randeman_list=asset_randeman_list,
+            shift=shift
+        ).aggregate(Avg('rank'))['rank__avg']
+        
+        # # محاسبه مجموع قیمت‌ها
+        # v2_records = NezafatRanking_V2.objects.filter(
+        #     asset_randeman_list=asset_randeman_list,
+        #     shift=shift
+        # )
+        
+        # total_price_sarshift = sum(record.price_sarshift for record in v2_records)
+        # total_price_personnel = sum(record.price_personnel for record in v2_records)
+        
+        shift_averages.append({
+            'shift': shift,
+            'avg_rank': avg_rank,
+            # 'price_sarshift': total_price_sarshift,
+            # 'price_personnel': total_price_personnel,
+        })
+    
+    # مرتب‌سازی بر اساس میانگین (پایین‌ترین = رتبه 1)
+    shift_averages.sort(key=lambda x: x['avg_rank'])
+    
+    # ذخیره رتبه‌ها
+    with transaction.atomic():
+        current_rank = 1
+        previous_avg = None
+        count_same_rank = 0
+        
+        for index, shift_data in enumerate(shift_averages):
+            # اگر میانگین با قبلی برابر نیست، رتبه رو به‌روز کن
+            if previous_avg is not None and shift_data['avg_rank'] != previous_avg:
+                current_rank = index + 1
+                count_same_rank = 0
+            
+            count_same_rank += 1
+            
+            # محاسبه پاداش بر اساس میانگین رتبه‌های تکراری
+            if count_same_rank == 1:
+                # اول چک می‌کنیم چند تا با همین میانگین داریم
+                same_avg_count = sum(
+                    1 for s in shift_averages 
+                    if s['avg_rank'] == shift_data['avg_rank']
+                )
+                
+                # مجموع پاداش‌های رتبه‌های متوالی
+                total_padash = 0
+                for i in range(same_avg_count):
+                    try:
+                        padash_item = NezafatPadash.objects.get(
+                            rank=current_rank + i,
+                            profile=asset_randeman_list.profile
+                        )
+                        total_padash += padash_item.price_sarshift
+                    except NezafatPadash.DoesNotExist:
+                        pass
+                
+                # میانگین پاداش‌ها
+                avg_padash = total_padash / same_avg_count if same_avg_count > 0 else 0
+            
+            NezafatRanking.objects.update_or_create(
+                asset_randeman_list=asset_randeman_list,
+                shift=shift_data['shift'],
+                defaults={
+                    'rank': current_rank,
+                    'price_sarshift': avg_padash,
+                    'price_personnel': 0,
+                }
+            )
+            
+            previous_avg = shift_data['avg_rank']
+    
+    return shift_averages
+
+
 
 @csrf_exempt
 def assetRandeman_ranking_create_v2(request):
@@ -268,16 +363,18 @@ def assetRandeman_ranking_create_v2(request):
         try:
             # Access the 'items' key from the POST data
             received_data = json.loads(request.body)
-            
+            asset_randeman_list=None
             for item in received_data:
                 # دریافت آبجکت مورد نظر
                 ranking_obj = NezafatRanking_V2.objects.get(id=item["id"])
+                asset_randeman_list=ranking_obj.asset_randeman_list
                 
                 # آپدیت فیلدها
                 ranking_obj.rank = item['rank']
                 ranking_obj.price_sarshift = item['price_sarshift']
                 ranking_obj.price_personnel = item['price_personnel']
                 ranking_obj.save()
+            calculate_sarshift_rankings(asset_randeman_list)
 
             return JsonResponse({'status': 'success', 'message': 'داده‌ها با موفقیت ذخیره شد'})
             
