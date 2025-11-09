@@ -469,9 +469,10 @@ def create_related_tolid_padash(id):
 
 def create_related_tolid_padash_v2(id):
      print("here!")
-     tolid_padash=TolidPadash_V2.objects.order_by('-id')[:3]
+     profile=FinancialProfile.objects.get(id=id)
+     
+     tolid_padash=TolidPadash_V2.objects.order_by('-id')[:9]
      if(tolid_padash.count()<3):
-        profile=FinancialProfile.objects.get(id=id)
         mc=MachineCategory.objects.all()
         for m in mc:
             TolidPadash_V2.objects.create(profile=profile,assetMachineCategory=m,rank=1,price_personnel=95000000)
