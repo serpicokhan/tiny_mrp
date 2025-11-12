@@ -115,3 +115,8 @@ def sum_wastage(items):
         return sum(float(item['amar'].wastage_value or 0) for item in items if item.get('amar') and item['amar'].wastage_value is not None)
     except (ValueError, TypeError, KeyError):
         return 0
+
+@register.filter(name='has_permission')
+def has_permission(user, permission_name):
+    """Check if user has specific permission"""
+    return user.has_perm(permission_name)

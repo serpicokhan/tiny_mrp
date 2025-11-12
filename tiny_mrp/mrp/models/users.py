@@ -75,6 +75,7 @@ class SysUser(models.Model):
             ("can_operate_guard","user can operate gaurd"),
             ("can_view_pb","user can view planning board"),
             ("is_supervisor_user","user is supervisor user"),
+            ("can_view_purchase_history","user can see part purchse history"),
 
 
         ]

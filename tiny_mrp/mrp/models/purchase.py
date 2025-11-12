@@ -93,6 +93,7 @@ class PurchaseRequest(models.Model):
             'Pending',
             'Approved',
             'Approve2',
+            'Approve5',
             'Approve4',
             'Approve3',
             'Ordered',
@@ -145,7 +146,8 @@ class PurchaseRequest(models.Model):
         rejection_permissions = {
             'Pending': ['anbar', 'admin'],  # انبار دار و ادمین
             'Approved': ['managers', 'admin'],   # مهندس اعزامی و ادمین  
-            'Approve2': ['purchase', 'admin'], # مهندس ارزنده و ادمین
+            'Approve2': ['super_namages', 'admin'], # مهندس ارزنده و ادمین
+            'Approve5': ['purchase', 'admin'], # مهندس ارزنده و ادمین
             'Approve3': ['director', 'admin'], # بازرگانی و ادمین
             'Approve4': ['director', 'admin'],             # نگهبان و ادمین
             'GuardApproved': ['admin'],                 # فقط ادمین
@@ -230,7 +232,8 @@ class PurchaseRequest(models.Model):
             ('Approved', 'تایید انبار'),
             # ('Rejected', 'رد شده'),
             ('Ordered', 'سفارش '),
-            ('Approve2', 'تایید مدیر تولید'),
+            ('Approve2', 'تایید مدیر فنی'),
+            ('Approve5', 'تایید مدیر تولید'),
             ('Approve3', 'تایید مهندس ارزنده'),
             ('Purchased', 'خریداری شد'),
             ('Approve4', 'تایید بازرگانی'),

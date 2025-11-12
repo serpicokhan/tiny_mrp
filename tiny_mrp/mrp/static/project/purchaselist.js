@@ -276,6 +276,8 @@ function isNumeric(str) {
             url: `/Purchases/RefereshList?${params}`, // Append filters to the URL
             method: 'GET',
             success: function (data) {
+              console.log(data);
+              
                 // $('#list-container').html(data.parchase_req_html);
                 if(data.status="ok"){
                 $("#main_ul").html('');

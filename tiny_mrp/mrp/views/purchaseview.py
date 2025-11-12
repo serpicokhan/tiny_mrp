@@ -204,7 +204,7 @@ def save_purchase_request(request):
             # Create a new PurchaseRequest
             r_user=data.get('user_name', False)
             if(r_user):
-                r_user=SysUser.objects.get(userId=r_user)
+                r_user=SysUser.objects.get(id=r_user)
             else:
                 r_user=SysUser.objects.get(userId=request.user)            
             if(req_id):
@@ -399,13 +399,14 @@ def confirm_request(request,id):
     group_status_map = {
         "anbar": ["Approved"],  # انبار
         "managers": ["Approve2"],          # مدیر
+        "super_managers": ["Approve5"],          # مدیر
         "director": ["Approve3"],          # مدیرعامل
         "purchase": ["Approve4","Ordered","Purchased"],         # خرید
     }
 
     # Define the status hierarchy
     status_hierarchy = [
-        "Pending", "Approved", "Approve2","Approve4", "Approve3", "Ordered","Purchased"
+        "Pending", "Approved", "Approve2","Approve5","Approve4", "Approve3", "Ordered","Purchased"
     ]
 
     # Check the user's groups and determine the new status
@@ -857,7 +858,7 @@ def referesh_purchase_list(request):
         user_groups = request.user.groups.values_list('name', flat=True)
 
         # If user belongs to any of the specified groups, they can view the requests
-        if any(group in user_groups for group in ['anbar', 'purchase', 'managers', 'director']):
+        if any(group in user_groups for group in ['anbar', 'purchase', 'managers', 'director','super_managers']):
             requests = PurchaseRequest.objects.all()  # All requests for these groups
         else:
             requests = PurchaseRequest.objects.filter(user__userId=request.user)  # Only requests for the user
