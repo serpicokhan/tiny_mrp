@@ -186,36 +186,163 @@ def list_purchase_req_detail(request):
                     'start_j':start,
                     'end_j':end
                     })
+# @csrf_exempt
+# def save_purchase_request(request):
+#     if request.method == 'POST':
+#         # try:
+#             data = json.loads(request.body)
+#             items = data.get('items', [])
+#             req_id=data.get('id', False)
+#             created_at=data.get("created_at",False)
+#             is_emergency=data.get("emergency",False)
+#             is_tamiri=data.get("tamiri",False)
+
+
+            
+#             purchase_request=None
+#             # Create a new PurchaseRequest
+#             r_user=data.get('user_name', False)
+#             if(r_user):
+#                 r_user=SysUser.objects.get(id=r_user)
+#             else:
+#                 r_user=SysUser.objects.get(userId=request.user)            
+#             if(req_id):
+#                 #update
+#                 purchase_request = get_object_or_404(PurchaseRequest, id=req_id)
+#                 # purchase_request.created_at=DateJob.getTaskDate(created_at)
+#                 purchase_request.save()
+#                 existing_item_ids = [item.get('id') for item in items if 'id' in item]
+#                 RequestItem.objects.filter(purchase_request=purchase_request).exclude(id__in=existing_item_ids).delete()
+#                 for item in items:
+#                     if ('id' in item) and (item['id']):  # Update existing item
+#                         request_item = get_object_or_404(RequestItem, id=item['id'], purchase_request=purchase_request)
+#                         request_item.item_name = Part.objects.get(id=item['part_code'])
+#                         request_item.quantity = item['quantity']
+#                         request_item.consume_place = Asset2.objects.get(id=item['machine_code'])
+#                         request_item.description = item['description']
+#                         request_item.save()
+#                     else:  # Create new item
+#                         RequestItem.objects.create(
+#                             purchase_request=purchase_request,
+#                             item_name=Part.objects.get(id=item['part_code']),
+#                             quantity=item['quantity'],
+#                             consume_place=Asset2.objects.get(id=item['machine_code']),
+#                             description=item['description']
+#                         )
+#                 # print(existing_item_ids)
+#             else:
+                
+#                 purchase_request = PurchaseRequest.objects.create(
+#                 user=r_user,
+#                 is_emergency=is_emergency,  # Assuming user is logged in
+#                 is_tamiri=is_tamiri,  # Assuming user is logged in
+#                 created_at=DateJob.getTaskDate(created_at)
+#                 # consume_place="General",  # Default or get from frontend if applicable
+#                 # description="Auto-generated request"
+#                 )
+#                 if( 'status' in item):
+#                     purchase_request.status='Draft'
+#                 PurchaseActivityLog.objects.create(
+#                     user=request.user.sysuser,  # User making the change
+#                     purchase_request=purchase_request,
+#                     action=f"{request.user.sysuser} درخواست را ایجاد نمود"
+#                 )
+
+
+
+#             # Add items to the PurchaseRequest
+#                 for item in items:
+#                     RequestItem.objects.create(
+#                         purchase_request=purchase_request,
+#                         item_name=Part.objects.get(id=item['part_code']),
+#                         quantity=item['quantity'],
+#                         consume_place=Asset2.objects.get(id=item['machine_code']),
+#                         description=item['description']
+
+#                     )
+#             # list_item=list_purchaseRequeset(request)
+#             data=dict()
+#             data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
+                        
+                        
+#                         'perms': PermWrapper(request.user) 
+
+                       
+
+                        
+#                     },request)
+#             data["http_status"]="ok"
+#             data['purchase_request']=purchase_request.id
+
+#             return JsonResponse(data)
+
+#         # except Exception as e:
+#         #     print('!!!!!!',e)
+#         #     return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+#     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+
 @csrf_exempt
 def save_purchase_request(request):
     if request.method == 'POST':
         # try:
             data = json.loads(request.body)
             items = data.get('items', [])
-            req_id=data.get('id', False)
-            created_at=data.get("created_at",False)
-            is_emergency=data.get("emergency",False)
-            is_tamiri=data.get("tamiri",False)
-            print(is_tamiri,"tamiri")
-
-
+            req_id = data.get('id', False)
+            created_at = data.get("created_at", False)
+            is_emergency = data.get("emergency", False)
+            is_tamiri = data.get("tamiri", False)
+            is_draft = data.get("is_draft", False)  # New flag for draft
             
-            purchase_request=None
-            # Create a new PurchaseRequest
-            r_user=data.get('user_name', False)
-            if(r_user):
-                r_user=SysUser.objects.get(id=r_user)
+            purchase_request = None
+            
+            # Get user
+            r_user = data.get('user_name', False)
+            if r_user:
+                r_user = SysUser.objects.get(id=r_user)
             else:
-                r_user=SysUser.objects.get(userId=request.user)            
-            if(req_id):
-                #update
+                r_user = SysUser.objects.get(userId=request.user)
+            
+            # Determine status based on draft flag
+            status = 'Draft' if is_draft else 'Requested'
+            
+            if req_id:
+                # Update existing purchase request
                 purchase_request = get_object_or_404(PurchaseRequest, id=req_id)
-                # purchase_request.created_at=DateJob.getTaskDate(created_at)
+                
+                # Update status if provided or use draft logic
+                if is_draft:
+                    purchase_request.status = 'Draft'
+                elif 'status' not in data:  # Only update to Requested if not explicitly setting status
+                    purchase_request.status = 'Requested'
+                
+                # Update other fields
+                purchase_request.is_emergency = is_emergency
+                purchase_request.is_tamiri = is_tamiri
+                if created_at:
+                    purchase_request.created_at = DateJob.getTaskDate(created_at)
                 purchase_request.save()
+                
+                # Update activity log for status change
+                if purchase_request.status == 'Requested':
+                    PurchaseActivityLog.objects.create(
+                        user=request.user.sysuser,
+                        purchase_request=purchase_request,
+                        action=f"{request.user.sysuser} درخواست را ارسال نمود"
+                    )
+                elif purchase_request.status == 'Draft':
+                    PurchaseActivityLog.objects.create(
+                        user=request.user.sysuser,
+                        purchase_request=purchase_request,
+                        action=f"{request.user.sysuser} پیش نویس را ذخیره نمود"
+                    )
+                
+                # Handle items
                 existing_item_ids = [item.get('id') for item in items if 'id' in item]
                 RequestItem.objects.filter(purchase_request=purchase_request).exclude(id__in=existing_item_ids).delete()
+                
                 for item in items:
-                    if ('id' in item) and (item['id']):  # Update existing item
+                    if ('id' in item) and item['id']:  # Update existing item
                         request_item = get_object_or_404(RequestItem, id=item['id'], purchase_request=purchase_request)
                         request_item.item_name = Part.objects.get(id=item['part_code'])
                         request_item.quantity = item['quantity']
@@ -230,26 +357,29 @@ def save_purchase_request(request):
                             consume_place=Asset2.objects.get(id=item['machine_code']),
                             description=item['description']
                         )
-                # print(existing_item_ids)
             else:
-                
+                # Create new purchase request
                 purchase_request = PurchaseRequest.objects.create(
-                user=r_user,
-                is_emergency=is_emergency,  # Assuming user is logged in
-                is_tamiri=is_tamiri,  # Assuming user is logged in
-                created_at=DateJob.getTaskDate(created_at)
-                # consume_place="General",  # Default or get from frontend if applicable
-                # description="Auto-generated request"
-                )   
-                PurchaseActivityLog.objects.create(
-                    user=request.user.sysuser,  # User making the change
-                    purchase_request=purchase_request,
-                    action=f"{request.user.sysuser} درخواست را ایجاد نمود"
+                    user=r_user,
+                    is_emergency=is_emergency,
+                    is_tamiri=is_tamiri,
+                    created_at=DateJob.getTaskDate(created_at) if created_at else timezone.now(),
+                    status=status  # Set status based on draft flag
                 )
-
-
-
-            # Add items to the PurchaseRequest
+                
+                # Create activity log
+                if is_draft:
+                    action_message = f"{request.user.sysuser} پیش نویس را ایجاد نمود"
+                else:
+                    action_message = f"{request.user.sysuser} درخواست را ایجاد نمود"
+                
+                PurchaseActivityLog.objects.create(
+                    user=request.user.sysuser,
+                    purchase_request=purchase_request,
+                    action=action_message
+                )
+                
+                # Add items to the PurchaseRequest
                 for item in items:
                     RequestItem.objects.create(
                         purchase_request=purchase_request,
@@ -257,30 +387,24 @@ def save_purchase_request(request):
                         quantity=item['quantity'],
                         consume_place=Asset2.objects.get(id=item['machine_code']),
                         description=item['description']
-
                     )
-            # list_item=list_purchaseRequeset(request)
-            data=dict()
-            data["parchase_req_html"]=render_to_string('mrp/purchase/partialPurchaseList.html', {
-                        
-                        
-                        'perms': PermWrapper(request.user) 
-
-                       
-
-                        
-                    },request)
-            data["http_status"]="ok"
-            data['purchase_request']=purchase_request.id
+            
+            # Prepare response data
+            data = dict()
+            data["parchase_req_html"] = render_to_string('mrp/purchase/partialPurchaseList.html', {
+                'perms': PermWrapper(request.user)
+            }, request)
+            data["http_status"] = "ok"
+            data['purchase_request'] = purchase_request.id
+            data['status'] = purchase_request.status  # Return current status
 
             return JsonResponse(data)
 
         # except Exception as e:
-        #     print('!!!!!!',e)
+        #     print('!!!!!!', e)
         #     return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
-
 def create_purchase(request):
     if(request.method=="GET"):
         data=dict()

@@ -550,6 +550,128 @@ $(document).ready(function() {
         });
      
     });
+    $(document).on("click",'#saveDraft', function () {
+
+        let requestData = [];
+        let valid = true;  // Flag to check if all fields are valid
+        let errorMessage = '';
+        let main_data=[];
+        let companyId=$("#companyId").val()||null;
+        let user_name=$("#requested_user").val()||null;
+        let created_at=$("#created_at").val()||null;
+        let is_emergency=$("#customSwitch2_").is(":checked");
+        let is_tamiri=$("#customSwitch1_").is(":checked");
+
+
+        
+
+        // Iterate through each table row
+        $("#table-body tr").each(function (index) {
+            const rowNumber = index + 1;
+            const partNameCell = $(this).find(".part-name");
+            const quantityCell = $(this).find(".editable-cell").eq(1); // Second cell for quantity
+            const machineNameCell = $(this).find(".machine-name");
+            const descriptionCell = $(this).find(".description");
+            const item_id=$(this).attr("data-id")||null;
+
+            // Validate fields
+            if (!partNameCell.text().trim()) {
+                valid = false;
+                errorMessage += `شماره سطر ${rowNumber}:`+"اسم قطعه ضروری است.\n";
+            }
+            if (!partNameCell.attr("data-id")) {
+                valid = false;
+                errorMessage += `شماره سطر ${rowNumber}:`+"اسم قطعه را بایستی انتخاب کنید\n";
+            }
+
+            if (!quantityCell.text().trim() || isNaN(quantityCell.text().trim()) || parseInt(quantityCell.text().trim()) <= 0) {
+                valid = false;
+                errorMessage +=`شماره سطر ${rowNumber}:`+ "تعداد بایستی عدد مثبت باشد.\n";
+            }
+
+            if (!machineNameCell.attr("data-id")) {
+                valid = false;
+                errorMessage += `شماره سطر ${rowNumber}:`+"نام قسمت مورد مصرف را بایستی انتخاب کنید.\n";
+            }
+
+            if (!descriptionCell.text().trim()) {
+                valid = false;
+                errorMessage +=`شماره سطر ${rowNumber}:`+ "شرح ضروری است.\n";
+            }
+           console.log({
+            id:item_id,
+            part_name: partNameCell.text().trim(),
+            part_code: partNameCell.attr("data-id") || null,
+            quantity: parseInt(quantityCell.text().trim()) || 0,
+            machine_name: machineNameCell.text().trim(),
+            machine_code: machineNameCell.attr("data-id") || null,
+            description: descriptionCell.text().trim(),
+        });
+           
+            // console.log(partNameCell,quantityCell,machineNameCell,machineCodeCell,descriptionCell);
+
+            // If all fields are valid, push the data
+            if (valid) {
+                requestData.push({
+                    id:item_id,
+                    part_name: partNameCell.text().trim(),
+                    part_code: partNameCell.attr("data-id") || null,
+                    quantity: parseInt(quantityCell.text().trim()) || 0,
+                    machine_name: machineNameCell.text().trim(),
+                    machine_code: machineNameCell.attr("data-id") || null,
+                    description: descriptionCell.text().trim()
+                    
+                });
+            }
+        });
+       
+        main_data.push({created_at:created_at,id:companyId,user_name:user_name,items:requestData})
+        
+
+        // If any invalid field, show error and prevent sending
+        if (!valid) {
+          
+            swal("لطفا مقادیر زیر را با دقت وارد نمایید:\n\n" + errorMessage);
+            errorMessage='';
+            return;  // Stop the form submission
+        }
+        var last_id="0"
+        // Send the data to the backend via AJAX
+        $.ajax({
+            url: "/api/save-purchase-request/",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({id:companyId,user_name:user_name,items:requestData,created_at:created_at,emergency:is_emergency,tamiri:is_tamiri,is_draft:true}),
+            beforeSend:function(x){
+                console.log( JSON.stringify({id:companyId,user_name:user_name,items:requestData,created_at:created_at,emergency:is_emergency}));
+                // x.abort();
+            },
+            success: function (response) {
+                toastr.success("درخواست با موفقیت ثبت شد");
+                $('.app-detail').removeClass('show');
+                // $("#main_ul").html('');
+                // $("#main_ul").html(response.parchase_req_html);
+                last_id=response.purchase_request;
+                refreshList();
+                $(".main_slidebar").removeClass( "d-none" );
+                $("#update_tab2").addClass("d-none");
+                submit_file_form(last_id);
+                submit_faktor_form(last_id);
+                send_paraf(last_id);
+
+
+
+                //#################
+
+                return false;
+            },
+            error: function (error) {
+                toastr.error("خطا در ثبت درخواست");
+                console.log(error);
+            }
+        });
+     
+    });
     $(document).on('click','#add-comment-btn',function() {
         const commentText = $('#comment-text').val();
         const purchaseRequestId = purchase_request_id; // Replace with your purchase request ID
