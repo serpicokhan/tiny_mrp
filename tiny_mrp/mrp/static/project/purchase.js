@@ -445,7 +445,7 @@ $(document).ready(function() {
         
 
         // Iterate through each table row
-        $("#table-body tr").each(function (index) {
+        $("#table-body tr,#table-body-purchase tr").each(function (index) {
             const rowNumber = index + 1;
             const partNameCell = $(this).find(".part-name");
             const quantityCell = $(this).find(".editable-cell").eq(1); // Second cell for quantity
@@ -491,6 +491,8 @@ $(document).ready(function() {
 
             // If all fields are valid, push the data
             if (valid) {
+                console.log("here!! valid");
+
                 requestData.push({
                     id:item_id,
                     part_name: partNameCell.text().trim(),

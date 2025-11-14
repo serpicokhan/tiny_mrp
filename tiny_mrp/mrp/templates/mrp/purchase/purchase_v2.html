@@ -170,9 +170,10 @@
                                 <td  class="editable-cell">{{i.quantity}}</td>
                                 <td  class="editable-cell machine-name" data-id="{{i.consume_place.id}}" data-machinecode="{{i.consume_place.assetCode}}">{{i.consume_place.assetName}}</td>
                                 <td  class="editable-cell description" data-id="">{{i.description}}</td>
+                                {% if perms.mrp.can_view_purchase_history %}
+
                                 <td  class="editable-cell " data-id="">
 
-                                    {% if perms.mrp.can_view_purchase_history %}
                                     <button type="button" class="btn btn-history btn-sm" onclick="showHistory({{i.item_name.id}}, '{{i.item_name.partName}}')">
                                         <i class="fa fa-history"></i> مشاهده سابقه
                                     </button>

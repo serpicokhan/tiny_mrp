@@ -47,7 +47,7 @@
             <i data-feather="check-circle"></i>
         </a>
         {% elif request.user|in_group:"managers" %}
-        <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید مدیر">
+        <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید مدیر فنی">
             <i data-feather="check-circle"></i>
         </a>
         {% elif request.user|in_group:"director" %}
@@ -58,11 +58,19 @@
         <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید خرید">
             <i data-feather="check-circle"></i>
         </a>
-        {% if company.status == "Approve4" or company.status == "Approve2" %}
+        {% if company.status == "Approve4" or company.status == "Approve5" %}
+        {% if perms.mrp.can_edit_rfq %}
+
         <a href="#" class="btn btn-outline-light rfq"  data-url="{% url 'create_rfq' company.id %}" data-toggle="tooltip" title="استعلام">
             <i data-feather="phone"></i>
         </a>
         {% endif %}
+        {% endif %}
+        {% elif request.user|in_group:"super_managers" %}
+        <a href="#" class="btn btn-outline-light approved" data-url="{% url 'confirm_request' company.id %}" data-toggle="tooltip" title="تایید مدیر تولید">
+            <i data-feather="check-circle"></i>
+        </a>
+      
        <!-- Modal -->
 
         {% endif %}

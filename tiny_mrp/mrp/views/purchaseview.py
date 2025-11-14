@@ -304,7 +304,6 @@ def save_purchase_request(request):
                 r_user = SysUser.objects.get(userId=request.user)
             
             # Determine status based on draft flag
-            status = 'Draft' if is_draft else 'Requested'
             
             if req_id:
                 # Update existing purchase request
@@ -313,8 +312,8 @@ def save_purchase_request(request):
                 # Update status if provided or use draft logic
                 if is_draft:
                     purchase_request.status = 'Draft'
-                elif 'status' not in data:  # Only update to Requested if not explicitly setting status
-                    purchase_request.status = 'Requested'
+                # elif 'status' not in data:  # Only update to Requested if not explicitly setting status
+                #     purchase_request.status = 'Requested'
                 
                 # Update other fields
                 purchase_request.is_emergency = is_emergency
@@ -324,7 +323,7 @@ def save_purchase_request(request):
                 purchase_request.save()
                 
                 # Update activity log for status change
-                if purchase_request.status == 'Requested':
+                if purchase_request.status == 'Pending':
                     PurchaseActivityLog.objects.create(
                         user=request.user.sysuser,
                         purchase_request=purchase_request,
