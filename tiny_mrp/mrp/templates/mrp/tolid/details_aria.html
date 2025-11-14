@@ -315,6 +315,10 @@
                                           data-machine-id="{{c.machine.id}}"
                                           
                                           style="width: 100%;">
+                                          
+                                         
+                                          <option id="{{c.last_moshakhase.moshakhase.id}}">{{c.last_moshakhase.moshakhase}}</option>
+                                          
                                           </select>
                                           <!-- Single hidden field to store all operator data as JSON -->
                                           <input type="hidden" class="nakh-data" name="nakh_data_{{c.machine.id}}" >
@@ -323,7 +327,7 @@
                                           <td contenteditable="true" class="editable-cell btc vahed selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.vahed}}</td>
                                           <td contenteditable="true" class="editable-cell btc nomre selectable1">{{c.nomre}}</td>
                                           <td contenteditable="true" class="editable-cell2 btc speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
-                                          <td contenteditable="true" class="editable-cell btc counter1 selectable1"></td>
+                                          <td contenteditable="true" class="editable-cell btc counter1 selectable1">{{c.counter1}}</td>
                                           <td contenteditable="true" class="editable-cell btc counter2 selectable1"></td>
                                           <td contenteditable="true" class="editable-cell3 production_full selectable1" data-maxformula="{{c.speedformula}}" data-vahed="{{c.machine.assetVahed}}">{{c.max}}</td>
                                           <td contenteditable="true" data-formula="{{c.formula}}" class='production'></td>

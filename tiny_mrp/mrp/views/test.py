@@ -262,6 +262,7 @@ def register_daily_amar(request):
     machines_with_formulas = []
     for machine in machines:
         try:
+            last_moshakhase=DailyProduction.objects.filter(machine=machine,moshakhase__isnull=False).last()
             speed=DailyProduction.objects.filter(machine=machine).last()
             nomre=DailyProduction.objects.filter(machine=machine).last()
             vahed=DailyProduction.objects.filter(machine=machine).last()
@@ -279,8 +280,8 @@ def register_daily_amar(request):
             operators_json=operators.first() if operators else None
            
             countor1 = DailyProduction.objects.filter(
-                machine=machine, 
-                shift__id=shift_id
+                machine=machine
+                
             ).exclude(counter2__isnull=True).order_by('-dayOfIssue').last()
 
             # if(machine):
@@ -332,7 +333,8 @@ def register_daily_amar(request):
                 mydict["vahed"]=machine.assetVahed
 
             if(speed):
-                machines_with_formulas.append({'machine': machine,'operators':operators,'operators_json':operators_json, 'formula': formula.formula,'speed':speed.speed,'nomre':speed.nomre,'vahed':machine.assetVahed,'speedformula':speedformula.formula,'counter1':result_counter,'max':"{:.0f}".format(speed.eval_max_tolid())})
+                
+                machines_with_formulas.append({'machine': machine,'operators':operators,'operators_json':operators_json, 'formula': formula.formula,'speed':speed.speed,'nomre':speed.nomre,'vahed':machine.assetVahed,'speedformula':speedformula.formula,'counter1':result_counter,'last_moshakhase':last_moshakhase,'max':"{:.0f}".format(speed.eval_max_tolid())})
             else:
                 machines_with_formulas.append({'machine': machine,'operators':operators,'operators_json':operators_json, 'formula': formula.formula,'speed':1,'vahed':machine.assetVahed,'nomre':0,'speedformula':speedformula.formula,'counter1':result_counter})
 
