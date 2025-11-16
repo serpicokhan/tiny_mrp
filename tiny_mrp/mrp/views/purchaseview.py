@@ -26,7 +26,7 @@ from django.db.models import Avg, Count, Q,Sum
 from django.views.decorators.http import require_http_methods
 from mrp.models import RequestItem, Part
 # from webpush import send_user_notification
-
+from django.utils import timezone
 @login_required
 
 def list_purchase(request):
@@ -362,8 +362,8 @@ def save_purchase_request(request):
                     user=r_user,
                     is_emergency=is_emergency,
                     is_tamiri=is_tamiri,
-                    created_at=DateJob.getTaskDate(created_at) if created_at else timezone.now(),
-                    status=status  # Set status based on draft flag
+                    created_at=DateJob.getTaskDate(created_at) if created_at else timezone.now()
+                    # status=status  # Set status based on draft flag
                 )
                 
                 # Create activity log

@@ -146,7 +146,7 @@ class PurchaseRequest(models.Model):
         rejection_permissions = {
             'Pending': ['anbar', 'admin'],  # انبار دار و ادمین
             'Approved': ['managers', 'admin'],   # مهندس اعزامی و ادمین  
-            'Approve2': ['super_namages', 'admin'], # مهندس ارزنده و ادمین
+            'Approve2': ['super_managers', 'admin'], # مهندس ارزنده و ادمین
             'Approve5': ['purchase', 'admin'], # مهندس ارزنده و ادمین
             'Approve3': ['director', 'admin'], # بازرگانی و ادمین
             'Approve4': ['director', 'admin'],             # نگهبان و ادمین
