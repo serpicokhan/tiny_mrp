@@ -110,6 +110,7 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.08);
       padding: 20px;
       margin-bottom: 30px;
+      position: relative;
     }
     
     /* استایل برای جدول اطلاعات */
@@ -119,9 +120,199 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.08);
       padding: 25px;
     }
+    
+    /* استایل Tooltip */
+    .node-tooltip {
+      position: absolute;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+      padding: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 1000;
+      max-width: 500px;
+      min-width: 400px;
+      border: 2px solid #667eea;
+      display: none;
+    }
+    
+    .node-tooltip.show {
+      opacity: 1;
+      pointer-events: auto;
+      display: block;
+    }
+    
+    .tooltip-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 10px 10px 0 0;
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .tooltip-close-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0;
+      font-size: 16px;
+    }
+    
+    .tooltip-close-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+    
+    .tooltip-body {
+      padding: 15px;
+      max-height: 450px;
+      overflow-y: auto;
+    }
+    
+    .tooltip-body table {
+      margin: 0;
+      font-size: 0.85rem;
+    }
+    
+    .tooltip-body .table {
+      margin-bottom: 0;
+    }
+    
+    .tooltip-body th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      padding: 8px;
+    }
+    
+    .tooltip-body td {
+      padding: 8px;
+    }
+    
+    .tooltip-arrow {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-style: solid;
+    }
+    
+    .tooltip-arrow.left {
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 10px 10px 10px 0;
+      border-color: transparent #667eea transparent transparent;
+    }
+    
+    .tooltip-arrow.right {
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 10px 0 10px 10px;
+      border-color: transparent transparent transparent #667eea;
+    }
+    
+    .tooltip-arrow.top {
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 0 10px 10px 10px;
+      border-color: transparent transparent #667eea transparent;
+    }
+    
+    .tooltip-arrow.bottom {
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 10px 10px 0 10px;
+      border-color: #667eea transparent transparent transparent;
+    }
+    
+    /* Loading Overlay */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    
+    .loading-overlay.active {
+      display: flex;
+    }
+    
+    .loading-content {
+      text-align: center;
+      color: white;
+    }
+    
+    .loading-spinner {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      border: 6px solid rgba(255, 255, 255, 0.3);
+      border-top: 6px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    .loading-subtext {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    
+    .loading-dots::after {
+      content: '';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+    
+    @keyframes dots {
+      0%, 20% { content: ''; }
+      40% { content: '.'; }
+      60% { content: '..'; }
+      80%, 100% { content: '...'; }
+    }
   </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">در حال بارگذاری<span class="loading-dots"></span></div>
+        <div class="loading-subtext">لطفاً منتظر بمانید</div>
+      </div>
+    </div>
+
     <div class="container-fluid">
       <!-- کنترل‌های فیلتر به صورت Card -->
       <div class="row">
@@ -156,6 +347,17 @@
         <div class="col-12">
           <div class="chart-container">
             <svg width="100%" height="600"></svg>
+            <!-- Tooltip Container -->
+            <div class="node-tooltip" id="nodeTooltip">
+              <div class="tooltip-arrow"></div>
+              <div class="tooltip-header">
+                <span id="tooltipHeader"></span>
+                <button class="tooltip-close-btn" onclick="hideTooltip()" aria-label="Close">
+                  ×
+                </button>
+              </div>
+              <div class="tooltip-body" id="tooltipBody"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -193,16 +395,27 @@
               g = svg.append("g").attr("transform", "translate(40,0)");
     
         const tree = d3.tree().size([height, width - 200]);
+        
+        // Tooltip elements
+        const tooltip = document.getElementById('nodeTooltip');
+        const tooltipHeader = document.getElementById('tooltipHeader');
+        const tooltipBody = document.getElementById('tooltipBody');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
+        function showLoading() {
+          loadingOverlay.classList.add('active');
+        }
+        
+        function hideLoading() {
+          loadingOverlay.classList.remove('active');
+        }
     
         function fetchData() {
           const moshakhaseId = document.getElementById('moshakhase').value;
           console.log(moshakhaseId,'!!!!!!!!!!!!');
           
           // نمایش loading
-          const filterBtn = document.querySelector('.filter-card .btn-primary');
-          const originalText = filterBtn.innerHTML;
-          filterBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>در حال بارگذاری...';
-          filterBtn.disabled = true;
+          showLoading();
     
           fetch(`/api/production-graph/?moshakhase_id=${moshakhaseId}`)
             .then(response => response.json())
@@ -216,10 +429,124 @@
             })
             .catch(error => console.error('Error fetching data:', error))
             .finally(() => {
-              // بازگرداندن دکمه به حالت اول
-              filterBtn.innerHTML = originalText;
-              filterBtn.disabled = false;
+              // بازگرداندن دکمه به حالت اول و مخفی کردن loading
+              hideLoading();
             });
+        }
+        
+        function showTooltip(event, d) {
+          const info = d.data.productionInfo || { 
+            production: "نامشخص", 
+            speed: "نامشخص", 
+            wastage: "نامشخص",
+            first_day: "نامشخص",
+            last_day: "نامشخص",
+            first_timestamp: "نامشخص",
+            last_timestamp: "نامشخص",
+            distinct_days: 0
+          };
+          
+          tooltipHeader.innerHTML = `<i class="fas fa-chart-bar me-2"></i>اطلاعات تولید: ${d.data.name}`;
+          
+          tooltipBody.innerHTML = `
+            <table class="table table-sm table-hover table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th><i class="fa fa-list me-2"></i>پارامتر</th>
+                  <th><i class="fa fa-chart-line me-2"></i>مقدار</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><i class="fa fa-box me-2"></i>مقدار تولید</td>
+                  <td><span class="badge bg-success">${info.production}</span></td>
+                </tr>
+                <tr>
+                  <td><i class="fa fa-tachometer-alt me-2"></i>سرعت</td>
+                  <td><span class="badge bg-info">${info.speed}</span></td>
+                </tr>
+                <tr>
+                  <td><i class="fa fa-trash me-2"></i>ضایعات</td>
+                  <td><span class="badge bg-warning">${info.wastage}</span></td>
+                </tr>
+                <tr>
+                  <td><i class="fa fa-calendar-day me-2"></i>اولین روز تولید (شمسی)</td>
+                  <td>${info.first_day}</td>
+                </tr>
+                <tr>
+                  <td><i class="fa fa-calendar-check me-2"></i>آخرین روز تولید (شمسی)</td>
+                  <td>${info.last_day}</td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-clock me-2"></i>اولین زمان ثبت (شمسی)</td>
+                  <td>${info.first_timestamp}</td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-stopwatch me-2"></i>آخرین زمان ثبت (شمسی)</td>
+                  <td>${info.last_timestamp}</td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-calendar-alt me-2"></i>تعداد روزهای تولید</td>
+                  <td><span class="badge bg-primary">${info.distinct_days} روز</span></td>
+                </tr>
+              </tbody>
+            </table>
+          `;
+          
+          // Get the container and mouse position
+          const container = tooltip.parentElement;
+          const containerRect = container.getBoundingClientRect();
+          
+          // Get mouse position relative to container
+          const mouseX = event.pageX - containerRect.left - window.scrollX;
+          const mouseY = event.pageY - containerRect.top - window.scrollY;
+          
+          // Show tooltip to get dimensions
+          tooltip.style.display = 'block';
+          tooltip.style.opacity = '0';
+          const tooltipRect = tooltip.getBoundingClientRect();
+          
+          // Calculate position
+          let left = mouseX + 20;
+          let top = mouseY - tooltipRect.height / 2;
+          
+          const arrow = tooltip.querySelector('.tooltip-arrow');
+          arrow.className = 'tooltip-arrow left';
+          
+          // Check if tooltip goes out of bounds on the right
+          if (left + tooltipRect.width > containerRect.width - 20) {
+            // Position to the left instead
+            left = mouseX - tooltipRect.width - 20;
+            arrow.className = 'tooltip-arrow right';
+          }
+          
+          // Check vertical bounds
+          if (top < 20) {
+            top = 20;
+          } else if (top + tooltipRect.height > containerRect.height - 20) {
+            top = containerRect.height - tooltipRect.height - 20;
+          }
+          
+          tooltip.style.left = left + 'px';
+          tooltip.style.top = top + 'px';
+          tooltip.style.opacity = '1';
+          tooltip.classList.add('show');
+          
+          // Add click outside listener
+          document.addEventListener('click', handleClickOutside);
+        }
+        
+        function hideTooltip() {
+          tooltip.classList.remove('show');
+          tooltip.style.display = 'none';
+          // Remove click outside listener
+          document.removeEventListener('click', handleClickOutside);
+        }
+        
+        function handleClickOutside(event) {
+          if (!tooltip.contains(event.target) && !event.target.closest('.node')) {
+            hideTooltip();
+          }
         }
     
         function showTable(d) {
@@ -286,7 +613,6 @@
           d3.select("#info-table").html(table);
         }
     
-        // بقیه توابع JavaScript بدون تغییر باقی می‌مانند...
         function initializeTree(data) {
           // Clear previous tree
           g.selectAll("*").remove();
@@ -358,7 +684,11 @@
           const nodeEnter = node.enter().append('g')
               .attr('class', 'node')
               .attr("transform", d => "translate(" + source.y0 + "," + source.x0 + ")")
-              .on('click', click);
+              .on('click', click)
+              .on('mouseenter', function(event, d) {
+                showTooltip(event, d);
+              })
+              .on('mouseleave', hideTooltip);
     
           // Add Circle for the nodes
           nodeEnter.append('circle')

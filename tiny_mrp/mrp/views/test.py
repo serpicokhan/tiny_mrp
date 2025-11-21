@@ -282,7 +282,7 @@ def register_daily_amar(request):
             countor1 = DailyProduction.objects.filter(
                 machine=machine
                 
-            ).exclude(counter2__isnull=True).order_by('-dayOfIssue').last()
+            ).exclude(counter2__isnull=False).order_by('-dayOfIssue').last()
 
             # if(machine):
             #     # print(machine.assetCategory)

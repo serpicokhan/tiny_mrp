@@ -456,7 +456,7 @@ def update_purchase_v2(request,id):
 
     # notes = company.notes.filter(user=request.user.sysuser) 
     notes=None
-    user_groups = request.user.groups.all()
+    user_groups = request.user.groups.all().exclude(name="purchase_user")
     if user_groups.exists():
         notes = company.notes.filter(user__userId__groups__in=user_groups)
     else:
