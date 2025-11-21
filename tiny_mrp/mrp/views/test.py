@@ -262,7 +262,8 @@ def register_daily_amar(request):
     machines_with_formulas = []
     for machine in machines:
         try:
-            last_moshakhase=DailyProduction.objects.filter(machine=machine,moshakhase__isnull=False).last()
+            last_moshakhase=DailyProduction.objects.filter(machine=machine,moshakhase__isnull=False).order_by('dayOfIssue').last()
+            # print(last_moshakhase,':moshakhase')
             speed=DailyProduction.objects.filter(machine=machine).last()
             nomre=DailyProduction.objects.filter(machine=machine).last()
             vahed=DailyProduction.objects.filter(machine=machine).last()
