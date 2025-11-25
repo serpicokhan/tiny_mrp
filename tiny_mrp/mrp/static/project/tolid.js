@@ -403,39 +403,46 @@ $("#save_production").click(function(){
     sendData[i] = tableData;
     i++;
 });
-if (hasError) {
-  toastr.error("لطفا  مقدار تولید را اصلاح کنید");
-  return;
-}
-console.log(JSON.stringify(sendData));
+
+  if(hasError){
+    toastr.error("لطفا مقدار تولید را اصلاح کنید");
+
+    return false;
+  }
   // AJAX request to send data to the server
   $.ajax({
     url: '/Tolid/SaveTableInfo',
     type: 'POST',
     contentType: 'application/json',
     data: JSON.stringify(sendData),
-    beforeSend:function(){
-      $(".preloader").show();
-    },
-    success: function(response) {
-      // Handle the success response from the server
-      if(response.error)
-      {
-        toastr.error(response.error);
-      }
-      else{
-        console.log('Data sent successfully:', response);
-        toastr.success("اطلاعات با موفقیت ذخیره شد");
-
-      }
-      $(".preloader").hide();
-    },
-    error: function(xhr, status, error) {
-      // Handle any errors that occur during the AJAX request
-      console.error('Error sending data:', error);
-      toastr.error(error);
-      $(".preloader").hide();
+    beforeSend:function(xhr){
+      if (hasError) {
+        toastr.error("لطفا مقدار تولید را اصلاح کنید");
+        xhr.abort(); // لغو درخواست
+        $(".preloader").hide();
+        return false;
     }
+    },
+    success: function(response, status, xhr) {
+      // بررسی کنید که درخواست واقعاً موفق بوده
+      if (xhr.status === 200) {
+          if (response.error) {
+              toastr.error(response.error);
+          } else {
+              console.log('Data sent successfully:', response);
+              toastr.success("اطلاعات با موفقیت ذخیره شد");
+          }
+      }
+      $(".preloader").hide();
+  },
+  error: function(xhr, status, error) {
+      // فقط اگر خطای واقعی رخ داده باشد
+      if (status !== 'abort') {
+          console.error('Error sending data:', error);
+          toastr.error(error);
+      }
+      $(".preloader").hide();
+  }
   });
   // var tbl2=tableDataToJSON('tbl2');
   // var tbl3=tableDataToJSON('tbl3');

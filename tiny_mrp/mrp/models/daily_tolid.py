@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 import json
 from mrp.models.operators import *
 from mrp.models.moshakhase import *
+from django.utils.timezone import now
+
 import math
 
 class Shift(models.Model):
@@ -43,6 +45,8 @@ class ProductionStandard(models.Model):
         return f"{self.machine_name} - Good: {self.good_production_rate}, Mean: {self.mean_production_rate}, Bad: {self.bad_production_rate}"
     class Meta:
         db_table="productionstandard"
+
+
 class DailyProduction(models.Model):
     machine = models.ForeignKey(Asset, on_delete=models.CASCADE,related_name="dailyproduction_machine")
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE,related_name="dailyproduction_shift")
@@ -81,6 +85,18 @@ class DailyProduction(models.Model):
     # operators_data = models.JSONField(null=True, blank=True, help_text="JSON data containing multiple operators")
     # operators_data = models.TextField(null=True, blank=True, help_text="JSON data containing multiple operators")  # keep original
     operators_data = models.JSONField(null=True, blank=True)  # new field
+    def save(self, *args, **kwargs):
+        # ذخیره وضعیت قبلی قبل از save
+        if self.pk:
+            try:
+                old_instance = DailyProduction.objects.get(pk=self.pk)
+                self._old_instance = old_instance
+            except DailyProduction.DoesNotExist:
+                self._old_instance = None
+        else:
+            self._old_instance = None
+            
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.nomre} , {self.speed} ,{self.counter2}, {self.machine}"
@@ -730,3 +746,41 @@ class MakanHamgen(models.Model):
 
 
 
+class DailyProductionLog(models.Model):
+    ACTION_CHOICES = [
+        ('create', 'ایجاد'),
+        ('update', 'ویرایش'),
+        ('delete', 'حذف'),
+    ]
+    
+    daily_production = models.ForeignKey('DailyProduction', on_delete=models.CASCADE, related_name="logs", verbose_name="تولید روزانه")
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, verbose_name="عملیات")
+    changed_by = models.CharField(max_length=100, verbose_name="تغییر دهنده")
+    changed_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ تغییر")
+    
+    # ذخیره داده‌های قبل و بعد از تغییر
+    old_data = models.JSONField(null=True, blank=True, verbose_name="داده‌های قبلی")
+    new_data = models.JSONField(null=True, blank=True, verbose_name="داده‌های جدید")
+    
+    # فیلدهای خاصی که تغییر کرده‌اند
+    changed_fields = models.JSONField(null=True, blank=True, verbose_name="فیلدهای تغییر کرده")
+    
+    class Meta:
+        ordering = ['-changed_at']
+        verbose_name = 'لاگ تولید روزانه'
+        verbose_name_plural = 'لاگ‌های تولید روزانه'
+    
+    def __str__(self):
+        return f"{self.daily_production.machine.name} - {self.get_action_display()} - {self.changed_at.strftime('%Y/%m/%d %H:%M')}"
+    
+    def get_machine_name(self):
+        return self.daily_production.machine.name
+    get_machine_name.short_description = "نام ماشین"
+    
+    def get_shift_name(self):
+        return self.daily_production.shift.name
+    get_shift_name.short_description = "شیفت"
+    
+    def get_day_of_issue(self):
+        return self.daily_production.dayOfIssue
+    get_day_of_issue.short_description = "تاریخ تولید"

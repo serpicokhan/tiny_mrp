@@ -52,6 +52,8 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'mrp.middleware.ThreadLocalMiddleware',
+
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -85,10 +87,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mrp581_jason',
-        'USER': 'mrp581_jason',
-        'PASSWORD': 'UuuV4YnQHyDh',
-        'HOST': 'services.irn9.chabokan.net',
-        'PORT': '49495',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
 LOGIN_REDIRECT_URL = 'index'

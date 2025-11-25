@@ -512,6 +512,7 @@ def saveAmarTableInfo(request):
 
 
                 try:
+                    # amar.register_user=req
                     amar.save()
                     print("done!!!")
                 except IntegrityError as ex:
