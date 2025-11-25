@@ -261,6 +261,9 @@ $(function () {
               // console.log(N,S,T,V);
                 var result = eval(formula);
                 // console.log(result)
+                if(result<0){
+                  return 0;
+                }
                 return result.toFixed(2); // Adjust as needed
             } catch (error) {
                 console.error("Error evaluating formula:", error);
@@ -363,7 +366,10 @@ var tableDataToJSON=function(tableId){
         // }
         var production_value =  $(this).find('td.production').text()||0;
 
-
+        if (production_value > 10000) {
+          toastr.error(`میزان تولید (${production_value}) از 10000 بیشتر است!`);
+          return; // این خط باعث می‌شود این ردیف به داده اضافه نشود
+        }
         data.push({id:amar_id,wastage:wastage, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
           , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed,operator_data:operator_data,actual_vahed:actual_vahed,moshakhase:moshakhase,qc:qc,enzebat:enzebat
            });
@@ -378,17 +384,29 @@ $("#save_production").click(function(){
    var sendData = {
     
   };
+  var hasError = false;
   var i=1;
   $("table.company-table").each(function() {
     
     // You can perform operations on each table here
     // console.log($(this)); // This logs each table with the class 'company-table'
+     // بررسی اینکه آیا خطایی در داده‌های جدول وجود دارد
+   
     
-    sendData[i]=tableDataToJSON($(this));
+     var tableData = tableDataToJSON($(this));
+    
+    // بررسی اینکه آیا خطایی در داده‌های جدول وجود دارد
+    if (tableData.length === 0) {
+      hasError = true;
+    }
+    
+    sendData[i] = tableData;
     i++;
 });
-
-
+if (hasError) {
+  toastr.error("لطفا  مقدار تولید را اصلاح کنید");
+  return;
+}
 console.log(JSON.stringify(sendData));
   // AJAX request to send data to the server
   $.ajax({

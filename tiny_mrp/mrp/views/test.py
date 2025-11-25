@@ -234,8 +234,7 @@ def register_daily_amar(request):
         shift=Shift.objects.filter(id=user_access.shift.id)
         shift_id=user_access.shift.id
         machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id).order_by("assetTavali")
-        # print(machines)
-        
+        # print(machines)    
 
         
     else:
@@ -267,6 +266,7 @@ def register_daily_amar(request):
             speed=DailyProduction.objects.filter(machine=machine).last()
             nomre=DailyProduction.objects.filter(machine=machine).last()
             vahed=DailyProduction.objects.filter(machine=machine).last()
+            operator=None
             
             operators = DailyProduction.objects.filter(
                 machine=machine,
@@ -280,10 +280,10 @@ def register_daily_amar(request):
                 # print("###############",json.loads(operators.first().operators_data))
             operators_json=operators.first() if operators else None
            
-            countor1 = DailyProduction.objects.filter(
-                machine=machine
+            # countor1 = DailyProduction.objects.filter(
+            #     machine=machine
                 
-            ).exclude(counter2__isnull=False).order_by('-dayOfIssue').last()
+            # ).exclude(counter2__isnull=False).order_by('-dayOfIssue').last()
 
             # if(machine):
             #     # print(machine.assetCategory)
@@ -292,7 +292,7 @@ def register_daily_amar(request):
             # if(operators_json):
             #     print(operators_json.operators_data,machine.id,':$$$$$$$$$$$')
 
-            result_counter = countor1.counter2 if countor1 else 0
+            result_counter = 0#countor1.counter2 if countor1 else 0
             operators=[]
            
 
