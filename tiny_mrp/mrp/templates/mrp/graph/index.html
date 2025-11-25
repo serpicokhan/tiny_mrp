@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- بعد از سایر اسکریپت‌ها این خط را اضافه کنید -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
     body {
@@ -301,6 +303,28 @@
       60% { content: '..'; }
       80%, 100% { content: '...'; }
     }
+    /* اضافه کردن این استایل به بخش CSS */
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-success:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+}
+
+.btn-success:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
   </style>
 </head>
 <body>
@@ -331,11 +355,17 @@
                   </select>
                   <input type="hidden" class="nakh-data" name="nakh_data_{{c.machine.id}}">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <button type="button" class="btn btn-primary d-flex justify-content-center align-items-center" onclick="fetchData()">
                        
                     اعمال فیلتر                  </button>
                 </div>
+                <!-- این بخش را اضافه کنید -->
+              <div class="col-md-2">
+                <button type="button" class="btn btn-success d-flex justify-content-center align-items-center" onclick="exportToExcel()" id="exportBtn" disabled>
+                  <i class="fas fa-file-excel me-2"></i>خروجی اکسل
+                </button>
+              </div>
               </form>
             </div>
           </div>
@@ -413,7 +443,8 @@
         function fetchData() {
           const moshakhaseId = document.getElementById('moshakhase').value;
           console.log(moshakhaseId,'!!!!!!!!!!!!');
-          
+            // غیرفعال کردن دکمه اکسل تا زمانی که داده‌های جدید لود شوند
+          document.getElementById('exportBtn').disabled = true;
           // نمایش loading
           showLoading();
     
@@ -426,6 +457,7 @@
               }
               initializeTree(data.data);
               showTable(root);
+              enableExportButton(); // فعال کردن دکمه اکسل بعد از لود داده‌ها
             })
             .catch(error => console.error('Error fetching data:', error))
             .finally(() => {
@@ -866,6 +898,112 @@
           };
           
           $row.find('.nakh-data').val(JSON.stringify(updatedOperators));
+        }
+        function exportToExcel() {
+            if (!root) {
+                alert('داده‌ای برای خروجی وجود ندارد');
+                return;
+            }
+            
+            // نمایش loading
+            showLoading();
+            
+            try {
+                // جمع‌آوری داده‌ها از تمام نودها
+                const allData = collectAllNodeData(root);
+                
+                // ایجاد workbook و worksheet
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(allData);
+                
+                // تنظیم نام worksheet
+                XLSX.utils.book_append_sheet(wb, ws, "داده‌های تولید");
+                
+                // تنظیم عرض ستون‌ها
+                const colWidths = [
+                    {wch: 25}, // نام
+                    {wch: 15}, // سطح
+                    {wch: 20}, // مقدار تولید
+                    {wch: 15}, // سرعت
+                    {wch: 20}, // ضایعات
+                    {wch: 15}, // اولین روز
+                    {wch: 15}, // آخرین روز
+                    {wch: 20}, // اولین زمان ثبت
+                    {wch: 20}, // آخرین زمان ثبت
+                    {wch: 15}  // تعداد روزها
+                ];
+                ws['!cols'] = colWidths;
+                
+                // تولید فایل و دانلود
+                const moshakhaseName = document.getElementById('moshakhase').options[document.getElementById('moshakhase').selectedIndex]?.text || 'داده‌ها';
+                const fileName = `داده_های_تولید_${moshakhaseName.replace(/[^\w\u0600-\u06FF]/g, '_')}_${new Date().toLocaleDateString('fa-IR')}.xlsx`;
+                
+                XLSX.writeFile(wb, fileName);
+                
+            } catch (error) {
+                console.error('خطا در تولید فایل اکسل:', error);
+                alert('خطا در تولید فایل اکسل');
+            } finally {
+                // مخفی کردن loading
+                hideLoading();
+            }
+        }
+
+        // تابع کمکی برای جمع‌آوری داده‌های تمام نودها
+        function collectAllNodeData(node) {
+            const data = [];
+            
+            function traverse(currentNode, level = 0) {
+                const info = currentNode.data.productionInfo || {};
+                
+                // اضافه کردن داده‌های نود فعلی
+                data.push({
+                    'نام': currentNode.data.name,
+                    'سطح': getLevelName(level),
+                    'مقدار تولید (کیلوگرم)': extractNumber(info.production),
+                    'سرعت (متر/دقیقه)': extractNumber(info.speed),
+                    'ضایعات (کیلوگرم)': extractNumber(info.wastage),
+                    'اولین روز تولید': info.first_day || 'نامشخص',
+                    'آخرین روز تولید': info.last_day || 'نامشخص',
+                    'اولین زمان ثبت': info.first_timestamp || 'نامشخص',
+                    'آخرین زمان ثبت': info.last_timestamp || 'نامشخص',
+                    'تعداد روزهای تولید': info.distinct_days || 0
+                });
+                
+                // اگر فرزندان باز هستند، آنها را نیز اضافه کن
+                if (currentNode.children) {
+                    currentNode.children.forEach(child => {
+                        traverse(child, level + 1);
+                    });
+                }
+                // اگر فرزندان بسته هستند اما در _children ذخیره شده‌اند
+                else if (currentNode._children) {
+                    currentNode._children.forEach(child => {
+                        traverse(child, level + 1);
+                    });
+                }
+            }
+            
+            traverse(node);
+            return data;
+        }
+
+        // تابع کمکی برای استخراج عدد از رشته
+        function extractNumber(str) {
+            if (!str || str === 'نامشخص') return 0;
+            const match = str.match(/[\d.]+/);
+            return match ? parseFloat(match[0]) : 0;
+        }
+
+        // تابع کمکی برای نام سطح
+        function getLevelName(level) {
+            const levels = ['ریشه', 'دسته‌بندی', 'دستگاه', 'زیردستگاه'];
+            return levels[level] || `سطح ${level + 1}`;
+        }
+
+        // فعال کردن دکمه اکسل وقتی داده‌ها لود شدند
+        function enableExportButton() {
+            document.getElementById('exportBtn').disabled = false;
         }
         
         initiate_code_nakh();

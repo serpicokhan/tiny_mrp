@@ -59,12 +59,18 @@
           <i data-feather="bar-chart-2"></i>
         </a>
       </li>
-      {% endif %}
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="برنامه ریزی تولید" data-nav-target="#apps6">
           <i data-feather="calendar"></i>
         </a>
       </li>
+      <li>
+        <a href="#" data-toggle="tooltip" data-placement="right" title="برنامه ریزی تولید" data-nav-target="#apps7">
+          <i data-feather="alert-octagon"></i>
+        </a>
+      </li>
+      {% endif %}
+      
       
       {% if perms.mrp.can_operator_mrp %}
       <li>
@@ -400,6 +406,42 @@
             <span class="badge bg-danger" id="lowStockCount">0</span>
         </a>
     </li>
+      
+
+   
+      
+
+    </ul>
+  </div>
+  <div id="apps7">
+    <ul>
+      <li class="navigation-divider">توقفات</li>
+      <li>
+        <a href="{% url 'list_failures' %}">
+          <span>کد خرابی ها</span>
+  
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'asset_failure_list' %}">
+          <span>ثبت خرابی</span>
+  
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'calendar_asset_failure' %}">
+          <span>تقویم</span>
+  
+        </a>
+      </li>
+      <li>
+      <a href="{% url 'monthly_detaild_failured_report' %}">
+        <span>گزارش توقفات ماهانه</span>
+
+      </a>
+    </li>
+      
+
       
 
    

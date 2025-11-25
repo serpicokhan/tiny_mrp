@@ -229,8 +229,8 @@ def list_failures(request):
 def monthly_detaild_failured_report(request):
     days=[]
     shift=Shift.objects.all()
-    asset_category=asset_categories = AssetCategory.objects.annotate(
-        min_priority=models.Min('asset__assetTavali')
+    asset_category= AssetCategory.objects.annotate(
+        min_priority=models.Min('assetcategory_main__assetTavali')
         ).order_by('min_priority')
 
     current_date_time2 = jdatetime.datetime.now()
