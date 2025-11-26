@@ -932,10 +932,128 @@ function updateOperatorHiddenFields2($row) {
 // });
 
 // افزودن رویداد کلیک برای دکمه کپی
+// تابع ایجاد سطر جدید
+
+
+// رویداد کلیک برای دکمه کپی
+
+
+// اضافه کردن دکمه کپی به سطرهای موجود (در صورت نیاز)
+$(document).ready(function() {
+  $('table tbody tr').each(function() {
+      var $row = $(this);
+      var $machineCell = $row.find('td:first');
+      
+      // چک کنید که دکمه قبلاً اضافه نشده باشد
+      if ($machineCell.find('.copy-row').length === 0) {
+          var machineName = $machineCell.text().trim();
+          
+          var $copyButton = $('<button>', {
+              class: 'btn btn-sm btn-primary copy-row',
+              html: '<i class="fa fa-copy"></i>',
+              css: {
+                  'margin-left': '5px',
+                  'padding': '2px 6px',
+                  'font-size': '11px'
+              },
+              title: 'کپی سطر'
+          });
+          
+          $machineCell.empty();
+          $machineCell.append($copyButton);
+          $machineCell.append(document.createTextNode(' ' + machineName));
+      }
+  });
+});
+$(".tab-content").on("click", ".copy-row", function() {
+  var $originalRow = $(this).closest("tr");
+  var $newRow = createNewRow($originalRow);
+  
+  // اضافه کردن سطر جدید بعد از سطر جاری
+  $originalRow.after($newRow);
+  
+  // مقداردهی اولیه Select2ها برای سطر جدید
+  initializeSelect2ForRow($newRow);
+  initiateCodeNakhForRow($newRow);
+  
+  // اسکرول به سطر جدید
+  $('html, body').animate({
+      scrollTop: $newRow.offset().top - 100
+  }, 500);
+});
+// تابع برای مقداردهی اولیه Select2 اپراتورها برای یک سطر خاص
+function initializeSelect2ForRow($row) {
+  $row.find('.operator-name').select2({
+      dropdownParent: $('body'),
+      multiple: true,
+      ajax: {
+          url: '/api/operators/search/',
+          dataType: 'json',
+          delay: 250,
+          data: function(params) {
+              return {
+                  q: params.term,
+                  page: params.page || 1
+              };
+          },
+          processResults: function(data, params) {
+              params.page = params.page || 1;
+              return {
+                  results: data.results.map(function(item) {
+                      return {
+                          id: item.id,
+                          text: item.name + ' (' + item.personnel_number + ')',
+                          personnel_number: item.personnel_number,
+                          name: item.name,
+                          pid: item.pid,
+                          cp_code: item.cp_code,
+                          card_no: item.card_no,
+                          first_name: item.first_name,
+                          last_name: item.last_name
+                      };
+                  }),
+                  pagination: {
+                      more: data.has_more
+                  }
+              };
+          },
+          cache: true
+      },
+      placeholder: 'انتخاب اپراتور(ها)',
+      minimumInputLength: 2,
+      closeOnSelect: false,
+      language: {
+          inputTooShort: function() {
+              return "حداقل 2 کاراکتر وارد کنید";
+          },
+          searching: function() {
+              return "در حال جستجو...";
+          },
+          noResults: function() {
+              return "نتیجه‌ای یافت نشد";
+          },
+          errorLoading: function() {
+              return "خطا در بارگذاری نتایج";
+          }
+      },
+      dir: "rtl"
+  });
+  
+  // افزودن رویدادهای Select2 برای سطر جدید
+  $row.find('.operator-name').on('select2:select', function(e) {
+      updateOperatorHiddenFields($(this).closest('tr'));
+  }).on('select2:unselect', function(e) {
+      updateOperatorHiddenFields($(this).closest('tr'));
+  }).on('select2:clear', function(e) {
+      $(this).closest('tr').find('.operator-data').val('[]');
+  });
+}
+// تابع ایجاد سطر جدید
 function createNewRow($originalRow) {
   // داده‌های اصلی از سطر موجود
   var machineId = $originalRow.data("machine");
-  var machineName = $originalRow.find("td:first").text();
+  var shiftId = $originalRow.data("shift");
+  var machineName = $originalRow.find("td:first").text().trim().replace('+', '');
   var speed = $originalRow.data("speed2") || 0;
   var vahed = $originalRow.find(".vahed").data("vahed") || 0;
   var maxFormula = $originalRow.find(".production_full").data("maxformula") || "";
@@ -944,22 +1062,36 @@ function createNewRow($originalRow) {
   // ساخت سطر جدید
   var $newRow = $("<tr>", {
       "data-machine": machineId,
+      "data-shift": shiftId,
       "data-speed2": speed
   });
 
-  // ستون نام ماشین
-  $newRow.append($("<td>").text(machineName));
-
-  // ستون اپراتور (Select2)
-  var $operatorCell = $("<td>");
-  var $operatorSelect = $("<select>", {
-      "class": "form-control operator-name",
-      "data-machine-id": machineId,
-      "multiple": "multiple",
-      "style": "width: 100%;"
+  // ستون نام ماشین با دکمه کپی
+  var $machineCell = $("<td>");
+  $machineCell.text(machineName + " ");
+  var $copyBtn = $("<button>", {
+      "class": "btn btn-primary copy-row",
+      "text": "+",
+      "style": "margin-right: 5px;"
   });
-  $operatorCell.append($operatorSelect);
-  $operatorCell.append($('<input type="hidden" class="operator-data" name="operator_data" value="[]">'));
+  $machineCell.append($copyBtn);
+  $newRow.append($machineCell);
+
+  // ستون اپراتور
+  var $operatorCell = $("<td>", {
+      "class": "operator-cell"
+  });
+  var $operatorDisplay = $("<span>", {
+      "class": "operator-display",
+      "text": "انتخاب اپراتور"
+  });
+  var $operatorInput = $("<input>", {
+      "type": "hidden",
+      "class": "operator-data",
+      "name": "operator_data",
+      "value": "[]"
+  });
+  $operatorCell.append($operatorDisplay).append($operatorInput);
   $newRow.append($operatorCell);
 
   // ستون کد نخ (Select2)
@@ -993,17 +1125,19 @@ function createNewRow($originalRow) {
       "data-nomre": ""
   }).text(""));
 
-  // ستون‌های دیگر (کنتور ابتدا، انتها، تولید، ضایعات و عملیات)
+  // کنتور ابتدای شیفت
   $newRow.append($("<td>", {
       "contenteditable": "true",
       "class": "editable-cell btc counter1 selectable1"
   }).text(""));
 
+  // کنتور انتهای شیفت
   $newRow.append($("<td>", {
       "contenteditable": "true",
       "class": "editable-cell btc counter2 selectable1"
   }).text(""));
 
+  // 100% (تولید کامل)
   $newRow.append($("<td>", {
       "contenteditable": "true",
       "class": "editable-cell3 production_full selectable1",
@@ -1011,43 +1145,42 @@ function createNewRow($originalRow) {
       "data-vahed": vahed
   }).text(""));
 
+  // تولید
   $newRow.append($("<td>", {
       "contenteditable": "true",
       "data-formula": formula,
       "class": "production"
   }).text(""));
 
+  // ضایعات
   $newRow.append($("<td>", {
       "contenteditable": "true",
-      "class": "editable-cell2 selectable1 wastage"
+      "class": "editable-cell2 btc wastage"
   }).text(""));
 
-  // دکمه کپی برای سطر جدید
-  $newRow.append($("<td>").append(
-      $("<button>", {
-          "class": "btn btn-success copy-row",
-          "text": "کپی"
-      })
-  ));
+  // انضباط
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell2 btc nezafat"
+  }).text(""));
+
+  // کیفیت
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell2 btc qc"
+  }).text(""));
+
+  // عملیات (سلول خالی)
+  $newRow.append($("<td>", {
+      "class": "randeman_production"
+  }));
 
   return $newRow;
 }
-$(".tab-content").on("click", ".copy-row", function() {
-  var $originalRow = $(this).closest("tr");
-  var $newRow = createNewRow($originalRow);
-  
-  // اضافه کردن سطر جدید بعد از سطر جاری
-  $originalRow.after($newRow);
-  
-  // مقداردهی اولیه Select2ها برای سطر جدید
-  initializeSelect2ForRow($newRow);
-  initiateCodeNakhForRow($newRow);
-  
-  // اسکرول به سطر جدید
-  $('html, body').animate({
-      scrollTop: $newRow.offset().top - 100
-  }, 500);
-});
+
+// ⚠️ فقط یک بار رویداد کلیک را تعریف کنید - این خط را نگه دارید
+
+
 // تابع برای مقداردهی اولیه Select2 اپراتورها برای یک سطر خاص
 function initializeSelect2ForRow($row) {
   $row.find('.operator-name').select2({
