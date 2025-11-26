@@ -316,6 +316,7 @@ def get_jalali_monthly_production_sum(machine,asset_type):
 def jalali_monthly_duration_data(request):
     machine = request.GET.get('machine',False)
     asset_type = request.GET.get('asset_type',False)
+   
     labels, sums = get_jalali_monthly_duration_sum(machine,asset_type)
     return JsonResponse({'labels': labels, 'sums': sums})
 def jalali_monthly_production_data(request):

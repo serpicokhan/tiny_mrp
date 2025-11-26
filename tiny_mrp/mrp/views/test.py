@@ -82,7 +82,8 @@ def get_daily_amar(request):
             
 
     else:
-
+        if(not shift_id):
+            shift_id=1
         machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id)
         asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
         shift=Shift.objects.all()
@@ -161,7 +162,8 @@ def get_daily_amar_scroll(request):
 
         
         machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id,assetCategory__in=asset_category).order_by('assetCategory__priority')
-
+        if(not shift_id):
+            shift_id=1
         shift=Shift.objects.all()
         user_shift=UserShiftAccess.objects.filter(production_line__id=makan_id)
 

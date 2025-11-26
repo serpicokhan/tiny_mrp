@@ -166,4 +166,11 @@
 
 
  <script src="{% static 'project/tolid.js' %}"></script>
+ <script>
+    $(document).on('click', '.app-sidebar-menu-button', function () {
+        $('.app-block .app-sidebar, .app-content-overlay').addClass('show');
+        // $('.app-block .app-sidebar .app-sidebar-menu').niceScroll().resize();
+        return false;
+    });
+ </script>
 {% endblock %}

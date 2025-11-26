@@ -59,6 +59,28 @@
                            </div>
                        </div>
                    </div> -->
+                   <div class="col-md-3 app-sidebar">
+                    <div class="card">
+                       
+                        <div>
+                            <div class="card-body">
+                               <select class="form-control" id="makan_select">
+                                {% for i in makan %}
+                                <option value={{i.id}} {% if i.id == makan_id %} selected {% endif %}>{{i.assetName}}</option>
+                                {% endfor %}
+                                
+                               </select>
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-secondary btn-block" >
+                                    فیلتر
+                                </button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
                    <div class="col-md-9 app-content">
                        <div class="app-content-overlay"></div>
                        <div class="card app-content-body">
@@ -78,4 +100,15 @@
 {% block javascript %}
 <script src="{% static 'assets/Cal/cal/js/fullcalendar.min.js' %}"></script>
 <script src="{% static 'assets/Cal/cal/js/fullcalendar.assetfailure.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        $('#makan_select').change(function() {
+            var selectedValue = $(this).val();
+            if (selectedValue) { // check if the value is not empty
+                window.location.href = `/AssetFailure/calendar?makan_id=${$("#makan_select").val()}`;
+            }
+        });
+    });
+    
+</script>
 {% endblock %}

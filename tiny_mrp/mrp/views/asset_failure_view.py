@@ -35,11 +35,18 @@ def asset_failure_list(request):
 
 @login_required
 def calendar_asset_failure(request):
-    return render(request,'mrp/assetfailure/calendar_asset_falure.html',{'title':'توقفات روزانه'})
+    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    makan_id=request.GET.get("makan_id",False)
+    return render(request,'mrp/assetfailure/calendar_asset_falure.html',{'title':'توقفات روزانه','makan':makan,'makan_id':int(makan_id)})
 
 def get_assetfailure_calendar_info(request):
     data=[]
-    user_info=AssetFailure.objects.values_list('dayOfIssue').distinct()
+    makan_id=request.GET.get("makan_id",False)
+    if(makan_id):
+        user_info=AssetFailure.objects.filter(asset_name__assetIsLocatedAt__id=makan_id).values_list('dayOfIssue').distinct()
+    else:
+
+        user_info=AssetFailure.objects.values_list('dayOfIssue').distinct()
 
     for i in user_info:
 
@@ -228,10 +235,10 @@ def list_failures(request):
 ##########################################################
 def monthly_detaild_failured_report(request):
     days=[]
+    makan_id=request.GET.get("makan_id",False)
+    makan=Asset.objects.filter(assetIsLocatedAt__isnull=True)
     shift=Shift.objects.all()
-    asset_category= AssetCategory.objects.annotate(
-        min_priority=models.Min('assetcategory_main__assetTavali')
-        ).order_by('min_priority')
+    asset_category = AssetCategory.objects.filter(assetcategory_main__assetIsLocatedAt__id=makan_id).order_by('priority').distinct()
 
     current_date_time2 = jdatetime.datetime.now()
     current_year=current_date_time2.year
@@ -264,18 +271,18 @@ def monthly_detaild_failured_report(request):
             product={}
             j_date=jdatetime.date(current_jalali_date.year,current_jalali_date.month,day)
             for sh in shift:
-                product[sh.id]=get_sum_machine_failure_by_date_shift(cats,sh,j_date.togregorian())
+                product[sh.id]=get_sum_machine_failure_by_date_shift_makan(cats,makan_id,sh,j_date.togregorian())
             days.append({'cat':cats,'date':"{0}/{1}/{2}".format(current_jalali_date.year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
         ###sum all
         product={}
         start=jdatetime.date(current_jalali_date.year,current_jalali_date.month,1)
         end=jdatetime.date(current_jalali_date.year,current_jalali_date.month,num_days)
         for sh in shift:
-            product[sh.id]=get_sum_machine_failure_monthly_shift(cats,sh,start.togregorian(),end.togregorian())
+            product[sh.id]=get_sum_machine_failure_monthly_shift_makan(cats,makan_id,sh,start.togregorian(),end.togregorian())
         days.append({'cat':cats,'date':"",'day_of_week':'جمع','product':product})
         product={}
         for sh in shift:
-            product[sh.id]=get_day_machine_failure_monthly_shift(cats,sh,start.togregorian(),end.togregorian())
+            product[sh.id]=get_day_machine_failure_monthly_shift_makan(cats,makan_id,sh,start.togregorian(),end.togregorian())
         days.append({'cat':cats,'date':"",'day_of_week':'مجموع روز متوقف','product':product})
         total_day_per_shift={}
         for sh in shift:
@@ -285,4 +292,4 @@ def monthly_detaild_failured_report(request):
 
         cat_list.append({'cat':cats,'shift_val':days})
 
-    return render(request,'mrp/assetfailure/monthly_failure_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
+    return render(request,'mrp/assetfailure/monthly_failure_detailed.html',{'makan_id':int(makan_id),'makan':makan,'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})

@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
         editable: true,
         locale: 'fa',
         events: {
-         url: '/AssetFailure/Daily/GetInfo', // Replace with your server-side script to fetch events
+         url: `/AssetFailure/Daily/GetInfo?makan_id=${$("#makan_select").val()}`, // Replace with your server-side script to fetch events
          method: 'GET',
          failure: function() {
            // Handle failure to fetch events

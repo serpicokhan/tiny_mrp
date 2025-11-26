@@ -21,10 +21,15 @@
                 <ul class="list-inline">
 
 
-                    <li class="list-inline-item mb-0">
-
-
-                    </li>
+                    <li class="list-inline-item mb-0" style="width:90pt">
+                        <select class="form-control" aria-label="Default select example" id="select_makan">
+                          {% for i in makan %}
+                          
+                          <option  value="{{i.id}}" {% if i.id == makan_id %} selected {% endif %}>{{i.assetName}}</option>
+                          {% endfor %}
+                     
+                        </select>
+                      </li>
 
                 </ul>
             </div>
@@ -155,6 +160,14 @@
     toastr.error("یک مقدار انتخاب نمایید");
   }
   });
+  $(document).ready(function() {
+        $('#select_makan').change(function() {
+            var selectedValue = $(this).val();
+            if (selectedValue) { // check if the value is not empty
+                window.location.href = `/AssetFailure/Monthly?makan_id=${$("#select_makan").val()}`;
+            }
+        });
+    });
 
 </script>
 {% endblock %}

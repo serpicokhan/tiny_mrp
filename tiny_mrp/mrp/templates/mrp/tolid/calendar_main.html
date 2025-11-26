@@ -57,6 +57,11 @@
 <script src="{% static 'assets/Cal/cal/js/fullcalendar.min.js' %}"></script>
 <script src="{% static 'assets/Cal/cal/js/fullcalendar.init.js' %}"></script>
 <script>
+      $(document).on('click', '.app-sidebar-menu-button', function () {
+        $('.app-block .app-sidebar, .app-content-overlay').addClass('show');
+        // $('.app-block .app-sidebar .app-sidebar-menu').niceScroll().resize();
+        return false;
+    });
     $(document).ready(function() {
         $('#makan_select').change(function() {
             var selectedValue = $(this).val();

@@ -40,7 +40,6 @@ def get_sum_machine_by_date_shift(assetCatregory,shift,target_date):
         # print(machine.id,target_date,production_sum)
         return t2
 def get_sum_machine_by_date_shift_makan(assetCatregory,makan_id,shift,target_date):
-        print(makan_id,"%%%%%%%")
         t2 = DailyProduction.objects.filter(
         machine__assetCategory=assetCatregory,machine__assetIsLocatedAt__id=makan_id,
         dayOfIssue=target_date,shift=shift
@@ -114,11 +113,56 @@ def get_sum_machine_failure_by_date_shift(assetCatregory,shift,target_date):
             return formatted_duration
         else:
             return 0
+def get_sum_machine_failure_by_date_shift_makan(assetCatregory,makan_id,shift,target_date):
+        filtered_failures = AssetFailure.objects.filter(
+        dayOfIssue=target_date,
+        shift=shift,
+        asset_name__assetCategory=assetCatregory,failure_name__is_it_count=True,asset_name__assetIsLocatedAt__id=makan_id
+        )
+        assets_count = assetCatregory.assetcategory_main.all().count()
+
+
+        # Retrieve durations of the filtered failures and calculate the sum
+        # total_failure_duration = filtered_failures.aggregate(total_duration=Sum('duration'))['total_duration']
+        total_failure_duration = sum(
+            failure.duration.hour * 60 + failure.duration.minute for failure in filtered_failures
+        )
+        if total_failure_duration:
+            
+            total_failure_duration=int(total_failure_duration / assets_count)
+            hours = total_failure_duration // 60
+            minutes = total_failure_duration % 60
+            formatted_duration = f"{hours:02d}:{minutes:02d}"
+            return formatted_duration
+        else:
+            return 0
 def get_sum_machine_failure_monthly_shift(assetCatregory,shift,start,end):
         filtered_failures = AssetFailure.objects.filter(
         dayOfIssue__range=[start,end],
         shift=shift,
         asset_name__assetCategory=assetCatregory,failure_name__is_it_count=True
+        )
+        assets_count = assetCatregory.assetcategory_main.all().count()
+
+        # Retrieve durations of the filtered failures and calculate the sum
+        # total_failure_duration = filtered_failures.aggregate(total_duration=Sum('duration'))['total_duration']
+        total_failure_duration = sum(
+            failure.duration.hour * 60 + failure.duration.minute for failure in filtered_failures
+        )
+        if total_failure_duration:
+            total_failure_duration=int(total_failure_duration / assets_count)
+
+            hours = total_failure_duration // 60
+            minutes = total_failure_duration % 60
+            formatted_duration = f"{hours:02d}:{minutes:02d}"
+            return formatted_duration
+        else:
+            return 0
+def get_sum_machine_failure_monthly_shift_makan(assetCatregory,makan_id,shift,start,end):
+        filtered_failures = AssetFailure.objects.filter(
+        dayOfIssue__range=[start,end],
+        shift=shift,
+        asset_name__assetCategory=assetCatregory,failure_name__is_it_count=True,asset_name__assetIsLocatedAt__id=makan_id
         )
         assets_count = assetCatregory.assetcategory_main.all().count()
 
@@ -161,6 +205,7 @@ def get_day_machine_failure_monthly_shift(assetCatregory,shift,start,end):
             return (hours/8)+(minutes/800)
         else:
             return 0
+        
 def get_day_machine_failure_monthly_shift_makan(assetCatregory,makan_id,shift,start,end):
         filtered_failures = AssetFailure.objects.filter(
         dayOfIssue__range=[start,end],
