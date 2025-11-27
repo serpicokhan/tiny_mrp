@@ -333,53 +333,72 @@ $(function () {
               });
 
 //$("#company-table").on("click", ".js-update-wo", initxLoad);
-var tableDataToJSON=function(tableId){
+var tableDataToJSON = function(tableId) {
   var $table = $(tableId);
   var data = [];
+  
   $table.find('tr').each(function() {
-
-        if($(this).attr('data-machine')){
-       
-          
-        var machine=$(this).attr('data-machine');
-        var amar_id=$(this).attr('data-id')||'0';
-        var shift = $("#select_shift").val();
-        // var makan = $("#select_makan").val();
-        var dayOfIssue = $("#search").val();
-        var speed = $(this).find('td.speed').text()||0;        
-        var nomre = parseFloat($(this).find('td.nomre').text());
-        // var nomre=100;
-        // console.log($(this).find('td.nomre').text());
-        var counter1 = $(this).find('td.counter1').text()||0;
-        var counter2 = $(this).find('td.counter2').text()||0;
-        var vahed = parseInt($(this).find('td.vahed').text()||0);
-        var wastage = parseFloat($(this).find('td.wastage').text()||0);
-        var enzebat = parseFloat($(this).find('td.nezafat').text()||0);
-        var qc = parseFloat($(this).find('td.qc').text()||0);
-        var actual_vahed = $(this).find('td.editable-cell').attr('data-vahed');
-        var operator_data= $(this).find('.operator-data').val() || '[]';
-        var moshakhase=$(this).find('.nakh-data').val()||'null'
-
-        // if(vahed > actual_vahed){
-        //   toastr.error(`${vahed} ${actual_vahed}`);
-        //   return;
-        // }
-        var production_value =  $(this).find('td.production').text()||0;
-
-        if (production_value > 10000) {
-          toastr.error(`میزان تولید (${production_value}) از 10000 بیشتر است!`);
-          return; // این خط باعث می‌شود این ردیف به داده اضافه نشود
+    if($(this).attr('data-machine')) {
+      // بررسی خالی بودن فیلد production
+      var production_value = $(this).find('td.production').text().trim();
+      
+      // اگر production خالی است، این سطر را نادیده بگیر
+      if (!production_value || parseFloat(production_value) === 0) {
+        if ($(this).attr('data-is-new') === 'true') { 
+        console.log('سطر خالی نادیده گرفته شد');
+        return; // این سطر را رد کن
         }
-        data.push({id:amar_id,wastage:wastage, machine: machine, shift: shift,dayOfIssue: dayOfIssue, speed: speed,nomre: nomre
-          , counter1: counter1, counter2: counter2,production_value: production_value,vahed:vahed,operator_data:operator_data,actual_vahed:actual_vahed,moshakhase:moshakhase,qc:qc,enzebat:enzebat
-           });
-         }
+        else{
+          production_value=0;
+        }
+      }
+
+      
+      var machine = $(this).attr('data-machine');
+      var amar_id = $(this).attr('data-id') || '0';
+      var shift = $("#select_shift").val();
+      var dayOfIssue = $("#search").val();
+      var speed = $(this).find('td.speed').text() || 0;        
+      var nomre = parseFloat($(this).find('td.nomre').text());
+      var counter1 = $(this).find('td.counter1').text() || 0;
+      var counter2 = $(this).find('td.counter2').text() || 0;
+      var vahed = parseInt($(this).find('td.vahed').text() || 0);
+      var wastage = parseFloat($(this).find('td.wastage').text() || 0);
+      var enzebat = parseFloat($(this).find('td.nezafat').text() || 0);
+      var qc = parseFloat($(this).find('td.qc').text() || 0);
+      var actual_vahed = $(this).find('td.editable-cell').attr('data-vahed');
+      var operator_data = $(this).find('.operator-data').val() || '[]';
+      var moshakhase = $(this).find('.nakh-data').val() || 'null';
+
+      if (parseFloat(production_value) > 10000) {
+        toastr.error(`میزان تولید (${production_value}) از 10000 بیشتر است!`);
+        return;
+      }
+      
+      data.push({
+        id: amar_id,
+        wastage: wastage,
+        machine: machine,
+        shift: shift,
+        dayOfIssue: dayOfIssue,
+        speed: speed,
+        nomre: nomre,
+        counter1: counter1,
+        counter2: counter2,
+        production_value: production_value,
+        vahed: vahed,
+        operator_data: operator_data,
+        actual_vahed: actual_vahed,
+        moshakhase: moshakhase,
+        qc: qc,
+        enzebat: enzebat
       });
+    }
+  });
 
-      return data;
-
-
+  return data;
 }
+
 $("#save_production").click(function(){
    var sendData = {
     
@@ -965,21 +984,182 @@ $(document).ready(function() {
       }
   });
 });
-$(".tab-content").on("click", ".copy-row", function() {
+function createNewRow($originalRow) {
+  var machineId = $originalRow.data("machine");
+  var shiftId = $originalRow.data("shift");
+  var machineName = $originalRow.find("td:first").text().trim();
+  
+  // حذف آیکون‌های قبلی از نام ماشین
+  machineName = machineName.replace(/[\+\×]/g, '').trim();
+  
+  var speed = $originalRow.data("speed2") || 0;
+  var vahed = $originalRow.find(".vahed").data("vahed") || 0;
+  var maxFormula = $originalRow.find(".production_full").data("maxformula") || "";
+  var formula = $originalRow.find(".production").data("formula") || "";
+
+  var $newRow = $("<tr>", {
+      "data-machine": machineId,
+      "data-shift": shiftId,
+      "data-speed2": speed,
+      "data-is-new": "true" // علامت‌گذاری سطرهای جدید
+  });
+
+  // ستون نام ماشین با دکمه‌های کپی و حذف
+  var $machineCell = $("<td>");
+  
+  // دکمه کپی
+  var $copyBtn = $("<button>", {
+      "class": "btn btn-sm btn-primary copy-row",
+      "html": "<i class='fa fa-copy'></i>",
+      "style": "margin-left: 3px; padding: 2px 6px; font-size: 11px;",
+      "title": "کپی سطر",
+      "type": "button"
+  });
+  
+  // دکمه حذف
+  var $deleteBtn = $("<button>", {
+      "class": "btn btn-sm btn-danger delete-row",
+      "html": "<i class='fa fa-trash'></i>",
+      "style": "margin-left: 3px; padding: 2px 6px; font-size: 11px;",
+      "title": "حذف سطر",
+      "type": "button"
+  });
+  
+  $machineCell.append($copyBtn);
+  $machineCell.append($deleteBtn);
+  $machineCell.append(document.createTextNode(" " + machineName));
+  $newRow.append($machineCell);
+
+  // ستون اپراتور
+  var $operatorCell = $("<td>", {
+      "class": "operator-cell"
+  });
+  var $operatorDisplay = $("<span>", {
+      "class": "operator-display",
+      "text": "انتخاب اپراتور"
+  });
+  var $operatorInput = $("<input>", {
+      "type": "hidden",
+      "class": "operator-data",
+      "name": "operator_data",
+      "value": "[]"
+  });
+  $operatorCell.append($operatorDisplay).append($operatorInput);
+  $newRow.append($operatorCell);
+
+  // ستون کد نخ
+  var $nakhCell = $("<td>");
+  var $nakhSelect = $("<select>", {
+      "class": "form-control nakh-name",
+      "data-machine-id": machineId,
+      "style": "width: 100%;"
+  });
+  $nakhCell.append($nakhSelect);
+  $nakhCell.append($('<input type="hidden" class="nakh-data" name="nakh_data_' + machineId + '">'));
+  $newRow.append($nakhCell);
+
+  // سایر ستون‌ها
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell btc vahed selectable1",
+      "data-vahed": vahed
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell btc nomre selectable1"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell2 btc speed selectable1",
+      "data-nomre": ""
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell btc counter1 selectable1"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell btc counter2 selectable1"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell3 production_full selectable1",
+      "data-maxformula": maxFormula,
+      "data-vahed": vahed
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "data-formula": formula,
+      "class": "production"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell2 btc wastage"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell2 btc nezafat"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "contenteditable": "true",
+      "class": "editable-cell2 btc qc"
+  }).text(""));
+
+  $newRow.append($("<td>", {
+      "class": "randeman_production"
+  }));
+
+  return $newRow;
+}
+
+// 4. رویداد کلیک کپی - فقط یک بار تعریف شود
+$(".tab-content").on("click", ".copy-row", function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
   var $originalRow = $(this).closest("tr");
   var $newRow = createNewRow($originalRow);
   
-  // اضافه کردن سطر جدید بعد از سطر جاری
   $originalRow.after($newRow);
+  $newRow.hide().fadeIn(300);
   
-  // مقداردهی اولیه Select2ها برای سطر جدید
   initializeSelect2ForRow($newRow);
   initiateCodeNakhForRow($newRow);
   
-  // اسکرول به سطر جدید
   $('html, body').animate({
       scrollTop: $newRow.offset().top - 100
   }, 500);
+  
+  toastr.success('سطر جدید با موفقیت اضافه شد');
+});
+
+// 5. رویداد کلیک حذف - جدید
+$(".tab-content").on("click", ".delete-row", function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  var $row = $(this).closest("tr");
+  
+  // فقط سطرهای جدید قابل حذف هستند
+  if ($row.data("is-new") === "true" || $row.data("is-new") === true) {
+    if (confirm("آیا مطمئن هستید که می‌خواهید این سطر را حذف کنید؟")) {
+      $row.fadeOut(300, function() {
+        $(this).remove();
+        toastr.info('سطر با موفقیت حذف شد');
+      });
+    }
+  } else {
+    toastr.warning('فقط سطرهای اضافه شده قابل حذف هستند');
+  }
 });
 // تابع برای مقداردهی اولیه Select2 اپراتورها برای یک سطر خاص
 function initializeSelect2ForRow($row) {
@@ -1049,134 +1229,6 @@ function initializeSelect2ForRow($row) {
   });
 }
 // تابع ایجاد سطر جدید
-function createNewRow($originalRow) {
-  // داده‌های اصلی از سطر موجود
-  var machineId = $originalRow.data("machine");
-  var shiftId = $originalRow.data("shift");
-  var machineName = $originalRow.find("td:first").text().trim().replace('+', '');
-  var speed = $originalRow.data("speed2") || 0;
-  var vahed = $originalRow.find(".vahed").data("vahed") || 0;
-  var maxFormula = $originalRow.find(".production_full").data("maxformula") || "";
-  var formula = $originalRow.find(".production").data("formula") || "";
-
-  // ساخت سطر جدید
-  var $newRow = $("<tr>", {
-      "data-machine": machineId,
-      "data-shift": shiftId,
-      "data-speed2": speed
-  });
-
-  // ستون نام ماشین با دکمه کپی
-  var $machineCell = $("<td>");
-  $machineCell.text(machineName + " ");
-  var $copyBtn = $("<button>", {
-      "class": "btn btn-primary copy-row",
-      "text": "+",
-      "style": "margin-right: 5px;"
-  });
-  $machineCell.append($copyBtn);
-  $newRow.append($machineCell);
-
-  // ستون اپراتور
-  var $operatorCell = $("<td>", {
-      "class": "operator-cell"
-  });
-  var $operatorDisplay = $("<span>", {
-      "class": "operator-display",
-      "text": "انتخاب اپراتور"
-  });
-  var $operatorInput = $("<input>", {
-      "type": "hidden",
-      "class": "operator-data",
-      "name": "operator_data",
-      "value": "[]"
-  });
-  $operatorCell.append($operatorDisplay).append($operatorInput);
-  $newRow.append($operatorCell);
-
-  // ستون کد نخ (Select2)
-  var $nakhCell = $("<td>");
-  var $nakhSelect = $("<select>", {
-      "class": "form-control nakh-name",
-      "data-machine-id": machineId,
-      "style": "width: 100%;"
-  });
-  $nakhCell.append($nakhSelect);
-  $nakhCell.append($('<input type="hidden" class="nakh-data" name="nakh_data_' + machineId + '">'));
-  $newRow.append($nakhCell);
-
-  // ستون واحد (قابل ویرایش)
-  $newRow.append($("<td>", {
-      "contenteditable": "true",
-      "class": "editable-cell btc vahed selectable1",
-      "data-vahed": vahed
-  }).text(""));
-
-  // ستون نمره (قابل ویرایش)
-  $newRow.append($("<td>", {
-      "contenteditable": "true",
-      "class": "editable-cell btc nomre selectable1"
-  }).text(""));
-
-  // ستون سرعت (قابل ویرایش)
-  $newRow.append($("<td>", {
-      "contenteditable": "true",
-      "class": "editable-cell2 btc speed selectable1",
-      "data-nomre": ""
-  }).text(""));
-
-  // کنتور ابتدای شیفت
-  $newRow.append($("<td>", {
-      "contenteditable": "true",
-      "class": "editable-cell btc counter1 selectable1"
-  }).text(""));
-
-  // کنتور انتهای شیفت
-  $newRow.append($("<td>", {
-      "contenteditable": "true",
-      "class": "editable-cell btc counter2 selectable1"
-  }).text(""));
-
-  // 100% (تولید کامل)
-  $newRow.append($("<td>", {
-      "contenteditable": "true",
-      "class": "editable-cell3 production_full selectable1",
-      "data-maxformula": maxFormula,
-      "data-vahed": vahed
-  }).text(""));
-
-  // تولید
-  $newRow.append($("<td>", {
-      "contenteditable": "true",
-      "data-formula": formula,
-      "class": "production"
-  }).text(""));
-
-  // ضایعات
-  $newRow.append($("<td>", {
-      "contenteditable": "true",
-      "class": "editable-cell2 btc wastage"
-  }).text(""));
-
-  // انضباط
-  $newRow.append($("<td>", {
-      "contenteditable": "true",
-      "class": "editable-cell2 btc nezafat"
-  }).text(""));
-
-  // کیفیت
-  $newRow.append($("<td>", {
-      "contenteditable": "true",
-      "class": "editable-cell2 btc qc"
-  }).text(""));
-
-  // عملیات (سلول خالی)
-  $newRow.append($("<td>", {
-      "class": "randeman_production"
-  }));
-
-  return $newRow;
-}
 
 // ⚠️ فقط یک بار رویداد کلیک را تعریف کنید - این خط را نگه دارید
 

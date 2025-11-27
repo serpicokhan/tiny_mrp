@@ -296,7 +296,7 @@
                                       {% for c in machines %}
                                       {% if c.machine.assetCategory.id == cat_item.id %}
                                       <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
-                                          <td>{{c.machine.assetName}} <button class="btn btn-primary copy-row">+</button></td>
+                                          <td><button class="btn btn-sm btn-primary copy-row" style="margin-left: 3px; padding: 2px 6px; font-size: 11px;" title="کپی سطر" type="button"><i class="fa fa-copy"></i></button>{{c.machine.assetName}} </td>
                                           
                                           <td class="operator-cell">
                                             <span class="operator-display">
