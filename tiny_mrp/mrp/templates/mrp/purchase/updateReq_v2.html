@@ -112,7 +112,7 @@
         </div>
      {% include 'mrp/purchase/purchase_v2.html' %}
     <hr class="m-0">
-    {% if request.user|in_group:"purchase" or request.user|in_group:"director"  %}
+    {% if request.user|in_group:"purchase" or request.user|in_group:"director"  or perms.mrp.can_view_rfq %}
      {% include 'mrp/rfq/rfqList.html' %}
     {% endif %}
     </div>

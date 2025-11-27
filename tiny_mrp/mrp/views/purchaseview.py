@@ -981,7 +981,7 @@ def referesh_purchase_list(request):
         user_groups = request.user.groups.values_list('name', flat=True)
 
         # If user belongs to any of the specified groups, they can view the requests
-        if any(group in user_groups for group in ['anbar', 'purchase', 'managers', 'director','super_managers']):
+        if any(group in user_groups for group in ['anbar', 'purchase', 'managers', 'director','super_managers','finance']):
             requests = PurchaseRequest.objects.all()  # All requests for these groups
         else:
             requests = PurchaseRequest.objects.filter(user__userId=request.user)  # Only requests for the user
@@ -1287,7 +1287,6 @@ def add_purchase_note(request):
     return JsonResponse({"status": "error"}, status=400)
 @csrf_exempt  # Disable CSRF for testing purposes; ensure proper CSRF handling in production
 def handle_purchase_paraph(request):
-    print(request.method,'##################################')
     if request.method == 'POST':
         text = request.POST.get('text')
         p_id=request.GET.get('p_id',False)
