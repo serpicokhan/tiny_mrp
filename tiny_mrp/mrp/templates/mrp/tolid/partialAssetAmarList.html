@@ -42,7 +42,7 @@
             
             
             {% if c.machine.assetCategory.id == cat_item.id %}
-            <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
+            <tr data-machine={{c.machine.id}} data-shift="{{c.shift.id}}" data-speed2="{{c.speed}}" data-id="{{c.id}}">
               <td>{{c.machine.assetName}}</td>
               <td contenteditable="true" class="editable-cell btc vahed selectable1 " data-vahed="{{c.machine.assetVahed}}">{{c.amar.vahed}}</td>
                 <!-- سلول جدید برای نام اپراتور -->

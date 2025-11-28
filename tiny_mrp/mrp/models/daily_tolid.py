@@ -581,7 +581,7 @@ class DailyProduction(models.Model):
     #     super(DailyProduction, self).save(*args, **kwargs)
     class Meta:
         db_table="dailyproduction"
-        unique_together = (('machine', 'shift','dayOfIssue'),)
+        # unique_together = (('machine', 'shift','dayOfIssue'),)
         indexes = [
             models.Index(fields=['dayOfIssue']),
             models.Index(fields=['machine']),

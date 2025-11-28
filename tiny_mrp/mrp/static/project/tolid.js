@@ -435,6 +435,7 @@ $("#save_production").click(function(){
     contentType: 'application/json',
     data: JSON.stringify(sendData),
     beforeSend:function(xhr){
+      console.log(JSON.stringify(sendData));
       if (hasError) {
         toastr.error("لطفا مقدار تولید را اصلاح کنید");
         xhr.abort(); // لغو درخواست
@@ -958,32 +959,32 @@ function updateOperatorHiddenFields2($row) {
 
 
 // اضافه کردن دکمه کپی به سطرهای موجود (در صورت نیاز)
-$(document).ready(function() {
-  $('table tbody tr').each(function() {
-      var $row = $(this);
-      var $machineCell = $row.find('td:first');
+// $(document).ready(function() {
+//   $('table tbody tr').each(function() {
+//       var $row = $(this);
+//       var $machineCell = $row.find('td:first');
       
-      // چک کنید که دکمه قبلاً اضافه نشده باشد
-      if ($machineCell.find('.copy-row').length === 0) {
-          var machineName = $machineCell.text().trim();
+//       // چک کنید که دکمه قبلاً اضافه نشده باشد
+//       if ($machineCell.find('.copy-row').length === 0) {
+//           var machineName = $machineCell.text().trim();
           
-          var $copyButton = $('<button>', {
-              class: 'btn btn-sm btn-primary copy-row',
-              html: '<i class="fa fa-copy"></i>',
-              css: {
-                  'margin-left': '5px',
-                  'padding': '2px 6px',
-                  'font-size': '11px'
-              },
-              title: 'کپی سطر'
-          });
+//           var $copyButton = $('<button>', {
+//               class: 'btn btn-sm btn-primary copy-row',
+//               html: '<i class="fa fa-copy"></i>',
+//               css: {
+//                   'margin-left': '5px',
+//                   'padding': '2px 6px',
+//                   'font-size': '11px'
+//               },
+//               title: 'کپی سطر'
+//           });
           
-          $machineCell.empty();
-          $machineCell.append($copyButton);
-          $machineCell.append(document.createTextNode(' ' + machineName));
-      }
-  });
-});
+//           $machineCell.empty();
+//           $machineCell.append($copyButton);
+//           $machineCell.append(document.createTextNode(' ' + machineName));
+//       }
+//   });
+// });
 function createNewRow($originalRow) {
   var machineId = $originalRow.data("machine");
   var shiftId = $originalRow.data("shift");
