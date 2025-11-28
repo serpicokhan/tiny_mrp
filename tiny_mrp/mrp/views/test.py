@@ -101,8 +101,9 @@ def get_daily_amar(request):
         try:
             formula = Formula.objects.get(machine=machine)
             speedformula = SpeedFormula.objects.get(machine=machine)
-            amar=DailyProduction.objects.get(machine=machine,dayOfIssue=dayOfIssue,shift=s)
-            machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'shift_id':s})
+            amars=DailyProduction.objects.filter(machine=machine,dayOfIssue=dayOfIssue,shift=s)
+            for amar in amars:
+                machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'shift_id':s})
             # else:
             #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
