@@ -1774,7 +1774,6 @@ def list_amar_daily_info(request):
                     'nomre': amar.nomre
                 })
         else:
-            print("amar bedune 1680")
             # اگر آمار وجود ندارد، یک سطر خالی اضافه کن
             max_nomre = DailyProduction.objects.filter(
                 machine=machine
