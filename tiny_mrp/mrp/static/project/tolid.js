@@ -341,11 +341,13 @@ var tableDataToJSON = function(tableId) {
     if($(this).attr('data-machine')) {
       // بررسی خالی بودن فیلد production
       var production_value = $(this).find('td.production').text().trim();
+      console.log($(this).find('.nakh-data').val());
       
       // اگر production خالی است، این سطر را نادیده بگیر
       if (!production_value || parseFloat(production_value) === 0) {
         if ($(this).attr('data-is-new') === 'true') { 
         console.log('سطر خالی نادیده گرفته شد');
+        console.log($(this));
         return; // این سطر را رد کن
         }
         else{
@@ -415,9 +417,9 @@ $("#save_production").click(function(){
      var tableData = tableDataToJSON($(this));
     
     // بررسی اینکه آیا خطایی در داده‌های جدول وجود دارد
-    if (tableData.length === 0) {
-      hasError = true;
-    }
+    // if (tableData.length === 0) {
+    //   hasError = true;
+    // }
     
     sendData[i] = tableData;
     i++;
@@ -922,8 +924,7 @@ function convertOldFormatToArray(oldData) {
 function updateOperatorHiddenFields2($row) {
   // Get currently selected operators from Select2
   var selectedOperators = $row.find('.nakh-name').select2('data')[0];
-  console.log(selectedOperators);
-  
+
   // var selectedIds = selectedOperators.map(op => op.id);
   
   // Get existing data from hidden field
@@ -943,6 +944,7 @@ function updateOperatorHiddenFields2($row) {
   
   // Update the hidden field
   $row.find('.nakh-data').val(JSON.stringify(updatedOperators));
+  $row.find('.nomre').text(selectedOperators.tool)
 }
 
 // Convert old format {ids:[], names:[]} to new format [{id:..., name:...}]
@@ -1031,20 +1033,24 @@ function createNewRow($originalRow) {
   $machineCell.append(document.createTextNode(" " + machineName));
   $newRow.append($machineCell);
 
-  // ستون اپراتور
-  var $operatorCell = $("<td>", {
-      "class": "operator-cell"
-  });
-  var $operatorDisplay = $("<span>", {
-      "class": "operator-display",
-      "text": "انتخاب اپراتور"
-  });
-  var $operatorInput = $("<input>", {
-      "type": "hidden",
-      "class": "operator-data",
-      "name": "operator_data",
-      "value": "[]"
-  });
+ // ===== ستون اپراتور - فقط اینجا تغییر کرده =====
+ var $operatorCell = $("<td>", { "class": "operator-cell" });
+
+ // گرفتن داده‌های اپراتور از سطر اصلی (اگر وجود داشته باشد)
+ var originalOperatorData = $originalRow.find(".operator-data").val() || "[]";
+ var originalOperatorNames = $originalRow.find(".operator-display").text().trim();
+
+ var $operatorDisplay = $("<span>", {
+     "class": "operator-display",
+     "text": originalOperatorNames === "انتخاب اپراتور" ? "انتخاب اپراتور" : originalOperatorNames
+ });
+
+ var $operatorInput = $("<input>", {
+     "type": "hidden",
+     "class": "operator-data",
+     "name": "operator_data",
+     "value": originalOperatorData
+ });
   $operatorCell.append($operatorDisplay).append($operatorInput);
   $newRow.append($operatorCell);
 
@@ -1064,7 +1070,7 @@ function createNewRow($originalRow) {
       "contenteditable": "true",
       "class": "editable-cell btc vahed selectable1",
       "data-vahed": vahed
-  }).text(""));
+  }).text(vahed));
 
   $newRow.append($("<td>", {
       "contenteditable": "true",
@@ -1075,7 +1081,7 @@ function createNewRow($originalRow) {
       "contenteditable": "true",
       "class": "editable-cell2 btc speed selectable1",
       "data-nomre": ""
-  }).text(""));
+  }).text(speed));
 
   $newRow.append($("<td>", {
       "contenteditable": "true",

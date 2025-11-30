@@ -27,6 +27,7 @@ from mrp.utils import utilMonth
 from mrp.client_call import get_hozur_count
 from django.http import HttpResponseNotFound
 from django.db import transaction
+from django.core.exceptions import PermissionDenied
 def backup_database(request):
     # Define your database credentials and output file's path
    # Define your database credentials and output file's path
@@ -178,8 +179,9 @@ def get_daily_amar_scroll(request):
         try:
             formula = Formula.objects.get(machine=machine)
             speedformula = SpeedFormula.objects.get(machine=machine)
-            amar=DailyProduction.objects.get(machine=machine,dayOfIssue=dayOfIssue,shift=s)
-            machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'shift_id':s})
+            amars=DailyProduction.objects.filter(machine=machine,dayOfIssue=dayOfIssue,shift=s)
+            for amar in amars:
+                machines_with_formulas.append({'machine': machine,'vahed':machine.assetVahed, 'formula': formula.formula,'speedformula':speedformula.formula,'amar':amar,'shift':s,'shift_id':s})
             # else:
             #     machines_with_formulas.append({'machine': machine, 'formula': formula.formula,'speed':0,'nomre':0,'speedformula':speedformula.formula})
 
@@ -530,6 +532,8 @@ def tolid_heatset(request):
 #     return JsonResponse(data)
 
 @csrf_exempt
+@permission_required('mrp.can_change_dailyproduction', raise_exception=True)  # یا add_dailyproduction
+
 @transaction.atomic
 def saveAmarTableInfo(request):
     """
@@ -569,6 +573,93 @@ def saveAmarTableInfo(request):
         print(f"❌ خطا: {str(e)}")
         # transaction.atomic باعث می‌شود همه تغییرات لغو شوند
         return JsonResponse({"error": str(e)}, status=500)
+# @csrf_exempt
+# # @transaction.atomic
+# # @permission_required('mrp.can_change_dailyproduction', raise_exception=True)  # یا add_dailyproduction
+# def saveAmarTableInfo(request):
+#     """
+#     جایگزینی کامل رکوردهای روزانه برای هر (ماشین + شیفت + روز)
+#     - رکوردهای قبلی حذف می‌شوند
+#     - فقط رکوردهای جدید ارسالی ذخیره می‌شوند
+#     - کاربر باید مجوز ویرایش/ایجاد داشته باشد
+#     """
+
+#     if request.method != 'POST':
+#         return JsonResponse({"error": "Method not allowed"}, status=405)
+
+#     try:
+#         data2 = json.loads(request.body)
+#         saved_count = 0
+#         deleted_count = 0
+
+
+#         # گروه‌بندی داده‌ها بر اساس (machine, shift, dayOfIssue)
+#         records_to_process = []
+
+#         for table_name, table_data in data2.items():
+            
+#             for item in table_data:
+                
+
+#                 machine_id = int(item["machine"])
+#                 shift_id = int(item["shift"])
+#                 day_str = item["dayOfIssue"].replace('/', '-')
+#                 date_obj = DateJob.getTaskDate(day_str)
+
+#                 records_to_process.append({
+#                     'machine_id': machine_id,
+#                     'shift_id': shift_id,
+#                     'date_obj': date_obj,
+#                     'item': item
+#                 })
+           
+#         # برای هر ترکیب منحصر به فرد (machine, shift, date) یک بار حذف انجام شود
+#         processed_keys = set()
+
+#         for record in records_to_process:
+#             try:
+#                 key = (record['machine_id'], record['shift_id'], record['date_obj'])
+#                 if key in processed_keys:
+#                     continue
+                
+#                 # حذف تمام رکوردهای قبلی برای این ترکیب
+#                 deleted = DailyProduction.objects.filter(
+#                     machine_id=record['machine_id'],
+#                     shift_id=record['shift_id'],
+#                     dayOfIssue=record['date_obj']
+#                 ).delete()[0]  # [0] تعداد حذف شده‌ها
+#                 deleted_count += deleted
+
+#                 processed_keys.add(key)
+#             except Exception as e:
+#                 print(e,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+
+#         # حالا فقط رکوردهای جدید را ذخیره کن
+#         for record in records_to_process:
+#             item = record['item']
+#             m = Asset.objects.get(id=record['machine_id'])
+#             s = Shift.objects.get(id=record['shift_id'])
+
+#             # همیشه رکورد جدید ایجاد می‌شود (حتی اگر id داشت، نادیده گرفته می‌شود)
+#             amar = create_new_amar(item, m, s, record['date_obj'])
+#             amar.save()
+#             saved_count += 1
+
+#         return JsonResponse({
+#             "success": True,
+#             "message": f"{saved_count} رکورد جدید ذخیره شد. {deleted_count} رکورد قبلی حذف شد.",
+#             "saved": saved_count,
+#             "deleted": deleted_count
+#         })
+
+#     except Asset.DoesNotExist:
+#         return JsonResponse({"error": "ماشین مورد نظر یافت نشد"}, status=400)
+#     except Shift.DoesNotExist:
+#         return JsonResponse({"error": "شیفت مورد نظر یافت نشد"}, status=400)
+#     except PermissionDenied:
+#         return JsonResponse({"error": "شما اجازه ثبت یا ویرایش آمار روزانه را ندارید"}, status=403)
+#     except Exception as e:
+#         return JsonResponse({"error": f"خطای سرور: {str(e)}"}, status=500)
 def update_amar_fields(amar, data, machine, shift, date_obj):
     """
     آپدیت فیلدهای یک شیء DailyProduction
@@ -588,6 +679,7 @@ def update_amar_fields(amar, data, machine, shift, date_obj):
     
     # تنظیم مشخصه (کد نخ)
     moshakhase = data.get("moshakhase")
+    print(moshakhase,':moshakhase!!!!!!!')
     if moshakhase and moshakhase != "null":
         try:
             amar.set_moshakhase(moshakhase)
@@ -1054,11 +1146,15 @@ def get_tolid_calendar_info(request):
     makan=request.GET.get("makan",False)
     data=[]
     user_info=DailyProduction.objects.filter(machine__assetIsLocatedAt=makan).values_list('dayOfIssue').distinct()
-
+    print(user_info,'!!!!!!!!')
     # print(user_info)
     for i in user_info:
-        product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=4,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
+        if(makan=='7331'):
+            product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=60,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
 
+        else:
+            product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=4,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
+        print(product_data_tab)
         z=get_sum_vaz_zayeat_by_date_per_line(i[0],makan)
         data.append({'title': f"آمار روزانه { round(product_data_tab[0]['total_product'],0)}",\
                 'start': i[0],\

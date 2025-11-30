@@ -64,12 +64,17 @@
           <i data-feather="calendar"></i>
         </a>
       </li>
+      
+      {% endif %}
+      {% if perms.mrp.can_view_tavaghofat %}
+
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="توقفات" data-nav-target="#apps7">
           <i data-feather="alert-octagon"></i>
         </a>
       </li>
       {% endif %}
+
       
       
       {% if perms.mrp.can_operator_mrp %}
