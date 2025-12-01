@@ -28,6 +28,8 @@ from mrp.client_call import get_hozur_count
 from django.http import HttpResponseNotFound
 from django.db import transaction
 from django.core.exceptions import PermissionDenied
+from datetime import timedelta,date
+from django.utils import timezone
 def backup_database(request):
     # Define your database credentials and output file's path
    # Define your database credentials and output file's path
@@ -1145,16 +1147,23 @@ def get_tolid_calendar_info(request):
     # print(request.GET.get("makan"),'!!!!!!!!!!!!!!!!!!')
     makan=request.GET.get("makan",False)
     data=[]
-    user_info=DailyProduction.objects.filter(machine__assetIsLocatedAt=makan).values_list('dayOfIssue').distinct()
-    print(user_info,'!!!!!!!!')
+    # thirty_days_ago = date.today() - timedelta(days=30)
+    # today = date.today()
+    thirty_days_ago = date.today() - timedelta(days=30)
+
+    user_info = DailyProduction.objects.filter(
+        machine__assetIsLocatedAt=makan,
+        dayOfIssue__gte=thirty_days_ago
+    ).values_list('dayOfIssue').distinct().order_by('dayOfIssue')
     # print(user_info)
     for i in user_info:
         if(makan=='7331'):
+            print(makan)
+
             product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=60,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
 
         else:
             product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=4,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
-        print(product_data_tab)
         z=get_sum_vaz_zayeat_by_date_per_line(i[0],makan)
         data.append({'title': f"آمار روزانه { round(product_data_tab[0]['total_product'],0)}",\
                 'start': i[0],\
