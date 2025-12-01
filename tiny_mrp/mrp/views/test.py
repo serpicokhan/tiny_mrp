@@ -412,16 +412,19 @@ def saveAmarTableInfo(request):
             m=Asset.objects.get(id=int(i["machine"]))
             s=Shift.objects.get(id=int(i["shift"]))
             d=None
-            # print(i)
 
             if(i["id"]!="0"):
+                print(i["id"])
 
                 d=DailyProduction.objects.filter(id=i["id"])
             else:
-                d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
+
+                d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')),id=i["id"])
 
             if(d.count()>0):
-                # print("here!###")
+                
+
+                
                 
 
                 x=d[0]
@@ -485,6 +488,9 @@ def saveAmarTableInfo(request):
             # print(i)
             # print("********")
             else:
+                # print(i)
+                print("that")
+
                 amar=DailyProduction()
                 # amar.shift=i["shift"]
                 amar.machine=m
@@ -504,6 +510,9 @@ def saveAmarTableInfo(request):
                 
                 amar.production_value=float(i["production_value"])
                 moshakhase=i["moshakhase"]
+                print('524')
+
+
                 if(moshakhase):
                     amar.set_moshakhase(moshakhase)
                 operators_data_json = i["operator_data"]
@@ -522,11 +531,13 @@ def saveAmarTableInfo(request):
                 try:
                     # amar.register_user=req
                     amar.save()
-                    print("done!!!")
+                    print("done!!!",amar.id)
                 except IntegrityError as ex:
                     print(ex)
                     print("A MyModel instance with this field1 and field2 combination already exists.")
                     data["error"]="برای این تاریخ مقدار از قبل وجود دارد!"
+                except Exception as ex:
+                    print(ex)
 
 
             # print("done",amar.id)
@@ -1157,8 +1168,8 @@ def get_tolid_calendar_info(request):
     ).values_list('dayOfIssue').distinct().order_by('dayOfIssue')
     # print(user_info)
     for i in user_info:
-        if(makan=='7331'):
-            print(makan)
+        if(int(makan)==7331):
+            
 
             product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=60,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
 

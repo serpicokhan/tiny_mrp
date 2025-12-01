@@ -313,7 +313,7 @@
                                                   انتخاب اپراتور
                                                 {% endif %}
                                               </span>
-                                            <input type="hidden" class="operator-data" name="operator_data" value='{{c.operators_json|default:"[]"}}'>
+                                            <input type="hidden" class="operator-data" name="operator_data" value=' {% if c.operators %}{{c.operators_json|default:"[]"}} {$ else %} [] {% endif %}'>
                                           </td>
                                         <td>
                                           <select class="form-control nakh-name" 
