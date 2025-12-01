@@ -399,180 +399,180 @@ def tolid_heatset(request):
 
     return render(request,"mrp/tolid/heatset_details.html",{'machines':machines_with_formulas,'shifts':shift,'title':'ورود داده های روزانه','prev_date':previous_day.strftime('%Y-%m-%d'),'next_date':next_day.strftime('%Y-%m-%d')})
 
-# @csrf_exempt
-# def saveAmarTableInfo(request):
-#     print("here")
-#     data2 = json.loads(request.body)
-#     data=dict()
-#     # print("********")
-#     for table_name, table_data in data2.items():
-#         for i in table_data:
-#             m=Asset.objects.get(id=int(i["machine"]))
-#             s=Shift.objects.get(id=int(i["shift"]))
-#             d=None
-#             # print(i)
-
-#             if(i["id"]!="0"):
-
-#                 d=DailyProduction.objects.filter(id=i["id"])
-#             else:
-#                 d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
-
-#             if(d.count()>0):
-#                 # print("here!###")
-                
-
-#                 x=d[0]
-#                 x.machine=m
-#                 x.shift=s
-#                 x.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
-                
-#                 x.speed=i["speed"]
-#                 x.nomre=i["nomre"]
-#                 x.counter1=i["counter1"]
-#                 x.counter2=i["counter2"]
-#                 x.vahed=int(i["vahed"])
-#                 x.wastage_value=float(i["wastage"]) if i["wastage"] else 0
-#                 x.enzebat_value=float(i["enzebat"]) if i["enzebat"] else 0
-#                 x.qc_value=float(i["qc"]) if i["qc"] else 0
-#                 # print("!wastage:",i["wastage"])
-                
-#                 x.production_value=float(i["production_value"])
-#                 operators_data_json = i['operator_data']
-#                 moshakhase=i["moshakhase"]
-#                 if(moshakhase):
-#                     x.set_moshakhase(moshakhase)
-
-#                 # print('####################',json.loads(operators_data_json),'####################')
-#                 if operators_data_json and operators_data_json.strip():
-#                     try:
-#                         # Try to parse as JSON first
-#                         # print(operators_data_json)
-#                         # operators_data = json.loads(operators_data_json)
-
-#                         x.set_operators(operators_data_json)
-#                     except json.JSONDecodeError:
-#                         print("@@@@@@@")
-#                         try:
-#                             # If JSON parsing fails, try as comma-separated IDs
-#                             if ',' in operators_data_json:
-#                                 operator_ids = [
-#                                     int(id.strip()) for id in operators_data_json.split(',') 
-#                                     if id.strip().isdigit()
-#                                 ]
-#                             else:
-#                                 # Single operator ID
-#                                 operator_ids = [int(operators_data_json.strip())] if operators_data_json.strip().isdigit() else []
-                            
-#                             if operator_ids:
-#                                 x.set_operators(operator_ids)
-#                             else:
-#                                 x.operators_data = None
-#                         except (ValueError, TypeError):
-#                             x.operators_data = None
-#                 else:
-#                     x.operators_data = None
-#                 try:
-#                     x.save()
-#                     # print("!#@#@!",x.moshakhase)
-#                 except IntegrityError:
-#                     print("برای این تاریخ مقدار از قبل وجود دارد!")
-#                     data["error"]="برای این تاریخ مقدار از قبل وجود دارد!"
-
-#             # print(i)
-#             # print(i)
-#             # print("********")
-#             else:
-#                 amar=DailyProduction()
-#                 # amar.shift=i["shift"]
-#                 amar.machine=m
-#                 amar.shift=s
-#                 amar.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
-#                 amar.speed=i["speed"]
-#                 amar.nomre=i["nomre"]
-#                 amar.counter1=i["counter1"]
-#                 amar.counter2=i["counter2"]
-#                 amar.vahed=float(i["vahed"])
-#                 amar.wastage_value=float(i["wastage"]) if i["wastage"] else 0
-#                 amar.enzebat_value=float(i["enzebat"]) if i["enzebat"] else 0
-#                 amar.qc_value=float(i["qc"]) if i["qc"] else 0
-#                 # print("!wastage:",i["wastage"])
-
-#                 # print(i["wastage"])
-                
-#                 amar.production_value=float(i["production_value"])
-#                 moshakhase=i["moshakhase"]
-#                 if(moshakhase):
-#                     amar.set_moshakhase(moshakhase)
-#                 operators_data_json = i["operator_data"]
-#                 if operators_data_json and operators_data_json.strip():
-#                     try:
-#                         # operators_data = json.loads(operators_data_json)
-#                         amar.set_operators(operators_data_json)
-#                     except json.JSONDecodeError:
-#                         # If it's a single operator ID or comma-separated IDs
-#                         operator_ids = [int(id.strip()) for id in operators_data_json.split(',') if id.strip().isdigit()]
-#                         amar.set_operators(operator_ids)
-#                 else:
-#                     amar.operators_data = None
-
-
-#                 try:
-#                     # amar.register_user=req
-#                     amar.save()
-#                     print("done!!!")
-#                 except IntegrityError as ex:
-#                     print(ex)
-#                     print("A MyModel instance with this field1 and field2 combination already exists.")
-#                     data["error"]="برای این تاریخ مقدار از قبل وجود دارد!"
-
-
-#             # print("done",amar.id)
-#     data=dict()
-#     return JsonResponse(data)
-
 @csrf_exempt
-@permission_required('mrp.can_change_dailyproduction', raise_exception=True)  # یا add_dailyproduction
-
-@transaction.atomic
 def saveAmarTableInfo(request):
-    """
-    نسخه امن‌تر با استفاده از transaction
-    اگر خطایی رخ دهد، تمام تغییرات rollback می‌شود
-    """
-    try:
-        data2 = json.loads(request.body)
-        data = dict()
-        saved_count = 0
-        updated_count = 0
-        
-        for table_name, table_data in data2.items():
-            for i in table_data:
-                m = Asset.objects.get(id=int(i["machine"]))
-                s = Shift.objects.get(id=int(i["shift"]))
-                date_obj = DateJob.getTaskDate(i["dayOfIssue"].replace('/', '-'))
+    print("here")
+    data2 = json.loads(request.body)
+    data=dict()
+    # print("********")
+    for table_name, table_data in data2.items():
+        for i in table_data:
+            m=Asset.objects.get(id=int(i["machine"]))
+            s=Shift.objects.get(id=int(i["shift"]))
+            d=None
+            # print(i)
+
+            if(i["id"]!="0"):
+
+                d=DailyProduction.objects.filter(id=i["id"])
+            else:
+                d=DailyProduction.objects.filter(machine=m,shift=s,dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')))
+
+            if(d.count()>0):
+                # print("here!###")
                 
-                if i["id"] and i["id"] != "0":
-                    # آپدیت
-                    amar = DailyProduction.objects.get(id=int(i["id"]))
-                    update_amar_fields(amar, i, m, s, date_obj)
-                    amar.save()
-                    updated_count += 1
+
+                x=d[0]
+                x.machine=m
+                x.shift=s
+                x.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
+                
+                x.speed=i["speed"]
+                x.nomre=i["nomre"]
+                x.counter1=i["counter1"]
+                x.counter2=i["counter2"]
+                x.vahed=int(i["vahed"])
+                x.wastage_value=float(i["wastage"]) if i["wastage"] else 0
+                x.enzebat_value=float(i["enzebat"]) if i["enzebat"] else 0
+                x.qc_value=float(i["qc"]) if i["qc"] else 0
+                # print("!wastage:",i["wastage"])
+                
+                x.production_value=float(i["production_value"])
+                operators_data_json = i['operator_data']
+                moshakhase=i["moshakhase"]
+                if(moshakhase):
+                    x.set_moshakhase(moshakhase)
+
+                # print('####################',json.loads(operators_data_json),'####################')
+                if operators_data_json and operators_data_json.strip():
+                    try:
+                        # Try to parse as JSON first
+                        # print(operators_data_json)
+                        # operators_data = json.loads(operators_data_json)
+
+                        x.set_operators(operators_data_json)
+                    except json.JSONDecodeError:
+                        print("@@@@@@@")
+                        try:
+                            # If JSON parsing fails, try as comma-separated IDs
+                            if ',' in operators_data_json:
+                                operator_ids = [
+                                    int(id.strip()) for id in operators_data_json.split(',') 
+                                    if id.strip().isdigit()
+                                ]
+                            else:
+                                # Single operator ID
+                                operator_ids = [int(operators_data_json.strip())] if operators_data_json.strip().isdigit() else []
+                            
+                            if operator_ids:
+                                x.set_operators(operator_ids)
+                            else:
+                                x.operators_data = None
+                        except (ValueError, TypeError):
+                            x.operators_data = None
                 else:
-                    # ایجاد جدید
-                    amar = create_new_amar(i, m, s, date_obj)
+                    x.operators_data = None
+                try:
+                    x.save()
+                    # print("!#@#@!",x.moshakhase)
+                except IntegrityError:
+                    print("برای این تاریخ مقدار از قبل وجود دارد!")
+                    data["error"]="برای این تاریخ مقدار از قبل وجود دارد!"
+
+            # print(i)
+            # print(i)
+            # print("********")
+            else:
+                amar=DailyProduction()
+                # amar.shift=i["shift"]
+                amar.machine=m
+                amar.shift=s
+                amar.dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
+                amar.speed=i["speed"]
+                amar.nomre=i["nomre"]
+                amar.counter1=i["counter1"]
+                amar.counter2=i["counter2"]
+                amar.vahed=float(i["vahed"])
+                amar.wastage_value=float(i["wastage"]) if i["wastage"] else 0
+                amar.enzebat_value=float(i["enzebat"]) if i["enzebat"] else 0
+                amar.qc_value=float(i["qc"]) if i["qc"] else 0
+                # print("!wastage:",i["wastage"])
+
+                # print(i["wastage"])
+                
+                amar.production_value=float(i["production_value"])
+                moshakhase=i["moshakhase"]
+                if(moshakhase):
+                    amar.set_moshakhase(moshakhase)
+                operators_data_json = i["operator_data"]
+                if operators_data_json and operators_data_json.strip():
+                    try:
+                        # operators_data = json.loads(operators_data_json)
+                        amar.set_operators(operators_data_json)
+                    except json.JSONDecodeError:
+                        # If it's a single operator ID or comma-separated IDs
+                        operator_ids = [int(id.strip()) for id in operators_data_json.split(',') if id.strip().isdigit()]
+                        amar.set_operators(operator_ids)
+                else:
+                    amar.operators_data = None
+
+
+                try:
+                    # amar.register_user=req
                     amar.save()
-                    saved_count += 1
+                    print("done!!!")
+                except IntegrityError as ex:
+                    print(ex)
+                    print("A MyModel instance with this field1 and field2 combination already exists.")
+                    data["error"]="برای این تاریخ مقدار از قبل وجود دارد!"
+
+
+            # print("done",amar.id)
+    data=dict()
+    return JsonResponse(data)
+
+# @csrf_exempt
+# @permission_required('mrp.can_change_dailyproduction', raise_exception=True)  # یا add_dailyproduction
+
+# @transaction.atomic
+# def saveAmarTableInfo(request):
+#     """
+#     نسخه امن‌تر با استفاده از transaction
+#     اگر خطایی رخ دهد، تمام تغییرات rollback می‌شود
+#     """
+#     try:
+#         data2 = json.loads(request.body)
+#         data = dict()
+#         saved_count = 0
+#         updated_count = 0
         
-        data["success"] = True
-        data["message"] = f"{saved_count} رکورد جدید و {updated_count} رکورد آپدیت شد"
+#         for table_name, table_data in data2.items():
+#             for i in table_data:
+#                 m = Asset.objects.get(id=int(i["machine"]))
+#                 s = Shift.objects.get(id=int(i["shift"]))
+#                 date_obj = DateJob.getTaskDate(i["dayOfIssue"].replace('/', '-'))
+                
+#                 if i["id"] and i["id"] != "0":
+#                     # آپدیت
+#                     amar = DailyProduction.objects.get(id=int(i["id"]))
+#                     update_amar_fields(amar, i, m, s, date_obj)
+#                     amar.save()
+#                     updated_count += 1
+#                 else:
+#                     # ایجاد جدید
+#                     amar = create_new_amar(i, m, s, date_obj)
+#                     amar.save()
+#                     saved_count += 1
         
-        return JsonResponse(data)
+#         data["success"] = True
+#         data["message"] = f"{saved_count} رکورد جدید و {updated_count} رکورد آپدیت شد"
         
-    except Exception as e:
-        print(f"❌ خطا: {str(e)}")
-        # transaction.atomic باعث می‌شود همه تغییرات لغو شوند
-        return JsonResponse({"error": str(e)}, status=500)
+#         return JsonResponse(data)
+        
+#     except Exception as e:
+#         print(f"❌ خطا: {str(e)}")
+#         # transaction.atomic باعث می‌شود همه تغییرات لغو شوند
+#         return JsonResponse({"error": str(e)}, status=500)
 # @csrf_exempt
 # # @transaction.atomic
 # # @permission_required('mrp.can_change_dailyproduction', raise_exception=True)  # یا add_dailyproduction
