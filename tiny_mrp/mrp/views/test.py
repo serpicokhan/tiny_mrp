@@ -1065,16 +1065,10 @@ def monthly_detaild_report2(request):
     j_year=int(request.GET.get('year',current_year))
     current_date_time = jdatetime.date(j_year, int(j_month), 1)
     current_jalali_date = current_date_time
-
-
-
-
-
     if current_jalali_date.month == 12:
         first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=j_year + 1)
     else:
         first_day_of_next_month = current_jalali_date.replace(day=1, month=current_jalali_date.month + 1)
-
 
     num_days = (first_day_of_next_month - jdatetime.timedelta(days=1)).day
     cat_list=[]
@@ -1108,28 +1102,7 @@ def monthly_detaild_report2(request):
         # print(cats.id)
         cat_list.append({'cat':cats,'shift_val':days})
         
-        # product={}
-        # start=jdatetime.date(j_year,current_jalali_date.month,1)
-        # end=jdatetime.date(j_year,current_jalali_date.month,num_days)
-        # for sh in shift:
-        #     product[sh.id]=get_monthly_machine_by_date_shift(cats,sh,start.togregorian(),end.togregorian())
-        # days.append({'cat':cats,'date':"",'day_of_week':'جمع','product':product})
-        # failure_days={}
-        # for sh in shift:
-        #     failure_days[sh.id]=get_day_machine_failure_monthly_shift(cats,sh,start.togregorian(),end.togregorian())
-
-        # total_day_per_shift={}
-        # for sh in shift:
-        #     total_day_per_shift[sh.id]=num_days-failure_days[sh.id]
-        # days.append({'cat':cats,'date':"",'day_of_week':'روز کاری','product':total_day_per_shift})
-        # mean_day_per_shift={}
-        # for sh in shift:
-        #     mean_day_per_shift[sh.id]=product[sh.id]/total_day_per_shift[sh.id]
-
-        # days.append({'cat':cats,'date':"",'day_of_week':'میانگین','product':mean_day_per_shift})
-
-
-        # # print(cat_list)
+      
 
     return render(request,'mrp/tolid/monthly_detailed2.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
 
