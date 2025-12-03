@@ -1026,7 +1026,6 @@ def monthly_detaild_report(request):
             # print(j_date,'!!!!!!!!!!!!!')
             for sh in shift:
                 product[sh.id]=get_sum_machine_by_date_shift(cats,sh,j_date.togregorian())
-                print(product[sh.id])
             days.append({'cat':cats,'date':"{0}/{1}/{2}".format(j_year,current_jalali_date.month,day),'day_of_week':DateJob.get_day_of_week(j_date),'product':product})
         product={}
         start=jdatetime.date(j_year,current_jalali_date.month,1)
@@ -1053,6 +1052,86 @@ def monthly_detaild_report(request):
         # print(cat_list)
 
     return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
+
+def monthly_detaild_report2(request):
+    days=[]
+    shift=Shift.objects.all()
+    asset_category = AssetCategory.objects.all().order_by('priority')
+
+    current_date_time2 = jdatetime.datetime.now()
+    current_year=current_date_time2.year
+    j_month=request.GET.get('month',current_date_time2.month)
+
+    j_year=int(request.GET.get('year',current_year))
+    current_date_time = jdatetime.date(j_year, int(j_month), 1)
+    current_jalali_date = current_date_time
+
+
+
+
+
+    if current_jalali_date.month == 12:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=j_year + 1)
+    else:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=current_jalali_date.month + 1)
+
+
+    num_days = (first_day_of_next_month - jdatetime.timedelta(days=1)).day
+    cat_list=[]
+    for cats in asset_category:
+        sh_list=[]
+
+        days=[]
+        for day in range(1,num_days+1):
+            product={}
+            j_date=jdatetime.date(j_year,current_jalali_date.month,day)
+            # print(j_date,'!!!!!!!!!!!!!')
+            # for sh in shift:
+                # product[sh.id]=get_sum_machine_by_date_shift(cats,sh,j_date.togregorian())
+            for m in cats.asset_set.all():
+                tolids=DailyProduction.objects.filter(dayOfIssue=j_date.togregorian(),machine=m)
+                
+                for tolid in tolids:                    
+                    days.append({'cat':cats,'date':"{0}/{1}/{2}".format(j_year,current_jalali_date.month,day),
+                                'day_of_week':DateJob.get_day_of_week(j_date),'machine':m,
+                                'shift':tolid.shift,
+                                'production_val':tolid.production_value,
+                                'code_nakh':tolid.moshakhase,
+                                'tool':tolid.moshakhase.tool if tolid.moshakhase else 'نامشخص',
+                                'la':'?',
+                                'speed':tolid.speed,
+                                'counter':tolid.counter2,
+                                'zayeat':tolid.zayeat
+                                
+                                }
+                                )
+        # print(cats.id)
+        cat_list.append({'cat':cats,'shift_val':days})
+        
+        # product={}
+        # start=jdatetime.date(j_year,current_jalali_date.month,1)
+        # end=jdatetime.date(j_year,current_jalali_date.month,num_days)
+        # for sh in shift:
+        #     product[sh.id]=get_monthly_machine_by_date_shift(cats,sh,start.togregorian(),end.togregorian())
+        # days.append({'cat':cats,'date':"",'day_of_week':'جمع','product':product})
+        # failure_days={}
+        # for sh in shift:
+        #     failure_days[sh.id]=get_day_machine_failure_monthly_shift(cats,sh,start.togregorian(),end.togregorian())
+
+        # total_day_per_shift={}
+        # for sh in shift:
+        #     total_day_per_shift[sh.id]=num_days-failure_days[sh.id]
+        # days.append({'cat':cats,'date':"",'day_of_week':'روز کاری','product':total_day_per_shift})
+        # mean_day_per_shift={}
+        # for sh in shift:
+        #     mean_day_per_shift[sh.id]=product[sh.id]/total_day_per_shift[sh.id]
+
+        # days.append({'cat':cats,'date':"",'day_of_week':'میانگین','product':mean_day_per_shift})
+
+
+        # # print(cat_list)
+
+    return render(request,'mrp/tolid/monthly_detailed2.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
 
 def monthly_detaild_export(request):
     days=[]
@@ -1135,6 +1214,99 @@ def monthly_detaild_export(request):
             if sheet_name["cat"] == day["cat"]:
                 print(day["product"])
                 sheet.append([day["day_of_week"],day["date"],day["product"][1],day["product"][2],day["product"][3],(day["product"][2]+day["product"][2]+day["product"][3])])#,day["product"][shift[0].id]])#+shift_values+ [obj["sum"]])
+
+
+
+    # Write data rows
+    # queryset = machines_with_amar
+    # for obj in queryset:
+    #     shift_values = [k["value"] for k in obj["shift_amar"]]
+    #     # for k in obj["shift_amar"]:
+    #     sheet.append([obj["machine"]]+shift_values+ [obj["sum"]])
+
+    # # Create response
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="exported_data.xlsx"'
+    workbook.save(response)
+    return response
+
+
+def monthly_detaild_export2(request):
+    days=[]
+    shift=Shift.objects.all()
+    asset_category = AssetCategory.objects.all().order_by('priority')
+
+    current_date_time2 = jdatetime.datetime.now()
+    current_year=current_date_time2.year
+    j_month=request.GET.get('month',current_date_time2.month)
+
+    j_year=int(request.GET.get('year',current_year))
+    current_date_time = jdatetime.date(j_year, int(j_month), 1)
+    current_jalali_date = current_date_time
+
+
+
+
+
+    if current_jalali_date.month == 12:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=1, year=j_year + 1)
+    else:
+        first_day_of_next_month = current_jalali_date.replace(day=1, month=current_jalali_date.month + 1)
+
+
+    num_days = (first_day_of_next_month - jdatetime.timedelta(days=1)).day
+    cat_list=[]
+    for cats in asset_category:
+        sh_list=[]
+
+        days=[]
+        for day in range(1,num_days+1):
+            j_date=jdatetime.date(j_year,current_jalali_date.month,day)
+            # print(j_date,'!!!!!!!!!!!!!')
+            # for sh in shift:
+                # product[sh.id]=get_sum_machine_by_date_shift(cats,sh,j_date.togregorian())
+            for m in cats.asset_set.all():
+                tolids=DailyProduction.objects.filter(dayOfIssue=j_date.togregorian(),machine=m)
+                
+                for tolid in tolids:                    
+                    days.append({'cat':cats,'date':"{0}/{1}/{2}".format(j_year,current_jalali_date.month,day),
+                                'day_of_week':DateJob.get_day_of_week(j_date),'machine':m,
+                                'shift':tolid.shift,
+                                'production_val':tolid.production_value,
+                                'code_nakh':tolid.moshakhase,
+                                'tool':tolid.moshakhase.tool if tolid.moshakhase else 'نامشخص',
+                                'la':'?',
+                                'speed':tolid.speed,
+                                'counter':tolid.counter2,
+                                'zayeat':tolid.zayeat
+                                
+                                }
+                                )
+        # print(cats.id)
+        cat_list.append({'cat':cats,'shift_val':days})
+        
+    
+
+    
+    # return render(request,'mrp/tolid/monthly_detailed.html',{'cats':asset_category,'title':'آمار ماهانه','cat_list':cat_list,'shift':shift,'month':j_month,'year':j_year})
+    workbook = Workbook()
+    sheet = workbook.active
+    # sheet.title = "Exported Data"
+    shift_names = [shif.name for shif in shift]
+
+    # # Write headers
+    # headers = ["نام دستگاه"] + shift_names + ["جمع"]  # Dynamic header
+    # sheet.append(headers)
+    for sheet_name in cat_list:
+        # Create a new sheet for each dataset
+        sheet = workbook.create_sheet(title=sheet_name["cat"].name)
+
+        # Add headers (you can customize these per dataset if needed)
+        headers = ["روز هفته", "تاریخ",'دستگاه','شیفت','نمره','سرعت','تاب','کنتر تولیدی','وزن تولیدی','ضایعات']  # Adjust fields as per your models
+        sheet.append(headers)
+        for day in sheet_name["shift_val"]:
+            if sheet_name["cat"] == day["cat"]:
+                sheet.append([day["day_of_week"],day["date"],day["machine"].assetName,day['shift'].name,day['tool'],day['speed'],'?',day['counter'],day['production_val'],day['zayeat']])
 
 
 

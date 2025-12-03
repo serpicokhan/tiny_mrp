@@ -129,7 +129,7 @@ class Asset(models.Model):
     assetCode=models.CharField("کد",max_length = 50,null=True,blank=True)
     assetIsPartOf = models.ForeignKey('self',on_delete=models.SET_NULL,verbose_name="زیر مجموعه",null=True,blank=True)
     assetIsLocatedAt = models.ForeignKey('self',on_delete=models.SET_NULL,verbose_name="مکان",null=True,blank=True,related_name="location")
-    assetCategory=models.ForeignKey(AssetCategory,on_delete=models.SET_NULL,verbose_name="دسته بندی",null=True,blank=True)
+    assetCategory=models.ForeignKey(AssetCategory,on_delete=models.SET_NULL,verbose_name="دسته بندی",null=True,blank=True,related_name='asset_set')
     #used for  moshakhase
     assetCategory2=models.ForeignKey(AssetCategory2,on_delete=models.SET_NULL,verbose_name="دسته بندی",null=True,blank=True,related_name="cat_moshakhase")
     #result related to asset and measured according to Asset
