@@ -295,7 +295,7 @@
                                   <tbody>
                                       {% for c in machines %}
                                       {% if c.machine.assetCategory.id == cat_item.id %}
-                                      <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}">
+                                      <tr data-machine={{c.machine.id}} data-shift="{{i.id}}" data-speed2="{{c.speed}}" data-id="0">
                                           <td>
                                             {% if c.machine.assetIsLocatedAt.id == 7331 %}
                                             <button class="btn btn-sm btn-primary copy-row" style="margin-left: 3px; padding: 2px 6px; font-size: 11px;"  title="کپی سطر" type="button"><i class="fa fa-copy"></i></button>
@@ -313,7 +313,7 @@
                                                   انتخاب اپراتور
                                                 {% endif %}
                                               </span>
-                                            <input type="hidden" class="operator-data" name="operator_data" value=' {% if c.operators %}{{c.operators_json|default:"[]"}} {$ else %} [] {% endif %}'>
+                                            <input type="hidden" class="operator-data" name="operator_data" value=' {% if c.operators %}{{c.operators_json|default:"[]"}} {% else %} [] {% endif %}'>
                                           </td>
                                         <td>
                                           <select class="form-control nakh-name" 
@@ -335,11 +335,8 @@
                                           
                                           <td contenteditable="true" class="editable-cell btc vahed selectable1" data-vahed="{{c.machine.assetVahed}}">{{c.vahed}}</td>
                                           <td contenteditable="true" class="editable-cell btc nomre selectable1">
-                                            {% if  c.last_moshakhase.moshakhase %}
-                                            {{ c.last_moshakhase.moshakhase.tool}}
-                                             {% else %}
                                             {{c.nomre}}
-                                            {% endif %}
+
                                           </td>
                                           <td contenteditable="true" class="editable-cell2 btc speed selectable1" data-nomre={{c.nomre}}>{{c.speed}}</td>
                                           <td contenteditable="true" class="editable-cell btc counter1 selectable1"></td>

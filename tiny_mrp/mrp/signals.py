@@ -59,14 +59,14 @@ def log_daily_production_save(sender, instance, created, **kwargs):
         changed_fields = get_changed_fields(instance)
     
     # ایجاد لاگ
-    DailyProductionLog.objects.create(
-        daily_production=instance,
-        action=action,
-        changed_by=username,
-        old_data=old_data,
-        new_data=new_data,
-        changed_fields=changed_fields
-    )
+    # DailyProductionLog.objects.create(
+    #     daily_production=instance,
+    #     action=action,
+    #     changed_by=username,
+    #     old_data=old_data,
+    #     new_data=new_data,
+    #     changed_fields=changed_fields
+    # )
 
 @receiver(post_delete, sender=DailyProduction)
 def log_daily_production_delete(sender, instance, **kwargs):
@@ -75,11 +75,11 @@ def log_daily_production_delete(sender, instance, **kwargs):
     """
     from .models import DailyProductionLog
     
-    DailyProductionLog.objects.create(
-        daily_production=None,
-        action='delete',
-        changed_by='System',
-        old_data=serialize_daily_production(instance),
-        new_data=None,
-        changed_fields=['delete']
-    )
+    # DailyProductionLog.objects.create(
+    #     daily_production=None,
+    #     action='delete',
+    #     changed_by='System',
+    #     old_data=serialize_daily_production(instance),
+    #     new_data=None,
+    #     changed_fields=['delete']
+    # )

@@ -7,9 +7,20 @@ class Operator(models.Model):
     FName = models.CharField(max_length=200,blank=True,null=True)  # First name
     LName = models.CharField(max_length=200,blank=True,null=True)  # Last name
 
+    
+
+    
     class Meta:
-        db_table = 'operator'  # This matches your table name
-        verbose_name_plural = 'Operators'
+            db_table = 'operator'
+            verbose_name_plural = 'Operators'
+            indexes = [
+                models.Index(fields=['PNumber']),
+                models.Index(fields=['FName', 'LName']),
+            ]
 
     def __str__(self):
-        return f"{self.FName} {self.LName}"
+            return f"{self.FName} {self.LName}"
+
+    @property
+    def full_name(self):
+            return f"{self.FName} {self.LName}"

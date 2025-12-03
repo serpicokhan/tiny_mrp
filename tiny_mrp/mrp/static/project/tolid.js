@@ -1,87 +1,5 @@
 
-// document.addEventListener('DOMContentLoaded', function() {
-//   const tables = document.querySelectorAll('.company-table');
-//
-//   // Function to handle cell value change in the second column
-//   const handleCellValueChange = (event) => {
-//     const changedValue = event.target.innerText;
-//     const columnIndex = Array.from(event.target.parentElement.children).indexOf(event.target);
-//
-//     if (columnIndex === 1) { // Assuming the second column is index 1 (0-indexed)
-//       tables.forEach((table) => {
-//         const rows = table.querySelectorAll('tr');
-//         const cellToUpdate = rows[event.target.parentElement.rowIndex].querySelectorAll('.editable-cell')[0];
-//         if (cellToUpdate && cellToUpdate !== event.target) {
-//           // cellToUpdate.innerText = changedValue;
-//           // cellToUpdate.attr('data-nomre',changedValue);
-//           cellToUpdate.setAttribute('data-nomre', changedValue);
-//
-//         }
-//       });
-//     }
-//   };
-//
-//   // Add event listeners to detect cell value changes in the second column
-//   tables.forEach((table) => {
-//     const cells = table.querySelectorAll('.editable-cell');
-//     cells.forEach((cell) => {
-//       cell.addEventListener('input', handleCellValueChange);
-//     });
-//   });
-//
-// });
 
-// document.addEventListener('DOMContentLoaded', function() {
-//   const cells = document.querySelectorAll('.editable-cell');
-
-//   // Function to select all text in an editable cell when clicked
-//   const selectText = (event) => {
-//     const selection = window.getSelection();
-//     const range = document.createRange();
-//     range.selectNodeContents(event.target);
-//     selection.removeAllRanges();
-//     selection.addRange(range);
-//   };
-
-//   // Add click event listener to each editable cell
-
-
-
-//   // Add event listeners to detect keypress in cells
-//   cells.forEach((cell) => {
-//     cell.addEventListener('click', selectText);
-
-
-//   });
-// });
-// document.addEventListener('DOMContentLoaded', function() {
-//   const cells = document.querySelectorAll('.company-table .editable-cell');
-
-//   // Function to handle key press
-//   const handleKeyPress = (event) => {
-//     if (event.key === 'Enter') {
-//       event.preventDefault(); // Prevent default Enter behavior (line break)
-
-//       const cellIndex = Array.from(cells).indexOf(event.target);
-//       const rows = Array.from(event.target.parentElement.parentElement.children);
-//       const rowIndex = rows.indexOf(event.target.parentElement);
-//       const nextRow = rows[rowIndex + 1];
-
-//       if (nextRow) {
-//         const nextCell = nextRow.querySelector('.counter');
-//         if (nextCell) {
-//           nextCell.focus();
-//           window.getSelection().selectAllChildren(nextCell);
-//         }
-//       }
-//     }
-//   };
-
-//   // Add event listeners to detect keypress in cells
-//   cells.forEach((cell) => {
-//     cell.addEventListener('keydown', handleKeyPress);
-//   });
-// });
 
 
 $(function () {
@@ -361,7 +279,7 @@ var tableDataToJSON = function(tableId) {
       var shift = $("#select_shift").val();
       var dayOfIssue = $("#search").val();
       var speed = $(this).find('td.speed').text() || 0;        
-      var nomre = parseFloat($(this).find('td.nomre').text());
+      var nomre = parseFloat($(this).find('td.nomre').text())||0;
       var counter1 = $(this).find('td.counter1').text() || 0;
       var counter2 = $(this).find('td.counter2').text() || 0;
       var vahed = parseInt($(this).find('td.vahed').text() || 0);
@@ -402,72 +320,75 @@ var tableDataToJSON = function(tableId) {
 }
 
 $("#save_production").click(function(){
-   var sendData = {
-    
-  };
+  var sendData = {};
   var hasError = false;
-  var i=1;
+  var i = 1;
+  
   $("table.company-table").each(function() {
-    
-    // You can perform operations on each table here
-    // console.log($(this)); // This logs each table with the class 'company-table'
-     // بررسی اینکه آیا خطایی در داده‌های جدول وجود دارد
-   
-    
-     var tableData = tableDataToJSON($(this));
-    
-    // بررسی اینکه آیا خطایی در داده‌های جدول وجود دارد
-    // if (tableData.length === 0) {
-    //   hasError = true;
-    // }
-    
+    var tableData = tableDataToJSON($(this));
     sendData[i] = tableData;
     i++;
-});
+  });
 
   if(hasError){
     toastr.error("لطفا مقدار تولید را اصلاح کنید");
-
     return false;
   }
-  // AJAX request to send data to the server
+  
   $.ajax({
     url: '/Tolid/SaveTableInfo',
     type: 'POST',
     contentType: 'application/json',
     data: JSON.stringify(sendData),
-    beforeSend:function(xhr){
+    beforeSend: function(xhr){
       console.log(JSON.stringify(sendData));
       if (hasError) {
         toastr.error("لطفا مقدار تولید را اصلاح کنید");
-        xhr.abort(); // لغو درخواست
+        xhr.abort();
         $(".preloader").hide();
         return false;
-    }
+      }
     },
     success: function(response, status, xhr) {
-      // بررسی کنید که درخواست واقعاً موفق بوده
       if (xhr.status === 200) {
-          if (response.error) {
-              toastr.error(response.error);
-          } else {
-              console.log('Data sent successfully:', response);
-              toastr.success("اطلاعات با موفقیت ذخیره شد");
+        if (response.error) {
+          toastr.error(response.error);
+        } else {
+          console.log('Data sent successfully:', response);
+          toastr.success("اطلاعات با موفقیت ذخیره شد");
+          
+          // به‌روزرسانی data-id های جدول
+          if (response.saved_ids) {
+            var tableIndex = 1;
+            $("table.company-table").each(function() {
+              var $table = $(this);
+              var savedIds = response.saved_ids[tableIndex];
+              
+              if (savedIds && savedIds.length > 0) {
+                savedIds.forEach(function(item) {
+                  // پیدا کردن سطر مربوطه با machine id
+                  var $row = $table.find('tr[data-machine="' + item.machine + '"][data-id="0"]').first();
+                  if ($row.length > 0) {
+                    $row.attr('data-id', item.id);
+                    $row.attr('data-is-new', 'false'); // علامت‌گذاری که دیگه جدید نیست
+                  }
+                });
+              }
+              tableIndex++;
+            });
           }
+        }
       }
       $(".preloader").hide();
-  },
-  error: function(xhr, status, error) {
-      // فقط اگر خطای واقعی رخ داده باشد
+    },
+    error: function(xhr, status, error) {
       if (status !== 'abort') {
-          console.error('Error sending data:', error);
-          toastr.error(error);
+        console.error('Error sending data:', error);
+        toastr.error(error);
       }
       $(".preloader").hide();
-  }
+    }
   });
-  // var tbl2=tableDataToJSON('tbl2');
-  // var tbl3=tableDataToJSON('tbl3');
 });
   function processDataFromTables() {
     const tables = $('.tbl-zayeat-vazn'); // Select all tables with class 'table'
@@ -944,7 +865,7 @@ function updateOperatorHiddenFields2($row) {
   
   // Update the hidden field
   $row.find('.nakh-data').val(JSON.stringify(updatedOperators));
-  $row.find('.nomre').text(selectedOperators.tool)
+  // $row.find('.nomre').text(selectedOperators.tool)
 }
 
 // Convert old format {ids:[], names:[]} to new format [{id:..., name:...}]
@@ -1004,7 +925,8 @@ function createNewRow($originalRow) {
       "data-machine": machineId,
       "data-shift": shiftId,
       "data-speed2": speed,
-      "data-is-new": "true" // علامت‌گذاری سطرهای جدید
+      "data-is-new": "true", // علامت‌گذاری سطرهای جدید
+      "data-id":'0'
   });
 
   // ستون نام ماشین با دکمه‌های کپی و حذف

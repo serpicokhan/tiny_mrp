@@ -85,6 +85,14 @@ class DailyProduction(models.Model):
     # operators_data = models.JSONField(null=True, blank=True, help_text="JSON data containing multiple operators")
     # operators_data = models.TextField(null=True, blank=True, help_text="JSON data containing multiple operators")  # keep original
     operators_data = models.JSONField(null=True, blank=True)  # new field
+    # operators = models.ManyToManyField(
+    #     Operator,
+    #     through='DailyProductionOperator',
+    #     through_fields=('daily_production', 'operator'),
+    #     related_name='daily_productions',
+    #     blank=True,
+    #     verbose_name='اپراتورها'
+    # )
     def save(self, *args, **kwargs):
         # ذخیره وضعیت قبلی قبل از save
         if self.pk:
@@ -279,19 +287,7 @@ class DailyProduction(models.Model):
         wastage = float(self.wastage_value) if self.wastage_value is not None else 0.0
         qc = float(self.qc_value) if self.qc_value is not None else 0.0
         production = float(self.production_value) if self.production_value is not None else 0.0
-        # print(enzebat,'enzebat')
-        # Get the number of operators from operators_data JSON
-        # operator_count = 1  # Default to 1 to avoid division by zero
-        # if self.operators_data:
-        #     try:
-        #         # Parse JSON to count operators
-        #         operators = self.operators_data
-        #         if isinstance(operators, str):
-        #             operators = json.loads(operators)
-        #         operator_count = len(operators) if isinstance(operators, list) and operators else 1
-        #     except (json.JSONDecodeError, TypeError) as e:
-        #         print(f"Error parsing operators_data JSON: {e}")
-        #         operator_count = 1  # Fallback to 1 on error
+       
 
         # Calculate formula: (production - wastage - qc) * (enzebat / 100) / operator_count
         if(self.machine.assetCategory.id in (4,7,58)):
@@ -784,3 +780,55 @@ class DailyProductionLog(models.Model):
     def get_day_of_issue(self):
         return self.daily_production.dayOfIssue
     get_day_of_issue.short_description = "تاریخ تولید"
+
+
+
+    # class DailyProductionOperator(models.Model):
+    #     """
+    #     مدل واسط برای رابطه چند به چند
+    #     یک آمار روزانه می‌تواند چندین اپراتور داشته باشد
+    #     یک اپراتور می‌تواند در چندین آمار روزانه باشد
+    #     """
+    #     daily_production = models.ForeignKey(
+    #         'DailyProduction',
+    #         on_delete=models.CASCADE,
+    #         related_name='assigned_operators'
+    #     )
+    #     operator = models.ForeignKey(
+    #         'Operator',
+    #         on_delete=models.CASCADE,
+    #         related_name='daily_assignments'
+    #     )
+        
+    #     # فیلدهای عملیاتی مهم برای صنعت نساجی/تولیدی
+    #     is_team_leader = models.BooleanField(default=False, verbose_name='سرپرست')
+    #     hours_worked = models.FloatField(default=8.0, verbose_name='ساعت کاری')
+    #     overtime_hours = models.FloatField(default=0.0, verbose_name='اضافه کاری')
+    #     machine_operator_number = models.IntegerField(
+    #         null=True, 
+    #         blank=True, 
+    #         verbose_name='شماره اپراتور روی دستگاه'
+    #     )
+        
+    #     # امتیازات و کیفیت کار
+    #     quality_score = models.FloatField(default=100.0, verbose_name='امتیاز کیفیت')
+    #     efficiency_score = models.FloatField(default=100.0, verbose_name='امتیاز بازدهی')
+    #     notes = models.TextField(blank=True, null=True, verbose_name='توضیحات')
+        
+    #     # زمان‌های ثبت
+    #     created_at = models.DateTimeField(auto_now_add=True)
+    #     updated_at = models.DateTimeField(auto_now=True)
+
+    #     class Meta:
+    #         db_table = 'daily_production_operator'
+    #         # هر اپراتور فقط یک بار می‌تواند در یک آمار ثبت شود
+    #         unique_together = ('daily_production', 'operator')
+    #         verbose_name = 'اپراتور آمار روزانه'
+    #         verbose_name_plural = 'اپراتورهای آمار روزانه'
+    #         indexes = [
+    #             models.Index(fields=['daily_production', 'operator']),
+    #             models.Index(fields=['is_team_leader']),
+    #         ]
+        
+    #     def __str__(self):
+    #         return f"{self.operator} - {self.daily_production.dayOfIssue}"
