@@ -283,6 +283,18 @@
       </li>
       {% endif %}
 
+      {% if perms.mrp.can_view_purchase_history %}
+
+      <li>
+        <a href="{% url 'request_items_report' %}" target="_blank">
+          <span>گزارش</span>
+
+        
+
+        </a>
+      </li>
+      {% endif %}
+
 
    
       

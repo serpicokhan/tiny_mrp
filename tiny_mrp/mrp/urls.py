@@ -153,6 +153,14 @@ urlpatterns = [
     url(r'^Purchases/LoadMore/$', load_more_purchaserequest, name='load_more_purchaserequest'),
     path('/Purchases/Print/<int:pk>/', purchase_request_detail_print, name='purchase_request_detail_print'),
 
+    path('request-items-report/', request_items_report, name='request_items_report'),
+    
+    # API برای دریافت داده‌ها
+    path('api/request-items/', request_items_data, name='request_items_data'),
+    
+    # Export به Excel
+    path('export/request-items/', export_request_items, name='export_request_items'),
+
     url(r'^WoPart/GetParts$', wo_getParts, name='wo_getParts'),
     url(r'^Supplier/GetSuplier$', wo_getSuppliers, name='wo_getSuppliers'),
     url(r'^Asset/GetAssets$', asset_getAssets2, name='asset_getAssets2'),

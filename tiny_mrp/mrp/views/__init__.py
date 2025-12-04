@@ -26,5 +26,6 @@ from mrp.views.moshakhaseview import *
 from mrp.views.reportview import *
 from mrp.views.graphview import *
 from mrp.views.chatbotview import *
+from mrp.views.requestitemview import *
 # from mrp.views.pushview import *
 

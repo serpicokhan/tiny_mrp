@@ -567,12 +567,15 @@ def saveAmarTableInfo(request):
                 # Update existing record
                 d = DailyProduction.objects.filter(id=i["id"])
             else:
-                if(i["moshakhase"] and i["moshakhase"]!='{}'):
-                    print(i["moshakhase"],'!!!!!!!!!!!!')
-                    moshakhase=json.loads(i["moshakhase"])
-                    moshakhase=EntryForm.objects.get(id=int(moshakhase["id"]))
-                    
-                else:
+                try:
+                    if(i["moshakhase"] and i["moshakhase"]!='{}'):
+                        print(i["moshakhase"],'!!!!!!!!!!!!')
+                        moshakhase=json.loads(i["moshakhase"])
+                        moshakhase=EntryForm.objects.get(id=int(moshakhase["id"]))
+                        
+                    else:
+                        moshakhase=None
+                except:
                     moshakhase=None
                 # Check for existing record
                 d = DailyProduction.objects.filter(
@@ -677,6 +680,7 @@ def saveAmarTableInfo(request):
                     print(ex)
     
     return JsonResponse(result)
+
 # @csrf_exempt
 # @permission_required('mrp.can_change_dailyproduction', raise_exception=True)  # یا add_dailyproduction
 
