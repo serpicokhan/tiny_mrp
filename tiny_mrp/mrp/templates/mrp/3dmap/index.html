@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+    {% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شبیه‌سازی خط تولید - نسخه JSON</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #controlPanel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 350px;
+            z-index: 100;
+            transition: all 0.3s ease;
+            transform-origin: top right;
+        }
+        
+        #controlPanel.minimized {
+            width: 60px;
+            height: 60px;
+            padding: 10px;
+            overflow: hidden;
+        }
+        
+        #controlPanel.minimized .panel-title,
+        #controlPanel.minimized #factoryInfo,
+        #controlPanel.minimized .machine-list,
+        #controlPanel.minimized .controls {
+            display: none !important;
+        }
+        
+        #floatingBtn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 101;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        #floatingBtn:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+        
+        #floatingBtn.show {
+            display: flex;
+        }
+        
+        .minimize-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            z-index: 102;
+        }
+        
+        .minimize-btn:hover {
+            background: #d32f2f;
+        }
+        
+        #machineDetails {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 350px;
+            display: none;
+            z-index: 100;
+        }
+        
+        .panel-title {
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .machine-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        
+        .machine-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f0f4ff;
+            border-radius: 8px;
+            border-right: 4px solid;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        
+        .machine-item:hover {
+            transform: translateX(-3px);
+            background: #e3f2fd;
+        }
+        
+        .machine-item:active {
+            background: #bbdefb;
+        }
+        
+        .machine-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .machine-meta {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #stats {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 15px;
+            min-width: 200px;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+        
+        .status-active { background: #4CAF50; }
+        .status-maintenance { background: #FF9800; }
+        .status-inactive { background: #f44336; }
+        
+        #jsonEditor {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 15px;
+            width: 300px;
+        }
+        
+        .json-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .json-controls button {
+            flex: 1;
+            font-size: 12px;
+            padding: 8px;
+        }
+        
+        /* برای دستگاه‌های لمسی */
+        @media (hover: none) and (pointer: coarse) {
+            .machine-item {
+                padding: 15px;
+                margin: 8px 0;
+            }
+            
+            button {
+                padding: 15px;
+                min-height: 44px;
+            }
+            
+            #controlPanel {
+                padding: 15px;
+            }
+            
+            #floatingBtn {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <!-- دکمه شناور برای بازکردن کنترل پنل -->
+    <button id="floatingBtn" onclick="toggleControlPanel()">⚙️</button>
+    
+    <!-- دکمه مینیمایز در داخل کنترل پنل -->
+    <div id="controlPanel">
+        <button class="minimize-btn" onclick="toggleControlPanel()">×</button>
+        <div class="panel-title">🏭 کنترل خط تولید</div>
+        <div id="factoryInfo"></div>
+        <div class="machine-list" id="machineList">
+            <!-- لیست دستگاه‌ها اینجا لود می‌شود -->
+        </div>
+        <div class="controls">
+            <button onclick="startProduction()">▶️ شروع تولید</button>
+            <button onclick="pauseProduction()">⏸️ توقف</button>
+            <button onclick="resetView()">🔄 بازنشانی</button>
+            <button onclick="loadNewLayout()">📂 بارگذاری JSON</button>
+        </div>
+    </div>
+    
+    <div id="machineDetails">
+        <!-- جزئیات دستگاه اینجا نمایش داده می‌شود -->
+    </div>
+    
+    <div id="stats">
+        <div><strong>📈 تولید کل:</strong> <span id="totalOutput">0 kg</span></div>
+        <div><strong>⚡ وضعیت:</strong> <span id="productionStatus">متوقف</span></div>
+        <div><strong>✅ دستگاه‌های فعال:</strong> <span id="activeCount">0/0</span></div>
+        <div><strong>🕒 زمان کارکرد:</strong> <span id="uptime">00:00:00</span></div>
+    </div>
+    
+    <div id="jsonEditor">
+        <div style="font-size: 12px; color: #666; margin-bottom: 10px;">
+            آدرس فایل JSON:
+        </div>
+        <input type="text" id="jsonUrl" 
+               value="data/layout.json" 
+               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        <div class="json-controls">
+            <button onclick="loadLayoutFromUrl()">بارگذاری</button>
+            <button onclick="exportLayout()">خروجی JSON</button>
+            <button onclick="saveLayout()">ذخیره تنظیمات</button>
+        </div>
+    </div>
+    
+    <div id="loading">
+        <div>در حال بارگذاری...</div>
+        <div style="font-size: 14px; margin-top: 10px;" id="loadingMessage">
+            بارگذاری داده‌های خط تولید
+        </div>
+    </div>
+
+    <script src="{% static 'vendors/threejs/three.min.js' %}"></script>
+    <script src="{% static 'vendors/threejs/OrbitControls.min.js' %} "></script>
+    <script>
+        // متغیرهای اصلی
+        let scene, camera, renderer, controls, raycaster, mouse;
+        let machines = [];
+        let layoutData = null;
+        let productionActive = false;
+        let startTime = Date.now();
+        let totalOutput = 0;
+        let isControlPanelMinimized = false;
+        let touchStartPos = null;
+        let touchStartTime = null;
+        
+        // رنگ‌ها و اطلاعات دستگاه‌ها
+        const machineConfig = {
+            opener: {
+                color: 0x4CAF50,
+                icon: "📦",
+                name: "حلاجی",
+                description: "الیاف خام را بازکرده و ناخالصی‌ها را جدا می‌کند"
+            },
+            drawing: {
+                color: 0x795548,
+                icon: "⚙️",
+                name: "پاساز",
+                description: "الیاف را موازی کرده و کشش می‌دهد"
+            },
+            ring: {
+                color: 0x9C27B0,
+                icon: "🌀",
+                name: "دستگاه رینگ",
+                description: "الیاف را تابیده و به نخ تبدیل می‌کند"
+            },
+            finisher: {
+                color: 0x607d8b,
+                icon: "🎯",
+                name: "فینیشر",
+                description: "نخ نهایی را پرداخت و بسته‌بندی می‌کند"
+            },
+            
+            breaker: {
+                color: 0xFF9800,
+                icon: "🎯",
+                name: "ریبریکر",
+                description: "نخ نهایی را پرداخت و بسته‌بندی می‌کند"
+            },
+            ssm: {
+                color: 0xFF9800,
+                icon: "🎯",
+                name: "ssm",
+                description: "نخ نهایی را پرداخت و بسته‌بندی می‌کند"
+            },
+            dolatab: {
+                color: 0xFF9800,
+                icon: "🎯",
+                name: "dolatab",
+                description: "نخ نهایی را پرداخت و بسته‌بندی می‌کند"
+            },
+            heatset: {
+                color: 0x9C27B0,
+                icon: "🌀",
+                name: "دستگاه رینگ",
+                description: "الیاف را تابیده و به نخ تبدیل می‌کند"
+            },
+        };
+        
+        // وضعیت‌های ممکن
+        const statusColors = {
+            active: 0x4CAF50,
+            maintenance: 0xFF9800,
+            inactive: 0xf44336
+        };
+
+        // ================== توابع کمکی اولیه ==================
+        
+        // به‌روزرسانی پیام بارگذاری
+        function updateLoading(message) {
+            const loadingElement = document.getElementById('loadingMessage');
+            if (loadingElement) {
+                loadingElement.textContent = message;
+            }
+        }
+        
+        // تابع برای toggle کردن کنترل پنل
+        function toggleControlPanel() {
+            const controlPanel = document.getElementById('controlPanel');
+            const floatingBtn = document.getElementById('floatingBtn');
+            
+            isControlPanelMinimized = !isControlPanelMinimized;
+            
+            if (isControlPanelMinimized) {
+                controlPanel.classList.add('minimized');
+                floatingBtn.classList.add('show');
+                floatingBtn.innerHTML = '⚙️';
+            } else {
+                controlPanel.classList.remove('minimized');
+                floatingBtn.classList.remove('show');
+            }
+            
+            // ذخیره وضعیت در localStorage
+            localStorage.setItem('controlPanelMinimized', isControlPanelMinimized);
+        }
+        
+        // به‌روزرسانی وضعیت دکمه شناور
+        function updateFloatingButton() {
+            const savedState = localStorage.getItem('controlPanelMinimized');
+            if (savedState === 'true') {
+                isControlPanelMinimized = true;
+                const controlPanel = document.getElementById('controlPanel');
+                const floatingBtn = document.getElementById('floatingBtn');
+                
+                controlPanel.classList.add('minimized');
+                floatingBtn.classList.add('show');
+                floatingBtn.innerHTML = '⚙️';
+            }
+        }
+        
+        // هندلر برای تاپ در تبلت/موبایل
+        function onTouchStart(event) {
+            event.preventDefault();
+            
+            // ذخیره موقعیت و زمان شروع تاپ
+            if (event.touches.length > 0) {
+                touchStartPos = {
+                    x: event.touches[0].clientX,
+                    y: event.touches[0].clientY
+                };
+                touchStartTime = Date.now();
+            }
+        }
+        
+        function onTouchEnd(event) {
+            if (!touchStartPos || !touchStartTime) return;
+            
+            event.preventDefault();
+            
+            if (event.changedTouches.length > 0) {
+                const touchEndPos = {
+                    x: event.changedTouches[0].clientX,
+                    y: event.changedTouches[0].clientY
+                };
+                
+                const touchDuration = Date.now() - touchStartTime;
+                const distance = Math.sqrt(
+                    Math.pow(touchEndPos.x - touchStartPos.x, 2) +
+                    Math.pow(touchEndPos.y - touchStartPos.y, 2)
+                );
+                
+                // اگر تاپ کوتاه و حرکت کم بود (تاپ ساده)
+                if (touchDuration < 300 && distance < 10) {
+                    // تبدیل موقعیت تاپ به مختصات موس
+                    mouse.x = (touchStartPos.x / window.innerWidth) * 2 - 1;
+                    mouse.y = -(touchStartPos.y / window.innerHeight) * 2 + 1;
+                    
+                    handleObjectSelection();
+                }
+            }
+            
+            // ریست کردن متغیرهای تاپ
+            touchStartPos = null;
+            touchStartTime = null;
+        }
+        
+        // هندلر برای کلیک موس
+        function onMouseClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            handleObjectSelection();
+        }
+        
+        // تابع مشترک برای انتخاب شیء
+        function handleObjectSelection() {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            
+            for (let i = 0; i < intersects.length; i++) {
+                const object = intersects[i].object;
+                if (object.userData && object.userData.isClickable) {
+                    const machine = object.parent;
+                    if (machine && machine.userData) {
+                        selectMachineById(machine.userData.id);
+                        return;
+                    }
+                }
+            }
+            
+            closeDetails();
+        }
+        
+        // مقداردهی اولیه
+        async function init() {
+            updateLoading("در حال راه‌اندازی صحنه...");
+            
+            // ایجاد صحنه
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f0f0);
+            
+            // ایجاد دوربین
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(30, 25, 30);
+            
+            // ایجاد رندرر
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            // کنترل‌های دوربین
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            
+            // Raycaster برای کلیک و تاپ
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            
+            // افزودن event listeners برای موبایل و دسکتاپ
+            renderer.domElement.addEventListener('click', onMouseClick, false);
+            renderer.domElement.addEventListener('touchstart', onTouchStart, { passive: false });
+            renderer.domElement.addEventListener('touchend', onTouchEnd, { passive: false });
+            
+            // نورپردازی
+            setupLighting();
+            
+            // بارگذاری layout از JSON
+            await loadLayoutFromUrl();
+            
+            // شروع انیمیشن
+            animate();
+            
+            // به‌روزرسانی تایمر
+            setInterval(updateUptime, 1000);
+            
+            // مخفی کردن صفحه بارگذاری
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 1000);
+            
+            // بررسی اولیه برای نمایش دکمه شناور
+            updateFloatingButton();
+        }
+        
+        // ================== توابع بارگذاری ==================
+        
+        // بارگذاری layout از URL
+        async function loadLayoutFromUrl() {
+            const url = document.getElementById('jsonUrl').value || 'data/layout.json';
+            updateLoading(`در حال بارگذاری ${url}...`);
+            
+            try {
+                const response = await fetch(url);
+                layoutData = await response.json();
+                await createFactoryFromLayout();
+                updateLoading("بارگذاری موفق!");
+            } catch (error) {
+                console.error('خطا در بارگذاری JSON:', error);
+                updateLoading("خطا در بارگذاری. استفاده از layout پیش‌فرض...");
+                // استفاده از layout پیش‌فرض
+                layoutData = getDefaultLayout();
+                await createFactoryFromLayout();
+            }
+        }
+        
+        // ================== توابع ایجاد کارخانه ==================
+        
+        // ایجاد کارخانه بر اساس layout
+        async function createFactoryFromLayout() {
+            // پاک کردن صحنه موجود
+            while(scene.children.length > 0) {
+                scene.remove(scene.children[0]);
+            }
+            
+            machines = [];
+            
+            // ایجاد کف کارخانه
+            createFactoryFloor();
+            
+            // ایجاد دستگاه‌ها
+            if (layoutData && layoutData.machines) {
+                updateLoading(`در حال ایجاد ${layoutData.machines.length} دستگاه...`);
+                
+                layoutData.machines.forEach((machineData, index) => {
+                    setTimeout(() => {
+                        createMachineFromData(machineData);
+                        updateMachineList();
+                    }, index * 50);
+                });
+                
+                // ایجاد نوار نقاله‌ها
+                if (layoutData.conveyors) {
+                    createConveyorsFromData(layoutData.conveyors);
+                }
+                
+                // به‌روزرسانی اطلاعات کارخانه
+                updateFactoryInfo();
+            }
+            
+            // نورپردازی مجدد
+            setupLighting();
+        }
+        
+        // ایجاد یک دستگاه از داده‌های JSON
+        function createMachineFromData(data) {
+            const group = new THREE.Group();
+            const config = machineConfig[data.type];
+            
+            if (!config) {
+                console.warn(`نوع دستگاه ${data.type} شناخته شده نیست`);
+                return null;
+            }
+            
+            // ایجاد مدل دستگاه
+            createMachineModel(group, data.type, config.color);
+            
+            // تنظیم موقعیت و چرخش
+            group.position.set(data.position.x, 0, data.position.z);
+            group.rotation.y = data.rotation || 0;
+            
+            // ذخیره اطلاعات دستگاه
+            group.userData = {
+                ...data,
+                config: config,
+                production: Math.random() * 100,
+                efficiency: (Math.random() * 10 + 90).toFixed(1),
+                temperature: (Math.random() * 10 + 25).toFixed(1),
+                output: 0
+            };
+            
+            // ایجاد کادر کلیک (بزرگتر از دستگاه)
+            const clickBox = new THREE.Mesh(
+                new THREE.BoxGeometry(6, 4, 4),
+                new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 })
+            );
+            clickBox.position.y = 2;
+            clickBox.userData.isClickable = true;
+            clickBox.userData.machineId = data.id;
+            group.add(clickBox);
+            
+            scene.add(group);
+            machines.push(group);
+            
+            return group;
+        }
+        
+        // ایجاد مدل دستگاه
+        function createMachineModel(group, type, color) {
+            switch(type) {
+                case 'opener':
+                    createOpenerMachine(group, color);
+                    break;
+                case 'drawing':
+                    createDrawingMachine(group, color);
+                    break;
+                case 'finisher':
+                createFinisherDrawingMachineXLength(group, color);
+                    break;
+                case 'ring':
+                    createRingSpinningMachine(group, color);
+                    break;
+                case 'breaker':
+                    createIndustrialOpenerMachine(group, color);
+                    break;
+                case 'ssm':
+                    createWindingMachine(group, color);
+                    break;
+                case 'dolatab':
+                    createTwoForOneTwister(group, color);
+                    break;
+                case 'heatset':
+                    createHeatSettingMachineWide(group, color);
+                    break;
+                default:
+                    console.warn(`مدل دستگاه برای نوع ${type} تعریف نشده است`);
+                    // ایجاد یک مدل ساده به عنوان جایگزین
+                    createBasicMachine(group, color);
+                    break;
+            }
+        }
+        
+        // ایجاد مدل پایه برای دستگاه‌های ناشناخته
+        function createBasicMachine(group, color) {
+            const base = new THREE.Mesh(
+                new THREE.BoxGeometry(3, 2, 3),
+                new THREE.MeshPhongMaterial({ color: color })
+            );
+            base.position.y = 1;
+            base.castShadow = true;
+            group.add(base);
+        }
+        
+        // ================== توابع مدل دستگاه‌ها ==================
+        
+        // (توابع مدل دستگاه‌ها بدون تغییر از کد قبلی)
+        // این توابع را از کد قبلی کپی کنید:
+        // - createOpenerMachine
+        // - createDrawingMachine
+        // - createFinisherMachine
+        // - createTwoForOneTwister
+        // - createWindingMachine
+        // - createHeatSettingMachineWide
+        // - createRingSpinningMachine
+        // - createIndustrialOpenerMachine
+        // - createFactoryFloor
+        // - createConveyorsFromData
+        // - createConveyor
+        
+        // ================== توابع مدیریت UI ==================
+        
+        // به‌روزرسانی لیست دستگاه‌ها در پنل
+        function updateMachineList() {
+            const machineList = document.getElementById('machineList');
+            machineList.innerHTML = '';
+            
+            machines.forEach((machine, index) => {
+                const data = machine.userData;
+                const config = data.config;
+                
+                const item = document.createElement('div');
+                item.className = 'machine-item';
+                item.style.borderRightColor = `#${config.color.toString(16).padStart(6, '0')}`;
+                item.onclick = () => selectMachineById(data.id);
+                
+                item.innerHTML = `
+                    <div class="machine-name">${config.icon} ${data.name}</div>
+                    <div class="machine-meta">
+                        <span>${config.name}</span>
+                        <span>
+                            ${data.status}
+                            <span class="status-indicator status-${data.status}"></span>
+                        </span>
+                    </div>
+                `;
+                
+                machineList.appendChild(item);
+            });
+        }
+        
+        // به‌روزرسانی اطلاعات کارخانه
+        function updateFactoryInfo() {
+            const factoryInfo = document.getElementById('factoryInfo');
+            if (layoutData) {
+                factoryInfo.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <strong style="color: #667eea;">${layoutData.factoryName}</strong>
+                        <div style="font-size: 12px; color: #666;">
+                            ${machines.length} دستگاه • 
+                            ${layoutData.machines.filter(m => m.status === 'active').length} فعال
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // انتخاب دستگاه توسط ID
+        function selectMachineById(machineId) {
+            const machine = machines.find(m => m.userData.id === machineId);
+            if (machine) {
+                showMachineDetails(machine);
+                highlightMachine(machine);
+            }
+        }
+        
+        // نمایش جزئیات دستگاه
+        function showMachineDetails(machine) {
+            const data = machine.userData;
+            const config = data.config;
+            
+            const detailsDiv = document.getElementById('machineDetails');
+            detailsDiv.innerHTML = `
+                <div class="panel-title">${config.icon} ${data.name}</div>
+                <div style="margin-bottom: 15px;">
+                    <div><strong>نوع:</strong> ${config.name}</div>
+                    <div><strong>شناسه:</strong> ${data.id}</div>
+                    <div><strong>وضعیت:</strong> 
+                        <span style="color: ${data.status === 'active' ? '#4CAF50' : 
+                                      data.status === 'maintenance' ? '#FF9800' : '#f44336'}">
+                            ${data.status}
+                        </span>
+                    </div>
+                    <div><strong>موقعیت:</strong> X: ${data.position.x.toFixed(1)}, Z: ${data.position.z.toFixed(1)}</div>
+                    ${data.specs ? `<div><strong>سازنده:</strong> ${data.specs.manufacturer || '-'}</div>` : ''}
+                    ${data.specs ? `<div><strong>ظرفیت:</strong> ${data.specs.capacity || '-'}</div>` : ''}
+                </div>
+                
+                <div style="background: #f5f5f5; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong>📊 آمار لحظه‌ای:</strong>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 18px; font-weight: bold;">${data.efficiency}%</div>
+                            <div style="font-size: 12px; color: #666;">کارایی</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 18px; font-weight: bold;">${data.temperature}°C</div>
+                            <div style="font-size: 12px; color: #666;">دما</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                    ${config.description}
+                </div>
+                
+                <button onclick="closeDetails()" style="width: 100%;">✖️ بستن</button>
+            `;
+            
+            detailsDiv.style.display = 'block';
+        }
+        
+        // هایلایت کردن دستگاه
+        function highlightMachine(machine) {
+            // حذف هایلایت‌های قبلی
+            scene.children.forEach(child => {
+                if (child.userData && child.userData.isHighlight) {
+                    scene.remove(child);
+                }
+            });
+            
+            // ایجاد هایلایت جدید
+            const highlight = new THREE.Mesh(
+                new THREE.RingGeometry(2, 2.2, 32),
+                new THREE.MeshBasicMaterial({ 
+                    color: 0xFFFF00,
+                    transparent: true,
+                    opacity: 0.6,
+                    side: THREE.DoubleSide
+                })
+            );
+            
+            highlight.position.copy(machine.position);
+            highlight.position.y = 0.1;
+            highlight.rotation.x = Math.PI / 2;
+            highlight.userData.isHighlight = true;
+            
+            scene.add(highlight);
+        }
+        
+        // بستن جزئیات
+        function closeDetails() {
+            document.getElementById('machineDetails').style.display = 'none';
+            // حذف هایلایت
+            scene.children.forEach(child => {
+                if (child.userData && child.userData.isHighlight) {
+                    scene.remove(child);
+                }
+            });
+        }
+        
+        // ================== توابع کنترل ==================
+        
+        // کنترل تولید
+        function startProduction() {
+            productionActive = true;
+            document.getElementById('productionStatus').textContent = 'در حال تولید';
+            document.getElementById('productionStatus').style.color = '#4CAF50';
+            
+            machines.forEach(machine => {
+                if (machine.userData.status === 'active') {
+                    machine.userData.status = 'active';
+                }
+            });
+            
+            updateActiveCount();
+        }
+        
+        function pauseProduction() {
+            productionActive = false;
+            document.getElementById('productionStatus').textContent = 'متوقف';
+            document.getElementById('productionStatus').style.color = '#f44336';
+            updateActiveCount();
+        }
+        
+        function resetView() {
+            camera.position.set(30, 25, 30);
+            controls.target.set(0, 0, 0);
+            controls.reset();
+            closeDetails();
+        }
+         // ایجاد کف کارخانه
+         function createFactoryFloor() {
+            const width = layoutData?.floorSize?.width || 80;
+            const depth = layoutData?.floorSize?.depth || 40;
+            
+            const floorGeometry = new THREE.PlaneGeometry(width, depth);
+            const floorMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x808080,
+                shininess: 30
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+            
+            const gridHelper = new THREE.GridHelper(width, 20, 0x000000, 0x000000);
+            gridHelper.material.opacity = 0.2;
+            gridHelper.material.transparent = true;
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
+        }
+                // تابع‌های ایجاد مدل (مشابه قبل)
+                function createOpenerMachine(group, color) {
+                const base = new THREE.Mesh(
+                    new THREE.BoxGeometry(4, 2, 3),
+                    new THREE.MeshPhongMaterial({ color: color })
+                );
+                base.position.y = 1;
+                base.castShadow = true;
+                group.add(base);
+                
+                const inputHopper = new THREE.Mesh(
+                    new THREE.ConeGeometry(1.5, 2, 8),
+                    new THREE.MeshPhongMaterial({ color: 0x795548 })
+                );
+                inputHopper.position.set(-1, 3, 0);
+                inputHopper.rotation.x = Math.PI;
+                inputHopper.castShadow = true;
+                group.add(inputHopper);
+                
+                const rotor = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.5, 0.5, 2, 16),
+                    new THREE.MeshPhongMaterial({ color: 0x333333 })
+                );
+                rotor.position.set(1, 2, 0);
+                rotor.castShadow = true;
+                group.rotor = rotor;
+                group.add(rotor);
+            }
+            
+            function createDrawingMachine(group, color) {
+              // --- ابعاد ---
+    const machineLength = 6;   // طول اصلی (X) - بسیار طولانی‌تر
+    const machineWidth = 3;     // عرض (Z)
+    const machineHeight = 2;  // ارتفاع (Y) - کمی بلندتر از فینیشر
+    
+    
+    group.userData.type = 'roving_frame';
+    group.draftingRolls = []; // غلتک‌های کشش
+    group.spindles = [];      // دوک‌های بوبین‌پیچی (Spindles)
+
+    // --- 1. بدنه اصلی ماشین (Main Frame) ---
+    const mainFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(machineLength, machineHeight, machineWidth),
+        new THREE.MeshPhongMaterial({ color: color })
+    );
+    mainFrame.position.y = machineHeight / 2;
+    mainFrame.castShadow = true;
+    group.add(mainFrame);
+
+    // --- 2. کریل ورودی (Input Creel) ---
+    const numInputCans = 8; // تعداد بانکه ورودی در هر طرف
+    const canRadius = 0.7;
+    const canHeight = 1.5;
+    
+    // محل قرارگیری بانکه های ورودی (در پشت/ورودی دستگاه در امتداد Z)
+    const inputCreelZ = -machineWidth / 2 - 1.5; // در سمت منفی Z
+    const inputCreelStartX = -machineLength / 2 + 1;
+    const inputCreelSpacingX = (machineLength - 2) / (numInputCans - 1); // تکرار در طول X
+
+    for (let i = 0; i < numInputCans; i++) {
+        const inputCan = new THREE.Mesh(
+            new THREE.CylinderGeometry(canRadius, canRadius, canHeight, 16),
+            new THREE.MeshPhongMaterial({ color: 0xffe0b2, transparent: true, opacity: 0.8 })
+        );
+        
+        inputCan.position.set(inputCreelStartX + i * inputCreelSpacingX, canHeight / 2, inputCreelZ);
+        group.add(inputCan);
+    }
+    
+    // --- 3. سیستم کشش (Drafting System) ---
+    const numRollerSets = 4;
+    const rollRadius = 0.2; // غلتک‌ها کوچک‌ترند
+    const rollLength = 1.5; // غلتک‌ها کوتاه‌ترند
+    
+    // این سیستم در ارتفاع بالا و در طول X تکرار می‌شود
+    const draftingSystemY = machineHeight + 0.8; 
+    
+    // مجموعه غلتک‌ها در طول X
+    for (let j = 0; j < numInputCans; j++) {
+        const setX = inputCreelStartX + j * inputCreelSpacingX;
+
+        for (let i = 0; i < numRollerSets; i++) {
+            const rollOffset = i * 0.5; // فاصله بین غلتک‌های یک مجموعه
+            
+            // غلتک پایینی
+            const bottomRoll = new THREE.Mesh(
+                new THREE.CylinderGeometry(rollRadius, rollRadius, rollLength, 16),
+                new THREE.MeshPhongMaterial({ color: color })
+            );
+            bottomRoll.rotation.x = Math.PI / 2; // در راستای Z
+            bottomRoll.position.set(setX + rollOffset, draftingSystemY, 0); 
+            group.draftingRolls.push(bottomRoll);
+            group.add(bottomRoll);
+
+            // غلتک بالایی
+            const topRoll = new THREE.Mesh(
+                new THREE.CylinderGeometry(rollRadius * 0.8, rollRadius * 0.8, rollLength, 16),
+                new THREE.MeshPhongMaterial({ color: 0xaaaaaa })
+            );
+            topRoll.rotation.x = Math.PI / 2; 
+            topRoll.position.set(setX + rollOffset, draftingSystemY + 0.4, 0); 
+            group.draftingRolls.push(topRoll);
+            group.add(topRoll);
+        }
+    }
+
+    // --- 4. سیستم بوبین‌پیچی (Flyer/Spindle System) ---
+    const numSpindles = numInputCans; // به تعداد کریل ورودی، اسپیندل وجود دارد
+    const spindleRadius = 0.1;
+    const spindleHeight = 1.8;
+    
+    const spindleY = machineHeight + 0.5; // در سطح بوبین‌ها
+    const bobbinRadius = 0.5;
+    
+    for (let i = 0; i < numSpindles; i++) {
+        const spindleX = inputCreelStartX + i * inputCreelSpacingX + 1.5; // بعد از غلتک‌ها
+
+        // دوک (Spindle)
+        const spindle = new THREE.Mesh(
+            new THREE.CylinderGeometry(spindleRadius, spindleRadius, spindleHeight, 8),
+            new THREE.MeshPhongMaterial({ color: 0x5d4037 }) // قهوه‌ای تیره
+        );
+        spindle.position.set(spindleX, spindleY + spindleHeight / 2, machineWidth / 4);
+        group.spindles.push(spindle);
+        group.add(spindle);
+        
+        // بوبین نخ (Roving Bobbin)
+        const bobbin = new THREE.Mesh(
+            new THREE.CylinderGeometry(bobbinRadius, bobbinRadius, spindleHeight * 0.8, 16),
+            new THREE.MeshPhongMaterial({ color: 0xffe0b2, transparent: true, opacity: 0.8 })
+        );
+        bobbin.position.set(spindleX, spindleY + spindleHeight / 2, machineWidth / 4);
+        group.add(bobbin);
+        
+        // Flyer (بالچه) - برای سادگی، یک مکعب کوچک در نظر گرفته می‌شود
+        const flyer = new THREE.Mesh(
+            new THREE.BoxGeometry(0.8, 0.1, 0.1),
+            new THREE.MeshPhongMaterial({ color: 0x757575 })
+        );
+        flyer.position.set(spindleX, spindleY + spindleHeight, machineWidth / 4);
+        flyer.rotation.x = Math.PI / 2;
+        group.spindles.push(flyer);
+        group.add(flyer);
+    }
+            }
+            
+         
+           /**
+ * تابع اصلاح شده برای ایجاد مدل فینیشر ریسندگی (Finisher Drawing Machine)
+ * طول کشیدگی دستگاه در راستای محور X (عرض صفحه) قرار می گیرد.
+ * @param {THREE.Group} group - گروهی که مدل به آن اضافه خواهد شد.
+ * @param {number} mainColor - رنگ اصلی بدنه ماشین.
+ */
+
+function createFinisherDrawingMachineXLength(group, color) {
+    // --- ابعاد ---
+    const machineLength = 6;    // طول اصلی (X)
+    const machineWidth = 2;     // عرض (Z)
+    const machineHeight = 1.5;  // ارتفاع (Y)
+    const canRadius = 0.7;
+    const canHeight = 1.5;
+    
+    group.userData.type = 'finisher_side';
+    group.draftingRolls = []; 
+    group.coilerHeads = [];   
+
+    // --- 1. بدنه اصلی ماشین (Main Frame) ---
+    const mainFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(machineLength, machineHeight, machineWidth),
+        new THREE.MeshPhongMaterial({ color: color })
+    );
+    mainFrame.position.y = machineHeight / 2 + 1; 
+    mainFrame.castShadow = true;
+    group.add(mainFrame);
+    
+    // --- 2. سیستم کشش (Drafting System) ---
+    const numRollerSets = 4;
+    const rollRadius = 0.3;
+    const rollLength = machineWidth - 0.2; 
+    const rollColor = 0x333333;
+    
+    const startX = -machineLength / 2 + 1;
+    const rollerSpacingX = (machineLength - 2) / (numRollerSets - 1); 
+
+    for (let i = 0; i < numRollerSets; i++) {
+        const rollX = startX + i * rollerSpacingX;
+
+        // غلتک‌ها در ارتفاع بالاتر
+        const bottomRoll = new THREE.Mesh(
+            new THREE.CylinderGeometry(rollRadius, rollRadius, rollLength, 16),
+            new THREE.MeshPhongMaterial({ color: rollColor })
+        );
+        bottomRoll.rotation.x = Math.PI / 2;
+        bottomRoll.position.set(rollX, machineHeight + 1.3, 0); 
+        group.draftingRolls.push(bottomRoll);
+        group.add(bottomRoll);
+
+        const topRoll = new THREE.Mesh(
+            new THREE.CylinderGeometry(rollRadius * 0.8, rollRadius * 0.8, rollLength, 16),
+            new THREE.MeshPhongMaterial({ color: 0xaaaaaa })
+        );
+        topRoll.rotation.x = Math.PI / 2; 
+        topRoll.position.set(rollX, machineHeight + 1.8, 0); 
+        group.draftingRolls.push(topRoll);
+        group.add(topRoll);
+    }
+    
+    // ----------------------------------------------------
+    // --- 3. هد کویلر (Coiler Head) ---
+    // ----------------------------------------------------
+    const coilerRadius = 0.5;
+    const coilerHeight = 0.5;
+    const coilerHead = new THREE.Mesh(
+        new THREE.ConeGeometry(coilerRadius, coilerHeight, 8),
+        new THREE.MeshPhongMaterial({ color: 0x8b4513 })
+    );
+    // قرارگیری هد کویلر در بالای دستگاه (تقریباً در میانه طول X)
+    coilerHead.position.set(machineLength / 4, machineHeight + 2.2, machineWidth / 2 + 0.5); // شیفت به سمت Z مثبت
+    coilerHead.rotation.x = Math.PI / 2; // رو به پایین
+    group.coilerHeads.push(coilerHead);
+    group.add(coilerHead);
+
+    // بانکه خروجی (Output Can) - در سمت راست (Z مثبت) و روی زمین
+    const outputCan = new THREE.Mesh(
+        new THREE.CylinderGeometry(canRadius, canRadius, canHeight, 16),
+        new THREE.MeshPhongMaterial({ color: 0xcccccc, transparent: true, opacity: 0.7 })
+    );
+    // بانکه خروجی در انتهای مثبت Z و در میانه طول X
+    outputCan.position.set(machineLength / 4, canHeight / 2, machineWidth / 2 + 1.5); 
+    group.add(outputCan);
+    
+    // ----------------------------------------------------
+    // --- 4. بوبین‌های ورودی (Input Cans/Creel) ---
+    // ----------------------------------------------------
+    const numInputCans = 4;
+    const inputCreelX = -machineLength / 4; // قرارگیری در سمت منفی X
+    const inputCreelStart = -machineWidth / 2 - 1.5; // در سمت منفی Z
+    const inputCreelSpacing = canRadius * 2; 
+
+    for (let i = 0; i < numInputCans; i++) {
+        const inputCan = new THREE.Mesh(
+            new THREE.CylinderGeometry(canRadius, canRadius, canHeight, 16),
+            new THREE.MeshPhongMaterial({ color: 0xffe0b2, transparent: true, opacity: 0.8 })
+        );
+        
+        // بانکه ورودی در سمت منفی Z و در میانه طول X
+        inputCan.position.set(inputCreelX + (i * 0.5), canHeight / 2, inputCreelStart);
+        group.add(inputCan);
+    }
+    
+    // --- 5. ساختار هدایت ورودی و خروجی ---
+    // این ساختار اکنون در عرض (Z) کار می‌کند
+    // ساختار هدایت ورودی (از Z منفی به مرکز)
+    const guideInput = new THREE.Mesh(
+        new THREE.BoxGeometry(machineLength / 2, 0.1, 0.1),
+        new THREE.MeshPhongMaterial({ color: 0xaaaaaa })
+    );
+    guideInput.rotation.y = Math.PI / 2; // در راستای Z
+    guideInput.position.set(inputCreelX + 0.75, 1.8, inputCreelStart + 0.5); 
+    group.add(guideInput);
+}
+           
+           /**
+ * تابع برای ایجاد مدل ساده شده دستگاه دولاتاب ریسندگی (Two-for-One Twister)
+ * @param {THREE.Group} group - گروهی که مدل به آن اضافه خواهد شد.
+ * @param {number} mainColor - رنگ اصلی بدنه ماشین (به صورت هگزادسیمال).
+ */
+function createTwoForOneTwister(group, mainColor) {
+    const machineLength = 10;
+    const machineHeight = 2;
+    const machineDepth = 1;
+    const color = mainColor || 0x808080; // خاکستری/نقره‌ای صنعتی
+    
+    // *** تنظیم نوع ماشین برای animateMachine ***
+    group.userData.type = 'twister'; 
+    group.twistingUnits = []; // برای دسترسی آسان به همه یونیت‌ها
+
+    // --- 1. بدنه اصلی بلند (Main Frame) ---
+    const mainFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(machineLength, machineHeight, machineDepth),
+        new THREE.MeshPhongMaterial({ color: color })
+    );
+    mainFrame.position.y = machineHeight / 2;
+    mainFrame.castShadow = true;
+    group.add(mainFrame);
+    
+    // --- 2. سینی تغذیه بوبین ورودی (Input Creel/Tray) ---
+    const tray = new THREE.Mesh(
+        new THREE.BoxGeometry(machineLength, 0.1, machineDepth),
+        new THREE.MeshPhongMaterial({ color: 0x555555 })
+    );
+    tray.position.y = 0.1;
+    group.add(tray);
+
+    // --- 3. یونیت‌های دولاتاب (Twisting Units) ---
+    const numUnits = 8;
+    const startX = -machineLength / 2 + 1;
+    const spacing = (machineLength - 2) / (numUnits - 1);
+    
+    // for (let i = 0; i < numUnits; i++) {
+    //     const unitGroup = new THREE.Group();
+    //     const unitX = startX + i * spacing;
+
+    //     // A. دوک/روتور دولاتاب (TFO Spindle/Rotor)
+    //     const rotor = new THREE.Mesh(
+    //         new THREE.CylinderGeometry(0.3, 0.5, 0.5, 16),
+    //         new THREE.MeshPhongMaterial({ color: 0x000080 }) // آبی تیره
+    //     );
+    //     rotor.position.set(unitX, 0.5, 0);
+        
+    //     // ذخیره روتور برای انیمیشن چرخش
+    //     unitGroup.rotor = rotor; 
+    //     unitGroup.add(rotor);
+
+    //     // B. بوبین ورودی (Supply Package) - در داخل روتور
+    //     const supplyCone = new THREE.Mesh(
+    //         new THREE.CylinderGeometry(0.1, 0.25, 1.5, 8),
+    //         new THREE.MeshPhongMaterial({ color: 0x999999 })
+    //     );
+    //     supplyCone.position.set(unitX, 1.5, 0);
+    //     unitGroup.add(supplyCone);
+
+    //     // C. بوبین خروجی (Take-up Package)
+    //     const outputConeHeight = 1.5;
+    //     const outputCone = new THREE.Mesh(
+    //         new THREE.CylinderGeometry(0.1, 0.6, outputConeHeight, 16),
+    //         new THREE.MeshPhongMaterial({ color: 0x8b4513 }) // قهوه ای نخ
+    //     );
+    //     outputCone.position.set(unitX + 0.5, machineHeight + outputConeHeight / 2, machineDepth / 2 - 0.5);
+    //     outputCone.rotation.x = -Math.PI / 10; // زاویه دار
+        
+    //     // ذخیره بوبین خروجی برای انیمیشن چرخش
+    //     unitGroup.outputCone = outputCone;
+    //     unitGroup.add(outputCone);
+        
+    //     group.twistingUnits.push(unitGroup);
+    //     group.add(unitGroup);
+    // }
+}
+            /**
+         * تابع برای ایجاد مدل ساده شده ماشین لاکنی (Winding Machine / Automatic Winder)
+         * با الهام از ساختار بلند و ماژولار تصویر ارسالی.
+         * @param {THREE.Group} group - گروهی که مدل به آن اضافه خواهد شد.
+         * @param {number} mainColor - رنگ اصلی بدنه ماشین (به صورت هگزادسیمال).
+         */
+        function createWindingMachine(group, mainColor) {
+            const machineLength = 16;
+            const machineHeight = 3;
+            const machineDepth = 1.5;
+            const color = mainColor || 0xffffff; // سفید/نقره‌ای مشابه تصویر
+
+            // --- 1. بدنه اصلی بلند و ماژولار (Main Frame) ---
+            const mainFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(machineLength, machineHeight, machineDepth),
+                new THREE.MeshPhongMaterial({ color: color })
+            );
+            mainFrame.position.y = machineHeight / 2;
+            mainFrame.castShadow = true;
+            group.add(mainFrame);
+            
+            // اضافه کردن یک نوار رنگی (Red Band) در جلو مشابه تصویر
+            const redBand = new THREE.Mesh(
+                new THREE.BoxGeometry(machineLength, machineHeight / 4, machineDepth + 0.05),
+                new THREE.MeshPhongMaterial({ color: 0x8b0000 }) // قرمز تیره
+            );
+            redBand.position.set(0, machineHeight * 0.65, 0);
+            group.add(redBand);
+
+            // --- 2. یونیت‌های بوبین‌پیچی (Individual Winding Units) ---
+            const numUnits = 6;
+            const startX = -machineLength / 2 + 1.5;
+            const spacing = (machineLength - 3) / (numUnits - 1);
+            
+            group.windingUnits = []; // برای دسترسی جهت انیمیشن
+            
+            // for (let i = 0; i < numUnits; i++) {
+            //     const unitGroup = new THREE.Group();
+            //     const unitX = startX + i * spacing;
+
+            //     // پایه یونیت (Unit Casing)
+            //     const unitCasing = new THREE.Mesh(
+            //         new THREE.BoxGeometry(1.5, 1.2, machineDepth + 0.1),
+            //         new THREE.MeshPhongMaterial({ color: 0xcccccc })
+            //     );
+            //     unitCasing.position.set(unitX, machineHeight * 0.5 - 0.5, 0);
+            //     unitGroup.add(unitCasing);
+
+            //     // بوبین خروجی (Cone/Package)
+            //     const coneHeight = 2.5;
+            //     const cone = new THREE.Mesh(
+            //         new THREE.CylinderGeometry(0.1, 0.5, coneHeight, 16),
+            //         new THREE.MeshPhongMaterial({ color: 0xeeeeee })
+            //     );
+            //     cone.position.set(unitX - 0.5, machineHeight + coneHeight / 2, machineDepth / 2 + 0.1);
+            //     cone.rotation.x = -Math.PI / 10; // زاویه دار کردن برای شبیه سازی بوبین
+                
+            //     // ذخیره بوبین برای انیمیشن چرخش
+            //     unitGroup.cone = cone;
+            //     unitGroup.add(cone);
+
+            //     // راهنمای نخ (Yarn Guide/Tensioner)
+            //     const guide = new THREE.Mesh(
+            //         new THREE.SphereGeometry(0.1),
+            //         new THREE.MeshPhongMaterial({ color: 0x000000 })
+            //     );
+            //     guide.position.set(unitX + 0.7, machineHeight + 0.5, machineDepth / 2 + 0.1);
+            //     unitGroup.guide = guide; // برای دسترسی جهت انیمیشن
+            //     unitGroup.add(guide);
+                
+            //     group.windingUnits.push(unitGroup);
+            //     group.add(unitGroup);
+            // }
+            
+            // --- 3. محفظه الکترونیک در انتها (Control Box) ---
+            const controlBox = new THREE.Mesh(
+                new THREE.BoxGeometry(1.5, machineHeight * 1.2, machineDepth * 1.2),
+                new THREE.MeshPhongMaterial({ color: color })
+            );
+            controlBox.position.set(machineLength / 2 + 0.75, machineHeight * 1.2 / 2, 0);
+            group.add(controlBox);
+        }
+
+         
+        /**
+ * تابع برای ایجاد مدل ساده شده دستگاه هیت ست (Heat Setting Machine)
+ * @param {THREE.Group} group - گروهی که مدل به آن اضافه خواهد شد.
+ * @param {number} mainColor - رنگ اصلی بدنه ماشین (معمولاً سفید یا فلزی روشن).
+ */
+/**
+ * تابع اصلاح شده برای ایجاد مدل دستگاه هیت ست (Heat Setting Machine)
+ * طول دستگاه در راستای محور Z قرار می گیرد (عمق صفحه).
+ * @param {THREE.Group} group - گروهی که مدل به آن اضافه خواهد شد.
+ * @param {number} mainColor - رنگ اصلی بدنه ماشین (معمولاً سفید یا فلزی روشن).
+ */
+ function createHeatSettingMachineWide(group, mainColor) {
+    // جابجایی ابعاد: طول در امتداد عمق (محور Z) قرار می گیرد.
+    const tunnelLength = 18;     // طول اصلی (Z)
+    const tunnelWidth = 3;       // عرض اصلی (X)
+    const tunnelHeight = 2.5;    // ارتفاع (Y)
+    
+    const color = mainColor || 0xeeeeee;
+    
+    group.userData.type = 'heatsetter'; 
+    group.guidingRolls = []; 
+
+    // --- 1. تونل اصلی و محفظه گرمایش (Heating Tunnel) ---
+    const tunnel = new THREE.Mesh(
+        // ابعاد: (Width: tunnelWidth, Height: tunnelHeight, Depth: tunnelLength)
+        new THREE.BoxGeometry(tunnelWidth, tunnelHeight, tunnelLength),
+        new THREE.MeshPhongMaterial({ color: color, side: THREE.DoubleSide })
+    );
+    tunnel.position.y = tunnelHeight / 2;
+    tunnel.castShadow = true;
+    group.add(tunnel);
+    
+    // --- 2. پنل کنترل در انتهای Z ---
+    const controlPanel = new THREE.Mesh(
+        new THREE.BoxGeometry(tunnelWidth, tunnelHeight * 1.5, 1),
+        new THREE.MeshPhongMaterial({ color: 0x444444 })
+    );
+    // قرارگیری در انتهای مثبت محور Z
+    controlPanel.position.set(0, tunnelHeight * 1.5 / 2, tunnelLength / 2 + 0.5);
+    group.add(controlPanel);
+
+    // --- 3. غلتک‌های هدایت‌کننده نخ (در دو انتهای Z) ---
+    const rollRadius = 0.2;
+    const rollLength = tunnelWidth + 0.5; // طول غلتک در راستای X
+    
+    // غلتک های در ورودی (Z منفی)
+    const startRoll1 = new THREE.Mesh(
+        new THREE.CylinderGeometry(rollRadius, rollRadius, rollLength, 16),
+        new THREE.MeshPhongMaterial({ color: 0x8b4513 })
+    );
+    // غلتک باید حول محور Y بچرخد تا در راستای X قرار گیرد
+    startRoll1.rotation.y = Math.PI / 2; 
+    startRoll1.position.set(0, tunnelHeight * 0.75, -tunnelLength / 2 - 0.5);
+    group.guidingRolls.push(startRoll1);
+    group.add(startRoll1);
+
+    // غلتک های در خروجی (Z مثبت)
+    const endRoll1 = new THREE.Mesh(
+        new THREE.CylinderGeometry(rollRadius, rollRadius, rollLength, 16),
+        new THREE.MeshPhongMaterial({ color: 0x8b4513 })
+    );
+    endRoll1.rotation.y = Math.PI / 2; 
+    endRoll1.position.set(0, tunnelHeight * 0.75, tunnelLength / 2 + 0.5);
+    group.guidingRolls.push(endRoll1);
+    group.add(endRoll1);
+
+    // --- 4. محفظه بوبین‌های ورودی (Creel - برای تغذیه نخ) ---
+    const creelFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 4, 1.5),
+        new THREE.MeshPhongMaterial({ color: 0xaaaaaa, transparent: true, opacity: 0.5 })
+    );
+    creelFrame.position.set(0, 2, -tunnelLength / 2 - 2); // قرارگیری در کنار ورودی Z
+    group.add(creelFrame);
+    
+    // --- 5. بوبین‌های جمع‌کننده خروجی (Winder Packages) ---
+    const numWinders = 4;
+    for (let i = 0; i < numWinders; i++) {
+        const package = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.1, 0.5, 2, 16),
+            new THREE.MeshPhongMaterial({ color: 0xffa500 })
+        );
+        // بوبین‌ها در انتهای Z مثبت قرار می‌گیرند
+        package.position.set(1 + (i * 0.5), 1, tunnelLength / 2 + 2);
+        package.rotation.x = -Math.PI / 10;
+        
+        group.guidingRolls.push(package); 
+        group.add(package);
+    }
+}  
+
+function createRingSpinningMachine(group, color) {
+        // 1. بدنه اصلی (Main Body/Frame)
+        const frameHeight = 2;
+        const frameDepth = 1.5;
+        const frameWidth = 8;
+        
+        const mainFrame = new THREE.Mesh(
+            new THREE.BoxGeometry(frameWidth, frameHeight, frameDepth),
+            new THREE.MeshPhongMaterial({ color: color || 0x4a4a4a }) // خاکستری تیره
+        );
+        mainFrame.position.y = frameHeight / 2;
+        mainFrame.castShadow = true;
+        group.add(mainFrame);
+        
+        // 2. بخش درفتینگ (Drafting System - غلتک های تغذیه) - در بالای دستگاه
+        const rollRadius = 0.2;
+        const rollLength = frameWidth + 0.5;
+        const rollColor = 0x8b4513; // قهوه ای برای غلتک ها
+        
+        // غلتک پایینی
+        const bottomRoll = new THREE.Mesh(
+            new THREE.CylinderGeometry(rollRadius, rollRadius, rollLength, 16),
+            new THREE.MeshPhongMaterial({ color: rollColor })
+        );
+        bottomRoll.position.set(0, frameHeight + 0.5, 0.5);
+        bottomRoll.rotation.z = Math.PI / 2;
+        group.add(bottomRoll);
+        
+        // غلتک بالایی
+        const topRoll = new THREE.Mesh(
+            new THREE.CylinderGeometry(rollRadius, rollRadius, rollLength, 16),
+            new THREE.MeshPhongMaterial({ color: 0xcccccc })
+        );
+        topRoll.position.set(0, frameHeight + 0.5 + 0.5, 0.5);
+        topRoll.rotation.z = Math.PI / 2;
+        group.add(topRoll);
+
+        // 3. دوک‌های ریسندگی (Spindles) - پایین دستگاه
+        const numSpindles = 8;
+        const spindleRadius = 0.1;
+        const spindleHeight = 3;
+        const startX = -frameWidth / 2 + 1;
+        const spacing = (frameWidth - 2) / (numSpindles - 1);
+        
+        const spindleGroup = new THREE.Group();
+        group.spindleGroup = spindleGroup; // برای دسترسی آسان تر برای انیمیشن
+        group.add(spindleGroup);
+        
+        for (let i = 0; i < numSpindles; i++) {
+            // دوک (Spindle)
+            const spindle = new THREE.Mesh(
+                new THREE.CylinderGeometry(spindleRadius, spindleRadius, spindleHeight, 8),
+                new THREE.MeshPhongMaterial({ color: 0x666666 })
+            );
+            spindle.position.set(startX + i * spacing, spindleHeight / 2, 0);
+            spindle.castShadow = true;
+            
+            // این دوک را برای انیمیشن (چرخش) نگه میداریم
+            spindleGroup.spindles = spindleGroup.spindles || [];
+            spindleGroup.spindles.push(spindle);
+            
+            spindleGroup.add(spindle);
+            
+            // 4. رینگ (Ring) - دور دوک
+            const ring = new THREE.Mesh(
+                new THREE.TorusGeometry(0.3, 0.05, 8, 16),
+                new THREE.MeshPhongMaterial({ color: 0xffa500, side: THREE.DoubleSide }) // نارنجی/طلایی
+            );
+            ring.position.set(startX + i * spacing, 0.1, 0);
+            ring.rotation.x = Math.PI / 2;
+            group.add(ring);
+        }
+        
+        // 5. ریل رینگ (Ring Rail/Traveller Path) - صفحه ای که رینگ ها روی آن قرار دارند
+        const ringRail = new THREE.Mesh(
+            new THREE.BoxGeometry(frameWidth, 0.1, frameDepth + 0.1),
+            new THREE.MeshPhongMaterial({ color: 0x228b22 }) // سبز تیره
+        );
+        ringRail.position.y = 0;
+        group.ringRail = ringRail; // برای دسترسی آسان تر برای انیمیشن (حرکت عمودی)
+        group.add(ringRail);
+    }
+        
+        function createRingMachine(group, color) {
+            const base = new THREE.Mesh(
+                new THREE.CylinderGeometry(1.5, 1.5, 1, 32),
+                new THREE.MeshPhongMaterial({ color: color })
+            );
+            base.position.y = 0.5;
+            base.castShadow = true;
+            group.add(base);
+            
+            const mainCylinder = new THREE.Mesh(
+                new THREE.CylinderGeometry(1, 1, 2, 32),
+                new THREE.MeshPhongMaterial({ color: 0xffffff })
+            );
+            mainCylinder.position.y = 2;
+            mainCylinder.castShadow = true;
+            group.mainCylinder = mainCylinder;
+            group.add(mainCylinder);
+            
+            const yarn = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.05, 0.05, 3, 8),
+                new THREE.MeshPhongMaterial({ color: 0xFFFFFF })
+            );
+            yarn.position.y = 3.5;
+            yarn.castShadow = true;
+            group.yarn = yarn;
+            group.add(yarn);
+        }
+        
+        // ایجاد برچسب برای دستگاه
+        function createMachineLabel(data, config) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 128;
+            
+            // پس‌زمینه
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // نام دستگاه
+            ctx.font = 'bold 20px Arial';
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'center';
+            ctx.fillText(data.name || config.name, canvas.width/2, 40);
+            
+            // نوع و وضعیت
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#666';
+            ctx.fillText(`${config.name} • ${data.status}`, canvas.width/2, 70);
+            
+            // موقعیت
+            ctx.fillText(`X: ${data.position.x} Z: ${data.position.z}`, canvas.width/2, 90);
+            
+            // حاشیه رنگی
+            ctx.strokeStyle = `#${config.color.toString(16).padStart(6, '0')}`;
+            ctx.lineWidth = 4;
+            ctx.strokeRect(2, 2, canvas.width-4, canvas.height-4);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(8, 4, 1);
+            
+            return sprite;
+        }
+        
+        // ایجاد کف کارخانه
+        function createFactoryFloor() {
+            const width = layoutData?.floorSize?.width || 80;
+            const depth = layoutData?.floorSize?.depth || 40;
+            
+            const floorGeometry = new THREE.PlaneGeometry(width, depth);
+            const floorMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x808080,
+                shininess: 30
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+            
+            const gridHelper = new THREE.GridHelper(width, 20, 0x000000, 0x000000);
+            gridHelper.material.opacity = 0.2;
+            gridHelper.material.transparent = true;
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
+        }
+        /**
+ * تابع برای ایجاد مدل ماشین بازکننده صنعتی (Opener Machine - Industrial Style)
+ * @param {THREE.Group} group - گروهی که مدل به آن اضافه خواهد شد.
+ * @param {number} color - رنگ اصلی بدنه ماشین (مانند سبز ماشینی).
+ */
+function createIndustrialOpenerMachine(group, color) {
+    const mainColor = color || 0x4d794d; // سبز ماشینی تیره
+    
+    // --- 1. بدنه اصلی ماشین (مشابه قبل اما کمی بلندتر) ---
+    const baseWidth = 4;
+    const baseHeight = 3;
+    const baseDepth = 3.5;
+    
+    const base = new THREE.Mesh(
+        new THREE.BoxGeometry(baseWidth, baseHeight, baseDepth),
+        new THREE.MeshPhongMaterial({ color: mainColor })
+    );
+    base.position.y = baseHeight / 2;
+    base.castShadow = true;
+    group.add(base);
+    
+    // --- 2. کانوایر تغذیه (Conveyor Belt) ---
+    const convLength = 8;
+    const convHeight = 0.2;
+    const convWidth = 1.5;
+    
+    const conveyor = new THREE.Mesh(
+        new THREE.BoxGeometry(convLength, convHeight, convWidth),
+        new THREE.MeshPhongMaterial({ color: 0x666666 })
+    );
+    
+    // موقعیت دهی به کانوایر به صورت مورب (شیبدار)
+    conveyor.rotation.z = -Math.PI / 10;
+    conveyor.position.set(-baseWidth/2 - convLength/2 * Math.cos(Math.PI/10), baseHeight + convLength/2 * Math.sin(Math.PI/10), 0);
+    conveyor.castShadow = true;
+    group.add(conveyor);
+    
+    // --- 3. کانال انتقال الیاف (Fiber Transfer Duct) ---
+    // شبیه‌سازی لوله‌های خمیده در عکس
+    
+    // ایجاد یک منحنی برای Path لوله
+    const curve = new THREE.CatmullRomCurve3( [
+        new THREE.Vector3( -2, baseHeight + 1, 1.5 ), // نقطه شروع روی بدنه
+        new THREE.Vector3( -4, baseHeight + 2.5, 2.5 ),
+        new THREE.Vector3( -6, baseHeight + 1.5, 1.5 ), // نقطه اوج
+        new THREE.Vector3( -8, baseHeight - 0.5, 0 ) // نقطه خروج
+    ] );
+    
+    const tubularSegments = 50;
+    const radius = 0.2;
+    
+    const ductGeometry = new THREE.TubeGeometry( curve, tubularSegments, radius, 8, false );
+    const ductMaterial = new THREE.MeshPhongMaterial( { color: 0x993333 } ); // لوله های مسی/نارنجی
+    const duct = new THREE.Mesh( ductGeometry, ductMaterial );
+    group.add( duct );
+    
+    // --- 4. ساختار فلزی و پله (Metal Frame and Stairs) ---
+    
+    // پله های ساده
+    const stairColor = 0xaaaaaa;
+    const stairStep = new THREE.BoxGeometry(0.8, 0.1, 1.5);
+    
+    const step1 = new THREE.Mesh(stairStep, new THREE.MeshPhongMaterial({ color: stairColor }));
+    step1.position.set(baseWidth/2, 1, baseDepth/2);
+    group.add(step1);
+    
+    const step2 = new THREE.Mesh(stairStep, new THREE.MeshPhongMaterial({ color: stairColor }));
+    step2.position.set(baseWidth/2, 2, baseDepth/2);
+    group.add(step2);
+
+    // حفاظ جانبی (Railings)
+    const railing = new THREE.Mesh(
+        new THREE.BoxGeometry(0.1, 3, 0.1),
+        new THREE.MeshPhongMaterial({ color: 0x696969 })
+    );
+    railing.position.set(baseWidth/2 + 0.4, 1.5, baseDepth/2 - 0.7);
+    group.add(railing);
+    
+    // --- 5. روتور داخلی (Rotor - برای نمایش عملکرد) ---
+    const rotor = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.5, 0.5, 2, 16),
+        new THREE.MeshPhongMaterial({ color: 0x333333 })
+    );
+    rotor.position.set(1.5, baseHeight + 0.5, 0);
+    rotor.rotation.z = Math.PI / 2;
+    group.rotor = rotor; // برای انیمیشن
+    group.add(rotor);
+}
+
+// نحوه استفاده:
+        
+        // بارگذاری layout جدید
+        async function loadNewLayout() {
+            const url = prompt('آدرس فایل JSON جدید را وارد کنید:', 'data/layout.json');
+            if (url) {
+                document.getElementById('jsonUrl').value = url;
+                document.getElementById('loading').style.display = 'block';
+                await loadLayoutFromUrl();
+            }
+        }
+        
+        // خروجی JSON
+        function exportLayout() {
+            if (!layoutData) return;
+            
+            const dataStr = JSON.stringify(layoutData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `factory-layout-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+        
+        // ذخیره layout
+        function saveLayout() {
+            alert('در نسخه واقعی، تنظیمات در پایگاه داده ذخیره می‌شوند.');
+        }
+        
+        // به‌روزرسانی تعداد دستگاه‌های فعال
+        function updateActiveCount() {
+            const active = productionActive ? 
+                machines.filter(m => m.userData.status === 'active').length : 0;
+            document.getElementById('activeCount').textContent = `${active}/${machines.length}`;
+        }
+        
+        // به‌روزرسانی زمان کارکرد
+        function updateUptime() {
+            const elapsed = Date.now() - startTime;
+            const hours = Math.floor(elapsed / 3600000);
+            const minutes = Math.floor((elapsed % 3600000) / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            
+            document.getElementById('uptime').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // ================== توابع نورپردازی و انیمیشن ==================
+        
+        function setupLighting() {
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(50, 100, 50);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (productionActive) {
+                machines.forEach(machine => {
+                    // انیمیشن دستگاه‌ها
+                    animateMachine(machine);
+                    
+                    // افزایش تولید
+                    if (machine.userData.status === 'active') {
+                        machine.userData.production = Math.min(100, machine.userData.production + 0.1);
+                        machine.userData.output += 0.01;
+                        totalOutput += 0.01;
+                    }
+                });
+                
+                document.getElementById('totalOutput').textContent = totalOutput.toFixed(2) + ' kg';
+            }
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        // تابع انیمیشن دستگاه‌ها
+        function animateMachine(machine) {
+            const data = machine.userData;
+            const time = Date.now() * 0.005; 
+            
+            switch(data.type) {
+                case 'opener':
+                    if (machine.rotor) {
+                        machine.rotor.rotation.x += 0.1;
+                    }
+                    break;
+                case 'drawing':
+                    // 1. چرخش غلتک‌های کشش (Drafting Rolls)
+                        if (machine.draftingRolls) {
+                            machine.draftingRolls.forEach((roll) => {
+                                // غلتک‌ها در راستای Z هستند، چرخش حول محور Y
+                                // این چرخش الیاف را در راستای X می‌کشد.
+                                roll.rotation.y += 0.2; 
+                            });
+                        }
+                        
+                        // 2. چرخش دوک‌ها/فلایرها (Spindles/Flyers)
+                        if (machine.spindles) {
+                            machine.spindles.forEach((part) => {
+                                // چرخش پرسرعت حول محور Y
+                                part.rotation.y -= 0.8; 
+                            });
+                        }
+                    break;
+                case 'finisher':
+                                        if (machine.draftingRolls) {
+                                machine.draftingRolls.forEach((roll, index) => {
+                                    // اصلاح: استفاده از rotation.z
+                                    // غلتکی که با rotation.x = PI/2 چرخیده است، معمولا حول محور Z محلی حرکت می‌کند.
+                                    roll.rotation.z += 0.15 + (index * 0.05); 
+                                });
+                            }
+                            
+                            // 2. چرخش هد کویلر (Coiler Head)
+                            if (machine.coilerHeads) {
+                                machine.coilerHeads.forEach((head) => {
+                                    // هد کویلر که با rotation.x = PI/2 چرخیده، باید حول محور Y یا Z محلی بچرخد.
+                                    // اگر Y کار نکرد، Z را تست می‌کنیم. (همچنین می‌توانیم از چرخش حول محور Y استفاده کنیم)
+                                    head.rotation.y -= 0.3; // تست مجدد Y (اگر باز هم کار نکرد، از Z استفاده کنید)
+                                });
+                            }
+                    break;
+                    case 'heatset': 
+    if (machine.guidingRolls) {
+        
+        machine.guidingRolls.forEach((roll) => {
+            // اصلاح: چرخش غلتک‌های قرار گرفته در راستای X، باید حول محور Z انجام شود
+            roll.rotation.z += 0.15; // <-- تغییر از X به Z
+        });
+    }
+    break;
+                    case 'ring': // *** به‌روزرسانی کیس رینگ ریسندگی ***
+            
+            // 1. چرخش دوک ها (Spindle Rotation)
+            if (machine.spindleGroup && machine.spindleGroup.spindles) {
+                machine.spindleGroup.spindles.forEach(spindle => {
+                    spindle.rotation.y += 0.5; // چرخش سریع برای تاباندن
+                });
+            }
+            
+            // 2. حرکت عمودی ریل رینگ (Bobbin Building Motion)
+            if (machine.ringRail) {
+                const railSpeed = 3;
+                const railAmplitude = 1.5; // دامنه حرکت عمودی
+                
+                // حرکت رفت و برگشتی سینوسی برای بالا و پایین بردن رینگ‌ها
+                // حرکت از 0.5 تا 2.5
+                machine.ringRail.position.y = 1.5 + Math.sin(time * railSpeed) * railAmplitude; 
+            }
+            
+            // 3. چرخش غلتک های درفتینگ (Drafting Rollers)
+            if (machine.topRoll) {
+                 machine.topRoll.rotation.x += 0.1;
+            }
+            if (machine.bottomRoll) {
+                 machine.bottomRoll.rotation.x += 0.08; // کمی کندتر
+            }
+            
+            break;
+            case 'breaker': // *** به‌روزرسانی کیس بازکننده ***
+            
+            // 1. چرخش روتور
+            if (machine.rotor) {
+                // rotor.rotation.z قبلاً 90 درجه چرخیده، پس حول محور Y بچرخانید
+                machine.rotor.rotation.y += 0.15; 
+            }
+            
+            // 2. شبیه‌سازی حرکت کانوایر (با تغییر آفست تکسچر)
+            if (machine.conveyor && machine.conveyor.material.map) {
+                // اگر از تکسچر استفاده کرده باشید، این خط حرکت را شبیه سازی می کند.
+                machine.conveyor.material.map.offset.x += 0.01; 
+                
+                // اگر تکسچر ندارید، می توانید یک خطای دید با چرخش جزئی (یا بدون انیمیشن) داشته باشید.
+            }
+            
+            break;
+            case 'dolatab': // *** اضافه کردن کیس دولاتاب ***
+            if (machine.twistingUnits) {
+                
+                machine.twistingUnits.forEach((unit) => {
+                    
+                    // 1. چرخش سریع روتور دولاتاب (Two-for-One Rotor)
+                    if (unit.rotor) {
+                        unit.rotor.rotation.y += 0.8; // چرخش بسیار سریع
+                    }
+                    
+                    // 2. چرخش بوبین خروجی (Output Package)
+                    if (unit.outputCone) {
+                        unit.outputCone.rotation.y += 0.2; 
+                    }
+                    
+                    // *نکته: می توانید حرکت رفت و برگشتی راهنمای نخ را نیز اضافه کنید،
+                    // اگر المان راهنما (Guide) در یونیت تعریف شده باشد.*
+                });
+            }
+            break;
+            
+       
+                    case 'ssm': // *** اضافه کردن کیس لاکنی ***
+                        if (machine.windingUnits) {
+                            
+                            // تکرار روی همه یونیت‌های بوبین‌پیچی
+                            machine.windingUnits.forEach((unit, index) => {
+                                
+                                // 1. چرخش بوبین خروجی (Cone)
+                                if (unit.cone) {
+                                    // سرعت چرخش ثابت برای شبیه سازی پیچیدن نخ
+                                    unit.cone.rotation.y += 0.5; 
+                                }
+                                
+                                // 2. حرکت راهنمای نخ (Guide/Traverser)
+                                if (unit.guide) {
+                                    // حرکت سینوسی برای توزیع نخ به صورت رفت و برگشتی
+                                    const traverseRange = 0.5; // دامنه حرکت
+                                    const speed = 5; 
+                                    
+                                    // با استفاده از index، هر یونیت کمی با واحد کناری ناهماهنگ حرکت می‌کند
+                                    unit.guide.position.z = Math.sin(time * speed + index) * traverseRange; 
+                                }
+                            });
+                        }
+                        break;
+                                
+                        }
+        }
+        
+        // ================== layout پیش‌فرض ==================
+        
+        function getDefaultLayout() {
+            return {
+                factoryName: "کارخانه ریسندگی (پیش‌فرض)",
+                machines: [
+                    { id: "opener_1", type: "opener", name: "حلاجی ۱", position: { x: -35, z: -18 }, rotation: Math.PI, status: "active" },
+                    { id: "opener_2", type: "opener", name: "حلاجی ۲", position: { x: -35, z: 18 }, rotation: Math.PI, status: "active" },
+                    { id: "sidel", type: "breaker", name: "تاپس", position: { x: -35, z: 0 }, rotation: Math.PI, status: "active" },
+
+                    { id: "drawing_2", type: "drawing", name: "پاساز 2", position: { x: -20, z: -12 }, rotation: 0, status: "active" },
+                    { id: "drawing_3", type: "drawing", name: "پاساز 3", position: { x: -20, z: -2 }, rotation: 0, status: "active" },
+                    { id: "drawing_4", type: "drawing", name: "پاساز 4", position: { x: -20, z: 6 }, rotation: 0, status: "active" },
+                    { id: "drawing_5", type: "drawing", name: "پاساز 5", position: { x: -20, z: 13 }, rotation: 0, status: "active" },
+
+                    { id: "breaker_1", type: "breaker", name: "بریکر 1", position: { x: -10, z: -10 }, rotation: 0, status: "active" },
+
+                    { id: "drawing_1", type: "drawing", name: "پاساز 1", position: { x: -10, z: -5 }, rotation: 0, status: "active" },
+                    { id: "drawing_6", type: "drawing", name: "پاساز 6", position: { x: -10, z: 12 }, rotation: 0, status: "active" },
+                    
+                    { id: "finisher_1", type: "finisher", name: "فینیشر ۱", position: { x: -10, z: 0 }, rotation: 0, status: "active" },
+                    { id: "finisher_2", type: "finisher", name: "فینیشر ۲", position: { x: -10, z: 7 }, rotation: 0, status: "active" },
+
+                    { id: "ring_1", type: "ring", name: "رینگ ۱", position: { x: 5, z: -8 }, rotation: 0, status: "active" },
+                    { id: "ring_2", type: "ring", name: "رینگ ۲", position: { x: 5, z: -6 }, rotation: 0, status: "active" },
+                    { id: "ring_3", type: "ring", name: "رینگ ۳", position: { x: 5, z: -4 }, rotation: 0, status: "active" },
+                    { id: "ring_4", type: "ring", name: "رینگ ۴", position: { x: 5, z: -2 }, rotation: 0, status: "active" },
+                    { id: "ring_5", type: "ring", name: "رینگ ۵", position: { x: 5, z: 0 }, rotation: 0, status: "active" },
+                    { id: "ring_6", type: "ring", name: "رینگ ۶", position: { x: 5, z: 2 }, rotation: 0, status: "active" },
+                    { id: "ring_7", type: "ring", name: "رینگ ۷", position: { x: 5, z: 4 }, rotation: 0, status: "active" },
+                    { id: "ring_8", type: "ring", name: "رینگ 8", position: { x: 5, z: 6 }, rotation: 0, status: "active" },
+                    { id: "ring_9", type: "ring", name: "رینگ 9", position: { x: 5, z: 8 }, rotation: 0, status: "active" },
+
+                    { id: "dolatab_1", type: "dolatab", name: "دولاتاب 1", position: { x: 5, z: -18 }, rotation: 0, status: "active" },
+                    { id: "dolatab_2", type: "dolatab", name: "دولاتاب 2", position: { x: 5, z: -16 }, rotation: 0, status: "active" },
+                    { id: "dolatab_3", type: "dolatab", name: "دولاتاب 3", position: { x: 5, z: -14 }, rotation: 0, status: "active" },
+                    { id: "dolatab_4", type: "dolatab", name: "دولاتاب 4", position: { x: 5, z: -12 }, rotation: 0, status: "active" },
+                    { id: "dolatab_5", type: "dolatab", name: "دولاتاب 5", position: { x: 5, z: -10 }, rotation: 0, status: "active" },
+                    { id: "dolatab_6", type: "dolatab", name: "دولاتاب 6", position: { x: 5, z:  10}, rotation: 0, status: "active" },
+                    { id: "dolatab_7", type: "dolatab", name: "دولاتاب 7", position: { x: 5, z: 12 }, rotation: 0, status: "active" },
+                    { id: "dolatab_8", type: "dolatab", name: "دولاتاب 8", position: { x: 5, z: 14 }, rotation: 0, status: "active" },
+                    { id: "dolatab_9", type: "dolatab", name: "دولاتاب 9", position: { x: 5, z: 16 }, rotation: 0, status: "active" },
+
+                    { id: "ssm1", type: "ssm", name: "ssm 1", position: { x: -10, z: 18 }, rotation: 0, status: "active" },
+                    { id: "ssm2", type: "ssm", name: "ssm 2", position: { x: -10, z: -18 }, rotation: 0, status: "active" },
+
+                    { id: "heatset_1", type: "heatset", name: "هیت ست 1", position: { x: 20, z: 0 }, rotation: 0, status: "active" },
+                    { id: "heatset_2", type: "heatset", name: "هیت ست 2", position: { x: 24, z: 0 }, rotation: 0, status: "active" },
+                    { id: "heatset_3", type: "heatset", name: " پاور هیت ست", position: { x: 28, z: 0 }, rotation: 0, status: "active" },
+                ]
+            };
+        }
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // شروع برنامه
+        window.onload = init;
+    </script>
+</body>
+</html>

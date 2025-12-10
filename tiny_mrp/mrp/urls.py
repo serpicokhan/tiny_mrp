@@ -286,6 +286,7 @@ urlpatterns = [
     path('api/internal/shade/', receive_shade, name='receive_shade'),
     path('api/internal/grade/', receive_grade, name='receive_grade'),
     path('api/internal/moshtari/', receive_moshtari, name='receive_moshtari'),
+    path('3d/', threedview, name='threedview'),
     
 
 

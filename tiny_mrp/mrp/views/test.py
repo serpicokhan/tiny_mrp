@@ -273,7 +273,7 @@ def register_daily_amar(request):
         try:
             last_moshakhase=DailyProduction.objects.filter(machine=machine,moshakhase__isnull=False).order_by('dayOfIssue').last()
             # print(last_moshakhase,':moshakhase')
-            print(machine.id)
+            
             # speed=DailyProduction.objects.filter(machine=machine,speed__isnull=False).order_by('id').last()
             speed = DailyProduction.objects.filter(
                 machine=machine,

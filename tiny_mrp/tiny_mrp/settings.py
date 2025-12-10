@@ -88,9 +88,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mrp581_jason',
         'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'PASSWORD': 'vGxUI7MF1deYW0Vn',
+        'HOST': 'services.irn13.chabokan.net',
+        'PORT': '29113',
     }
 }
 LOGIN_REDIRECT_URL = 'index'
