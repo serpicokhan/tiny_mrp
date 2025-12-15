@@ -148,7 +148,7 @@ def get_daily_amar_scroll(request):
     
     if request.user.groups.filter(name='supervisors').exists():
         user_access=UserShiftAccess.objects.get(user=request.user.sysuser)
-        machines=Asset.objects.filter(assetIsLocatedAt__id=user_access.production_line.id).order_by('assetCategory__priority')
+        machines=Asset.objects.filter(assetIsLocatedAt__id=user_access.production_line.id).order_by('assetCategory__priority,assetTavali')
         shift=Shift.objects.filter(id=user_access.shift.id)
         user_shift=user_access
 
@@ -166,7 +166,7 @@ def get_daily_amar_scroll(request):
     else:
 
         
-        machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id,assetCategory__in=asset_category).order_by('assetCategory__priority')
+        machines=Asset.objects.filter(assetTypes=3,assetIsLocatedAt__id=makan_id,assetCategory__in=asset_category).order_by('assetCategory__priority','assetTavali')
         if(not shift_id):
             shift_id=1
         shift=Shift.objects.all()
@@ -569,7 +569,8 @@ def saveAmarTableInfo(request):
             else:
                 try:
                     if(i["moshakhase"] and i["moshakhase"]!='{}'):
-                        print(i["moshakhase"],'!!!!!!!!!!!!')
+                        # if(m.id==6937):
+                        #     print(i["moshakhase"],'!!!!!!!!!!!!!!!!!!')
                         moshakhase=json.loads(i["moshakhase"])
                         moshakhase=EntryForm.objects.get(id=int(moshakhase["id"]))
                         
@@ -603,6 +604,7 @@ def saveAmarTableInfo(request):
                 
                 moshakhase = i["moshakhase"]
                 if moshakhase:
+                   
                     x.set_moshakhase(moshakhase)
                 
                 operators_data_json = i['operator_data']
@@ -626,17 +628,21 @@ def saveAmarTableInfo(request):
                     x.operators_data = None
                 
                 try:
-                    x.save()
-                    # ذخیره ID و machine برای به‌روزرسانی در فرانت
-                    result['saved_ids'][table_name].append({
-                        'machine': i["machine"],
-                        'id': x.id,
-                        'original_index': table_data.index(i)
-                    })
+                    if(x.moshakhase):
+                        x.save()
+                        # ذخیره ID و machine برای به‌روزرسانی در فرانت
+                        result['saved_ids'][table_name].append({
+                            'machine': i["machine"],
+                            'id': x.id,
+                            'original_index': table_data.index(i)
+                        })
+                    else:
+                        x.delete()
                 except IntegrityError:
                     result["error"] = "برای این تاریخ مقدار از قبل وجود دارد!"
             else:
                 # Create new record
+
                 amar = DailyProduction()
                 amar.machine = m
                 amar.shift = s
@@ -654,6 +660,9 @@ def saveAmarTableInfo(request):
                 moshakhase = i["moshakhase"]
                 if moshakhase:
                     amar.set_moshakhase(moshakhase)
+                # if(m.id==6937):
+                #             print(i["moshakhase"],moshakhase,'!!!!!!!!!!!!!!!!!!')
+                #             print(amar.moshakhase,'####')
                 
                 operators_data_json = i["operator_data"]
                 if operators_data_json and operators_data_json.strip():
@@ -666,13 +675,16 @@ def saveAmarTableInfo(request):
                     amar.operators_data = None
                 
                 try:
-                    amar.save()
-                    # ذخیره ID جدید
-                    result['saved_ids'][table_name].append({
-                        'machine': i["machine"],
-                        'id': amar.id,
-                        'original_index': table_data.index(i)
-                    })
+                    if(amar.moshakhase):
+                        amar.save()
+                        # if(m.id==6937):
+                        #         print(amar.moshakhase,'%%%%%%')
+                        # ذخیره ID جدید
+                        result['saved_ids'][table_name].append({
+                            'machine': i["machine"],
+                            'id': amar.id,
+                            'original_index': table_data.index(i)
+                        })
                 except IntegrityError as ex:
                     print(ex)
                     result["error"] = "برای این تاریخ مقدار از قبل وجود دارد!"
@@ -829,7 +841,7 @@ def update_amar_fields(amar, data, machine, shift, date_obj):
     
     # تنظیم مشخصه (کد نخ)
     moshakhase = data.get("moshakhase")
-    print(moshakhase,':moshakhase!!!!!!!')
+    # print(moshakhase,':moshakhase!!!!!!!')
     if moshakhase and moshakhase != "null":
         try:
             amar.set_moshakhase(moshakhase)
@@ -1013,7 +1025,7 @@ def saveAmarHTableInfo(request):
                 amar.net_weight=float(i["vazne_baghi"])
                 try:
                     amar.save()
-                    print("done!!!")
+                    # print("done!!!")
                 except IntegrityError:
                     print("A MyModel instance with this field1 and field2 combination already exists.")
                     data["error"]="برای این تاریخ مقدار از قبل وجود دارد!"
@@ -1927,7 +1939,7 @@ def list_amar_daily_info(request):
                     'amar': amar,
                     'shift': shift,
                     'shift_id': shift.id,
-                    'nakh_info': nakh_info,
+                    'nakh_info': json.dumps(nakh_info),
                     'speed': amar.speed,
                     'nomre': amar.nomre
                 })

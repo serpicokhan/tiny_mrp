@@ -288,7 +288,7 @@ var tableDataToJSON = function(tableId) {
       var qc = parseFloat($(this).find('td.qc').text() || 0);
       var actual_vahed = $(this).find('td.editable-cell').attr('data-vahed');
       var operator_data = $(this).find('.operator-data').val() || '[]';
-      var moshakhase = $(this).find('.nakh-data').val() || 'null';
+      var moshakhase = JSON.stringify($(this).find('.nakh-data').val()) || 'null';
 
       if (parseFloat(production_value) > 10000) {
         toastr.error(`میزان تولید (${production_value}) از 10000 بیشتر است!`);
@@ -320,6 +320,7 @@ var tableDataToJSON = function(tableId) {
 }
 
 $("#save_production").click(function(){
+  
   var sendData = {};
   var hasError = false;
   var i = 1;
@@ -473,6 +474,8 @@ $("#save_production").click(function(){
     });
   });
   function initiate_code_nakh(){
+    
+    
     $('.nakh-name').select2({
       dropdownParent: $('body'),
      
@@ -648,6 +651,21 @@ $('.operator-name').on('select2:clear', function (e) {
         //alert(btn.attr("data-url"));
         //alert("321321");
         // /$("#modal-maintenanceType").modal("hide");
+        $('.nakh-name').each(function(index) {
+          try {
+              // Try to destroy - if it's not initialized, this will fail silently
+              
+              
+              if ($(this).attr('data-select2-id')!=undefined) {
+                  console.log('Destroying select2 on element', index);
+                  $(this).select2('destroy');
+              } else {
+                  console.log('Element', index, 'does not have select2');
+              }
+          } catch(e) {
+              console.log('Error destroying select2 on element', index, ':', e);
+          }
+      });
     
 
 

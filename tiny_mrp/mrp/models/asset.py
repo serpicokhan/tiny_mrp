@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+import math
 
 class AssetCategory(models.Model):
     name=models.CharField("نام",max_length = 50)
@@ -269,3 +271,25 @@ class Asset2(models.Model):
       db_table = "assets2"
       ordering = ('assetTavali','assetName' )
 
+# اگر نیاز به مدل خاص Opener دارید (به ارث‌بری)
+class Machine_3d(models.Model):
+
+    machine=models.OneToOneField(Asset, on_delete=models.CASCADE,null=True,blank=True)
+    
+    # موقعیت
+    position_x = models.FloatField(
+        default=0.0,
+        verbose_name="موقعیت X"
+    )
+    
+    position_z = models.FloatField(
+        default=0.0,
+        verbose_name="موقعیت Z"
+    )
+    
+    # چرخش
+    rotation = models.FloatField(
+        default=0.0,
+        validators=[MinValueValidator(-2*math.pi), MaxValueValidator(2*math.pi)],
+        verbose_name="چرخش (رادیان)"
+    )

@@ -308,13 +308,22 @@ class DailyProduction(models.Model):
         return round(result, 2) if not math.isnan(result) else 0.0
     # NEW METHODS FOR OPERATOR MANAGEMENT
     def set_moshakhase(self,moshakhase):
-         if isinstance(moshakhase, str):
+        # if(self.machine.id==6937):
+        print(self.moshakhase,moshakhase,'$$$$$$$$$$$$$$')
+        
+        if isinstance(moshakhase, str):
 
             try:
                 # print(operators_list)
 
 
                 moshakhase = json.loads(moshakhase)
+                if isinstance(moshakhase, str):
+
+                    moshakhase = json.loads(moshakhase)
+
+               
+
                 
                 
 
@@ -323,15 +332,22 @@ class DailyProduction(models.Model):
                     self.moshakhase = None
                     return
                 else:
+
                     self.moshakhase=EntryForm.objects.get(id=int(moshakhase["id"]))
                     return 
                 
                     
 
-            except json.JSONDecodeError:
-                self.operators_data = None
+            except json.JSONDecodeError as ex:
+
+                print(moshakhase,ex,"error!!!!!!!!!!!!!!!")
+
+                self.moshakhase=None
+
+
 
                 return
+        
 
     def set_operators(self, operators_list):
 
