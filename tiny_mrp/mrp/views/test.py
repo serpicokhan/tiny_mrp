@@ -566,27 +566,7 @@ def saveAmarTableInfo(request):
             if i["id"] != "0":
                 # Update existing record
                 d = DailyProduction.objects.filter(id=i["id"])
-            else:
-                try:
-                    if(i["moshakhase"] and i["moshakhase"]!='{}'):
-                        # if(m.id==6937):
-                        #     print(i["moshakhase"],'!!!!!!!!!!!!!!!!!!')
-                        moshakhase=json.loads(i["moshakhase"])
-                        moshakhase=EntryForm.objects.get(id=int(moshakhase["id"]))
-                        
-                    else:
-                        moshakhase=None
-                except:
-                    moshakhase=None
-                # Check for existing record
-                d = DailyProduction.objects.filter(
-                    machine=m,
-                    shift=s,
-                    dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')),moshakhase=moshakhase
-                )
-
-            
-            if d.count() > 0:
+                
                 # Update existing
                 x = d[0]
                 x.machine = m
@@ -641,7 +621,41 @@ def saveAmarTableInfo(request):
                 except IntegrityError:
                     result["error"] = "برای این تاریخ مقدار از قبل وجود دارد!"
             else:
-                # Create new record
+                try:
+                    if(i["moshakhase"] and i["moshakhase"]!='{}'):
+                        
+                        moshakhase=json.loads(i["moshakhase"])
+                        if isinstance(moshakhase, str):
+                            moshakhase=json.loads(moshakhase)
+
+                        moshakhase=EntryForm.objects.get(id=int(moshakhase["id"]))
+                        
+                    else:
+                        moshakhase=None
+                except:
+                    moshakhase=None
+                    print("Exception")
+                # Check for existing record
+                if(m.assetIsLocatedAt.id==7331):
+
+                    d = DailyProduction.objects.filter(
+                        machine=m,
+                        shift=s,
+                        dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-')),moshakhase=moshakhase
+                    )
+                else:
+                    d = DailyProduction.objects.filter(
+                        machine=m,
+                        shift=s,
+                        dayOfIssue=DateJob.getTaskDate(i["dayOfIssue"].replace('/','-'))
+                    ).delete()
+
+
+
+            
+            
+           
+                
 
                 amar = DailyProduction()
                 amar.machine = m
@@ -1317,22 +1331,25 @@ def get_tolid_calendar_info(request):
     ).values_list('dayOfIssue').distinct().order_by('dayOfIssue')
     # print(user_info)
     for i in user_info:
-        if(int(makan)==7331):
-            
+        try:
+            if(int(makan)==7331):
+                
 
-            product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=60,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
+                product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=60,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
 
-        else:
-            product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=4,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
-        z=get_sum_vaz_zayeat_by_date_per_line(i[0],makan)
-        data.append({'title': f"آمار روزانه { round(product_data_tab[0]['total_product'],0)}",\
-                'start': i[0],\
-                 'color': '#53c797',\
-                'id':i[0]})
-        data.append({'title': f"جمع ضایعات روز: {round(z,2)}",\
-                'start': i[0],\
-                 'color': 'red',\
-                'id':i[0]})
+            else:
+                product_data_tab = DailyProduction.objects.filter(dayOfIssue=i[0],machine__assetCategory__id=4,machine__assetIsLocatedAt__id=makan).values('machine__assetCategory').annotate(total_product=Sum('production_value'))
+            z=get_sum_vaz_zayeat_by_date_per_line(i[0],makan)
+            data.append({'title': f"آمار روزانه { round(product_data_tab[0]['total_product'],0)}",\
+                    'start': i[0],\
+                    'color': '#53c797',\
+                    'id':i[0]})
+            data.append({'title': f"جمع ضایعات روز: {round(z,2)}",\
+                    'start': i[0],\
+                    'color': 'red',\
+                    'id':i[0]})
+        except:
+            print(i[0])
 
     return JsonResponse(data,safe=False)
 @csrf_exempt
@@ -1902,6 +1919,7 @@ def list_amar_daily_info(request):
             dayOfIssue=date_object,
             shift=shift
         ).order_by('id')  # یا هر ترتیب دیگری که می‌خواهید
+       
         
         if amars.exists():
             # اگر آمار وجود دارد، همه را اضافه کن

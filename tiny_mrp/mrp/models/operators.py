@@ -21,6 +21,6 @@ class Operator(models.Model):
     def __str__(self):
             return f"{self.FName} {self.LName}"
 
-    @property
-    def full_name(self):
-            return f"{self.FName} {self.LName}"
+#     @property
+#     def full_name(self):
+#             return f"{self.FName} {self.LName}"

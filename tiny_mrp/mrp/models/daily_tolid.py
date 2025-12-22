@@ -297,19 +297,22 @@ class DailyProduction(models.Model):
                 print('error!!!!!!!!!!!')
 
                 return 0.0
+            except Exception as e:
+                print(self.machine.id,self.id,e)
+                return 0
         else:
             try:
                 result = ((production - wastage - qc) * (enzebat / 100.0)) / self.get_operator_count()
             except ZeroDivisionError:
                 print('error!!!!!!!!!!!')
                 return 0.0
+            
 
         # Round to 2 decimal places and handle NaN
         return round(result, 2) if not math.isnan(result) else 0.0
     # NEW METHODS FOR OPERATOR MANAGEMENT
     def set_moshakhase(self,moshakhase):
         # if(self.machine.id==6937):
-        print(self.moshakhase,moshakhase,'$$$$$$$$$$$$$$')
         
         if isinstance(moshakhase, str):
 
