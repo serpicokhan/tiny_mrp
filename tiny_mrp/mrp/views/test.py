@@ -33,15 +33,18 @@ from django.utils import timezone
 def backup_database(request):
     # Define your database credentials and output file's path
    # Define your database credentials and output file's path
-    db_name = 'kth_mrp'
+    db_name = 'mrp581_jason'
+    db_host='services.irn13.chabokan.net'
+    db_port='29113'
+    db_pass='vGxUI7MF1deYW0Vn'
     db_user = 'root'  # Default XAMPP MySQL user
     output_file = 'file102.sql'  # Ensure you use double backslashes on Windows or raw string
 
     # Full path to the mysqldump executable in the XAMPP installation
-    mysqldump_path = 'C:\\xampp\\mysql\\bin\\mysqldump.exe'
+    mysqldump_path = 'mariadb-dump'
 
     # Command to backup MySQL database without a password
-    command = f'"{mysqldump_path}" -u {db_user} {db_name} > {output_file}'
+    command = f'"{mysqldump_path}" -h {db_host} -u {db_user} -p{db_pass} -P {db_port} {db_name} > {output_file}'
 
     try:
         # Execute the command
@@ -566,6 +569,7 @@ def saveAmarTableInfo(request):
             if i["id"] != "0":
                 # Update existing record
                 d = DailyProduction.objects.filter(id=i["id"])
+                
                 
                 # Update existing
                 x = d[0]

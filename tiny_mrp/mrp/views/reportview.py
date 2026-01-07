@@ -31,7 +31,7 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
 from django.views import View
-
+from django.db.models import Sum, Count, Avg
 
 @login_required
 def daily_tolid_with_chart(request):
@@ -47,6 +47,122 @@ class JsonArrayLength(Func):
     template = '%(function)s(%(expressions)s)'
     output_field = models.IntegerField()
 
+
+@login_required
+def daily_tolid_main_main(request):
+    contex={}
+    locations = Asset.objects.filter(assetIsLocatedAt__isnull=True)
+    categories = AssetCategory.objects.all().order_by('priority')
+    shifts = Shift.objects.all()
+
+    # Handle filters from GET request
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    machine_id = request.GET.get('machine_id')
+    category_id = request.GET.get('category_id')
+    shift_id = request.GET.get('shift_id',False)
+    st_date,e_date=False,False
+    collective = request.GET.get("collective", False)
+    profile_id=request.GET.get("profile_id",False)
+    nakh_data=request.GET.get("nakh_data_",False)
+    moshakhase=request.GET.get("moshakhase",False)
+    
+    productions = DailyProduction.objects.filter(production_value__gt=0).select_related(
+        'machine'
+    ).only(
+        'dayOfIssue', 'production_value', 'wastage_value', 'machine__assetName', 'operators_data'
+    ).order_by('-dayOfIssue')
+
+    # Convert date strings using DateJob
+    if start_date:
+        st_date=start_date
+        start_date = DateJob.getTaskDate(start_date)
+        productions = productions.filter(dayOfIssue__gte=start_date)
+    if end_date:
+        e_date=end_date
+        end_date = DateJob.getTaskDate(end_date)
+        productions = productions.filter(dayOfIssue__lte=end_date)
+
+    if( not start_date and not end_date):
+        context = {
+            'makan': locations,
+            'category': categories,
+            'shifts':shifts
+        }
+        return render(request, 'mrp/report/daily_tolid_main_main.html',context)
+        
+    # Apply filters
+    if machine_id and machine_id != '-1':
+        productions = productions.filter(machine__assetIsLocatedAt__id=machine_id)
+    if category_id and category_id != '-1':
+        productions = productions.filter(machine__assetCategory_id=category_id)
+    if shift_id and shift_id != '-1':
+        productions = productions.filter(shift_id=shift_id)
+    if(nakh_data ):
+        print(request.GET.get('nakh_data_'))
+        productions=productions.filter(moshakhase__id=int(json.loads(nakh_data)["id"]))
+    if(moshakhase):
+        productions=productions.filter(moshakhase__id=int(moshakhase))
+
+    # چک کردن حالت تجمعی
+    if collective == "1":
+        # تجمعی بر اساس نوع ماشین و مشخصه
+        productions_aggregated = productions.values(
+            'machine__assetCategory__id',
+            'machine__assetCategory__name',  # نوع ماشین
+            'moshakhase__id',
+            'moshakhase__name'  # عنوان مشخصه
+        ).annotate(
+            total_production=Sum('production_value'),  # میزان تولید
+            total_wastage=Sum('wastage_value'),  # میزان ضایعات
+            average_production=Avg('production_value'),
+            average_wastage=Avg('wastage_value'),
+            count_records=Count('id'),
+            machines_count=Count('machine__id', distinct=True)
+        ).order_by('machine__assetCategory__priority', 'moshakhase__name')
+        paginator = Paginator(productions_aggregated, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
+        # در حالت تجمعی pagination نداریم
+        context = {
+            'makan': locations,
+            'category': categories,
+            'shifts': shifts,
+            'page_obj': page_obj,
+            'collective': 'checked',
+            'is_collective': True,  # برای تشخیص در template
+            'start_date': st_date,
+            'end_date': e_date,
+            'machin_id': int(machine_id) if machine_id and machine_id != '-1' else None,
+            'shift_id': int(shift_id) if shift_id else None,
+            'category_id': int(category_id) if category_id and category_id != '-1' else None,
+            'profile_id': int(profile_id) if profile_id else None,
+            'moshakhase': EntryForm.objects.get(id=json.loads(nakh_data)["id"]) if nakh_data else EntryForm.objects.get(id=moshakhase) if moshakhase else None,
+        }
+    else:
+        # حالت عادی با pagination
+        paginator = Paginator(productions, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
+        context = {
+            'makan': locations,
+            'category': categories,
+            'shifts': shifts,
+            'page_obj': page_obj,
+            'collective': '',
+            'is_collective': False,  # برای تشخیص در template
+            'start_date': st_date,
+            'end_date': e_date,
+            'machin_id': int(machine_id) if machine_id and machine_id != '-1' else None,
+            'shift_id': int(shift_id) if shift_id else None,
+            'category_id': int(category_id) if category_id and category_id != '-1' else None,
+            'profile_id': int(profile_id) if profile_id else None,
+            'moshakhase': EntryForm.objects.get(id=json.loads(nakh_data)["id"]) if nakh_data else EntryForm.objects.get(id=moshakhase) if moshakhase else None,
+        }
+
+    return render(request, 'mrp/report/daily_tolid_main_main.html', context)
 @login_required
 def daily_tolid_main(request):
     # Fetch locations, categories, and shifts
@@ -111,7 +227,6 @@ def daily_tolid_main(request):
         print(request.GET.get('nakh_data_'))
         productions=productions.filter(moshakhase__id=int(json.loads(nakh_data)["id"]))
     if(moshakhase):
-            print("!!!!!!!!!!!!!!!!!!")
             productions=productions.filter(moshakhase__id=int(moshakhase))
 
 

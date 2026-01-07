@@ -59,6 +59,9 @@
           <i data-feather="bar-chart-2"></i>
         </a>
       </li>
+      {% endif %}
+      {% if perms.mrp.can_view_production_schedule %}
+
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="برنامه ریزی تولید" data-nav-target="#apps6">
           <i data-feather="calendar"></i>
@@ -77,7 +80,7 @@
 
       
       
-      {% if perms.mrp.can_operator_mrp %}
+      {% if perms.mrp.can_view_randeman %}
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="راندمان" data-nav-target="#apps2">
           <i data-feather="coffee"></i>
@@ -106,7 +109,7 @@
         </a>
       </li>
       {% endif %}
-      {% if request.user.is_superuser%}
+      {% if perms.mrp.can_view_app_setting%}
       <li>
         <a href="#" data-toggle="tooltip" data-placement="right" title="تنظیمات" data-nav-target="#apps">
           <i data-feather="tool"></i>
@@ -165,23 +168,39 @@
   {% if perms.mrp.can_operator_mrp or perms.mrp.is_supervisor_user %}
       
       <li><a href="{% url 'register_daily_amar' %}">ورود اطلاعات روزانه</a></li>
+      {% if perms.mrp.can_view_daily_amar %}
 
       <li><a href="{% url 'calendar_main' %}">مشاهده آمار روزانه</a></li>
+      {% endif %}
+      {% if perms.mrp.can_view_daily_amar_scroll %}
+
       <li><a href="{% url 'calendar_main_scroll' %}">مشاهده آمار روزانه با اسکرول</a></li>
+      {% endif %}
   {% endif %}
   {% if perms.mrp.can_operator_mrp %}
 
       {% comment %} <li><a href="{% url 'calendar_randeman_brief' %}">راندمان روزانه تولید</a></li> {% endcomment %}
+      {% if perms.mrp.can_view_daily_amar_shift %}
+
        <li><a href="{% url 'calendar_randeman' %}">راندمان روزانه تولید به تفکیک شیفت</a></li> 
+       {% endif %}
+      {% if perms.mrp.can_view_sarane %}
+
       <li><a href="{% url 'monthly_detaild_report_ezami' %}">سرانه تولید</a></li>
+      {% endif %}
       {% comment %} <li><a href="{% url 'calendar_tahlil' %}">تحلیل تولید روزانه</a></li> {% endcomment %}
+      {% if perms.mrp.can_view_mahane %}
+
       <li><a href="{% url 'monthly_detaild_report' %}">آمار تولید ماهانه</a></li>
+      {% endif %}
       {% comment %} <li><a href="{% url 'monthly_brief_report' %}">آمار تولید ماهانه (راندمان)</a></li> {% endcomment %}
       {% comment %} <li><a href="{% url 'asset_failure_list' %}">ثبت آمار توقف {% endcomment %}
       {% comment %} <li><a href="{% url 'calendar_asset_failure' %}">آمار توقف {% endcomment %}
-      </a></li>
+      {% if perms.mrp.can_view_zayeat %}
+      
       <li><a href="{% url 'monthly_zayeat_detaild_report' %}">آمار ضایعات ماهانه
       </a></li>
+      {% endif %}
       {% comment %} <li><a href="{% url 'monthly_detaild_failured_report' %}">مشاهده توقفات ماهانه</a></li> {% endcomment %}
 
   {% endif %}
@@ -190,7 +209,7 @@
     </ul>
   </div>
   {% endif %}
-  {% if request.user.is_superuser%}
+  {% if perms.mrp.can_view_app_setting%}
   <div id="apps">
     <ul>
       <li class="navigation-divider">تنظیمات</li>
@@ -228,12 +247,15 @@
 
         </a>
       </li>
+  {% if perms.mrp.change_entryform %}
+
       <li>
         <a href="{% url 'moshakhase_list' %}">
           <span>مشخصات</span>
 
         </a>
       </li>
+      {% endif %}
    
       
 
@@ -344,12 +366,15 @@
   <div id="apps3">
     <ul>
       <li class="navigation-divider">گزارشات</li>
+    {% if perms.mrp.can_view_report_main %}
+
     <li>
       <a href="{% url 'daily_tolid_main' %}">
         <span>گزارش</span>
 
       </a>
     </li>
+    {% endif %}
     <li>
       <a href="{% url 'graph_index' %}">
         <span>گراف سفارش</span>

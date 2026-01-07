@@ -1,0 +1,362 @@
+{% extends 'mrp/blank-page.html' %}
+{% load static %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
+
+<style>
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+        font-weight: 600;
+    }
+    .summary-card {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+    }
+    .table th {
+        background-color: #f1f5f9;
+    }
+    .waste-rate {
+        font-weight: bold;
+    }
+    .low-waste {
+        color: #28a745;
+    }
+    .medium-waste {
+        color: #ffc107;
+    }
+    .high-waste {
+        color: #dc3545;
+    }
+    .collective-table {
+        background-color: #f8f9fa;
+    }
+    .collective-table th {
+        background-color: #e9ecef;
+        font-weight: bold;
+    }
+</style>
+
+{% endblock %}
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <i class="bi bi-funnel"></i> فیلترهای گزارش
+    </div>
+    <div class="card-body">
+        <form>
+            <!-- Row for Filters -->
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label for="startDate" class="form-label">تاریخ شروع</label>
+                    <input type="text" class="form-control" id="startDate" name="start_date" value="{{start_date}}">
+                </div>
+                <div class="col-md-3">
+                    <label for="endDate" class="form-label">تاریخ پایان</label>
+                    <input type="text" class="form-control" id="endDate" name="end_date" value="{{end_date}}">
+                </div>
+            </div>
+            <!-- Row for Additional Filters -->
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label for="machine" class="form-label">سالن</label>
+                    <select class="form-control" id="machine" name="machine_id">
+                        <option value="-1" selected>همه سالن‌ها</option>
+                        {% for i in makan %}
+                            <option value="{{i.id}}" {% if i.id == machin_id %} selected {% endif %}>{{i.assetName}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="machinecat" class="form-label">دستگاه</label>
+                    <select class="form-control" id="machinecat" name="category_id">
+                        <option value="-1" selected>همه دستگاه‌ها</option>
+                        {% for i in category %}
+                            <option value="{{i.id}}" {% if i.id == category_id %} selected {% endif %}>{{i.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="shift" class="form-label">شیفت</label>
+                    <select class="form-control" id="shift" name="shift_id">
+                        <option value="-1" selected>همه شیفت‌ها</option>
+                        {% for i in shifts %}
+                            <option value="{{i.id}}" {% if i.id == shift_id %} selected {% endif %}>{{i.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="moshakhase" class="form-label">کد نخ</label>
+                    <select class="form-control nakh-name" id="moshakhase"
+                            data-machine-id="{{c.machine.id}}"
+                            style="width: 100%;">
+                           <option value="{{moshakhase.id}}">{{moshakhase}}</option>
+                    </select>
+                    <input type="hidden" class="nakh-data" name="nakh_data_"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-group w-100">
+                        <div class="custom-control custom-switch mb-3">
+                            <input type="checkbox" class="custom-control-input" id="customSwitch1" name="collective" value="1" {{collective}}>
+                            <label class="custom-control-label" for="customSwitch1">ایجاد گزارش به صورت تجمعی</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 justify-content-center">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-filter-circle"></i> اعمال فیلترها
+                    </button>
+                </div>
+                <div class="col-md-3 justify-content-center">
+                    <a href="{% url 'production_report_excel' %}?{{ request.GET.urlencode }}" 
+                       class="btn btn-success">
+                        <i class="bi bi-file-earmark-excel"></i> خروجی اکسل
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- جدول گزارش -->
+<div class="card mt-4">
+    <div class="card-header bg-success text-white">
+        <i class="bi bi-table"></i> گزارش تولید و ضایعات
+        {% if is_collective %}
+        <span class="badge badge-light mr-2">گزارش تجمعی</span>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            {% if is_collective %}
+                <!-- جدول تجمعی -->
+                <table class="table table-hover table-striped collective-table">
+                    <thead>
+                        <tr>
+                            <th>ردیف</th>
+                            <th>نوع ماشین</th>
+                            <th>مشخصه</th>
+                            <th>مجموع تولید</th>
+                            <th>مجموع ضایعات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prod in page_obj %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ prod.machine__assetCategory__name }}</strong></td>
+                            <td>{{ prod.moshakhase__name|default:"بدون مشخصه" }}</td>
+                            <td class="text-success"><strong>{{ prod.total_production|floatformat:2 }}</strong></td>
+                            <td class="text-danger"><strong>{{ prod.total_wastage|floatformat:2 }}</strong></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center">داده‌ای یافت نشد</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <!-- جدول معمولی -->
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>تاریخ</th>
+                            <th>دستگاه</th>
+                            <th>کد نخ</th>
+                            <th>تولید</th>
+                            <th>تعداد ضایعات</th>
+                            <th>نرخ ضایعات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in page_obj %}
+                        <tr>
+                            <td>{{i.get_jalali_dayOfIssue_created}}</td>
+                            <td>{{i.machine}}</td>
+                            <td>{{i.moshakhase}}</td>
+                            <td>{{i.production_value|floatformat:0}}</td>
+                            <td>{{i.wastage_value}}</td>
+                            <td><span class="waste-rate low-waste">{{i.wastage_rate|floatformat:0}}%</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">داده‌ای یافت نشد</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+
+            {% endif %}
+                            <!-- صفحه‌بندی -->
+                            {% if page_obj.has_other_pages %}
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.shift_id %}&shift_id={{ request.GET.shift_id }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}{% if request.GET.nakh_data_ or request.GET.moshakhase %}&moshakhase={{ moshakhase.id }}{% endif %}" aria-label="Previous">
+                                                <span aria-hidden="true">قبلی</span>
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" aria-label="Previous">
+                                                <span aria-hidden="true">قبلی</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                            <li class="page-item active" aria-current="page">
+                                                <a class="page-link" href="#">{{ num }}</a>
+                                            </li>
+                                        {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.shift_id %}&shift_id={{ request.GET.shift_id }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}{% if request.GET.nakh_data_ or request.GET.moshakhase %}&moshakhase={{ moshakhase.id }}{% endif %}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.machine_id %}&machine_id={{ request.GET.machine_id }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}{% if request.GET.shift_id %}&shift_id={{ request.GET.shift_id }}{% endif %}{% if request.GET.collective %}&collective={{ request.GET.collective }}{% endif %}{% if request.GET.nakh_data_ or request.GET.moshakhase %}&moshakhase={{ moshakhase.id }}{% endif %}" aria-label="Next">
+                                                <span aria-hidden="true">بعدی</span>
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" aria-label="Next">
+                                                <span aria-hidden="true">بعدی</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block javascript %}
+<!-- Chartjs -->
+<script src="{% static 'vendors/charts/chartjs/chart.min.js' %}"></script>
+<!-- Apex chart -->
+<script src="{% static 'vendors/charts/apex/apexcharts.min.js' %}"></script>
+<!-- Circle progress -->
+<script src="{% static 'vendors/circle-progress/circle-progress.min.js' %}"></script>
+<script src="{% static 'vendors/select2/js/select2.min.js' %}"></script>
+
+<script>
+    $(document).ready(function(){
+        $('#startDate,#endDate').pDatepicker({
+            format: 'YYYY-MM-DD',
+            autoClose: true,
+            initialValueType: 'gregorian',
+            calendar:{
+                persian: {
+                    leapYearMode: 'astronomical'
+                }
+            }
+        });
+        
+        initiate_code_nakh();
+        
+        function initiate_code_nakh(){
+            $('.nakh-name').select2({
+                dropdownParent: $('body'),
+                ajax: {
+                    url: '/api/moshakhase/search/',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            q: params.term,
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function (data, params) {
+                        params.page = params.page || 1;
+                        
+                        return {
+                            results: data.results.map(function(item) {
+                                return {
+                                    id: item.id,
+                                    text: item.name + ' (' + item.color_name + ')',
+                                    name: item.name,
+                                    color_id: item.color_id,
+                                    color_name: item.color_name,
+                                    tool: item.tool,
+                                    la: item.la
+                                };
+                            }),
+                            pagination: {
+                                more: data.has_more
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 2,
+                language: {
+                    inputTooShort: function () {
+                        return "حداقل 2 کاراکتر وارد کنید";
+                    },
+                    searching: function () {
+                        return "در حال جستجو...";
+                    },
+                    noResults: function () {
+                        return "نتیجه‌ای یافت نشد";
+                    },
+                    errorLoading: function () {
+                        return "خطا در بارگذاری نتایج";
+                    }
+                },
+                dir: "rtl"
+            });
+            
+            $('.nakh-name').on('select2:select', function (e) {
+                var data = e.params.data;
+                var $row = $(this).closest('div');    
+                updateOperatorHiddenFields2($row);    
+            });
+            
+            $('.nakh-name').on('select2:unselect', function (e) {
+                var data = e.params.data;
+                var $row = $(this).closest('div');
+                updateOperatorHiddenFields2($row);
+            });
+            
+            $('.nakh-name').on('select2:clear', function (e) {
+                var $row = $(this).closest('div');
+                $row.find('.nakh-data').val('');
+            });
+        }
+        
+        function updateOperatorHiddenFields2($row) {
+            var selectedOperators = $row.find('.nakh-name').select2('data')[0];
+            
+            if(selectedOperators) {
+                var updatedOperators = {
+                    id: selectedOperators.id,
+                    text: selectedOperators.name + ' (' + selectedOperators.color_name + ')',
+                    name: selectedOperators.name,
+                    color_id: selectedOperators.color_id,
+                    color_name: selectedOperators.color_name,
+                    tool: selectedOperators.tool,
+                    la: selectedOperators.la
+                };
+                
+                $row.find('.nakh-data').val(JSON.stringify(updatedOperators));
+            }
+        }
+    });
+</script>
+
+{% endblock %}

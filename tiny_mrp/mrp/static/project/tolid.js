@@ -486,7 +486,8 @@ $("#save_production").click(function(){
           data: function (params) {
               return {
                   q: params.term, // search term
-                  page: params.page || 1
+                  page: params.page || 1,
+                  page_type:'1'
               };
           },
           processResults: function (data, params) {

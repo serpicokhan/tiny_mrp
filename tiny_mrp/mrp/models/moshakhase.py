@@ -15,6 +15,7 @@ class EntryForm(models.Model):
     name = models.CharField("نام",max_length=100, unique=True)  # Added unique=True
     tool = models.IntegerField("طول",null=True, blank=True)     # Made optional
     la = models.IntegerField("لا",null=True, blank=True)       # Made optional
+    active = models.BooleanField("فعال",null=True, blank=True)       # Made optional
 
     def __str__(self):
         tool_display = self.tool if self.tool is not None else "?"

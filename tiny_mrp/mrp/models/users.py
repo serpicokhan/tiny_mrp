@@ -78,6 +78,18 @@ class SysUser(models.Model):
             ("can_view_purchase_history","user can see part purchse history"),
             ("can_change_dailyproduction","user can edit daily production"),
             ("can_view_tavaghofat","user can view daily tavaghofat"),
+            ("can_view_report_main","user can view report main"),
+            ("can_view_report_main_main","user can view report main main"),
+            ("can_view_daily_amar","user can view daily amar"),
+            ("can_view_daily_amar_scroll","user can view daily amar scroll"),
+            ("can_view_daily_amar_shift","user can view daily amar shift"),
+            ("can_view_sarane","user can view sarane"),
+            ("can_view_mahane","user can view mahane amar"),
+            ("can_view_zayeat","user can view zayeat mahane amar"),
+            ("can_view_randeman","user can view randeman mrp"),
+            ("can_view_production_schedule","user can view mrp scheduling"),
+            ("can_view_app_setting","user can view app setting"),
+            # ("can_change_app_setting","user can view app setting"),
 
 
         ]

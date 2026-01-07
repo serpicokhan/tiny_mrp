@@ -93,6 +93,8 @@ class DailyProduction(models.Model):
     #     blank=True,
     #     verbose_name='اپراتورها'
     # )
+    def get_jalali_dayOfIssue_created(self):
+        return jdatetime.date.fromgregorian(date=self.dayOfIssue)
     def save(self, *args, **kwargs):
         # ذخیره وضعیت قبلی قبل از save
         if self.pk:

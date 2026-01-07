@@ -47,7 +47,7 @@ class EntryFormAdmin(admin.ModelAdmin):
     # For the EntryForm model
     list_display = ('name', 'color', 'tool', 'la', 'display_info')
     search_fields = ('name', 'color__name', 'tool', 'la')  # Search by name, color name, tool, or la
-    list_filter = ('color',)       # Filter by color
+    list_filter = ('active',)       # Filter by color
     ordering = ('name',)           # Default ordering
     
     def display_info(self, obj):

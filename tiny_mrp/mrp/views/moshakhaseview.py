@@ -23,9 +23,12 @@ class MoshakhaseSearchView(View):
     AJAX endpoint for searching operators with pagination
     """
     def get(self, request):
+        print("!!!!!!!!!!!!!!!!!!")
         search_term = request.GET.get('q', '')
-        print(search_term)
+        
+
         page = int(request.GET.get('page', 1))
+        page_type = int(request.GET.get('page_type', 0))
         per_page = 20  # Number of results per page
         
         # Build search query using your model fields
@@ -36,7 +39,8 @@ class MoshakhaseSearchView(View):
             )
         else:
             operators = EntryForm.objects.all().order_by('name', 'color__name')
-        
+        if(page_type==1):
+            operators=operators.filter(active=1)
         # Paginate results
         paginator = Paginator(operators, per_page)
         page_obj = paginator.get_page(page)
@@ -122,6 +126,7 @@ def moshakhase_delete(request, pk):
     return JsonResponse(data)
 def search_moshakhase(request):
     query = request.GET.get('q', '')
+    active_items = request.GET.get('active', 0)
     results = EntryForm.objects.all()
     
     if query:
@@ -143,6 +148,8 @@ def search_moshakhase(request):
             search_filter |= Q(la=int(query))
             
         results = results.filter(search_filter)
+    if(active_items=='1'):
+        results=results.filter(active=True)
     
     # Add pagination if needed (using the same pattern as your original view)
     # paginator = Paginator(results, 20)
@@ -153,7 +160,8 @@ def search_moshakhase(request):
     context = {
         'wo': results,
         'q': query,
-        'title': 'نتایج جستجو'
+        'title': 'نتایج جستجو',
+        'active':active_items
     }
     
     return render(request, 'mrp/moshakhase/moshakhase_list.html', context)
